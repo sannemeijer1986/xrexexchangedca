@@ -1628,8 +1628,18 @@ html[data-active-tab=finance] .app-header__tabs {
   position: sticky;
   top: 0px;
   z-index: 4;
-  padding: 24px 0px 16px 0px;
+  padding: 24px 0px 0px 0px;
   background: #0D0E0F;
+}
+.finance__section-nav-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -16px;
+  height: 16px;
+  background: linear-gradient(to bottom, rgb(13, 14, 15), rgba(13, 14, 15, 0));
+  pointer-events: none;
 }
 
 .finance__section-nav-item {
@@ -1658,7 +1668,7 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance__body {
-  margin-top: 12px;
+  margin-top: 32px;
 }
 
 .support__card {
