@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="auth/auth-config.js"></script>
+    <script src="auth/auth-gate.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0D0E0F">
+    <title>iOS Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Sora:wght@600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+    <div class="phone-container">
+        <div class="top-chrome">
+            <!-- iOS 17 Status bar -->
+            <div class="status-bar safe-area-top">
+                <div class="status-bar__left">
+                    <span>9:41</span>
+                </div>
+                <div class="status-bar__right">
+                    <img class="status-bar__icons" src="assets/icons_statusbar.svg" alt="Status icons" />
+                </div>
+            </div>
+
+            <header class="app-header">
+                <div class="app-header__logo-wrap" aria-label="XREX">
+                    <img class="app-header__logo-img app-header__logo-img--nolabel" src="assets/logo_nolabel.svg" alt="" />
+                    <img class="app-header__logo-img app-header__logo-img--label" src="assets/logo_label.svg" alt="" />
+                </div>
+                <div class="app-header__actions">
+                    <button class="app-header__icon" type="button" aria-label="Menu">
+                        <img src="assets/icon_navbar_all.svg" alt="" />
+                    </button>
+                    <button class="app-header__avatar" type="button" aria-label="Profile" data-menu-trigger>
+                        <img src="assets/icon_navbar_user.png" alt="User profile" />
+                    </button>
+                </div>
+            </header>
+        </div>
+
+        <div class="side-menu-overlay" aria-hidden="true">
+            <button class="side-menu__backdrop" type="button" data-menu-close aria-label="Close menu"></button>
+            <aside class="side-menu" role="dialog" aria-modal="true" aria-label="Side menu">
+                <div class="side-menu__panel">
+                    <div class="side-menu__top">
+                        <button class="side-menu__icon-btn" type="button" data-menu-close aria-label="Close menu">
+                            <img class="side-menu__icon-img" src="assets/icon_close.svg" alt="" />
+                        </button>
+                        <button class="side-menu__icon-btn" type="button" aria-label="Show QR code">
+                            <img class="side-menu__icon-img" src="assets/icon_qrcode.svg" alt="" />
+                        </button>
+                    </div>
+
+                    <div class="side-menu__content">
+                        <button class="side-menu__profile" type="button" aria-label="Profile details">
+                            <img class="side-menu__profile-avatar" src="assets/icon_navbar_user.png" alt="" />
+                            <div class="side-menu__profile-text">
+                                <div class="side-menu__profile-name">Athena Garcia</div>
+                                <div class="side-menu__profile-handle">@ATHENAGARCIA</div>
+                            </div>
+                            <img class="side-menu__profile-chevron" src="assets/icon_back.svg" alt="" />
+                        </button>
+                        <div class="side-menu__cards">
+                            <div class="side-menu__card">
+                                <img class="side-menu__avatar" src="assets/avatar_club.png" alt="" />
+                                <div class="side-menu__card-label">Club</div>
+                                <div class="side-menu__card-title">XREXer</div>
+                            </div>
+                            <div class="side-menu__card">
+                                <img class="side-menu__card-icon" src="assets/icon_referrals.svg" alt="" />
+                                <div class="side-menu__card-title">Referrals</div>
+                            </div>
+                            <div class="side-menu__card">
+                                <img class="side-menu__card-icon" src="assets/icon_support_sidemenu.svg" alt="" />
+                                <div class="side-menu__card-title">Support</div>
+                            </div>
+                        </div>
+
+                        <div class="side-menu__section-label">Account</div>
+                        <div class="side-menu__list">
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_users.svg" alt="" />
+                                <span class="side-menu__item-text">Account &amp; Security</span>
+                            </div>
+                            <div class="side-menu__item" data-setup-open>
+                                <img class="side-menu__item-icon" src="assets/icon_checklist.svg" alt="" />
+                                <span class="side-menu__item-text">Account checklist</span>
+                                <span class="side-menu__item-meta" data-setup-status>Action required</span>
+                            </div>
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_bankaccounts.svg" alt="" />
+                                <span class="side-menu__item-text">Bank accounts</span>
+                            </div>
+                            <div class="side-menu__item" data-limits-open>
+                                <img class="side-menu__item-icon" src="assets/icon_limits.svg" alt="" />
+                                <span class="side-menu__item-text">Limits</span>
+                            </div>
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_discountlevel.svg" alt="" />
+                                <span class="side-menu__item-text">Discount level</span>
+                            </div>
+                        </div>
+
+                        <div class="side-menu__banner">
+                            <span class="side-menu__banner-text">Refer and earn 20% trading fees</span>
+                            <img class="side-menu__banner-illu" src="assets/illu_banner.svg" alt="" />
+                        </div>
+
+                        <div class="side-menu__section-label">Others</div>
+                        <div class="side-menu__list">
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_settings.svg" alt="" />
+                                <span class="side-menu__item-text">Settings</span>
+                            </div>
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_supportguide.svg" alt="" />
+                                <span class="side-menu__item-text">Support guide</span>
+                            </div>
+                            <div class="side-menu__item">
+                                <img class="side-menu__item-icon" src="assets/icon_xrexcommunity.svg" alt="" />
+                                <span class="side-menu__item-text">XREX Community</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div class="content content--home">
+            <div class="content-inner safe-area-bottom">
+                <section class="setup-state" data-setup-state>
+                    <div class="setup-state__first-time" data-setup-first-time>
+                        <div class="setup-first__hero" data-setup-hero></div>
+                        <div class="setup-first__title" data-setup-card-title>Just a few steps to<br />unlock the best of XREX!</div>
+                        <div class="setup-first__subtitle" data-setup-card-subtitle hidden>Typically takes 1-2 business days</div>
+                        <div class="setup-first__progress" data-setup-progress>
+                            <div class="setup-first__steps">
+                                <div class="setup-first__step is-done" data-setup-step="sign-up">
+                                    <div class="setup-first__node">
+                                        <span class="setup-first__rail setup-first__rail--left"></span>
+                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_completed.svg" alt="" />
+                                        <span class="setup-first__rail setup-first__rail--right"></span>
+                                    </div>
+                                    <span class="setup-first__label">Sign up</span>
+                                </div>
+                                <div class="setup-first__step is-current" data-setup-step="next-steps">
+                                    <div class="setup-first__node">
+                                        <span class="setup-first__rail setup-first__rail--left"></span>
+                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_active.svg" alt="" />
+                                        <span class="setup-first__rail setup-first__rail--right"></span>
+                                    </div>
+                                    <span class="setup-first__label">Next steps</span>
+                                </div>
+                                <div class="setup-first__step" data-setup-step="final">
+                                    <div class="setup-first__node">
+                                        <span class="setup-first__rail setup-first__rail--left"></span>
+                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_upcoming.svg" alt="" />
+                                        <span class="setup-first__rail setup-first__rail--right"></span>
+                                    </div>
+                                    <span class="setup-first__label" data-setup-step-final>Trade</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setup-first__buttons" data-setup-buttons>
+                            <button class="setup-first__button is-secondary" type="button" data-setup-btn-secondary data-setup-open>View checklist</button>
+                            <button class="setup-first__button is-primary" type="button" data-setup-cta data-setup-btn-primary data-setup-open>Get started</button>
+                        </div>
+                    </div>
+                    <div class="setup-state__title" data-setup-title>First time content</div>
+                </section>
+                <section class="asset-card">
+                    <div class="asset-card__label">
+                        <span>Net assets ≈</span>
+                        <img src="assets/icon_eye.svg" alt="" class="asset-card__eye" />
+                    </div>
+                    <div class="asset-card__value">14,580.00 USD</div>
+                    <div class="asset-card__actions">
+                        <button class="asset-btn asset-btn--primary" type="button">Go deposit</button>
+                        <button class="asset-btn asset-btn--secondary" type="button">Convert</button>
+                    </div>
+                </section>
+
+                <section class="explore">
+                    <div class="section-title">Explore</div>
+                    <div class="explore__grid">
+                        <div class="explore-card">
+                            <img class="explore-card__image" src="assets/img_bannerplaceholder.png" alt="" />
+                            <div class="explore-card__content">
+                                <div class="explore-card__tag">Strategy guide for beginners</div>
+                                <div class="explore-card__title">Master the market with these trading strategies!</div>
+                            </div>
+                            <div class="explore-card__progress">
+                                <span class="is-active"></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="explore-side">
+                            <div class="explore-side__card">
+                                <div class="explore-side__icon">
+                                    <img src="assets/icon_trade.svg" alt="" />
+                                </div>
+                                <div class="explore-side__title">Trade Now</div>
+                                <div class="explore-side__desc">A wide range of trading tools</div>
+                            </div>
+                            <div class="explore-side__card">
+                                <div class="explore-side__icon explore-side__icon--btc">
+                                    <img src="assets/icon_currency_btc.svg" alt="" />
+                                </div>
+                                <div class="explore-side__title">BTC grid</div>
+                                <div class="explore-side__desc">Auto buy low, sell high.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="markets">
+                    <div class="section-title">Markets today</div>
+                    <div class="markets__tabs">
+                        <button class="tab is-active is-star" type="button">
+                            <img src="assets/icon_favorite_active.svg" alt="" />
+                        </button>
+                        <button class="tab" type="button">Spotlight</button>
+                        <button class="tab" type="button">Gainers</button>
+                        <button class="tab" type="button">Losers</button>
+                        <button class="tab" type="button">New</button>
+                        <button class="tab" type="button">Categories</button>
+                    </div>
+                    <div class="markets__list">
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_btc.svg" alt="BTC" />
+                                <div>
+                                    <div class="market-row__symbol">BTC<span>/USDT</span></div>
+                                    <div class="market-row__name">Bitcoin</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">89,292.99</div>
+                                <div class="market-row__sub">≈ 89,292.99 USD</div>
+                            </div>
+                            <div class="market-row__change is-up">
+                                <img class="market-row__trend" src="assets/chart_green.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_northeast_arrow.svg" alt="" />
+                                    <span>1.09%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_eth.svg" alt="ETH" />
+                                <div>
+                                    <div class="market-row__symbol">ETH<span>/USDT</span></div>
+                                    <div class="market-row__name">Ethereum</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">3,012.68</div>
+                                <div class="market-row__sub">≈ 3,012.68 USD</div>
+                            </div>
+                            <div class="market-row__change is-up">
+                                <img class="market-row__trend" src="assets/chart_green.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_northeast_arrow.svg" alt="" />
+                                    <span>2.79%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_xrp.svg" alt="XRP" />
+                                <div>
+                                    <div class="market-row__symbol">XRP<span>/USDT</span></div>
+                                    <div class="market-row__name">Ripple</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">1.91817</div>
+                                <div class="market-row__sub">≈ 1.91 USD</div>
+                            </div>
+                            <div class="market-row__change is-up">
+                                <img class="market-row__trend" src="assets/chart_green.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_northeast_arrow.svg" alt="" />
+                                    <span>0.08%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_link.svg" alt="LINK" />
+                                <div>
+                                    <div class="market-row__symbol">LINK<span>/USDT</span></div>
+                                    <div class="market-row__name">Chainlink</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">11.95</div>
+                                <div class="market-row__sub">≈ 11.95 USD</div>
+                            </div>
+                            <div class="market-row__change is-down">
+                                <img class="market-row__trend" src="assets/chart_red.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_southeast_arrow.svg" alt="" />
+                                    <span>0.08%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_xaut.svg" alt="XAUT" />
+                                <div>
+                                    <div class="market-row__symbol">XAUT<span>/USDT</span></div>
+                                    <div class="market-row__name">Tether Gold</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">5,267.27</div>
+                                <div class="market-row__sub">≈ 5,267.27 USD</div>
+                            </div>
+                            <div class="market-row__change is-up">
+                                <img class="market-row__trend" src="assets/chart_green.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_northeast_arrow.svg" alt="" />
+                                    <span>3.68%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="market-row">
+                            <div class="market-row__left">
+                                <img src="assets/icon_currency_usdt.svg" alt="USDT" />
+                                <div>
+                                    <div class="market-row__symbol">USDT<span>/TWD</span></div>
+                                    <div class="market-row__name">USD Tether</div>
+                                </div>
+                            </div>
+                            <div class="market-row__mid">
+                                <div class="market-row__price">31.3113</div>
+                                <div class="market-row__sub">≈ 1.00 USD</div>
+                            </div>
+                            <div class="market-row__change is-down">
+                                <img class="market-row__trend" src="assets/chart_red.svg" alt="" />
+                                <div class="market-row__percent">
+                                    <img src="assets/icon_southeast_arrow.svg" alt="" />
+                                    <span>0.51%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="markets__cta" type="button">Show all Favorites</button>
+                </section>
+
+                <section class="support">
+                    <div class="section-title">Support</div>
+                    <div class="support__card">
+                        <img src="assets/icon_support.svg" alt="" />
+                        <span class="support__text">What would you like to do today?</span>
+                        <img class="support__chevron" src="assets/icon_back.svg" alt="" />
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <nav class="tabbar" aria-label="Bottom">
+            <button class="tabbar__item is-active" type="button">
+                <img src="assets/icon_tabbar_home_active.svg" alt="" />
+                <span>Home</span>
+            </button>
+            <button class="tabbar__item" type="button">
+                <img src="assets/icon_tabbar_markets_inactive.svg" alt="" />
+                <span>Market</span>
+            </button>
+            <button class="tabbar__item tabbar__item--trade" type="button">
+                <span>Trade</span>
+            </button>
+            <button class="tabbar__item" type="button">
+                <img src="assets/icon_tabbar_finance_inactive.svg" alt="" />
+                <span>Finance</span>
+            </button>
+            <button class="tabbar__item" type="button">
+                <img src="assets/icon_tabbar_wallet_inactive.svg" alt="" />
+                <span>Wallet</span>
+            </button>
+            <button class="tabbar__fab" type="button" aria-label="Trade">
+                <img src="assets/icon_tabbar_trade_inactive.svg" alt="" />
+            </button>
+        </nav>
+
+        <section class="setup-checklist" data-setup-checklist hidden>
+            <div class="setup-checklist__header">
+                <button class="setup-checklist__icon-btn" type="button" data-setup-close aria-label="Close setup checklist">
+                    <img src="assets/icon_back.svg" alt="" />
+                </button>
+                <div class="setup-checklist__title">Account checklist</div>
+                <button class="setup-checklist__icon-btn" type="button" aria-label="Support">
+                    <img src="assets/icon_contactsupport.svg" alt="" />
+                </button>
+            </div>
+            <div class="setup-checklist__body">
+                <div class="setup-checklist__card">
+                    <div class="setup-checklist__avatar-ring" data-checklist-ring>
+                        <div class="setup-checklist__avatar">
+                            <img src="assets/icon_navbar_user.png" alt="" />
+                        </div>
+                    </div>
+                    <div class="setup-checklist__card-titlewrapper">
+                        <div class="setup-checklist__card-title" data-checklist-title>Unlock trading</div>
+                        <div class="setup-checklist__card-subtitle" data-checklist-steps>4 steps to go</div>
+                        <div class="setup-checklist__card-subtitle-secondary" data-checklist-steps-sub hidden>Typically takes 1-2 business days</div>
+                        <a class="setup-checklist__edd-continue-link" href="#" data-checklist-edd-continue hidden>I’ve finished the email instructions, continue</a>
+                    </div>
+                    <button class="setup-checklist__cta" type="button" data-checklist-cta>Continue to next step</button>
+                    <div class="setup-checklist__cta-note" data-checklist-cta-note hidden>
+                        We're reviewing your application
+                        <div class="setup-checklist__cta-note-sub">Typically takes 1-2 business days</div>
+                    </div>
+                </div>
+                <div class="setup-checklist__content">
+                    <div class="setup-checklist__alert-wrap">
+                        <div class="setup-checklist__alert alert_info" data-checklist-review-alert hidden>We're reviewing your application, this typically takes 1-2 business days.</div>
+                    </div>
+                    <div class="setup-checklist__alert-wrap">
+                        <div class="setup-checklist__alert Alert_success" data-checklist-success-alert hidden>You've unlocked trading and many more XREX features!</div>
+                    </div>
+                    <div class="setup-checklist__alert-wrap">
+                        <div class="setup-checklist__alert Alert_negative" data-checklist-rejected-alert hidden>We are unable to verify your application as it did not satisfy our regulatory requirements.</div>
+                    </div>
+                    <div class="setup-checklist__section-title">Next steps</div>
+                    <div class="setup-checklist__list">
+                        <div class="setup-checklist__item is-complete" data-checklist-item="signup" data-nonclickable="true">
+                            <div class="setup-checklist__item-icon setup-checklist__item-icon--transparent">
+                                <img class="setup-checklist__item-status" src="assets/icon_timeline_completed.svg" alt="" />
+                            </div>
+                            <div class="setup-checklist__item-content">
+                                <div class="setup-checklist__item-title">Sign up</div>
+                                <div class="setup-checklist__item-status-label setup-checklist__item-status-label--success">Completed</div>
+                            </div>
+                            <span class="setup-checklist__item-tag" data-checklist-tag>Personal account</span>
+                        </div>
+                    <div class="setup-checklist__item" data-checklist-item="basic" data-checklist-item-action>
+                        <div class="setup-checklist__item-icon">
+                            <img src="assets/icon-checklist-basicprofile.svg" alt="" data-checklist-icon />
+                            </div>
+                            <div class="setup-checklist__item-content">
+                        <div class="setup-checklist__item-title">Basic information</div>
+                                <div class="setup-checklist__item-meta">A few questions about how you’ll use your account.</div>
+                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
+                            </div>
+                        <button class="setup-checklist__item-action" type="button" aria-label="Go to basic information" data-checklist-action>
+                            <img src="assets/icon-checklist-continue.svg" alt="" />
+                            </button>
+                        </div>
+                    <div class="setup-checklist__item" data-checklist-item="identity" data-checklist-item-action>
+                        <div class="setup-checklist__item-icon">
+                            <img src="assets/icon-checklist-identityverification.svg" alt="" data-checklist-icon />
+                            </div>
+                            <div class="setup-checklist__item-content">
+                                <div class="setup-checklist__item-title">Proof of identity</div>
+                                <div class="setup-checklist__item-meta">Your ID and a short selfie check to confirm it’s you.</div>
+                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
+                            </div>
+                        <button class="setup-checklist__item-action" type="button" aria-label="Go to proof of identity" data-checklist-action>
+                            <img src="assets/icon-checklist-continue.svg" alt="" />
+                            </button>
+                        </div>
+                        <div class="setup-checklist__item is-disabled" data-checklist-item="questionnaire" data-checklist-item-action hidden>
+                            <div class="setup-checklist__item-icon">
+                                <img src="assets/icon-checklist-kycquestionaire.svg" alt="" data-checklist-icon />
+                            </div>
+                            <div class="setup-checklist__item-content">
+                                <div class="setup-checklist__item-title">Additional information</div>
+                                <div class="setup-checklist__item-meta" data-checklist-meta></div>
+                                <div class="setup-checklist__item-status-label setup-checklist__item-status-label--warning" data-checklist-status></div>
+                            </div>
+                            <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to Additional information" disabled data-checklist-action>
+                                <img src="assets/icon-checklist-continue.svg" alt="" />
+                            </button>
+                            <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-questionnaire-secondary hidden>Resend</button>
+                        </div>
+                        <div class="setup-checklist__item is-disabled" data-checklist-item="bank" data-checklist-item-action>
+                             <div class="setup-checklist__item-icon">
+                                 <img src="assets/icon_bankaccounts.svg" alt="" data-checklist-icon />
+                            </div>
+                            <div class="setup-checklist__item-content">
+                                <div class="setup-checklist__item-title">Add bank</div>
+                                <div class="setup-checklist__item-meta">Link at least one bank account to use USD-TWD fiat services</div>
+                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
+                            </div>
+                            <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to add bank" disabled data-checklist-action>
+                                <img src="assets/icon-checklist-continue.svg" alt="" />
+                            </button>
+                            <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-secondary hidden>View</button>
+                        </div>
+                        <div class="setup-checklist__item is-disabled" data-checklist-item="deposit" data-checklist-item-action>
+                            <div class="setup-checklist__item-icon">
+                                <img src="assets/icon-checklist-deposit.svg" alt="" data-checklist-icon />
+                           </div>
+                           <div class="setup-checklist__item-content">
+                               <div class="setup-checklist__item-title">First deposit</div>
+                               <div class="setup-checklist__item-meta">Add funds to start trading your first Crypto.</div>
+                               <div class="setup-checklist__item-status-label" data-checklist-status></div>
+                           </div>
+                           <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to deposit" disabled data-checklist-action>
+                               <img src="assets/icon-checklist-continue.svg" alt="" />
+                           </button>
+                           <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-deposit-secondary hidden>Deposit again</button>
+                       </div>
+                    </div>
+
+                    <div class="setup-checklist__cs-card">
+                        <div class="setup-checklist__cs-illu">
+                            <img src="assets/checklist_cs_illu.svg" alt="Customer support" />
+                        </div>
+                        <div class="setup-checklist__cs-content">
+                            <div class="setup-checklist__cs-title">Our support team is ready to help!</div>
+                            <button class="setup-checklist__cs-button" type="button">Contact support</button>
+                            <div class="setup-checklist__cs-caption">
+                                Your data is protected.
+                                <button type="button" class="setup-checklist__cs-link">Learn more</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="limits-panel" data-limits-panel hidden>
+            <div class="limits-panel__header">
+                <button class="limits-panel__icon-btn" type="button" data-limits-close aria-label="Back">
+                    <img src="assets/icon_back.svg" alt="" />
+                </button>
+                <div class="limits-panel__title">Limits</div>
+                <button class="limits-panel__icon-btn" type="button" aria-label="Support">
+                    <img src="assets/icon_contactsupport.svg" alt="" />
+                </button>
+            </div>
+            <div class="limits-panel__body">
+                <div class="limits-panel__section-label">Account type</div>
+                <div class="limits-panel__account-type">
+                    <span>Personal</span>
+                    <button class="limits-panel__link" type="button">(Basic limits)</button>
+                </div>
+                <div class="limits-panel__card">
+                    <div class="limits-panel__tabs">
+                        <button class="limits-panel__tab is-active" type="button">Crypto</button>
+                        <button class="limits-panel__tab" type="button">TWD</button>
+                        <button class="limits-panel__tab" type="button">USD</button>
+                    </div>
+                    <div class="limits-panel__card-title">Deposit</div>
+                    <div class="limits-panel__row">
+                        <span>Single</span>
+                        <span>{$value}</span>
+                    </div>
+                    <div class="limits-panel__row">
+                        <span>Daily</span>
+                        <span>{$value}</span>
+                    </div>
+                    <div class="limits-panel__row">
+                        <span>Monthly</span>
+                        <span>{$value}</span>
+                    </div>
+                    <!-- <div class="limits-panel__divider"></div> -->
+                    <div class="limits-panel__card-title">Withdrawal</div>
+                    <div class="limits-panel__row">
+                        <span>Single</span>
+                        <span>{$value}</span>
+                    </div>
+                    <div class="limits-panel__row">
+                        <span>Daily</span>
+                        <span>{$value}</span>
+                    </div>
+                    <div class="limits-panel__row">
+                        <span>Monthly</span>
+                        <span>{$value}</span>
+                    </div>
+                </div>
+                <div class="limits-panel__cta">
+                    <div class="limits-panel__cta-text">Need higher limits?</div>
+                    <button class="limits-panel__cta-btn" type="button">Go Premium</button>
+                </div>
+            </div>
+        </section>
+        <div class="action-sheet" data-action-sheet hidden>
+            <div class="action-sheet__backdrop" data-action-sheet-close></div>
+            <div class="action-sheet__panel" role="dialog" aria-modal="true" aria-label="Supplementary information">
+                <div class="action-sheet__handle"></div>
+                <div class="action-sheet__title">We’ll email you next steps</div>
+                <div class="action-sheet__text">When you press “Send email”, we’ll send an email to <span class="action-sheet__email">{Email}</span> with a link to a short form. The form only takes a few minutes to complete.</div>
+                <div class="action-sheet__hint">Be sure to check your spam folder</div>
+                <div class="action-sheet__actions">
+                    <button class="action-sheet__btn action-sheet__btn--primary" type="button" data-action-sheet-send>Ok, send email</button>
+                    <button class="action-sheet__btn action-sheet__btn--secondary" type="button" data-action-sheet-close>Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div class="snackbar" data-snackbar hidden>
+            <div class="snackbar__icon">
+                <img src="assets/icon_timeline_completed.svg" alt="" />
+            </div>
+            <div class="snackbar__text">Instructions sent to your email</div>
+        </div>
+    </div>
+
+    <div class="build-badge" role="note" aria-label="Prototype state controls">
+        <button class="build-badge__header" type="button" aria-expanded="true" aria-controls="prototypeStatesBody">
+            <span class="build-badge__title">Prototype controls</span>
+            <span class="build-badge__chevron" aria-hidden="true">
+                <img class="build-badge__chevron-icon" src="assets/icon_back.svg" alt="" />
+                <img class="build-badge__chevron-icon build-badge__chevron-icon--collapsed"
+                    src="assets/icon_prototypecontrols.svg" alt="" />
+            </span>
+        </button>
+
+        <div class="build-badge__body" id="prototypeStatesBody">
+            <button class="build-badge__reset" type="button" data-prototype-reset>Reset states</button>
+            <div class="build-badge__section-row">
+                <div class="build-badge__section-title">KYC</div>
+                <div class="build-badge__checkbox-group">
+                    <select class="build-badge__select" id="special-status" data-special-status aria-label="Special status">
+                        <option value="none">No special status</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="restricted">Restricted</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="build-badge__group" data-state-group="basic">
+                <div class="build-badge__group-label">Basic information</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous basic information state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next basic information state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+
+            <div class="build-badge__group" data-state-group="identity">
+                <div class="build-badge__group-label">Proof of identity</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous proof of identity state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next proof of identity state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+
+            <div class="build-badge__group" data-state-group="questionnaire">
+                <div class="build-badge__group-label">Additional information (EDD)</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous KYC questionnaire state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next KYC questionnaire state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+
+            <div class="build-badge__divider" aria-hidden="true"></div>
+
+            <div class="build-badge__section-title" data-bank-section-title>Bank & First deposit</div>
+            <div class="build-badge__group" data-state-group="bank">
+                <div class="build-badge__group-label">Bank account state</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous bank account state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next bank account state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+            <div class="build-badge__group" data-state-group="deposit" hidden>
+                <div class="build-badge__group-label">Deposit state</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous deposit state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next deposit state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+        </div>
+        <div class="build-badge__mvp">
+            <label class="build-badge__checkbox">
+                <span>Show MVP features only</span>
+                <input type="checkbox" data-mvp-toggle checked />
+            </label>
+        </div>
+    </div>
+
+    <script defer src="js/main.js"></script>
+</body>
+
+</html>
