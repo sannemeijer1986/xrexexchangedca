@@ -1621,20 +1621,17 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .finance {
   margin-top: 16px;
-  padding: 16px 0px 0px 0px;
+  padding: 0px;
 }
 
-.finance__section-nav {
+.finance__section-nav-wrap {
   position: sticky;
-  top: 138px;
+  top: 0px;
   z-index: 4;
+  padding: 24px 0px 16px 0px;
+  background: #0D0E0F;
 }
 
-@media (max-width: 640px) {
-  .finance__section-nav {
-    top: 154px;
-  }
-}
 .finance__section-nav-item {
   height: 32px;
   border: 0;
@@ -1654,6 +1651,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .finance__section-nav {
   display: flex;
+  width: 100%;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   backdrop-filter: blur(10px);
