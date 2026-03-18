@@ -16,6 +16,12 @@
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const states = {};
 
+  const syncTopChromeHeight = () => {
+    const topChrome = document.querySelector('.top-chrome');
+    if (!topChrome) return;
+    document.documentElement.style.setProperty('--top-chrome-height', `${topChrome.offsetHeight}px`);
+  };
+
   const getLabel = (group, value) => {
     const config = STATE_CONFIGS[group];
     if (!config) return '';
@@ -152,6 +158,7 @@
         }
       });
       content.scrollTop = 0;
+      requestAnimationFrame(syncTopChromeHeight);
     };
 
     tabButtons.forEach((btn) => {
@@ -170,6 +177,8 @@
     });
 
     setActiveTab('home');
+    syncTopChromeHeight();
+    window.addEventListener('resize', () => syncTopChromeHeight(), { passive: true });
   };
 
   const initFinanceSectionNav = () => {
