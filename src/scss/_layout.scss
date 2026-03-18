@@ -42,36 +42,6 @@
   opacity: 0;
 }
 
-.content.has-kyc-progress::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 600px;
-  height: 600px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle 300px at 50% 0%,
-      #0F255F 0%,
-      rgba(15, 37, 95, 0) 75%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.content.has-resubmission::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 600px;
-  height: 600px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle 300px at 50% 0%,
-      #623111 0%,
-      rgba(242, 132, 86, 0) 75%);
-  pointer-events: none;
-  z-index: 0;
-}
-
 @media (max-width: $bp-mobile) {
   .status-bar {
     display: none !important;
@@ -222,9 +192,73 @@
   padding: 32px 16px 16px;
   // border-bottom: 1px solid $border-color;
   background-color: transparent;
+  flex-wrap: wrap;
 
   @media (max-width: 640px) {
     padding: 48px 16px 16px;
+  }
+}
+
+.app-header__left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.app-header__page-title {
+  display: none;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
+.app-header__tabs {
+  display: none;
+  width: 100%;
+  margin-top: 10px;
+  gap: 22px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.app-header__tab {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #8E8E8E;
+  position: relative;
+}
+
+.app-header__tab.is-active {
+  color: #ffffff;
+}
+
+.app-header__tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -9px;
+  height: 2px;
+  background: #275CFD;
+  border-radius: 999px;
+}
+
+html[data-active-tab="finance"] {
+  .app-header__logo-wrap {
+    display: none;
+  }
+
+  .app-header__page-title {
+    display: block;
+  }
+
+  .app-header__tabs {
+    display: flex;
   }
 }
 
@@ -1261,6 +1295,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .explore-card__image {
@@ -1520,6 +1555,53 @@
 .support {
   margin-top: 40px;
   padding-bottom: 56px;
+}
+
+.finance {
+  margin-top: 16px;
+  padding: 0 4px 56px;
+}
+
+.finance__section-nav {
+  position: sticky;
+  top: 138px;
+  z-index: 4;
+  padding: 8px 0 12px;
+}
+
+@media (max-width: 640px) {
+  .finance__section-nav {
+    top: 154px;
+  }
+}
+
+.finance__section-nav-item {
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #B4B4B4;
+  padding: 8px 14px;
+  border-radius: 999px;
+  flex: 1;
+}
+
+.finance__section-nav-item.is-active {
+  background: #ffffff;
+  color: #0d0e0f;
+}
+
+.finance__section-nav {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+}
+
+.finance__body {
+  margin-top: 12px;
 }
 
 .support__card {
@@ -1784,10 +1866,6 @@
   pointer-events: none;
 }
 
-.build-badge.is-mvp [data-state-group='deposit'] {
-  display: none;
-}
-
 /* Side menu overlay */
 .side-menu-overlay {
   position: absolute;
@@ -2014,7 +2092,7 @@
 .side-menu__item-meta {
   font-size: 14px;
   font-weight: 600;
-  color: #8FB8FF;
+  color: #5AC47D;
 }
 
 .side-menu__item[data-setup-open] {
@@ -2023,29 +2101,6 @@
 
 .side-menu__item[data-limits-open] {
   cursor: pointer;
-}
-
-.side-menu__item-meta[data-setup-status="getstarted"],
-.side-menu__item-meta[data-setup-status="continue"],
-.side-menu__item-meta[data-setup-status="reviewing"] {
-  color: #8FB8FF;
-}
-
-.side-menu__item-meta[data-setup-status="resubmission"] {
-  color: #FF6D47;
-}
-
-.side-menu__item-meta[data-setup-status="approved"] {
-  color: #5AC47D;
-}
-
-.side-menu__item-meta[data-setup-status="rejected"] {
-  color: #EB5347;
-}
-
-.side-menu__item-meta[data-setup-status="suspended"],
-.side-menu__item-meta[data-setup-status="restricted"] {
-  color: #FF6D47;
 }
 
 .side-menu__banner {
@@ -2133,6 +2188,7 @@
   background-repeat: no-repeat;
   background-position: right 5px center;
   padding-right: 20px;
+  opacity: 0;
 }
 
 .build-badge__select:focus {
@@ -2144,15 +2200,6 @@
   width: 14px;
   height: 14px;
   accent-color: #4D88FF;
-}
-
-.build-badge__mvp {
-  margin-top: 12px;
-  display: flex;
-}
-
-.build-badge.is-collapsed .build-badge__mvp {
-  display: none;
 }
 
 .action-sheet {
@@ -2370,35 +2417,5 @@
   font-weight: 500;
   color: #ffffff;
   white-space: nowrap;
-  opacity: 0.75;
-}
-
-.build-badge__state-name[data-state-label="Submitted"] {
-  color: #8FB8FF;
-  opacity: 1;
-}
-
-.build-badge__state-name[data-state-label="Approved"] {
-  color: #6DCF8E;
-  opacity: 1;
-}
-
-.build-badge__state-name[data-state-label="Rejected"] {
-  color: #F76767;
-  opacity: 1;
-}
-
-.build-badge__state-name[data-state-label="Resubmission"] {
-  color: #FF926E;
-  opacity: 1;
-}
-
-.build-badge__state-name[data-state-label="Not deposited"] {
-  color: #9B9C9C;
-  opacity: 1;
-}
-
-.build-badge__state-name[data-state-label="1st deposit received"] {
-  color: #6DCF8E;
   opacity: 1;
 }

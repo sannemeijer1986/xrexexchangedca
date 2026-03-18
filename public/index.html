@@ -32,9 +32,12 @@
             </div>
 
             <header class="app-header">
-                <div class="app-header__logo-wrap" aria-label="XREX">
-                    <img class="app-header__logo-img app-header__logo-img--nolabel" src="assets/logo_nolabel.svg" alt="" />
-                    <img class="app-header__logo-img app-header__logo-img--label" src="assets/logo_label.svg" alt="" />
+                <div class="app-header__left">
+                    <div class="app-header__logo-wrap" aria-label="XREX">
+                        <img class="app-header__logo-img app-header__logo-img--nolabel" src="assets/logo_nolabel.svg" alt="" />
+                        <img class="app-header__logo-img app-header__logo-img--label" src="assets/logo_label.svg" alt="" />
+                    </div>
+                    <div class="app-header__page-title" aria-label="Page title">Finance</div>
                 </div>
                 <div class="app-header__actions">
                     <button class="app-header__icon" type="button" aria-label="Menu">
@@ -43,6 +46,10 @@
                     <button class="app-header__avatar" type="button" aria-label="Profile" data-menu-trigger>
                         <img src="assets/icon_navbar_user.png" alt="User profile" />
                     </button>
+                </div>
+                <div class="app-header__tabs" aria-label="Finance tabs">
+                    <button class="app-header__tab is-active" type="button">Auto-invest</button>
+                    <button class="app-header__tab" type="button">Secured loan</button>
                 </div>
             </header>
         </div>
@@ -91,10 +98,10 @@
                                 <img class="side-menu__item-icon" src="assets/icon_users.svg" alt="" />
                                 <span class="side-menu__item-text">Account &amp; Security</span>
                             </div>
-                            <div class="side-menu__item" data-setup-open>
+                            <div class="side-menu__item">
                                 <img class="side-menu__item-icon" src="assets/icon_checklist.svg" alt="" />
                                 <span class="side-menu__item-text">Account checklist</span>
-                                <span class="side-menu__item-meta" data-setup-status>Action required</span>
+                                <span class="side-menu__item-meta" data-setup-status>Completed</span>
                             </div>
                             <div class="side-menu__item">
                                 <img class="side-menu__item-icon" src="assets/icon_bankaccounts.svg" alt="" />
@@ -136,48 +143,9 @@
         </div>
 
         <!-- Scrollable content area -->
-        <div class="content content--home">
+        <div class="content content--home" data-content>
             <div class="content-inner safe-area-bottom">
-                <section class="setup-state" data-setup-state>
-                    <div class="setup-state__first-time" data-setup-first-time>
-                        <div class="setup-first__hero" data-setup-hero></div>
-                        <div class="setup-first__title" data-setup-card-title>Just a few steps to<br />unlock the best of XREX!</div>
-                        <div class="setup-first__subtitle" data-setup-card-subtitle hidden>Typically takes 1-2 business days</div>
-                        <div class="setup-first__progress" data-setup-progress>
-                            <div class="setup-first__steps">
-                                <div class="setup-first__step is-done" data-setup-step="sign-up">
-                                    <div class="setup-first__node">
-                                        <span class="setup-first__rail setup-first__rail--left"></span>
-                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_completed.svg" alt="" />
-                                        <span class="setup-first__rail setup-first__rail--right"></span>
-                                    </div>
-                                    <span class="setup-first__label">Sign up</span>
-                                </div>
-                                <div class="setup-first__step is-current" data-setup-step="next-steps">
-                                    <div class="setup-first__node">
-                                        <span class="setup-first__rail setup-first__rail--left"></span>
-                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_active.svg" alt="" />
-                                        <span class="setup-first__rail setup-first__rail--right"></span>
-                                    </div>
-                                    <span class="setup-first__label">Next steps</span>
-                                </div>
-                                <div class="setup-first__step" data-setup-step="final">
-                                    <div class="setup-first__node">
-                                        <span class="setup-first__rail setup-first__rail--left"></span>
-                                        <img class="setup-first__icon" data-setup-step-icon src="assets/icon_timeline_upcoming.svg" alt="" />
-                                        <span class="setup-first__rail setup-first__rail--right"></span>
-                                    </div>
-                                    <span class="setup-first__label" data-setup-step-final>Trade</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="setup-first__buttons" data-setup-buttons>
-                            <button class="setup-first__button is-secondary" type="button" data-setup-btn-secondary data-setup-open>View checklist</button>
-                            <button class="setup-first__button is-primary" type="button" data-setup-cta data-setup-btn-primary data-setup-open>Get started</button>
-                        </div>
-                    </div>
-                    <div class="setup-state__title" data-setup-title>First time content</div>
-                </section>
+                <div data-tab-view="home">
                 <section class="asset-card">
                     <div class="asset-card__label">
                         <span>Net assets ≈</span>
@@ -193,11 +161,11 @@
                 <section class="explore">
                     <div class="section-title">Explore</div>
                     <div class="explore__grid">
-                        <div class="explore-card">
+                        <div class="explore-card" role="button" tabindex="0" data-open-tab="finance" aria-label="Open Finance tab">
                             <img class="explore-card__image" src="assets/img_bannerplaceholder.png" alt="" />
                             <div class="explore-card__content">
-                                <div class="explore-card__tag">Strategy guide for beginners</div>
-                                <div class="explore-card__title">Master the market with these trading strategies!</div>
+                                <div class="explore-card__tag">Recurring investing</div>
+                                <div class="explore-card__title">Build your DCA strategy and let it run automatically</div>
                             </div>
                             <div class="explore-card__progress">
                                 <span class="is-active"></span>
@@ -374,12 +342,35 @@
                         <img class="support__chevron" src="assets/icon_back.svg" alt="" />
                     </div>
                 </section>
+                </div>
+
+                <div data-tab-view="finance" hidden>
+                    <section class="finance">
+                        <div class="finance__section-nav" data-finance-section-nav>
+                            <button class="finance__section-nav-item is-active" type="button" data-finance-section="explore">Explore</button>
+                            <button class="finance__section-nav-item" type="button" data-finance-section="ongoing">Ongoing (0)</button>
+                        </div>
+                        <div class="finance__body">
+                            <div data-finance-view="explore">
+                                <!-- Explore contents will be added later -->
+                            </div>
+                            <div data-finance-view="ongoing" hidden>
+                                <!-- Empty for now -->
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
 
         <nav class="tabbar" aria-label="Bottom">
-            <button class="tabbar__item is-active" type="button">
-                <img src="assets/icon_tabbar_home_active.svg" alt="" />
+            <button class="tabbar__item is-active" type="button" data-tab-target="home" aria-label="Home tab">
+                <img
+                    src="assets/icon_tabbar_home_active.svg"
+                    data-src-active="assets/icon_tabbar_home_active.svg"
+                    data-src-inactive="assets/icon_tabbar_home_inactive.svg"
+                    alt=""
+                />
                 <span>Home</span>
             </button>
             <button class="tabbar__item" type="button">
@@ -389,8 +380,13 @@
             <button class="tabbar__item tabbar__item--trade" type="button">
                 <span>Trade</span>
             </button>
-            <button class="tabbar__item" type="button">
-                <img src="assets/icon_tabbar_finance_inactive.svg" alt="" />
+            <button class="tabbar__item" type="button" data-tab-target="finance" aria-label="Finance tab">
+                <img
+                    src="assets/icon_tabbar_finance_inactive.svg"
+                    data-src-active="assets/icon_tabbar_finance_active.svg"
+                    data-src-inactive="assets/icon_tabbar_finance_inactive.svg"
+                    alt=""
+                />
                 <span>Finance</span>
             </button>
             <button class="tabbar__item" type="button">
@@ -402,143 +398,6 @@
             </button>
         </nav>
 
-        <section class="setup-checklist" data-setup-checklist hidden>
-            <div class="setup-checklist__header">
-                <button class="setup-checklist__icon-btn" type="button" data-setup-close aria-label="Close setup checklist">
-                    <img src="assets/icon_back.svg" alt="" />
-                </button>
-                <div class="setup-checklist__title">Account checklist</div>
-                <button class="setup-checklist__icon-btn" type="button" aria-label="Support">
-                    <img src="assets/icon_contactsupport.svg" alt="" />
-                </button>
-            </div>
-            <div class="setup-checklist__body">
-                <div class="setup-checklist__card">
-                    <div class="setup-checklist__avatar-ring" data-checklist-ring>
-                        <div class="setup-checklist__avatar">
-                            <img src="assets/icon_navbar_user.png" alt="" />
-                        </div>
-                    </div>
-                    <div class="setup-checklist__card-titlewrapper">
-                        <div class="setup-checklist__card-title" data-checklist-title>Unlock trading</div>
-                        <div class="setup-checklist__card-subtitle" data-checklist-steps>4 steps to go</div>
-                        <div class="setup-checklist__card-subtitle-secondary" data-checklist-steps-sub hidden>Typically takes 1-2 business days</div>
-                        <a class="setup-checklist__edd-continue-link" href="#" data-checklist-edd-continue hidden>I’ve finished the email instructions, continue</a>
-                    </div>
-                    <button class="setup-checklist__cta" type="button" data-checklist-cta>Continue to next step</button>
-                    <div class="setup-checklist__cta-note" data-checklist-cta-note hidden>
-                        We're reviewing your application
-                        <div class="setup-checklist__cta-note-sub">Typically takes 1-2 business days</div>
-                    </div>
-                </div>
-                <div class="setup-checklist__content">
-                    <div class="setup-checklist__alert-wrap">
-                        <div class="setup-checklist__alert alert_info" data-checklist-review-alert hidden>We're reviewing your application, this typically takes 1-2 business days.</div>
-                    </div>
-                    <div class="setup-checklist__alert-wrap">
-                        <div class="setup-checklist__alert Alert_success" data-checklist-success-alert hidden>You've unlocked trading and many more XREX features!</div>
-                    </div>
-                    <div class="setup-checklist__alert-wrap">
-                        <div class="setup-checklist__alert Alert_negative" data-checklist-rejected-alert hidden>We are unable to verify your application as it did not satisfy our regulatory requirements.</div>
-                    </div>
-                    <div class="setup-checklist__section-title">Next steps</div>
-                    <div class="setup-checklist__list">
-                        <div class="setup-checklist__item is-complete" data-checklist-item="signup" data-nonclickable="true">
-                            <div class="setup-checklist__item-icon setup-checklist__item-icon--transparent">
-                                <img class="setup-checklist__item-status" src="assets/icon_timeline_completed.svg" alt="" />
-                            </div>
-                            <div class="setup-checklist__item-content">
-                                <div class="setup-checklist__item-title">Sign up</div>
-                                <div class="setup-checklist__item-status-label setup-checklist__item-status-label--success">Completed</div>
-                            </div>
-                            <span class="setup-checklist__item-tag" data-checklist-tag>Personal account</span>
-                        </div>
-                    <div class="setup-checklist__item" data-checklist-item="basic" data-checklist-item-action>
-                        <div class="setup-checklist__item-icon">
-                            <img src="assets/icon-checklist-basicprofile.svg" alt="" data-checklist-icon />
-                            </div>
-                            <div class="setup-checklist__item-content">
-                        <div class="setup-checklist__item-title">Basic information</div>
-                                <div class="setup-checklist__item-meta">A few questions about how you’ll use your account.</div>
-                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
-                            </div>
-                        <button class="setup-checklist__item-action" type="button" aria-label="Go to basic information" data-checklist-action>
-                            <img src="assets/icon-checklist-continue.svg" alt="" />
-                            </button>
-                        </div>
-                    <div class="setup-checklist__item" data-checklist-item="identity" data-checklist-item-action>
-                        <div class="setup-checklist__item-icon">
-                            <img src="assets/icon-checklist-identityverification.svg" alt="" data-checklist-icon />
-                            </div>
-                            <div class="setup-checklist__item-content">
-                                <div class="setup-checklist__item-title">Proof of identity</div>
-                                <div class="setup-checklist__item-meta">Your ID and a short selfie check to confirm it’s you.</div>
-                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
-                            </div>
-                        <button class="setup-checklist__item-action" type="button" aria-label="Go to proof of identity" data-checklist-action>
-                            <img src="assets/icon-checklist-continue.svg" alt="" />
-                            </button>
-                        </div>
-                        <div class="setup-checklist__item is-disabled" data-checklist-item="questionnaire" data-checklist-item-action hidden>
-                            <div class="setup-checklist__item-icon">
-                                <img src="assets/icon-checklist-kycquestionaire.svg" alt="" data-checklist-icon />
-                            </div>
-                            <div class="setup-checklist__item-content">
-                                <div class="setup-checklist__item-title">Additional information</div>
-                                <div class="setup-checklist__item-meta" data-checklist-meta></div>
-                                <div class="setup-checklist__item-status-label setup-checklist__item-status-label--warning" data-checklist-status></div>
-                            </div>
-                            <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to Additional information" disabled data-checklist-action>
-                                <img src="assets/icon-checklist-continue.svg" alt="" />
-                            </button>
-                            <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-questionnaire-secondary hidden>Resend</button>
-                        </div>
-                        <div class="setup-checklist__item is-disabled" data-checklist-item="bank" data-checklist-item-action>
-                             <div class="setup-checklist__item-icon">
-                                 <img src="assets/icon_bankaccounts.svg" alt="" data-checklist-icon />
-                            </div>
-                            <div class="setup-checklist__item-content">
-                                <div class="setup-checklist__item-title">Add bank</div>
-                                <div class="setup-checklist__item-meta">Link at least one bank account to use USD-TWD fiat services</div>
-                                <div class="setup-checklist__item-status-label" data-checklist-status></div>
-                            </div>
-                            <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to add bank" disabled data-checklist-action>
-                                <img src="assets/icon-checklist-continue.svg" alt="" />
-                            </button>
-                            <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-secondary hidden>View</button>
-                        </div>
-                        <div class="setup-checklist__item is-disabled" data-checklist-item="deposit" data-checklist-item-action>
-                            <div class="setup-checklist__item-icon">
-                                <img src="assets/icon-checklist-deposit.svg" alt="" data-checklist-icon />
-                           </div>
-                           <div class="setup-checklist__item-content">
-                               <div class="setup-checklist__item-title">First deposit</div>
-                               <div class="setup-checklist__item-meta">Add funds to start trading your first Crypto.</div>
-                               <div class="setup-checklist__item-status-label" data-checklist-status></div>
-                           </div>
-                           <button class="setup-checklist__item-action is-disabled" type="button" aria-label="Go to deposit" disabled data-checklist-action>
-                               <img src="assets/icon-checklist-continue.svg" alt="" />
-                           </button>
-                           <button class="setup-checklist__item-secondary-btn" type="button" data-checklist-deposit-secondary hidden>Deposit again</button>
-                       </div>
-                    </div>
-
-                    <div class="setup-checklist__cs-card">
-                        <div class="setup-checklist__cs-illu">
-                            <img src="assets/checklist_cs_illu.svg" alt="Customer support" />
-                        </div>
-                        <div class="setup-checklist__cs-content">
-                            <div class="setup-checklist__cs-title">Our support team is ready to help!</div>
-                            <button class="setup-checklist__cs-button" type="button">Contact support</button>
-                            <div class="setup-checklist__cs-caption">
-                                Your data is protected.
-                                <button type="button" class="setup-checklist__cs-link">Learn more</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
         <section class="limits-panel" data-limits-panel hidden>
             <div class="limits-panel__header">
                 <button class="limits-panel__icon-btn" type="button" data-limits-close aria-label="Back">
@@ -595,25 +454,6 @@
                 </div>
             </div>
         </section>
-        <div class="action-sheet" data-action-sheet hidden>
-            <div class="action-sheet__backdrop" data-action-sheet-close></div>
-            <div class="action-sheet__panel" role="dialog" aria-modal="true" aria-label="Supplementary information">
-                <div class="action-sheet__handle"></div>
-                <div class="action-sheet__title">We’ll email you next steps</div>
-                <div class="action-sheet__text">When you press “Send email”, we’ll send an email to <span class="action-sheet__email">{Email}</span> with a link to a short form. The form only takes a few minutes to complete.</div>
-                <div class="action-sheet__hint">Be sure to check your spam folder</div>
-                <div class="action-sheet__actions">
-                    <button class="action-sheet__btn action-sheet__btn--primary" type="button" data-action-sheet-send>Ok, send email</button>
-                    <button class="action-sheet__btn action-sheet__btn--secondary" type="button" data-action-sheet-close>Cancel</button>
-                </div>
-            </div>
-        </div>
-        <div class="snackbar" data-snackbar hidden>
-            <div class="snackbar__icon">
-                <img src="assets/icon_timeline_completed.svg" alt="" />
-            </div>
-            <div class="snackbar__text">Instructions sent to your email</div>
-        </div>
     </div>
 
     <div class="build-badge" role="note" aria-label="Prototype state controls">
@@ -629,7 +469,7 @@
         <div class="build-badge__body" id="prototypeStatesBody">
             <button class="build-badge__reset" type="button" data-prototype-reset>Reset states</button>
             <div class="build-badge__section-row">
-                <div class="build-badge__section-title">KYC</div>
+                <div class="build-badge__section-title">DCA</div>
                 <div class="build-badge__checkbox-group">
                     <select class="build-badge__select" id="special-status" data-special-status aria-label="Special status">
                         <option value="none">No special status</option>
@@ -639,73 +479,17 @@
                     </select>
                 </div>
             </div>
-            <div class="build-badge__group" data-state-group="basic">
-                <div class="build-badge__group-label">Basic information</div>
+            <div class="build-badge__group" data-state-group="flow">
+                <div class="build-badge__group-label">Flow progress</div>
                 <div class="build-badge__state">
                     <button type="button" class="build-badge__state-btn" data-state-action="down"
-                        aria-label="Previous basic information state">−</button>
+                        aria-label="Previous flow progress state">−</button>
                     <span class="build-badge__state-value" data-state-value></span>
                     <button type="button" class="build-badge__state-btn" data-state-action="up"
-                        aria-label="Next basic information state">+</button>
+                        aria-label="Next flow progress state">+</button>
                     <span class="build-badge__state-name" data-state-name></span>
                 </div>
             </div>
-
-            <div class="build-badge__group" data-state-group="identity">
-                <div class="build-badge__group-label">Proof of identity</div>
-                <div class="build-badge__state">
-                    <button type="button" class="build-badge__state-btn" data-state-action="down"
-                        aria-label="Previous proof of identity state">−</button>
-                    <span class="build-badge__state-value" data-state-value></span>
-                    <button type="button" class="build-badge__state-btn" data-state-action="up"
-                        aria-label="Next proof of identity state">+</button>
-                    <span class="build-badge__state-name" data-state-name></span>
-                </div>
-            </div>
-
-            <div class="build-badge__group" data-state-group="questionnaire">
-                <div class="build-badge__group-label">Additional information (EDD)</div>
-                <div class="build-badge__state">
-                    <button type="button" class="build-badge__state-btn" data-state-action="down"
-                        aria-label="Previous KYC questionnaire state">−</button>
-                    <span class="build-badge__state-value" data-state-value></span>
-                    <button type="button" class="build-badge__state-btn" data-state-action="up"
-                        aria-label="Next KYC questionnaire state">+</button>
-                    <span class="build-badge__state-name" data-state-name></span>
-                </div>
-            </div>
-
-            <div class="build-badge__divider" aria-hidden="true"></div>
-
-            <div class="build-badge__section-title" data-bank-section-title>Bank & First deposit</div>
-            <div class="build-badge__group" data-state-group="bank">
-                <div class="build-badge__group-label">Bank account state</div>
-                <div class="build-badge__state">
-                    <button type="button" class="build-badge__state-btn" data-state-action="down"
-                        aria-label="Previous bank account state">−</button>
-                    <span class="build-badge__state-value" data-state-value></span>
-                    <button type="button" class="build-badge__state-btn" data-state-action="up"
-                        aria-label="Next bank account state">+</button>
-                    <span class="build-badge__state-name" data-state-name></span>
-                </div>
-            </div>
-            <div class="build-badge__group" data-state-group="deposit" hidden>
-                <div class="build-badge__group-label">Deposit state</div>
-                <div class="build-badge__state">
-                    <button type="button" class="build-badge__state-btn" data-state-action="down"
-                        aria-label="Previous deposit state">−</button>
-                    <span class="build-badge__state-value" data-state-value></span>
-                    <button type="button" class="build-badge__state-btn" data-state-action="up"
-                        aria-label="Next deposit state">+</button>
-                    <span class="build-badge__state-name" data-state-name></span>
-                </div>
-            </div>
-        </div>
-        <div class="build-badge__mvp">
-            <label class="build-badge__checkbox">
-                <span>Show MVP features only</span>
-                <input type="checkbox" data-mvp-toggle checked />
-            </label>
         </div>
     </div>
 
