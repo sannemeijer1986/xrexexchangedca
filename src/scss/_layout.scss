@@ -189,14 +189,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 16px 16px;
+  padding: 32px 0px 16px 0px;
   // border-bottom: 1px solid $border-color;
   background-color: transparent;
   flex-wrap: wrap;
 
   @media (max-width: 640px) {
-    padding: 48px 16px 16px;
+    padding: 48px 0px 16px 0px;
   }
+}
+
+.app-header__top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
 }
 
 .app-header__left {
@@ -216,11 +224,13 @@
 .app-header__tabs {
   display: none;
   width: 100%;
-  margin-top: 10px;
-  gap: 22px;
+  margin-top: 24px;
+  gap: 32px;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .app-header__tab {
@@ -240,8 +250,9 @@
 .app-header__tab.is-active::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  width: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: -9px;
   height: 2px;
   background: #275CFD;
@@ -249,6 +260,10 @@
 }
 
 html[data-active-tab="finance"] {
+  .app-header {
+    padding-bottom: 0;
+  }
+
   .app-header__logo-wrap {
     display: none;
   }
