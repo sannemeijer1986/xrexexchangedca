@@ -22,6 +22,15 @@
     document.documentElement.style.setProperty('--top-chrome-height', `${topChrome.offsetHeight}px`);
   };
 
+  const syncFinanceSummaryVisibility = () => {
+    const flowState = states.flow ?? 1;
+    const shouldHide = flowState <= 1;
+    document.querySelectorAll('.finance-summary__pnl, .finance-summary__meta-row').forEach((el) => {
+      el.classList.toggle('is-hidden', shouldHide);
+      el.hidden = shouldHide;
+    });
+  };
+
   const getLabel = (group, value) => {
     const config = STATE_CONFIGS[group];
     if (!config) return '';
@@ -64,6 +73,7 @@
       // ignore storage errors
     }
     updateGroupUI(group);
+    if (group === 'flow') syncFinanceSummaryVisibility();
     return clamped;
   };
 
@@ -83,6 +93,7 @@
       }
       updateGroupUI(group);
     });
+    syncFinanceSummaryVisibility();
   };
 
   const initBadgeControls = () => {
@@ -227,6 +238,87 @@
     setSection('explore');
   };
 
+  const initPlanStrategySlider = () => {
+    const slider = document.querySelector('[data-plan-slider]');
+    const fill = document.querySelector('[data-plan-slider-fill]');
+    const thumb = document.querySelector('[data-plan-slider-thumb]');
+    const amountEl = document.querySelector('[data-plan-amount]');
+    if (!slider || !fill || !thumb || !amountEl) return;
+
+    const min = parseInt(slider.getAttribute('data-min') || '500', 10);
+    const max = parseInt(slider.getAttribute('data-max') || '250000', 10);
+
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+    const formatNumber = (n) => n.toLocaleString('en-US');
+
+    let value = clamp(parseInt(slider.getAttribute('aria-valuenow') || '5000', 10), min, max);
+
+    const pctFromValue = (v) => (max === min ? 0 : (v - min) / (max - min));
+    const stepForPct = (pct) => {
+      if (pct < 1 / 3) return 500;
+      if (pct < 2 / 3) return 1000;
+      return 5000;
+    };
+    const roundToStep = (v, step) => Math.round(v / step) * step;
+
+    const setValue = (next, pctHint) => {
+      const pctRaw = typeof pctHint === 'number' ? pctHint : pctFromValue(next);
+      const step = stepForPct(pctRaw);
+      value = clamp(roundToStep(next, step), min, max);
+      const pct = pctFromValue(value);
+      fill.style.width = `${pct * 100}%`;
+      thumb.style.left = `calc(${pct * 100}% - 12px)`;
+      amountEl.textContent = formatNumber(value);
+      slider.setAttribute('aria-valuenow', String(value));
+    };
+
+    const setFromClientX = (clientX) => {
+      const rect = slider.getBoundingClientRect();
+      const x = clamp(clientX - rect.left, 0, rect.width);
+      const pct = rect.width === 0 ? 0 : x / rect.width;
+      const raw = min + pct * (max - min);
+      setValue(raw, pct);
+    };
+
+    const onPointerDown = (e) => {
+      slider.setPointerCapture(e.pointerId);
+      setFromClientX(e.clientX);
+    };
+    const onPointerMove = (e) => {
+      if (!slider.hasPointerCapture(e.pointerId)) return;
+      setFromClientX(e.clientX);
+    };
+    const onPointerUp = (e) => {
+      if (slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+    };
+
+    slider.addEventListener('pointerdown', onPointerDown);
+    slider.addEventListener('pointermove', onPointerMove);
+    slider.addEventListener('pointerup', onPointerUp);
+    slider.addEventListener('pointercancel', onPointerUp);
+
+    // Keyboard support (optional but cheap)
+    slider.tabIndex = 0;
+    slider.addEventListener('keydown', (e) => {
+      const step = stepForPct(pctFromValue(value));
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setValue(value - step);
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setValue(value + step);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        setValue(min);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        setValue(max);
+      }
+    });
+
+    setValue(value);
+  };
+
   const initLimitsPanel = () => {
     const panel = document.querySelector('[data-limits-panel]');
     const container = document.querySelector('.phone-container');
@@ -296,6 +388,7 @@
   initTabs();
   initFinanceHeaderTabs();
   initFinanceSectionNav();
+  initPlanStrategySlider();
   initLimitsPanel();
   initPrototypeReset();
 
