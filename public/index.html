@@ -362,15 +362,15 @@
                                                 </div>
                                                 <div class="finance-summary__value">
                                                     <span class="finance-summary__value-num">0.00</span>
-                                                    <span class="finance-summary__value-currency">USD</span>
+                                                    <span class="finance-summary__value-currency" data-summary-currency-label>TWD</span>
                                                 </div>
                                                 <div class="finance-summary__delta finance-summary__pnl">
                                                     <img src="assets/icon_northeast_arrow.svg" alt="" class="finance-summary__delta-icon" />
-                                                    <span>00.0% (+0.00 USD)</span>
+                                                    <span>00.0% (+0.00 TWD)</span>
                                                 </div>
                                             </div>
-                                            <button class="finance-summary__selector" type="button" aria-label="Currency selector">
-                                                <span>USD</span>
+                                            <button class="finance-summary__selector" type="button" aria-label="Currency selector" data-currency-sheet-trigger="summary">
+                                                <span data-summary-selector-label>TWD</span>
                                                 <img src="assets/icon_chevron_down_grey.svg" alt="" class="finance-summary__selector-chevron" />
                                             </button>
                                         </div>
@@ -416,19 +416,19 @@
                                                 </button>
                                                 <div class="plan-strategy__carousel swiper" aria-label="Strategy carousel" data-plan-carousel>
                                                     <div class="plan-strategy__carousel-track swiper-wrapper">
-                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Solana" data-subtitle="Diversify with Solana" data-plan-carousel-item>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-plan-key="solana" data-title="Solana" data-subtitle="Diversify with Solana" data-plan-carousel-item>
                                                             <img class="plan-strategy__card-icon" src="assets/icon_solana.svg" alt="Solana" />
                                                         </div>
-                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Bitcoin" data-subtitle="Build your Bitcoin position steadily" data-plan-carousel-item>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-plan-key="bitcoin" data-title="Bitcoin" data-subtitle="Build your Bitcoin position steadily" data-plan-carousel-item>
                                                             <img class="plan-strategy__card-icon" src="assets/icon_currency_btc.svg" alt="BTC" />
                                                         </div>
-                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Ethereum" data-subtitle="Add ETH alongside BTC" data-plan-carousel-item>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-plan-key="ethereum" data-title="Ethereum" data-subtitle="Add ETH alongside BTC" data-plan-carousel-item>
                                                             <img class="plan-strategy__card-icon" src="assets/icon_currency_eth.svg" alt="ETH" />
                                                         </div>
-                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Big Three" data-subtitle="BTC, ETH and SOL in one basket" data-plan-carousel-item>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-plan-key="bigthree" data-title="Big Three" data-subtitle="BTC, ETH and SOL in one basket" data-plan-carousel-item>
                                                             <img class="plan-strategy__card-icon" src="assets/icon_bigthree.svg" alt="Big Three" />
                                                         </div>
-                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Digital Gold" data-subtitle="Preserve value with digital gold" data-plan-carousel-item>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-plan-key="digitalgold" data-title="Digital Gold" data-subtitle="Preserve value with digital gold" data-plan-carousel-item>
                                                             <img class="plan-strategy__card-icon" src="assets/icon_digitalgold.svg" alt="Digital Gold" />
                                                         </div>
                                                     </div>
@@ -446,11 +446,11 @@
 
                                             <div class="plan-strategy__amount-row">
                                                 <div class="plan-strategy__amount">
-                                                    <img src="assets/icon_currency_TWD.svg" alt="" class="plan-strategy__amount-icon" />
+                                                    <img src="assets/icon_currency_TWD.svg" alt="" class="plan-strategy__amount-icon" data-plan-amount-icon />
                                                     <span class="plan-strategy__amount-value" data-plan-amount>10,000</span>
                                                 </div>
-                                                <button class="plan-strategy__currency" type="button" aria-label="Currency selector">
-                                                    <span>TWD</span>
+                                                <button class="plan-strategy__currency" type="button" aria-label="Currency selector" data-currency-sheet-trigger="plan">
+                                                    <span data-plan-currency-label>TWD</span>
                                                     <img src="assets/icon_chevron_down_grey.svg" alt="" />
                                                 </button>
                                             </div>
@@ -488,7 +488,7 @@
                                                         <div class="plan-strategy__return-divider" aria-hidden="true"></div>
                                                     </div>
                                                     <div class="plan-strategy__return-abs-line">
-                                                        <span class="plan-strategy__return-abs">+58,723.23</span><span class="plan-strategy__return-currency"> TWD</span>
+                                                        <span class="plan-strategy__return-abs">+58,723.23</span><span class="plan-strategy__return-currency" data-plan-return-currency> TWD</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -628,6 +628,45 @@
                 </div>
             </div>
         </section>
+
+    <!-- Currency bottom sheet -->
+    <div class="currency-sheet" data-currency-sheet hidden aria-modal="true" role="dialog" aria-label="Select currency">
+        <button class="currency-sheet__backdrop" type="button" data-currency-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title" data-currency-sheet-title>Currency</h2>
+                <div class="currency-sheet__list">
+                    <button class="currency-sheet__item" type="button" data-currency-sheet-option="TWD">
+                        <img class="currency-sheet__item-icon" src="assets/icon_currency_TWD.svg" alt="" />
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">TWD</span>
+                            <span class="currency-sheet__item-desc">New Taiwan Dollar</span>
+                        </div>
+                        <div class="currency-sheet__item-radio" aria-hidden="true">
+                            <div class="currency-sheet__radio-inner"></div>
+                        </div>
+                    </button>
+                    <div class="currency-sheet__divider"></div>
+                    <button class="currency-sheet__item" type="button" data-currency-sheet-option="USDT">
+                        <img class="currency-sheet__item-icon" src="assets/icon_currency_usdt.svg" alt="" />
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">USDT</span>
+                            <span class="currency-sheet__item-desc">USD Tether</span>
+                        </div>
+                        <div class="currency-sheet__item-radio" aria-hidden="true">
+                            <div class="currency-sheet__radio-inner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-currency-sheet-close>Cancel</button>
+            </div>
+        </div>
+    </div>
     </div>
 
     <div class="build-badge" role="note" aria-label="Prototype state controls">

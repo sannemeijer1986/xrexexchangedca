@@ -243,10 +243,12 @@
     const pctEl = document.querySelector('.plan-strategy__return-pct');
     const absEl = document.querySelector('.plan-strategy__return-abs');
     const freqActive = document.querySelector('[data-plan-freq-item].is-active');
+    const carousel = document.querySelector('[data-plan-carousel]');
     if (!slider || !pctEl || !absEl || !freqActive) return;
 
     const amount = parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
     const freq = (freqActive.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+    const activePlan = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
 
     // Rough, offline 5Y (2020→2025) DCA estimate:
     // - Invest fixed amount per selected frequency
@@ -261,18 +263,43 @@
     const formatTwdNumber = (n) =>
       Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    // Anchor points (very rough) for BTC price in USD.
-    // These are only used to create a believable trend, not an accurate backtest.
-    const anchors = [
-      { m: 0, usd: 9000 }, // Jan 2020
-      { m: 11, usd: 29000 }, // Dec 2020
-      { m: 23, usd: 47000 }, // Dec 2021
-      { m: 35, usd: 16500 }, // Dec 2022
-      { m: 47, usd: 42000 }, // Dec 2023
-      { m: 59, usd: 52000 }, // Dec 2024 (used as "end of 5Y")
-    ];
+    // Rough anchor curves (USD) used for offline, directional simulations.
+    const anchorsByPlan = {
+      bitcoin: [
+        { m: 0, usd: 9000 },
+        { m: 11, usd: 29000 },
+        { m: 23, usd: 47000 },
+        { m: 35, usd: 16500 },
+        { m: 47, usd: 42000 },
+        { m: 59, usd: 52000 },
+      ],
+      ethereum: [
+        { m: 0, usd: 180 },
+        { m: 11, usd: 740 },
+        { m: 23, usd: 3700 },
+        { m: 35, usd: 1200 },
+        { m: 47, usd: 2300 },
+        { m: 59, usd: 2800 },
+      ],
+      solana: [
+        { m: 0, usd: 1.6 },
+        { m: 11, usd: 2.0 },
+        { m: 23, usd: 170 },
+        { m: 35, usd: 10 },
+        { m: 47, usd: 95 },
+        { m: 59, usd: 110 },
+      ],
+      digitalgold: [
+        { m: 0, usd: 1550 },
+        { m: 11, usd: 1900 },
+        { m: 23, usd: 1800 },
+        { m: 35, usd: 1950 },
+        { m: 47, usd: 2050 },
+        { m: 59, usd: 2150 },
+      ],
+    };
 
-    const priceUsdAtMonth = (m) => {
+    const interpolateUsd = (anchors, m) => {
       const month = clamp(m, 0, months - 1);
       let i = 0;
       while (i < anchors.length - 1 && month > anchors[i + 1].m) i += 1;
@@ -284,28 +311,46 @@
       return a.usd + t * (b.usd - a.usd);
     };
 
+    const priceUsdAtMonth = (planKey, m) => {
+      if (planKey === 'bigthree') {
+        const btc = interpolateUsd(anchorsByPlan.bitcoin, m);
+        const eth = interpolateUsd(anchorsByPlan.ethereum, m);
+        const sol = interpolateUsd(anchorsByPlan.solana, m);
+        const btc0 = interpolateUsd(anchorsByPlan.bitcoin, 0);
+        const eth0 = interpolateUsd(anchorsByPlan.ethereum, 0);
+        const sol0 = interpolateUsd(anchorsByPlan.solana, 0);
+        // Weighted normalized basket index (BTC 45% / ETH 35% / SOL 20%).
+        return 100 * ((btc / btc0) * 0.45 + (eth / eth0) * 0.35 + (sol / sol0) * 0.2);
+      }
+      const anchors = anchorsByPlan[planKey] || anchorsByPlan.bitcoin;
+      return interpolateUsd(anchors, m);
+    };
+
+    const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
+    const fxMultiplier = isUsdt ? 1 : fxTwdPerUsd;
+
     const occurrencesPerMonth = (() => {
       if (freq === 'daily') return 365.0 / 12.0; // ≈ 30.42
       if (freq === 'weekly') return 52.0 / 12.0; // ≈ 4.33
       return 1.0; // monthly
     })();
 
-    const investPerMonthTwd = amount * occurrencesPerMonth;
-    const totalInvestedTwd = investPerMonthTwd * months;
+    const investPerMonth = amount * occurrencesPerMonth;
+    const totalInvested = investPerMonth * months;
 
-    let btcAccum = 0;
+    let assetAccum = 0;
     for (let m = 0; m < months; m += 1) {
-      const priceTwd = priceUsdAtMonth(m) * fxTwdPerUsd;
-      if (priceTwd <= 0) continue;
-      btcAccum += investPerMonthTwd / priceTwd;
+      const priceLocal = priceUsdAtMonth(activePlan, m) * fxMultiplier;
+      if (priceLocal <= 0) continue;
+      assetAccum += investPerMonth / priceLocal;
     }
 
-    const endPriceTwd = priceUsdAtMonth(months - 1) * fxTwdPerUsd;
-    const finalValueTwd = btcAccum * endPriceTwd;
-    const profitTwd = finalValueTwd - totalInvestedTwd;
-    const returnPct = totalInvestedTwd > 0 ? (profitTwd / totalInvestedTwd) * 100 : 0;
+    const endPriceLocal = priceUsdAtMonth(activePlan, months - 1) * fxMultiplier;
+    const finalValue = assetAccum * endPriceLocal;
+    const profit = finalValue - totalInvested;
+    const returnPct = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
 
-    absEl.textContent = `${profitTwd >= 0 ? '+' : '-'}${formatTwdNumber(profitTwd)}`;
+    absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
     pctEl.textContent = formatPct(returnPct);
   };
 
@@ -316,16 +361,26 @@
     const amountEl = document.querySelector('[data-plan-amount]');
     if (!slider || !fill || !thumb || !amountEl) return;
 
-    const min = parseInt(slider.getAttribute('data-min') || '500', 10);
-    const max = parseInt(slider.getAttribute('data-max') || '100000', 10);
-
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatNumber = (n) => n.toLocaleString('en-US');
 
-    let value = clamp(parseInt(slider.getAttribute('aria-valuenow') || '10000', 10), min, max);
+    // Read bounds live from DOM so currency switches take effect immediately
+    const getMin = () => parseInt(slider.getAttribute('data-min') || '500', 10);
+    const getMax = () => parseInt(slider.getAttribute('data-max') || '100000', 10);
 
-    const pctFromValue = (v) => (max === min ? 0 : (v - min) / (max - min));
+    let value = clamp(parseInt(slider.getAttribute('aria-valuenow') || '10000', 10), getMin(), getMax());
+
+    const pctFromValue = (v) => {
+      const mn = getMin(); const mx = getMax();
+      return mx === mn ? 0 : (v - mn) / (mx - mn);
+    };
     const stepForPct = (pct) => {
+      const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
+      if (isUsdt) {
+        if (pct < 1 / 3) return 5;
+        if (pct < 2 / 3) return 25;
+        return 100;
+      }
       if (pct < 1 / 3) return 500;
       if (pct < 2 / 3) return 1000;
       return 5000;
@@ -333,9 +388,10 @@
     const roundToStep = (v, step) => Math.round(v / step) * step;
 
     const setValue = (next, pctHint) => {
+      const mn = getMin(); const mx = getMax();
       const pctRaw = typeof pctHint === 'number' ? pctHint : pctFromValue(next);
       const step = stepForPct(pctRaw);
-      value = clamp(roundToStep(next, step), min, max);
+      value = clamp(roundToStep(next, step), mn, mx);
       const pct = pctFromValue(value);
       fill.style.width = `${pct * 100}%`;
       thumb.style.left = `calc(${pct * 100}% - ${pct * 24}px)`;
@@ -345,10 +401,11 @@
     };
 
     const setFromClientX = (clientX) => {
+      const mn = getMin(); const mx = getMax();
       const rect = slider.getBoundingClientRect();
       const x = clamp(clientX - rect.left, 0, rect.width);
       const pct = rect.width === 0 ? 0 : x / rect.width;
-      const raw = min + pct * (max - min);
+      const raw = mn + pct * (mx - mn);
       setValue(raw, pct);
     };
 
@@ -369,9 +426,10 @@
     slider.addEventListener('pointerup', onPointerUp);
     slider.addEventListener('pointercancel', onPointerUp);
 
-    // Keyboard support (optional but cheap)
+    // Keyboard support
     slider.tabIndex = 0;
     slider.addEventListener('keydown', (e) => {
+      const mn = getMin(); const mx = getMax();
       const step = stepForPct(pctFromValue(value));
       if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
         e.preventDefault();
@@ -381,14 +439,17 @@
         setValue(value + step);
       } else if (e.key === 'Home') {
         e.preventDefault();
-        setValue(min);
+        setValue(mn);
       } else if (e.key === 'End') {
         e.preventDefault();
-        setValue(max);
+        setValue(mx);
       }
     });
 
     setValue(value);
+
+    // Expose a re-render function for currency switches
+    slider._planSliderSetValue = setValue;
   };
 
   const initPlanStrategyFreq = () => {
@@ -425,6 +486,8 @@
       if (!slide) return;
       titleEl.textContent = slide.getAttribute('data-title') || '';
       subEl.textContent = slide.getAttribute('data-subtitle') || '';
+      carousel.setAttribute('data-active-plan', (slide.getAttribute('data-plan-key') || 'bitcoin').toLowerCase());
+      updatePlanStrategyHistoricalReturn();
     };
 
     const initialIndex = Math.max(
@@ -523,6 +586,116 @@
     });
   };
 
+  // ─── Currency state ──────────────────────────────────────────────────────────
+  const currencyState = { summary: 'TWD', plan: 'TWD' };
+
+  const updateSummaryCurrencyUI = () => {
+    const cur = currencyState.summary;
+    document.querySelectorAll('[data-summary-currency-label]').forEach((el) => { el.textContent = cur; });
+    document.querySelectorAll('[data-summary-selector-label]').forEach((el) => { el.textContent = cur; });
+  };
+
+  const updatePlanCurrencyUI = () => {
+    const cur = currencyState.plan;
+    const isUsdt = cur === 'USDT';
+
+    // Labels
+    document.querySelectorAll('[data-plan-currency-label]').forEach((el) => { el.textContent = cur; });
+    document.querySelectorAll('[data-plan-return-currency]').forEach((el) => { el.textContent = ` ${cur}`; });
+
+    // Amount icon
+    const amountIcon = document.querySelector('[data-plan-amount-icon]');
+    if (amountIcon) {
+      amountIcon.src = isUsdt ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
+    }
+
+    // Slider range
+    const slider = document.querySelector('[data-plan-slider]');
+    if (slider) {
+      const min = isUsdt ? 15 : 500;
+      const max = isUsdt ? 3000 : 100000;
+      const defaultVal = isUsdt ? 300 : 10000;
+      slider.setAttribute('data-min', String(min));
+      slider.setAttribute('data-max', String(max));
+      slider.setAttribute('aria-valuemin', String(min));
+      slider.setAttribute('aria-valuemax', String(max));
+
+      const clamped = defaultVal;
+      if (typeof slider._planSliderSetValue === 'function') {
+        slider._planSliderSetValue(clamped);
+      } else {
+        slider.setAttribute('aria-valuenow', String(clamped));
+      }
+    }
+
+    // updatePlanStrategyHistoricalReturn is called by setValue above; skip if slider existed
+    if (!slider || typeof slider._planSliderSetValue !== 'function') {
+      updatePlanStrategyHistoricalReturn();
+    }
+  };
+
+  const initCurrencySheet = () => {
+    const sheet = document.querySelector('[data-currency-sheet]');
+    if (!sheet) return;
+
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const titleEl = sheet.querySelector('[data-currency-sheet-title]');
+    const options = sheet.querySelectorAll('[data-currency-sheet-option]');
+    let currentContext = null;
+
+    const setSelected = (value) => {
+      options.forEach((opt) => {
+        opt.classList.toggle('is-selected', opt.getAttribute('data-currency-sheet-option') === value);
+      });
+    };
+
+    const open = (context) => {
+      currentContext = context;
+      const isSummary = context === 'summary';
+      if (titleEl) titleEl.textContent = isSummary ? 'Display currency' : 'Investment currency';
+      setSelected(currencyState[context]);
+      sheet.hidden = false;
+      requestAnimationFrame(() => {
+        sheet.classList.add('is-open');
+      });
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+        sheet.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 400);
+    };
+
+    // Open triggers
+    document.querySelectorAll('[data-currency-sheet-trigger]').forEach((btn) => {
+      btn.addEventListener('click', () => open(btn.getAttribute('data-currency-sheet-trigger')));
+    });
+
+    // Close triggers
+    sheet.querySelectorAll('[data-currency-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+
+    // Option selection
+    options.forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const value = opt.getAttribute('data-currency-sheet-option');
+        if (!currentContext) return;
+        currencyState[currentContext] = value;
+        setSelected(value);
+        if (currentContext === 'summary') updateSummaryCurrencyUI();
+        if (currentContext === 'plan') updatePlanCurrencyUI();
+        close();
+      });
+    });
+  };
+  // ─────────────────────────────────────────────────────────────────────────────
+
   initStates();
   initBadgeControls();
   initTabs();
@@ -532,6 +705,7 @@
   initPlanStrategyFreq();
   initPlanStrategyCarousel();
   initLimitsPanel();
+  initCurrencySheet();
   initPrototypeReset();
 
   const initHeaderScrollSwap = () => {

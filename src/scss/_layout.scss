@@ -1844,8 +1844,8 @@ html[data-active-tab="finance"] {
   border-radius: 16px;
   padding: 0 10px 0 10px;
   border: 0;
-  background: #2D2F2F;
-  color: #ffffff;
+  background: #1B1D1D;
+  color: #9B9C9C;
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
@@ -2193,6 +2193,185 @@ html[data-active-tab="finance"] {
   font-size: 14px;
   font-weight: 600;
 }
+
+// ─── Currency bottom sheet ────────────────────────────────────────────────────
+
+.currency-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.currency-sheet.is-open {
+  pointer-events: auto;
+}
+
+.currency-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0);
+  border: 0;
+  padding: 0;
+  cursor: default;
+  transition: background 0.3s ease;
+}
+
+.currency-sheet.is-open .currency-sheet__backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.currency-sheet__panel {
+  position: relative;
+  background: #1b1d1d;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.currency-sheet.is-open .currency-sheet__panel {
+  transform: translateY(0);
+}
+
+.currency-sheet__handle-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16px 156px;
+}
+
+.currency-sheet__handle {
+  width: 48px;
+  height: 6px;
+  background: #47494a;
+  border-radius: 12px;
+}
+
+.currency-sheet__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  padding: 0 16px 24px;
+}
+
+.currency-sheet__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+  width: 100%;
+}
+
+.currency-sheet__list {
+  width: 100%;
+  background: #2d2f2f;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.currency-sheet__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.currency-sheet__item-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.currency-sheet__item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.currency-sheet__item-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+}
+
+.currency-sheet__item-desc {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  display: block;
+}
+
+.currency-sheet__item-radio {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #5a5d5e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.currency-sheet__item.is-selected .currency-sheet__item-radio {
+  border-color: #275cfd;
+  background: #275cfd;
+}
+
+.currency-sheet__radio-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.currency-sheet__item.is-selected .currency-sheet__radio-inner {
+  background: #ffffff;
+}
+
+.currency-sheet__divider {
+  height: 1px;
+  background: #3c4248;
+  margin: 0 16px;
+}
+
+.currency-sheet__footer {
+  background: #1b1d1d;
+  padding: 16px;
+}
+
+.currency-sheet__cancel {
+  width: 100%;
+  height: 48px;
+  background: #2d2f2f;
+  border: 0;
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 .support__card {
   height: 52px;
