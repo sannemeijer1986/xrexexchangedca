@@ -1756,7 +1756,7 @@ html[data-active-tab=finance] .app-header__tabs {
   padding: 0 8px;
   border: 0;
   background: #1B1D1D;
-  color: #9B9C9C;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
@@ -1878,22 +1878,34 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-strategy__range {
   height: 24px;
   border-radius: 16px;
-  padding: 0 10px 0 10px;
+  padding: 0 10px;
   border: 0;
   background: #1B1D1D;
-  color: #9B9C9C;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .plan-strategy__range-icon {
   width: 16px;
   height: 16px;
   display: block;
-  opacity: 0.9;
+}
+
+.plan-strategy__return-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.plan-strategy__return-header .plan-strategy__return-title {
+  margin-bottom: 0;
 }
 
 .plan-strategy__card {
@@ -2234,11 +2246,19 @@ html[data-active-tab=finance] .app-header__tabs {
   margin: 0 0 24px;
 }
 
+.curated-portfolios__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
 .curated-portfolios__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 16px;
+  margin: 0;
 }
 
 .curated-portfolios__list {
@@ -2395,6 +2415,7 @@ html[data-active-tab=finance] .app-header__tabs {
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
+  padding-bottom: 16px;
 }
 
 .currency-sheet.is-open .currency-sheet__panel {
