@@ -250,12 +250,14 @@
     const freq = (freqActive.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
     const activePlan = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
 
-    // Rough, offline 5Y (2020→2025) DCA estimate:
-    // - Invest fixed amount per selected frequency
-    // - Buy at monthly interpolated BTC prices (USD), convert to TWD with fixed FX
-    // - Value portfolio at end price
+    // Rough offline DCA estimate over 5Y anchor data (Jan 2020 → Dec 2024).
+    // Shorter ranges (3Y / 1Y) start later into the same dataset.
     const fxTwdPerUsd = 32; // intentionally fixed/rough
-    const months = 60;
+    const totalDataMonths = 60; // full anchor dataset length
+    const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
+    const periodMonths = rangeMonthsMap[(typeof rangeState !== 'undefined' ? rangeState.plan : '5Y')] || 60;
+    const startMonth = totalDataMonths - periodMonths;
+    const months = totalDataMonths; // used for anchor clamping
 
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatPct = (n) =>
@@ -336,10 +338,10 @@
     })();
 
     const investPerMonth = amount * occurrencesPerMonth;
-    const totalInvested = investPerMonth * months;
+    const totalInvested = investPerMonth * periodMonths;
 
     let assetAccum = 0;
-    for (let m = 0; m < months; m += 1) {
+    for (let m = startMonth; m < months; m += 1) {
       const priceLocal = priceUsdAtMonth(activePlan, m) * fxMultiplier;
       if (priceLocal <= 0) continue;
       assetAccum += investPerMonth / priceLocal;
@@ -586,8 +588,24 @@
     });
   };
 
-  // ─── Currency state ──────────────────────────────────────────────────────────
+  // ─── Currency + range state ───────────────────────────────────────────────────
   const currencyState = { summary: 'TWD', plan: 'TWD' };
+  const rangeState = { plan: '5Y', curated: '5Y' };
+
+  const curatedReturns = {
+    bigthree:    { '5Y': '45.23%', '3Y': '28.15%', '1Y': '18.42%' },
+    digitalgold: { '5Y': '35.23%', '3Y': '22.10%', '1Y': '12.35%' },
+    aiessentials:{ '5Y': '52.23%', '3Y': '31.45%', '1Y': '22.18%' },
+  };
+
+  const updateCuratedReturnsUI = () => {
+    const range = rangeState.curated;
+    document.querySelectorAll('[data-curated-key]').forEach((card) => {
+      const key = card.getAttribute('data-curated-key');
+      const pctEl = card.querySelector('.curated-portfolios__return-pct');
+      if (pctEl && curatedReturns[key]) pctEl.textContent = curatedReturns[key][range] || '';
+    });
+  };
 
   const updateSummaryCurrencyUI = () => {
     const cur = currencyState.summary;
@@ -694,6 +712,66 @@
       });
     });
   };
+  const updateRangeUI = (context, range) => {
+    document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
+    if (context === 'plan') {
+      document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
+        el.textContent = `${range} historical return ≈`;
+      });
+    }
+  };
+
+  const initRangeSheet = () => {
+    const sheet = document.querySelector('[data-range-sheet]');
+    if (!sheet) return;
+
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const options = sheet.querySelectorAll('[data-range-sheet-option]');
+    let currentContext = 'plan';
+
+    const setSelected = (value) => {
+      options.forEach((opt) => {
+        opt.classList.toggle('is-selected', opt.getAttribute('data-range-sheet-option') === value);
+      });
+    };
+
+    const open = (context) => {
+      currentContext = context;
+      setSelected(rangeState[context]);
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 400);
+    };
+
+    document.querySelectorAll('[data-range-sheet-trigger]').forEach((btn) => {
+      btn.addEventListener('click', () => open(btn.getAttribute('data-range-sheet-trigger')));
+    });
+
+    sheet.querySelectorAll('[data-range-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+
+    options.forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const value = opt.getAttribute('data-range-sheet-option');
+        rangeState[currentContext] = value;
+        setSelected(value);
+        updateRangeUI(currentContext, value);
+        if (currentContext === 'plan') updatePlanStrategyHistoricalReturn();
+        if (currentContext === 'curated') updateCuratedReturnsUI();
+        close();
+      });
+    });
+  };
   // ─────────────────────────────────────────────────────────────────────────────
 
   initStates();
@@ -706,6 +784,7 @@
   initPlanStrategyCarousel();
   initLimitsPanel();
   initCurrencySheet();
+  initRangeSheet();
   initPrototypeReset();
 
   const initHeaderScrollSwap = () => {

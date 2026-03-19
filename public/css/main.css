@@ -2510,24 +2510,30 @@ html[data-active-tab=finance] .app-header__tabs {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .currency-sheet__item.is-selected .currency-sheet__item-radio {
-  border-color: #275cfd;
-  background: #275cfd;
+  border-color: transparent;
 }
 
 .currency-sheet__radio-inner {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: transparent;
-  transition: background 0.15s ease;
+  width: 24px;
+  height: 24px;
+  display: none;
+  flex-shrink: 0;
 }
 
 .currency-sheet__item.is-selected .currency-sheet__radio-inner {
-  background: #ffffff;
+  display: block;
+}
+
+.currency-sheet__item--simple {
+  padding-left: 16px;
+}
+
+.currency-sheet__item--simple .currency-sheet__item-content {
+  padding: 2px 0;
 }
 
 .currency-sheet__divider {

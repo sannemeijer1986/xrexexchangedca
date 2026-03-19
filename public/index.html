@@ -476,8 +476,8 @@
                                             <div class="plan-strategy__return">
                                                 <div class="plan-strategy__return-header">
                                                     <div class="plan-strategy__return-title" data-plan-return-title>5Y historical return ≈</div>
-                                                    <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger>
-                                                        <span data-range-label>5Y</span>
+                                                    <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="plan">
+                                                        <span data-range-label="plan">5Y</span>
                                                         <img src="assets/icon_chevron_down_white.svg" alt="" class="plan-strategy__range-icon" />
                                                     </button>
                                                 </div>
@@ -505,15 +505,15 @@
                                 <section class="curated-portfolios" aria-label="Curated portfolios">
                                     <div class="curated-portfolios__header">
                                         <h2 class="curated-portfolios__title">Curated portfolios</h2>
-                                        <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger>
-                                            <span data-range-label>5Y</span>
+                                        <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="curated">
+                                            <span data-range-label="curated">5Y</span>
                                             <img src="assets/icon_chevron_down_white.svg" alt="" class="plan-strategy__range-icon" />
                                         </button>
                                     </div>
 
                                     <div class="curated-portfolios__list">
 
-                                        <div class="curated-portfolios__card">
+                                        <div class="curated-portfolios__card" data-curated-key="bigthree">
                                             <div class="curated-portfolios__card-main">
                                                 <div class="curated-portfolios__icon-wrap">
                                                     <img src="assets/icon_bigthree.svg" alt="Big Three" class="curated-portfolios__icon" />
@@ -530,7 +530,7 @@
                                             <p class="curated-portfolios__desc">DCA into the top three cryptos</p>
                                         </div>
 
-                                        <div class="curated-portfolios__card">
+                                        <div class="curated-portfolios__card" data-curated-key="digitalgold">
                                             <div class="curated-portfolios__card-main">
                                                 <div class="curated-portfolios__icon-wrap">
                                                     <img src="assets/icon_digitalgold.svg" alt="Digital Gold" class="curated-portfolios__icon" />
@@ -547,10 +547,10 @@
                                             <p class="curated-portfolios__desc">Tokenized Gold and Bitcoin combined</p>
                                         </div>
 
-                                        <div class="curated-portfolios__card">
+                                        <div class="curated-portfolios__card" data-curated-key="aiessentials">
                                             <div class="curated-portfolios__card-main">
                                                 <div class="curated-portfolios__icon-wrap">
-                                                    <img src="assets/icon_aiessentials.svg" alt="AI essentials" class="curated-portfolios__icon" />
+                                                    <img src="assets/icon_solana.svg" alt="AI essentials" class="curated-portfolios__icon" />
                                                 </div>
                                                 <div class="curated-portfolios__info">
                                                     <span class="curated-portfolios__name">AI essentials</span>
@@ -738,6 +738,51 @@
             </div>
         </div>
     </div>
+
+    <!-- Range (period) bottom sheet -->
+    <div class="currency-sheet" data-range-sheet hidden aria-modal="true" role="dialog" aria-label="Select return period">
+        <button class="currency-sheet__backdrop" type="button" data-range-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Historical return ≈</h2>
+                <div class="currency-sheet__list">
+                    <button class="currency-sheet__item currency-sheet__item--simple" type="button" data-range-sheet-option="5Y">
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">5Y</span>
+                        </div>
+                        <div class="currency-sheet__item-radio" aria-hidden="true">
+                            <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                        </div>
+                    </button>
+                    <div class="currency-sheet__divider"></div>
+                    <button class="currency-sheet__item currency-sheet__item--simple" type="button" data-range-sheet-option="3Y">
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">3Y</span>
+                        </div>
+                        <div class="currency-sheet__item-radio" aria-hidden="true">
+                            <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                        </div>
+                    </button>
+                    <div class="currency-sheet__divider"></div>
+                    <button class="currency-sheet__item currency-sheet__item--simple" type="button" data-range-sheet-option="1Y">
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">1Y</span>
+                        </div>
+                        <div class="currency-sheet__item-radio" aria-hidden="true">
+                            <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-range-sheet-close>Cancel</button>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <div class="build-badge" role="note" aria-label="Prototype state controls">
