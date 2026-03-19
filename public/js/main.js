@@ -181,12 +181,37 @@
     window.addEventListener('resize', () => syncTopChromeHeight(), { passive: true });
   };
 
+  const initFinanceHeaderTabs = () => {
+    const tabButtons = Array.from(document.querySelectorAll('[data-finance-header-tab]'));
+    const pages = Array.from(document.querySelectorAll('[data-finance-page]'));
+    if (tabButtons.length === 0 || pages.length === 0) return;
+
+    const setPage = (pageId) => {
+      document.documentElement.dataset.financePage = pageId;
+      tabButtons.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.getAttribute('data-finance-header-tab') === pageId);
+      });
+      pages.forEach((page) => {
+        page.hidden = page.getAttribute('data-finance-page') !== pageId;
+      });
+      const content = document.querySelector('[data-content]');
+      if (content) content.scrollTop = 0;
+    };
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setPage(btn.getAttribute('data-finance-header-tab')));
+    });
+
+    setPage('auto');
+  };
+
   const initFinanceSectionNav = () => {
-    const nav = document.querySelector('[data-finance-section-nav]');
+    const loanPage = document.querySelector('[data-finance-page="loan"]');
+    const nav = loanPage?.querySelector('[data-finance-section-nav]');
     if (!nav) return;
 
     const buttons = Array.from(nav.querySelectorAll('[data-finance-section]'));
-    const views = Array.from(document.querySelectorAll('[data-finance-view]'));
+    const views = Array.from(loanPage.querySelectorAll('[data-finance-view]'));
 
     const setSection = (sectionId) => {
       buttons.forEach((btn) => btn.classList.toggle('is-active', btn.getAttribute('data-finance-section') === sectionId));
@@ -269,6 +294,7 @@
   initStates();
   initBadgeControls();
   initTabs();
+  initFinanceHeaderTabs();
   initFinanceSectionNav();
   initLimitsPanel();
   initPrototypeReset();
