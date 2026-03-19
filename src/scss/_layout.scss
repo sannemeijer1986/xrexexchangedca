@@ -1867,14 +1867,13 @@ html[data-active-tab="finance"] {
 }
 
 .plan-strategy__hero {
-  padding: 24px 0 20px;
+  padding: 24px 0 12px 0;
   text-align: center;
   background: radial-gradient(140px 210px at 50% 0%, #2D2F2F 0%, #151718 65%);
 }
 
 .plan-strategy__carousel-wrap {
   position: relative;
-  margin-bottom: 8px;
   overflow: visible;
 }
 
@@ -1997,7 +1996,7 @@ html[data-active-tab="finance"] {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .plan-strategy__amount-row {
@@ -2053,7 +2052,7 @@ html[data-active-tab="finance"] {
 .plan-strategy__slider {
   position: relative;
   height: 18px;
-  margin: 6px 0 14px;
+  margin: 2px 0 14px;
 }
 
 .plan-strategy__slider-track {
