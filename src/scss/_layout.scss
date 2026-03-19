@@ -1834,7 +1834,7 @@ html[data-active-tab="finance"] {
 }
 
 .plan-strategy__title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
 }
@@ -1907,6 +1907,8 @@ html[data-active-tab="finance"] {
 
 .plan-strategy__card-item.swiper-slide-active {
   background: #2D2F2F;
+  // outline: 2px solid #3C4248;
+  // outline-offset: -2px;
 }
 
 .plan-strategy__card-icon {
@@ -2193,6 +2195,137 @@ html[data-active-tab="finance"] {
   font-size: 14px;
   font-weight: 600;
 }
+
+// ─── Curated portfolios ───────────────────────────────────────────────────────
+
+.curated-portfolios {
+  margin: 0 0 24px;
+}
+
+.curated-portfolios__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 16px;
+}
+
+.curated-portfolios__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.curated-portfolios__card {
+  background: #1b1d1d;
+  border-radius: 16px;
+  padding: 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.curated-portfolios__card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.curated-portfolios__icon-wrap {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.curated-portfolios__icon {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.curated-portfolios__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.curated-portfolios__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.curated-portfolios__tickers {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.curated-portfolios__return {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.curated-portfolios__return-arrow {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
+
+.curated-portfolios__return-pct {
+  font-size: 16px;
+  font-weight: 600;
+  color: #5ac47d;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.phone-container p.curated-portfolios__desc {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #9b9c9c;
+  margin: 0;
+  padding-left: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curated-portfolios__footer {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+  margin-top: 16px;
+}
+
+.curated-portfolios__show-all {
+  height: 32px;
+  padding: 0 10px;
+  background: #2d2f2f;
+  border: 0;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Currency bottom sheet ────────────────────────────────────────────────────
 
