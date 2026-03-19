@@ -350,6 +350,51 @@
                     <section class="finance">
                         <div data-finance-page="auto">
                             <div class="finance__body">
+                                <div class="finance-summary">
+                                    <div class="finance-summary__top">
+                                        <div class="finance-summary__row">
+                                            <div class="finance-summary__left">
+                                                <div class="finance-summary__label">
+                                                    <span>Current value ≈</span>
+                                                    <img src="assets/icon_eye.svg" alt="" class="finance-summary__eye" />
+                                                </div>
+                                                <div class="finance-summary__value">
+                                                    <span class="finance-summary__value-num">0.00</span>
+                                                    <span class="finance-summary__value-currency">USD</span>
+                                                </div>
+                                                <div class="finance-summary__delta">
+                                                    <img src="assets/icon_northeast_arrow.svg" alt="" class="finance-summary__delta-icon" />
+                                                    <span>00.0% (+0.00 USD)</span>
+                                                </div>
+                                            </div>
+                                            <button class="finance-summary__selector" type="button" aria-label="Currency selector">
+                                                <span>USD</span>
+                                                <span class="finance-summary__selector-chevron">⌄</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="finance-summary__row finance-summary__row--split">
+                                            <div class="finance-summary__stat">
+                                                <div class="finance-summary__stat-label">Total invested ≈</div>
+                                                <div class="finance-summary__stat-value">999,999.99 USD</div>
+                                            </div>
+                                            <div class="finance-summary__stat finance-summary__stat--right">
+                                                <div class="finance-summary__stat-label">0 buys · Next buy</div>
+                                                <button class="finance-summary__next" type="button" aria-label="Next buy time">
+                                                    <span>Mar 18 · 11:00</span>
+                                                    <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="finance-summary__actions">
+                                        <button class="finance-summary__btn finance-summary__btn--primary" type="button">Create plan</button>
+                                        <button class="finance-summary__btn finance-summary__btn--secondary" type="button">My plans (0)</button>
+                                        <button class="finance-summary__btn finance-summary__btn--icon" type="button" aria-label="Guide">?</button>
+                                    </div>
+                                </div>
+
                                 <div class="section-title">Auto-invest</div>
                                 <div class="placeholder-box">
                                     <p>Auto-invest placeholder page (no segmented control here).</p>
