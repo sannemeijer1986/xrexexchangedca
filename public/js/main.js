@@ -246,7 +246,7 @@
     if (!slider || !fill || !thumb || !amountEl) return;
 
     const min = parseInt(slider.getAttribute('data-min') || '500', 10);
-    const max = parseInt(slider.getAttribute('data-max') || '250000', 10);
+    const max = parseInt(slider.getAttribute('data-max') || '100000', 10);
 
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatNumber = (n) => n.toLocaleString('en-US');
@@ -267,7 +267,7 @@
       value = clamp(roundToStep(next, step), min, max);
       const pct = pctFromValue(value);
       fill.style.width = `${pct * 100}%`;
-      thumb.style.left = `calc(${pct * 100}% - 12px)`;
+      thumb.style.left = `calc(${pct * 100}% - ${pct * 24}px)`;
       amountEl.textContent = formatNumber(value);
       slider.setAttribute('aria-valuenow', String(value));
     };
