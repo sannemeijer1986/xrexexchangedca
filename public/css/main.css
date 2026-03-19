@@ -2502,11 +2502,12 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .currency-sheet__item-radio {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 2px solid #5a5d5e;
+  outline: 2px solid #5a5d5e;
+  outline-offset: -2px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2514,12 +2515,12 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .currency-sheet__item.is-selected .currency-sheet__item-radio {
-  border-color: transparent;
+  outline-color: transparent;
 }
 
 .currency-sheet__radio-inner {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: none;
   flex-shrink: 0;
 }
