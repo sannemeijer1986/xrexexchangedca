@@ -2062,8 +2062,8 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .plan-strategy__amount-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
@@ -2375,6 +2375,140 @@ html[data-active-tab=finance] .app-header__tabs {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.spotlight {
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.spotlight__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.spotlight__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.spotlight__scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+.spotlight__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.spotlight__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: max-content;
+  padding-right: 16px;
+}
+
+.spotlight__row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.crypto-pill {
+  background: #1b1d1d;
+  border-radius: 999px;
+  padding: 8px 14px 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.crypto-pill__icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: block;
+}
+
+.crypto-pill__icon--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.crypto-pill__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 2px;
+  width: 66px;
+  min-width: 0;
+}
+
+.crypto-pill__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crypto-pill__ticker {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crypto-pill__return {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.crypto-pill__arrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  filter: invert(67%) sepia(48%) saturate(435%) hue-rotate(95deg) brightness(100%) contrast(88%);
+}
+
+.crypto-pill__pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5ac47d;
+  white-space: nowrap;
+}
+
+.spotlight__footer {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+  margin-top: 16px;
 }
 
 .currency-sheet {

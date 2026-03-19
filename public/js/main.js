@@ -590,12 +590,27 @@
 
   // ─── Currency + range state ───────────────────────────────────────────────────
   const currencyState = { summary: 'TWD', plan: 'TWD' };
-  const rangeState = { plan: '5Y', curated: '5Y' };
+  const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y' };
 
   const curatedReturns = {
     bigthree:    { '5Y': '45.23%', '3Y': '28.15%', '1Y': '18.42%' },
     digitalgold: { '5Y': '35.23%', '3Y': '22.10%', '1Y': '12.35%' },
     aiessentials:{ '5Y': '52.23%', '3Y': '31.45%', '1Y': '22.18%' },
+  };
+
+  const spotlightReturns = {
+    btc:    { '5Y': '121.23%', '3Y': '82.40%', '1Y': '52.10%' },
+    eth:    { '5Y': '121.23%', '3Y': '51.30%', '1Y': '38.50%' },
+    xaut:   { '5Y': '121.23%', '3Y': '44.20%', '1Y': '28.30%' },
+    link:   { '5Y': '121.23%', '3Y': '71.40%', '1Y': '35.60%' },
+    render: { '5Y': '121.23%', '3Y': '92.50%', '1Y': '65.20%' },
+    near:   { '5Y': '121.23%', '3Y': '63.10%', '1Y': '41.80%' },
+    ondo:   { '5Y': '121.23%', '3Y': '58.30%', '1Y': '32.40%' },
+    pol:    { '5Y': '121.23%', '3Y': '39.70%', '1Y': '22.10%' },
+    xrp:    { '5Y': '121.23%', '3Y': '55.80%', '1Y': '44.20%' },
+    sol:    { '5Y': '121.23%', '3Y': '91.20%', '1Y': '62.30%' },
+    aave:   { '5Y': '121.23%', '3Y': '67.40%', '1Y': '38.90%' },
+    ada:    { '5Y': '121.23%', '3Y': '41.30%', '1Y': '19.50%' },
   };
 
   const updateCuratedReturnsUI = () => {
@@ -604,6 +619,15 @@
       const key = card.getAttribute('data-curated-key');
       const pctEl = card.querySelector('.curated-portfolios__return-pct');
       if (pctEl && curatedReturns[key]) pctEl.textContent = curatedReturns[key][range] || '';
+    });
+  };
+
+  const updateSpotlightReturnsUI = () => {
+    const range = rangeState.spotlight;
+    document.querySelectorAll('[data-spotlight-key]').forEach((pill) => {
+      const key = pill.getAttribute('data-spotlight-key');
+      const pctEl = pill.querySelector('.crypto-pill__pct');
+      if (pctEl && spotlightReturns[key]) pctEl.textContent = spotlightReturns[key][range] || '';
     });
   };
 
@@ -768,6 +792,7 @@
         updateRangeUI(currentContext, value);
         if (currentContext === 'plan') updatePlanStrategyHistoricalReturn();
         if (currentContext === 'curated') updateCuratedReturnsUI();
+        if (currentContext === 'spotlight') updateSpotlightReturnsUI();
         close();
       });
     });
