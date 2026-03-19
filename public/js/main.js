@@ -812,6 +812,37 @@
   initRangeSheet();
   initPrototypeReset();
 
+  // Drag-to-scroll for spotlight crypto grid
+  const spotlightScroll = document.querySelector('.spotlight__scroll');
+  if (spotlightScroll) {
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    spotlightScroll.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.pageX - spotlightScroll.offsetLeft;
+      scrollLeft = spotlightScroll.scrollLeft;
+      spotlightScroll.classList.add('is-dragging');
+    });
+
+    const stopDrag = () => {
+      isDragging = false;
+      spotlightScroll.classList.remove('is-dragging');
+    };
+
+    spotlightScroll.addEventListener('mouseleave', stopDrag);
+    spotlightScroll.addEventListener('mouseup', stopDrag);
+
+    spotlightScroll.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.pageX - spotlightScroll.offsetLeft;
+      const delta = x - startX;
+      spotlightScroll.scrollLeft = scrollLeft - delta;
+    });
+  }
+
   const initHeaderScrollSwap = () => {
     const header = document.querySelector('.app-header');
     const topChrome = document.querySelector('.top-chrome');
