@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Sora:wght@600;700&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="css/main.css" />
 </head>
 
@@ -350,6 +351,7 @@
                     <section class="finance">
                         <div data-finance-page="auto">
                             <div class="finance__body">
+                                <div class="finance__sections">
                                 <div class="finance-summary">
                                     <div class="finance-summary__top">
                                         <div class="finance-summary__row">
@@ -389,11 +391,11 @@
                                     </div>
 
                                     <div class="finance-summary__actions">
-                                        <button class="finance-summary__btn finance-summary__btn--primary" type="button">New plan</button>
-                                        <button class="finance-summary__btn finance-summary__btn--secondary" type="button">My plans (0)</button>
-                                        <button class="finance-summary__btn finance-summary__btn--icon" type="button" aria-label="Guide">
+                                        <!-- <button class="finance-summary__btn finance-summary__btn--icon" type="button" aria-label="Guide">
                                             <img src="assets/icon_guide.svg" alt="" class="finance-summary__guide-icon" />
-                                        </button>
+                                        </button> -->
+                                        <button class="finance-summary__btn finance-summary__btn--secondary" type="button">My plans (0)</button>
+                                        <button class="finance-summary__btn finance-summary__btn--primary" type="button">New plan</button>
                                     </div>
                                 </div>
 
@@ -408,25 +410,35 @@
 
                                     <div class="plan-strategy__card">
                                         <div class="plan-strategy__hero">
-                                            <div class="plan-strategy__hero-title">Invest in Bitcoin</div>
-                                            <div class="plan-strategy__carousel" aria-label="Strategy carousel (static)">
-                                                <button class="plan-strategy__chev plan-strategy__chev--left" type="button" aria-label="Previous">
+                                            <div class="plan-strategy__carousel-wrap">
+                                                <button class="plan-strategy__chev plan-strategy__chev--left" type="button" aria-label="Previous" data-plan-carousel-prev>
                                                     <img src="assets/icon_back.svg" alt="" />
                                                 </button>
-                                                <div class="plan-strategy__coin plan-strategy__coin--faded" aria-hidden="true">
-                                                    <div class="plan-strategy__coin-placeholder">SOL</div>
+                                                <div class="plan-strategy__carousel swiper" aria-label="Strategy carousel" data-plan-carousel>
+                                                    <div class="plan-strategy__carousel-track swiper-wrapper">
+                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Solana" data-subtitle="Diversify with Solana" data-plan-carousel-item>
+                                                            <img class="plan-strategy__card-icon" src="assets/icon_solana.svg" alt="Solana" />
+                                                        </div>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Bitcoin" data-subtitle="Build your Bitcoin position steadily" data-plan-carousel-item>
+                                                            <img class="plan-strategy__card-icon" src="assets/icon_currency_btc.svg" alt="BTC" />
+                                                        </div>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Ethereum" data-subtitle="Add ETH alongside BTC" data-plan-carousel-item>
+                                                            <img class="plan-strategy__card-icon" src="assets/icon_currency_eth.svg" alt="ETH" />
+                                                        </div>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Big Three" data-subtitle="BTC, ETH and SOL in one basket" data-plan-carousel-item>
+                                                            <img class="plan-strategy__card-icon" src="assets/icon_bigthree.svg" alt="Big Three" />
+                                                        </div>
+                                                        <div class="plan-strategy__card-item swiper-slide" data-title="Digital Gold" data-subtitle="Preserve value with digital gold" data-plan-carousel-item>
+                                                            <img class="plan-strategy__card-icon" src="assets/icon_digitalgold.svg" alt="Digital Gold" />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="plan-strategy__coin plan-strategy__coin--active">
-                                                    <img src="assets/icon_currency_btc.svg" alt="BTC" />
-                                                </div>
-                                                <div class="plan-strategy__coin plan-strategy__coin--faded" aria-hidden="true">
-                                                    <div class="plan-strategy__coin-placeholder">BASKET</div>
-                                                </div>
-                                                <button class="plan-strategy__chev plan-strategy__chev--right" type="button" aria-label="Next">
+                                                <button class="plan-strategy__chev plan-strategy__chev--right" type="button" aria-label="Next" data-plan-carousel-next>
                                                     <img src="assets/icon_back.svg" alt="" />
                                                 </button>
                                             </div>
-                                            <div class="plan-strategy__hero-sub">Build your Bitcoin position steadily</div>
+                                            <h2 class="plan-strategy__hero-title" data-plan-hero-title>Bitcoin</h2>
+                                            <p class="plan-strategy__hero-sub" data-plan-hero-sub>Build your Bitcoin position steadily</p>
                                         </div>
 
                                         <div class="plan-strategy__controls">
@@ -434,7 +446,8 @@
 
                                             <div class="plan-strategy__amount-row">
                                                 <div class="plan-strategy__amount">
-                                                    <span class="plan-strategy__amount-value" data-plan-amount>5,000</span>
+                                                    <img src="assets/icon_currency_TWD.svg" alt="" class="plan-strategy__amount-icon" />
+                                                    <span class="plan-strategy__amount-value" data-plan-amount>10,000</span>
                                                 </div>
                                                 <button class="plan-strategy__currency" type="button" aria-label="Currency selector">
                                                     <span>TWD</span>
@@ -451,25 +464,32 @@
                                                 role="slider"
                                                 aria-valuemin="500"
                                                 aria-valuemax="100000"
-                                                aria-valuenow="5000"
+                                                aria-valuenow="10000"
                                             >
                                                 <div class="plan-strategy__slider-track"></div>
                                                 <div class="plan-strategy__slider-fill" data-plan-slider-fill></div>
                                                 <div class="plan-strategy__slider-thumb" data-plan-slider-thumb></div>
                                             </div>
 
-                                            <div class="plan-strategy__freq" aria-label="Frequency (static)">
-                                                <button class="plan-strategy__freq-item" type="button">Daily</button>
-                                                <button class="plan-strategy__freq-item" type="button">Weekly</button>
-                                                <button class="plan-strategy__freq-item is-active" type="button">Monthly</button>
+                                            <div class="plan-strategy__freq" aria-label="Frequency" data-plan-freq role="tablist">
+                                                <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false" data-plan-freq-item="daily">Daily</button>
+                                                <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false" data-plan-freq-item="weekly">Weekly</button>
+                                                <button class="plan-strategy__freq-item is-active" type="button" role="tab" aria-selected="true" data-plan-freq-item="monthly">Monthly</button>
                                             </div>
 
                                             <div class="plan-strategy__return">
                                                 <div class="plan-strategy__return-title">5Y historical return ≈</div>
-                                                <div class="plan-strategy__return-value">
-                                                    <img src="assets/icon_northeast_arrow.svg" alt="" />
-                                                    <span class="plan-strategy__return-pct">42.3%</span>
-                                                    <span class="plan-strategy__return-abs">(+58,723.23 TWD)</span>
+                                                <div class="plan-strategy__return-values">
+                                                    <div class="plan-strategy__return-pct-wrap">
+                                                        <div class="plan-strategy__return-pct-line">
+                                                            <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-strategy__return-arrow" />
+                                                            <span class="plan-strategy__return-pct">50.0%</span>
+                                                        </div>
+                                                        <div class="plan-strategy__return-divider" aria-hidden="true"></div>
+                                                    </div>
+                                                    <div class="plan-strategy__return-abs-line">
+                                                        <span class="plan-strategy__return-abs">+58,723.23</span><span class="plan-strategy__return-currency"> TWD</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -480,18 +500,6 @@
                                     </div>
                                 </section>
 
-                                <div class="section-title">Auto-invest</div>
-                                <div class="placeholder-box">
-                                    <p>Auto-invest placeholder page (no segmented control here).</p>
-                                </div>
-                                <div class="placeholder-box">
-                                    <p>More placeholder content</p>
-                                </div>
-                                <div class="placeholder-box">
-                                    <p>More placeholder content</p>
-                                </div>
-                                <div class="placeholder-box">
-                                    <p>More placeholder content</p>
                                 </div>
                             </div>
                         </div>
@@ -659,6 +667,7 @@
         </div>
     </div>
 
+    <script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script defer src="js/main.js"></script>
 </body>
 

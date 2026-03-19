@@ -238,6 +238,77 @@
     setSection('explore');
   };
 
+  const updatePlanStrategyHistoricalReturn = () => {
+    const slider = document.querySelector('[data-plan-slider]');
+    const pctEl = document.querySelector('.plan-strategy__return-pct');
+    const absEl = document.querySelector('.plan-strategy__return-abs');
+    const freqActive = document.querySelector('[data-plan-freq-item].is-active');
+    if (!slider || !pctEl || !absEl || !freqActive) return;
+
+    const amount = parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
+    const freq = (freqActive.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+
+    // Rough, offline 5Y (2020→2025) DCA estimate:
+    // - Invest fixed amount per selected frequency
+    // - Buy at monthly interpolated BTC prices (USD), convert to TWD with fixed FX
+    // - Value portfolio at end price
+    const fxTwdPerUsd = 32; // intentionally fixed/rough
+    const months = 60;
+
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+    const formatPct = (n) =>
+      `${(isFinite(n) ? n : 0).toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+    const formatTwdNumber = (n) =>
+      Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Anchor points (very rough) for BTC price in USD.
+    // These are only used to create a believable trend, not an accurate backtest.
+    const anchors = [
+      { m: 0, usd: 9000 }, // Jan 2020
+      { m: 11, usd: 29000 }, // Dec 2020
+      { m: 23, usd: 47000 }, // Dec 2021
+      { m: 35, usd: 16500 }, // Dec 2022
+      { m: 47, usd: 42000 }, // Dec 2023
+      { m: 59, usd: 52000 }, // Dec 2024 (used as "end of 5Y")
+    ];
+
+    const priceUsdAtMonth = (m) => {
+      const month = clamp(m, 0, months - 1);
+      let i = 0;
+      while (i < anchors.length - 1 && month > anchors[i + 1].m) i += 1;
+      const a = anchors[i];
+      const b = anchors[Math.min(i + 1, anchors.length - 1)];
+      if (!a || !b) return anchors[anchors.length - 1].usd;
+      if (a.m === b.m) return a.usd;
+      const t = (month - a.m) / (b.m - a.m);
+      return a.usd + t * (b.usd - a.usd);
+    };
+
+    const occurrencesPerMonth = (() => {
+      if (freq === 'daily') return 365.0 / 12.0; // ≈ 30.42
+      if (freq === 'weekly') return 52.0 / 12.0; // ≈ 4.33
+      return 1.0; // monthly
+    })();
+
+    const investPerMonthTwd = amount * occurrencesPerMonth;
+    const totalInvestedTwd = investPerMonthTwd * months;
+
+    let btcAccum = 0;
+    for (let m = 0; m < months; m += 1) {
+      const priceTwd = priceUsdAtMonth(m) * fxTwdPerUsd;
+      if (priceTwd <= 0) continue;
+      btcAccum += investPerMonthTwd / priceTwd;
+    }
+
+    const endPriceTwd = priceUsdAtMonth(months - 1) * fxTwdPerUsd;
+    const finalValueTwd = btcAccum * endPriceTwd;
+    const profitTwd = finalValueTwd - totalInvestedTwd;
+    const returnPct = totalInvestedTwd > 0 ? (profitTwd / totalInvestedTwd) * 100 : 0;
+
+    absEl.textContent = `${profitTwd >= 0 ? '+' : '-'}${formatTwdNumber(profitTwd)}`;
+    pctEl.textContent = formatPct(returnPct);
+  };
+
   const initPlanStrategySlider = () => {
     const slider = document.querySelector('[data-plan-slider]');
     const fill = document.querySelector('[data-plan-slider-fill]');
@@ -251,7 +322,7 @@
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatNumber = (n) => n.toLocaleString('en-US');
 
-    let value = clamp(parseInt(slider.getAttribute('aria-valuenow') || '5000', 10), min, max);
+    let value = clamp(parseInt(slider.getAttribute('aria-valuenow') || '10000', 10), min, max);
 
     const pctFromValue = (v) => (max === min ? 0 : (v - min) / (max - min));
     const stepForPct = (pct) => {
@@ -270,6 +341,7 @@
       thumb.style.left = `calc(${pct * 100}% - ${pct * 24}px)`;
       amountEl.textContent = formatNumber(value);
       slider.setAttribute('aria-valuenow', String(value));
+      updatePlanStrategyHistoricalReturn();
     };
 
     const setFromClientX = (clientX) => {
@@ -317,6 +389,74 @@
     });
 
     setValue(value);
+  };
+
+  const initPlanStrategyFreq = () => {
+    const container = document.querySelector('[data-plan-freq]');
+    const items = container?.querySelectorAll('[data-plan-freq-item]');
+    if (!container || !items?.length) return;
+
+    items.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        items.forEach((b) => {
+          b.classList.remove('is-active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-selected', 'true');
+        updatePlanStrategyHistoricalReturn();
+      });
+    });
+
+    updatePlanStrategyHistoricalReturn();
+  };
+
+  const initPlanStrategyCarousel = () => {
+    const carousel = document.querySelector('[data-plan-carousel]');
+    const prevBtn = document.querySelector('[data-plan-carousel-prev]');
+    const nextBtn = document.querySelector('[data-plan-carousel-next]');
+    const titleEl = document.querySelector('[data-plan-hero-title]');
+    const subEl = document.querySelector('[data-plan-hero-sub]');
+    const slides = carousel?.querySelectorAll('[data-plan-carousel-item]');
+    if (!carousel || !slides?.length || !titleEl || !subEl || typeof window.Swiper === 'undefined') return;
+
+    const updateHeroFromIndex = (index) => {
+      const slide = slides[index];
+      if (!slide) return;
+      titleEl.textContent = slide.getAttribute('data-title') || '';
+      subEl.textContent = slide.getAttribute('data-subtitle') || '';
+    };
+
+    const initialIndex = Math.max(
+      0,
+      Array.from(slides).findIndex((s) => (s.getAttribute('data-title') || '').toLowerCase() === 'bitcoin')
+    );
+
+    const swiper = new window.Swiper(carousel, {
+      slidesPerView: 'auto',
+      centeredSlides: true,
+      spaceBetween: 12,
+      loop: false,
+      rewind: true,
+      watchOverflow: false,
+      speed: 280,
+      grabCursor: true,
+      initialSlide: initialIndex,
+      navigation: {
+        prevEl: prevBtn || undefined,
+        nextEl: nextBtn || undefined,
+      },
+      on: {
+        init() {
+          updateHeroFromIndex(this.realIndex);
+        },
+        slideChange() {
+          updateHeroFromIndex(this.realIndex);
+        },
+      },
+    });
+
+    updateHeroFromIndex(swiper.realIndex || initialIndex);
   };
 
   const initLimitsPanel = () => {
@@ -389,6 +529,8 @@
   initFinanceHeaderTabs();
   initFinanceSectionNav();
   initPlanStrategySlider();
+  initPlanStrategyFreq();
+  initPlanStrategyCarousel();
   initLimitsPanel();
   initPrototypeReset();
 
