@@ -4248,6 +4248,19 @@ html[data-active-tab="finance"] {
   pointer-events: none;
 }
 
+// Locked state on a row
+.alloc-multi__item.is-locked {
+  .alloc-multi__slider {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .alloc-multi__pct-input {
+    color: #9b9c9c;
+    pointer-events: none;
+  }
+}
+
 // Lock button (3-asset plans only)
 .alloc-multi__lock-btn {
   width: 40px;

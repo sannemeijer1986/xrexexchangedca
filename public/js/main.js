@@ -1034,13 +1034,16 @@
         const input = item.querySelector('[data-alloc-pct-input]');
         const lockBtn = item.querySelector('[data-alloc-lock-btn]');
         const p = pcts[i] / 100;
+        const isLocked = locked[i];
 
         if (fill) fill.style.width = `${p * 100}%`;
         if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
         if (input && document.activeElement !== input) input.value = String(Math.round(pcts[i]));
 
+        // Toggle locked class on the row for CSS-driven visual + pointer blocking
+        item.classList.toggle('is-locked', isLocked);
+
         if (lockBtn) {
-          const isLocked = locked[i];
           lockBtn.classList.toggle('is-locked', isLocked);
           lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
           lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
