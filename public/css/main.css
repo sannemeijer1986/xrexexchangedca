@@ -2655,6 +2655,13 @@ html[data-active-tab=finance] .app-header__tabs {
   padding: 0 16px 24px;
 }
 
+.currency-sheet__headerwrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
 .currency-sheet__title {
   font-size: 20px;
   font-weight: 700;
@@ -2662,6 +2669,17 @@ html[data-active-tab=finance] .app-header__tabs {
   text-align: center;
   margin: 0;
   width: 100%;
+}
+
+.phone-container p.currency-sheet__subtitle {
+  margin: -8px 0 0;
+  padding: 0 8px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #9b9c9c;
+  text-align: center;
 }
 
 .currency-sheet__list {
@@ -2675,7 +2693,7 @@ html[data-active-tab=finance] .app-header__tabs {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   padding: 16px;
   background: transparent;
   border: 0;
@@ -2749,10 +2767,17 @@ html[data-active-tab=finance] .app-header__tabs {
   padding: 2px 0;
 }
 
+.currency-sheet__item--action {
+  padding-right: 16px;
+}
+
+.currency-sheet__item--action .currency-sheet__item-content {
+  padding: 2px 0;
+}
+
 .currency-sheet__divider {
   height: 1px;
   background: #3c4248;
-  margin: 0 16px;
 }
 
 .currency-sheet__footer {
@@ -2763,13 +2788,39 @@ html[data-active-tab=finance] .app-header__tabs {
 .currency-sheet__cancel {
   width: 100%;
   height: 48px;
-  background: #2d2f2f;
+  background: #275cfd;
   border: 0;
   border-radius: 16px;
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.currency-sheet__item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #47494A;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.currency-sheet__item-icon::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+}
+
+.currency-sheet__item-icon--convert::before {
+  background: url("../assets/icon_convert.svg") no-repeat center;
+}
+
+.currency-sheet__item-icon--deposit::before {
+  background: url("../assets/icon_deposit.svg") no-repeat center;
 }
 
 .support__card {
@@ -3810,12 +3861,54 @@ html[data-active-tab=finance] .app-header__tabs {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-detail-panel__amount-header .plan-detail-panel__section-label {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.plan-detail-panel__avail-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0px;
+  flex: 1;
+  min-width: 0;
 }
 
 .plan-detail-panel__avail-text {
   font-size: 14px;
   font-weight: 600;
   color: #9b9c9c;
+  min-width: 0;
+  text-align: right;
+}
+
+.plan-detail-panel__topup-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plan-detail-panel__topup-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+.plan-detail-panel__topup-btn:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .plan-detail-panel__amount-row {
@@ -3926,7 +4019,7 @@ html[data-active-tab=finance] .app-header__tabs {
   display: block;
   width: 20px;
   height: 20px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239B9C9C'%3E%3Cpath d='M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("../assets/icon_calendar_gray.svg") no-repeat center;
   background-size: contain;
 }
 

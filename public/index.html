@@ -920,7 +920,12 @@
                 <div class="plan-detail-panel__amount-section">
                     <div class="plan-detail-panel__amount-header">
                         <span class="plan-detail-panel__section-label">Auto-invest</span>
-                        <span class="plan-detail-panel__avail-text">Avail. 15,000 <span data-plan-detail-coverage-currency>TWD</span></span>
+                        <div class="plan-detail-panel__avail-row">
+                            <span class="plan-detail-panel__avail-text">Avail. 15,000 <span data-plan-detail-coverage-currency>TWD</span></span>
+                            <button class="plan-detail-panel__topup-btn" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
+                                <img src="assets/icon_topup.svg" width="20" height="20" alt="" />
+                            </button>
+                        </div>
                     </div>
                     <div class="plan-detail-panel__amount-row">
                         <div class="plan-detail-panel__amount-display">
@@ -1104,6 +1109,43 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-range-sheet-close>Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan detail: top up / add funds (Deposit · Convert) -->
+    <div class="currency-sheet" data-topup-sheet hidden aria-modal="true" role="dialog" aria-label="Add funds">
+        <button class="currency-sheet__backdrop" type="button" data-topup-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <div class="currency-sheet__headerwrapper">
+                    <h2 class="currency-sheet__title">Get USDT</h2>
+                    <p class="currency-sheet__subtitle">Choose from these options</p>
+                </div>
+                <div class="currency-sheet__list">
+                    <button class="currency-sheet__item currency-sheet__item--action" type="button" data-topup-action="convert">
+                        <div class="currency-sheet__item-icon currency-sheet__item-icon--convert" aria-hidden="true"></div>
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">Convert</span>
+                            <span class="currency-sheet__item-desc">Convert other currencies to USDT</span>
+                        </div>
+                    </button>
+                    <div class="currency-sheet__divider"></div>
+                    <button class="currency-sheet__item currency-sheet__item--action" type="button" data-topup-action="deposit">
+                        <div class="currency-sheet__item-icon currency-sheet__item-icon--deposit" aria-hidden="true"></div>
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">Deposit</span>
+                            <span class="currency-sheet__item-desc">Deposit funds into your XREX wallet</span>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-topup-sheet-close>Not now</button>
             </div>
         </div>
     </div>

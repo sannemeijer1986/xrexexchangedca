@@ -901,6 +901,44 @@
       });
     });
   };
+
+  /** Plan detail: top-up sheet (Deposit / Convert) — reuses currency-sheet chrome. */
+  const initTopupSheet = () => {
+    const sheet = document.querySelector('[data-topup-sheet]');
+    if (!sheet) return;
+
+    const panel = sheet.querySelector('.currency-sheet__panel');
+
+    const open = () => {
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 400);
+    };
+
+    document.querySelectorAll('[data-plan-detail-topup-trigger]').forEach((btn) => {
+      btn.addEventListener('click', open);
+    });
+
+    sheet.querySelectorAll('[data-topup-sheet-close]').forEach((b) => {
+      b.addEventListener('click', close);
+    });
+
+    sheet.querySelectorAll('[data-topup-action]').forEach((b) => {
+      b.addEventListener('click', () => {
+        // Prototype: no navigation yet
+      });
+    });
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   initStates();
@@ -914,6 +952,7 @@
   initLimitsPanel();
   initCurrencySheet();
   initRangeSheet();
+  initTopupSheet();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
