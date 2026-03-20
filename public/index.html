@@ -925,12 +925,12 @@
                     <div class="plan-detail-panel__amount-row">
                         <div class="plan-detail-panel__amount-display">
                             <img class="plan-detail-panel__amount-icon" data-plan-detail-amount-icon src="assets/icon_currency_TWD.svg" alt="" />
-                            <span class="plan-detail-panel__amount-value" data-plan-detail-amount>10,000</span>
+                            <input class="plan-detail-panel__amount-input" data-plan-detail-amount-input inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10000" aria-label="Auto-invest amount" />
                         </div>
-                        <div class="plan-detail-panel__currency-pill">
+                        <button class="plan-detail-panel__currency-pill" type="button" aria-label="Investment currency" data-currency-sheet-trigger="plan">
                             <span data-plan-detail-currency>TWD</span>
                             <img src="assets/icon_chevron_down_grey.svg" alt="" width="20" height="20" />
-                        </div>
+                        </button>
                     </div>
                     <div class="plan-detail-panel__amount-divider"></div>
                 </div>

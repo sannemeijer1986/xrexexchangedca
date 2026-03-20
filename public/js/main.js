@@ -877,8 +877,12 @@
       panel.querySelector('[data-plan-detail-header-icon]').src = iconSrc;
 
       // Amount + currency
-      const amountText = document.querySelector('[data-plan-amount]')?.textContent || '10,000';
-      panel.querySelector('[data-plan-detail-amount]').textContent = amountText;
+      const amountRaw = document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000';
+      const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+      if (amountInput) {
+        const amountNum = parseInt(amountRaw, 10);
+        amountInput.value = !isNaN(amountNum) ? amountNum.toLocaleString('en-US') : amountRaw;
+      }
       panel.querySelector('[data-plan-detail-currency]').textContent = cur;
       panel.querySelector('[data-plan-detail-amount-icon]').src =
         cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
@@ -992,6 +996,131 @@
 
     if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
     closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
+
+    // ── Amount input ──────────────────────────────────────────────────────────
+    const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+
+    const formatWithCommas = (n) => n.toLocaleString('en-US');
+
+    // Recalculate the footer return using the same logic as the main widget,
+    // but reading the amount from this panel's input instead of the slider.
+    const updateDetailReturn = () => {
+      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+      const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+      if (!absEl) return;
+
+      const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+      if (!amount) return;
+
+      // Re-use main widget helpers by temporarily patching the slider's aria-valuenow
+      const slider = document.querySelector('[data-plan-slider]');
+      if (slider) {
+        const prev = slider.getAttribute('aria-valuenow');
+        slider.setAttribute('aria-valuenow', String(amount));
+        updatePlanStrategyHistoricalReturn();
+        slider.setAttribute('aria-valuenow', prev);
+        // Sync footer from the now-updated main widget elements
+        absEl.textContent = document.querySelector('.plan-strategy__return-abs')?.textContent || absEl.textContent;
+        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+        if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+      }
+    };
+
+    if (amountInput) {
+      // Apply live comma formatting, preserving cursor position.
+      // Cursor math: track digit-index before the cursor, then re-find it in the
+      // newly formatted string (commas shift absolute position).
+      const applyLiveFormat = () => {
+        const cursor = amountInput.selectionStart;
+        const oldVal = amountInput.value;
+
+        // How many digits sit before the cursor in the current (possibly formatted) value
+        const digitsBeforeCursor = oldVal.slice(0, cursor).replace(/[^0-9]/g, '').length;
+
+        const MAX_AMOUNT = 99999999;
+        const raw = oldVal.replace(/[^0-9]/g, '');
+        if (!raw) { amountInput.value = ''; return; }
+
+        const clamped = Math.min(parseInt(raw, 10), MAX_AMOUNT);
+        const formatted = clamped.toLocaleString('en-US');
+        amountInput.value = formatted;
+
+        // Walk the formatted string to find the new cursor position
+        let newCursor = 0;
+        let digitsSeen = 0;
+        for (let i = 0; i < formatted.length; i++) {
+          if (digitsSeen === digitsBeforeCursor) { newCursor = i; break; }
+          if (formatted[i] !== ',') digitsSeen++;
+          newCursor = i + 1;
+        }
+        amountInput.setSelectionRange(newCursor, newCursor);
+      };
+
+      const setDisplayValue = (n) => {
+        amountInput.value = isNaN(n) || n <= 0 ? '' : n.toLocaleString('en-US');
+      };
+
+      // Set initial formatted value
+      const initialRaw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
+      setDisplayValue(initialRaw);
+
+      // Focus: just select all (value is already formatted — no need to strip)
+      amountInput.addEventListener('focus', () => amountInput.select());
+
+      // Input: reformat live + update return
+      amountInput.addEventListener('input', () => {
+        applyLiveFormat();
+        updateDetailReturn();
+      });
+
+      // Blur: handle empty/invalid
+      amountInput.addEventListener('blur', () => {
+        const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(raw) && raw > 0) {
+          setDisplayValue(raw);
+        } else {
+          const fallbackRaw = parseInt(
+            document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000', 10
+          );
+          setDisplayValue(fallbackRaw);
+        }
+        updateDetailReturn();
+      });
+
+      // Block non-numeric keys (commas are inserted programmatically, not typed)
+      amountInput.addEventListener('keydown', (e) => {
+        const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Home', 'End'];
+        if (allowed.includes(e.key)) return;
+        if (e.ctrlKey || e.metaKey) return;
+        if (!/^\d$/.test(e.key)) e.preventDefault();
+      });
+    }
+
+    // ── Currency pill: trigger the shared investment currency bottom sheet ────
+    // The pill already has data-currency-sheet-trigger="plan" in HTML, so
+    // initCurrencySheet() will wire it up automatically. We only need to ensure
+    // the panel's currency label and icon stay in sync after the sheet closes.
+    // We hook into the existing updatePlanCurrencyUI by extending it.
+    const _origUpdatePlanCurrencyUI = typeof updatePlanCurrencyUI === 'function' ? updatePlanCurrencyUI : null;
+    if (_origUpdatePlanCurrencyUI) {
+      // Patch: after the main UI updates, also refresh the panel's currency pill + icon
+      const origRef = updatePlanCurrencyUI;
+      // Override at the outer closure level isn't possible here, so observe via MutationObserver
+      const planCurrencyLabelMain = document.querySelector('[data-plan-currency-label]');
+      if (planCurrencyLabelMain) {
+        const obs = new MutationObserver(() => {
+          const cur = planCurrencyLabelMain.textContent.trim();
+          const detailCur = panel.querySelector('[data-plan-detail-currency]');
+          const detailIcon = panel.querySelector('[data-plan-detail-amount-icon]');
+          const coverageCurrencies = panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]');
+          if (detailCur) detailCur.textContent = cur;
+          if (detailIcon) detailIcon.src = cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
+          coverageCurrencies.forEach((el) => { el.textContent = cur; });
+        });
+        obs.observe(planCurrencyLabelMain, { childList: true, characterData: true, subtree: true });
+      }
+    }
   };
 
   initPlanDetailPanel();

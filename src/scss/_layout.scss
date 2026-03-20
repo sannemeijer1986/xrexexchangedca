@@ -2196,7 +2196,7 @@ html[data-active-tab="finance"] {
 .plan-strategy__return-currency {
   font-size: 14px;
   font-weight: 700;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 
 .plan-strategy__return-pct {
@@ -3834,11 +3834,22 @@ html[data-active-tab="finance"] {
   border-radius: 50%;
 }
 
-.plan-detail-panel__amount-value {
+.plan-detail-panel__amount-input {
   font-size: 32px;
   font-weight: 600;
   color: #ffffff;
-  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+  font-family: inherit;
+  caret-color: #ffffff;
+
+  &::placeholder {
+    color: #5a5d5e;
+  }
 }
 
 .plan-detail-panel__currency-pill {
