@@ -963,6 +963,11 @@
                 <!-- Allocation -->
                 <div class="plan-detail-panel__allocation-section">
                     <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
+                    <!-- Empty state: shown when no assets are selected (New plan) -->
+                    <div class="plan-detail-panel__alloc-empty">
+                        <img class="plan-detail-panel__alloc-empty-icon" src="assets/icon_noallocation.svg" alt="" />
+                        <span class="plan-detail-panel__alloc-empty-label">Select up to 3 assets</span>
+                    </div>
                     <div class="plan-detail-panel__allocation-list" data-plan-detail-allocation></div>
                     <div class="plan-detail-panel__add-assets-wrap">
                         <button class="plan-detail-panel__add-assets" type="button">Add assets</button>

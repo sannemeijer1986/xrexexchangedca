@@ -872,10 +872,11 @@
     const container = document.querySelector('.phone-container');
     if (!panel) return;
 
-    /** @type {{ source: 'plan' | 'curated' | 'spotlight', curatedKey?: string, spotlightKey?: string, card?: Element }} */
+    /** @type {{ source: 'plan' | 'curated' | 'spotlight' | 'newplan', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
 
     const openBtn = document.querySelector('.plan-strategy__cta');
+    const newPlanBtn = document.querySelector('.finance-summary__btn--primary');
     const closeButtons = panel.querySelectorAll('[data-plan-detail-close]');
     const scroller = panel.querySelector('[data-plan-detail-scroller]');
     const productArea = panel.querySelector('[data-plan-detail-product-area]');
@@ -1021,7 +1022,14 @@
 
       const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
-      if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
+      if (ctx.source === 'newplan') {
+        title = 'Custom plan';
+        const now = new Date();
+        ticker = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        iconSrc = 'assets/icon_noallocation.svg';
+        planKey = 'newplan';
+        if (amountInput) amountInput.value = '';
+      } else if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
         planKey = ctx.curatedKey.toLowerCase();
         const card = ctx.card;
         title = card.querySelector('.curated-portfolios__name')?.textContent?.trim() || 'Portfolio';
@@ -1069,7 +1077,7 @@
       const freqLabels = { daily: 'Daily · every day at 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
-        if (ctx.source === 'curated' || ctx.source === 'spotlight') {
+        if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
           scheduleEl.textContent = freqLabels.monthly;
         } else {
           const freqItem = document.querySelector('[data-plan-freq-item].is-active');
@@ -1078,8 +1086,8 @@
         }
       }
 
-      // Return footer: full sync from main widget only for carousel "Use this plan" flow
-      if (ctx.source === 'curated' || ctx.source === 'spotlight') {
+      // Return footer
+      if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
         const titleEl = panel.querySelector('[data-plan-detail-return-title]');
         const currEl = panel.querySelector('[data-plan-detail-return-currency]');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
@@ -1091,6 +1099,21 @@
       // Allocation list
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
       const allocCountEl = panel.querySelector('[data-plan-detail-alloc-count]');
+      const allocSection = panel.querySelector('.plan-detail-panel__allocation-section');
+
+      if (ctx.source === 'newplan') {
+        // Empty state: no assets selected yet
+        if (allocCountEl) allocCountEl.textContent = '0';
+        allocList.innerHTML = '';
+        if (allocSection) allocSection.classList.add('is-empty');
+        const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
+        if (addAssetsBtn) addAssetsBtn.textContent = 'Add assets';
+        updateDetailReturn();
+        return;
+      }
+
+      if (allocSection) allocSection.classList.remove('is-empty');
+
       const allocItems =
         (ctx.source === 'spotlight' && ctx.card)
           ? [{
@@ -1115,7 +1138,6 @@
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
-        // Amount 0 + curated basket → footer return from detail calculation only
         updateDetailReturn();
       }
     };
@@ -1160,11 +1182,13 @@
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
         panelOpenContext =
-          openCtx && openCtx.source === 'curated' && openCtx.curatedKey
-            ? { source: 'curated', curatedKey: String(openCtx.curatedKey).toLowerCase(), card: openCtx.card }
-            : openCtx && openCtx.source === 'spotlight' && openCtx.spotlightKey
-              ? { source: 'spotlight', spotlightKey: String(openCtx.spotlightKey).toLowerCase(), card: openCtx.card }
-              : { source: 'plan' };
+          openCtx?.source === 'newplan'
+            ? { source: 'newplan' }
+            : openCtx && openCtx.source === 'curated' && openCtx.curatedKey
+              ? { source: 'curated', curatedKey: String(openCtx.curatedKey).toLowerCase(), card: openCtx.card }
+              : openCtx && openCtx.source === 'spotlight' && openCtx.spotlightKey
+                ? { source: 'spotlight', spotlightKey: String(openCtx.spotlightKey).toLowerCase(), card: openCtx.card }
+                : { source: 'plan' };
         populatePanel();
         resetScrollState();
         panel.hidden = false;
@@ -1203,6 +1227,15 @@
     };
 
     if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
+    if (newPlanBtn) {
+      newPlanBtn.addEventListener('click', () => {
+        setOpen(true, { source: 'newplan' });
+        setTimeout(() => {
+          const inp = panel.querySelector('[data-plan-detail-amount-input]');
+          inp?.focus();
+        }, 380);
+      });
+    }
     closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
 
     document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
@@ -1273,6 +1306,17 @@
 
       // Always recalculate coverage whenever amount or currency changes
       updateCoverageUI();
+
+      if (ctx.source === 'newplan') {
+        // No allocation yet — show blank return footer
+        const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+        const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+        if (absEl) absEl.textContent = amount > 0 ? '+0' : '+0';
+        if (pctEl) pctEl.textContent = '0.0%';
+        if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+        return;
+      }
 
       if (ctx.source === 'curated' && ctx.curatedKey) {
         if (returnObserver) returnObserver.disconnect();
@@ -1382,7 +1426,7 @@
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
         if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
-        } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight') {
+        } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight' || panelOpenContext.source === 'newplan') {
           amountInput.value = '';
         } else {
           const fallbackRaw = parseInt(

@@ -4056,6 +4056,54 @@ html[data-active-tab="finance"] {
   display: block;
 }
 
+// Empty allocation state (New plan — no assets selected yet)
+.plan-detail-panel__allocation-section.is-empty {
+  .plan-detail-panel__allocation-list {
+    display: none;
+  }
+
+  .plan-detail-panel__add-assets-wrap {
+    padding: 0;
+    margin-top: 0;
+  }
+
+  .plan-detail-panel__alloc-empty {
+    display: flex;
+  }
+
+  .plan-detail-panel__add-assets {
+    width: 100%;
+    height: 48px;
+    border-radius: 16px;
+    background: #275cfd;
+    font-size: 16px;
+  }
+}
+
+.plan-detail-panel__alloc-empty {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  background: #1b1d1d;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.plan-detail-panel__alloc-empty-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.plan-detail-panel__alloc-empty-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
 .plan-detail-panel__add-assets-wrap {
   display: flex;
   justify-content: center;
