@@ -855,6 +855,18 @@
       digitalgold: 'BTC · XAUT',
     };
 
+    // Sync all footer return elements from the main widget's currently displayed values.
+    const syncFooterFromMainWidget = () => {
+      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+      const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+      if (absEl) absEl.textContent = document.querySelector('.plan-strategy__return-abs')?.textContent || absEl.textContent;
+      if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+      if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+      if (pctEl) pctEl.textContent = document.querySelector('.plan-strategy__return-pct')?.textContent || pctEl.textContent;
+    };
+
     const populatePanel = () => {
       const carousel = document.querySelector('[data-plan-carousel]');
       const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
@@ -899,13 +911,7 @@
       if (scheduleEl) scheduleEl.textContent = freqLabels[freqKey] || freqLabels.monthly;
 
       // Return footer
-      const rangeLabel = (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y');
-      panel.querySelector('[data-plan-detail-return-title]').textContent =
-        `${rangeLabel} historical return ≈`;
-      panel.querySelector('[data-plan-detail-return-abs]').textContent =
-        document.querySelector('.plan-strategy__return-abs')?.textContent || '+58,723.23';
-      panel.querySelector('[data-plan-detail-return-currency]').textContent =
-        document.querySelector('[data-plan-return-currency]')?.textContent || ' TWD';
+      syncFooterFromMainWidget();
 
       // Allocation list
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
@@ -920,6 +926,11 @@
           </div>
         </div>`).join('');
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
+      const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
+      if (addAssetsBtn) {
+        addAssetsBtn.textContent =
+          allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      }
     };
 
     // ── Scroll-driven collapse behaviour ──────────────────────────────────────
@@ -1004,28 +1015,34 @@
 
     // Recalculate the footer return using the same logic as the main widget,
     // but reading the amount from this panel's input instead of the slider.
-    const updateDetailReturn = () => {
-      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
-      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
-      const titleEl = panel.querySelector('[data-plan-detail-return-title]');
-      if (!absEl) return;
+    // The observer is disconnected during the update to prevent infinite loops.
+    let returnObserver = null;
+    const mainReturnAbsEl = document.querySelector('.plan-strategy__return-abs');
+    const observerOpts = { childList: true, characterData: true, subtree: true };
 
+    const updateDetailReturn = () => {
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
       if (!amount) return;
 
-      // Re-use main widget helpers by temporarily patching the slider's aria-valuenow
       const slider = document.querySelector('[data-plan-slider]');
       if (slider) {
+        if (returnObserver) returnObserver.disconnect();
         const prev = slider.getAttribute('aria-valuenow');
         slider.setAttribute('aria-valuenow', String(amount));
         updatePlanStrategyHistoricalReturn();
         slider.setAttribute('aria-valuenow', prev);
-        // Sync footer from the now-updated main widget elements
-        absEl.textContent = document.querySelector('.plan-strategy__return-abs')?.textContent || absEl.textContent;
-        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
-        if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+        syncFooterFromMainWidget();
+        if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
       }
     };
+
+    // Watch main widget's return-abs — fires when range or currency changes externally.
+    if (mainReturnAbsEl) {
+      returnObserver = new MutationObserver(() => {
+        if (panel.classList.contains('is-open')) updateDetailReturn();
+      });
+      returnObserver.observe(mainReturnAbsEl, observerOpts);
+    }
 
     if (amountInput) {
       // Apply live comma formatting, preserving cursor position.

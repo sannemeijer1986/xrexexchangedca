@@ -3,7 +3,7 @@
   width: $phone-width;
   height: $phone-height;
   background: $bg-container;
-  border-radius: $radius-lg;
+  border-radius: 40px 40px 32px 32px;
   overflow: hidden;
   box-shadow: $shadow-lg;
   position: relative;
@@ -249,7 +249,7 @@
   background: transparent;
   border: 0;
   padding: 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #8E8E8E;
   position: relative;
@@ -4050,16 +4050,21 @@ html[data-active-tab="finance"] {
   border-top: 1px solid #252627;
   padding: 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .plan-detail-panel__return {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  gap: 4px;
+}
+
+.plan-detail-panel__return-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .plan-detail-panel__return-label {
@@ -4069,33 +4074,93 @@ html[data-active-tab="finance"] {
   white-space: nowrap;
 }
 
+.plan-detail-panel__return-range {
+  background: #1b1d1d;
+  border: 0;
+  border-radius: 16px;
+  height: 24px;
+  padding: 0 6px 0 10px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+
+  img {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+}
+
 .plan-detail-panel__return-value {
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  gap: 0;
 }
 
 .plan-detail-panel__return-abs {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   color: #5ac47d;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .plan-detail-panel__return-currency {
   font-size: 12px;
   font-weight: 600;
   color: #5ac47d;
+  margin-left: 2px;
 }
 
-.plan-detail-panel__continue {
-  background: #275cfd;
-  border: 0;
-  border-radius: 16px;
+.plan-detail-panel__return-pct-inline {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+  transform: translateY(2px);
+}
+
+.plan-detail-panel__return-arrow {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.plan-detail-panel__return-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5ac47d;
+  white-space: nowrap;
+}
+
+.plan-detail-panel__footer-btns {
+  display: flex;
+  gap: 16px;
+}
+
+.plan-detail-panel__breakdown {
+  flex: 1;
   height: 48px;
-  padding: 0 24px;
+  border-radius: 16px;
+  border: 0;
+  background: #2d2f2f;
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
-  flex-shrink: 0;
-  white-space: nowrap;
+}
+
+.plan-detail-panel__continue {
+  flex: 1;
+  height: 48px;
+  border-radius: 16px;
+  border: 0;
+  background: #275cfd;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
 }
