@@ -238,17 +238,34 @@
     setSection('explore');
   };
 
-  const updatePlanStrategyHistoricalReturn = () => {
+  /**
+   * @param {object} [opts]
+   * @param {boolean} [opts.detailPanel] — write to plan-detail footer only (do not change main widget)
+   * @param {number} [opts.amount] — override slider amount
+   * @param {string} [opts.planKey] — override carousel plan (e.g. curated basket)
+   * @param {string} [opts.freq] — 'daily' | 'weekly' | 'monthly' (override active freq chip)
+   */
+  const updatePlanStrategyHistoricalReturn = (opts = {}) => {
+    const detailPanel = !!opts.detailPanel;
+    const pctEl = detailPanel
+      ? document.querySelector('[data-plan-detail-return-pct]')
+      : document.querySelector('.plan-strategy__return-pct');
+    const absEl = detailPanel
+      ? document.querySelector('[data-plan-detail-return-abs]')
+      : document.querySelector('.plan-strategy__return-abs');
     const slider = document.querySelector('[data-plan-slider]');
-    const pctEl = document.querySelector('.plan-strategy__return-pct');
-    const absEl = document.querySelector('.plan-strategy__return-abs');
     const freqActive = document.querySelector('[data-plan-freq-item].is-active');
     const carousel = document.querySelector('[data-plan-carousel]');
-    if (!slider || !pctEl || !absEl || !freqActive) return;
+    if (!pctEl || !absEl) return;
+    if (!detailPanel && (!slider || !freqActive)) return;
 
-    const amount = parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
-    const freq = (freqActive.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
-    const activePlan = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+    const amount = opts.amount !== undefined
+      ? opts.amount
+      : parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
+    const freq = (opts.freq || freqActive?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+    const activePlan = opts.planKey
+      ? String(opts.planKey).toLowerCase()
+      : (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
 
     // Rough offline DCA estimate over 5Y anchor data (Jan 2020 → Dec 2024).
     // Shorter ranges (3Y / 1Y) start later into the same dataset.
@@ -331,6 +348,16 @@
         const sol0 = interpolateUsd(anchorsByPlan.solana, 0);
         // Weighted normalized basket index (BTC 45% / ETH 35% / SOL 20%).
         return 100 * ((btc / btc0) * 0.45 + (eth / eth0) * 0.35 + (sol / sol0) * 0.2);
+      }
+      if (planKey === 'aiessentials') {
+        // Prototype: RENDER / NEAR / SOL style basket → SOL-heavy + ETH + BTC blend
+        const btc = interpolateUsd(anchorsByPlan.bitcoin, m);
+        const eth = interpolateUsd(anchorsByPlan.ethereum, m);
+        const sol = interpolateUsd(anchorsByPlan.solana, m);
+        const btc0 = interpolateUsd(anchorsByPlan.bitcoin, 0);
+        const eth0 = interpolateUsd(anchorsByPlan.ethereum, 0);
+        const sol0 = interpolateUsd(anchorsByPlan.solana, 0);
+        return 100 * ((btc / btc0) * 0.2 + (eth / eth0) * 0.3 + (sol / sol0) * 0.5);
       }
       const anchors = anchorsByPlan[planKey] || anchorsByPlan.bitcoin;
       return interpolateUsd(anchors, m);
@@ -825,6 +852,9 @@
     const container = document.querySelector('.phone-container');
     if (!panel) return;
 
+    /** @type {{ source: 'plan' | 'curated', curatedKey?: string, card?: Element }} */
+    let panelOpenContext = { source: 'plan' };
+
     const openBtn = document.querySelector('.plan-strategy__cta');
     const closeButtons = panel.querySelectorAll('[data-plan-detail-close]');
     const scroller = panel.querySelector('[data-plan-detail-scroller]');
@@ -845,6 +875,11 @@
         { name: 'Bitcoin',      ticker: 'BTC',  icon: 'assets/icon_currency_btc.svg' },
         { name: 'Tether Gold',  ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg' },
       ],
+      aiessentials: [
+        { name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg' },
+        { name: 'NEAR',   ticker: 'NEAR',   icon: 'assets/icon_currency_near.svg' },
+        { name: 'Solana', ticker: 'SOL',    icon: 'assets/icon_solana.svg' },
+      ],
     };
 
     const planTicker = {
@@ -853,6 +888,7 @@
       solana:      'SOL',
       bigthree:    'BTC · ETH · SOL',
       digitalgold: 'BTC · XAUT',
+      aiessentials: 'RENDER, NEAR, SOL',
     };
 
     // Sync all footer return elements from the main widget's currently displayed values.
@@ -868,15 +904,36 @@
     };
 
     const populatePanel = () => {
-      const carousel = document.querySelector('[data-plan-carousel]');
-      const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
-        || carousel?.querySelector('[data-plan-carousel-item]');
-      const planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
-
-      const title = activeSlide?.getAttribute('data-title') || 'Bitcoin';
-      const iconSrc = activeSlide?.querySelector('img')?.getAttribute('src') || 'assets/icon_currency_btc.svg';
-      const ticker = planTicker[planKey] || 'BTC';
+      const ctx = panelOpenContext;
       const cur = currencyState.plan;
+      const carousel = document.querySelector('[data-plan-carousel]');
+      let planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+      let title = 'Bitcoin';
+      let iconSrc = 'assets/icon_currency_btc.svg';
+      let ticker = 'BTC';
+
+      const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+
+      if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
+        planKey = ctx.curatedKey.toLowerCase();
+        const card = ctx.card;
+        title = card.querySelector('.curated-portfolios__name')?.textContent?.trim() || 'Portfolio';
+        ticker = card.querySelector('.curated-portfolios__tickers')?.textContent?.trim() || planTicker[planKey] || '';
+        iconSrc = card.querySelector('.curated-portfolios__icon')?.getAttribute('src') || iconSrc;
+        if (amountInput) amountInput.value = '';
+      } else {
+        const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
+          || carousel?.querySelector('[data-plan-carousel-item]');
+        planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+        title = activeSlide?.getAttribute('data-title') || 'Bitcoin';
+        iconSrc = activeSlide?.querySelector('img')?.getAttribute('src') || 'assets/icon_currency_btc.svg';
+        ticker = planTicker[planKey] || 'BTC';
+        const amountRaw = document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000';
+        if (amountInput) {
+          const amountNum = parseInt(amountRaw, 10);
+          amountInput.value = !isNaN(amountNum) ? amountNum.toLocaleString('en-US') : amountRaw;
+        }
+      }
 
       // Product hero
       panel.querySelector('[data-plan-detail-name]').textContent = title;
@@ -888,13 +945,6 @@
       panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
       panel.querySelector('[data-plan-detail-header-icon]').src = iconSrc;
 
-      // Amount + currency
-      const amountRaw = document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000';
-      const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
-      if (amountInput) {
-        const amountNum = parseInt(amountRaw, 10);
-        amountInput.value = !isNaN(amountNum) ? amountNum.toLocaleString('en-US') : amountRaw;
-      }
       panel.querySelector('[data-plan-detail-currency]').textContent = cur;
       panel.querySelector('[data-plan-detail-amount-icon]').src =
         cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
@@ -903,15 +953,28 @@
       panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]')
         .forEach((el) => { el.textContent = cur; });
 
-      // Repeats schedule — reflect the selected frequency
-      const freqItem = document.querySelector('[data-plan-freq-item].is-active');
-      const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+      // Repeats schedule
       const freqLabels = { daily: 'Daily · every day at 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
-      if (scheduleEl) scheduleEl.textContent = freqLabels[freqKey] || freqLabels.monthly;
+      if (scheduleEl) {
+        if (ctx.source === 'curated') {
+          scheduleEl.textContent = freqLabels.monthly;
+        } else {
+          const freqItem = document.querySelector('[data-plan-freq-item].is-active');
+          const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+          scheduleEl.textContent = freqLabels[freqKey] || freqLabels.monthly;
+        }
+      }
 
-      // Return footer
-      syncFooterFromMainWidget();
+      // Return footer: full sync from main widget only for carousel "Use this plan" flow
+      if (ctx.source === 'curated') {
+        const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+        const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+        if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+      } else {
+        syncFooterFromMainWidget();
+      }
 
       // Allocation list
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
@@ -930,6 +993,11 @@
       if (addAssetsBtn) {
         addAssetsBtn.textContent =
           allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      }
+
+      if (ctx.source === 'curated') {
+        // Amount 0 + curated basket → footer return from detail calculation only
+        updateDetailReturn();
       }
     };
 
@@ -952,7 +1020,7 @@
         if (!scroller || !productArea || !header || !pageTitle) return;
 
         const scrollTop = scroller.scrollTop;
-        const productH = productArea.offsetHeight;
+        const productH = (productArea.offsetHeight - 400);
 
         // Fade product content and page title together (0→1 over the product height)
         const fadeProgress = Math.min(1, Math.max(0, scrollTop / productH));
@@ -970,8 +1038,11 @@
     if (scroller) scroller.addEventListener('scroll', onScroll, { passive: true });
 
     // ── Open / close ──────────────────────────────────────────────────────────
-    const setOpen = (nextOpen) => {
+    const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
+        panelOpenContext = openCtx && openCtx.source === 'curated' && openCtx.curatedKey
+          ? { source: 'curated', curatedKey: String(openCtx.curatedKey).toLowerCase(), card: openCtx.card }
+          : { source: 'plan' };
         populatePanel();
         resetScrollState();
         panel.hidden = false;
@@ -991,6 +1062,7 @@
           }
         }, 350);
       } else {
+        panelOpenContext = { source: 'plan' };
         panel.classList.remove('is-open');
         if (container) {
           container.classList.add('is-plan-detail-fading');
@@ -1008,6 +1080,28 @@
     if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
     closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
 
+    document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      const openFromCard = () => {
+        const key = card.getAttribute('data-curated-key');
+        if (!key) return;
+        setOpen(true, { source: 'curated', curatedKey: key, card });
+        setTimeout(() => {
+          const inp = panel.querySelector('[data-plan-detail-amount-input]');
+          inp?.focus();
+          if (inp && inp.value === '') inp.select();
+        }, 380);
+      };
+      card.addEventListener('click', openFromCard);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openFromCard();
+        }
+      });
+    });
+
     // ── Amount input ──────────────────────────────────────────────────────────
     const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
@@ -1021,7 +1115,29 @@
     const observerOpts = { childList: true, characterData: true, subtree: true };
 
     const updateDetailReturn = () => {
+      const ctx = panelOpenContext;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+
+      if (ctx.source === 'curated' && ctx.curatedKey) {
+        if (returnObserver) returnObserver.disconnect();
+        updatePlanStrategyHistoricalReturn({
+          detailPanel: true,
+          amount,
+          planKey: ctx.curatedKey,
+          freq: 'monthly',
+        });
+        const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+        const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+        if (titleEl) {
+          titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+        }
+        if (currEl) {
+          currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+        }
+        if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
+        return;
+      }
+
       if (!amount) return;
 
       const slider = document.querySelector('[data-plan-slider]');
@@ -1096,6 +1212,8 @@
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
         if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
+        } else if (panelOpenContext.source === 'curated') {
+          amountInput.value = '';
         } else {
           const fallbackRaw = parseInt(
             document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000', 10
