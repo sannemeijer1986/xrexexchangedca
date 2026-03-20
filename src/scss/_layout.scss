@@ -4304,13 +4304,12 @@ html[data-active-tab="finance"] {
   left: 0;
   top: 0;
   // Fixed width — JS edge-clamp uses getBoundingClientRect().width from this
-  width: 280px;
+  width: 240px;
   box-sizing: border-box;
   overflow-wrap: break-word;
   padding: 12px 16px 14px;
   margin: 0;
-  background: #2d2f2f;
-  border: 1px solid #3c4248;
+  background: #47494A;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
@@ -4340,7 +4339,7 @@ html[data-active-tab="finance"] {
     height: 0;
     border-left: 9px solid transparent;
     border-right: 9px solid transparent;
-    border-top: 9px solid #3c4248;
+    border-top: 9px solid #47494A;
   }
 
   &::after {
@@ -4353,7 +4352,7 @@ html[data-active-tab="finance"] {
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 8px solid #2d2f2f;
+    border-top: 8px solid #47494A;
   }
 
   &.is-visible {
