@@ -4059,14 +4059,23 @@ html[data-active-tab="finance"] {
 // Allocation section header (label + reset + mode toggle)
 .plan-detail-panel__alloc-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   width: 100%;
   margin-bottom: 12px;
+  gap: 12px;
 
   .plan-detail-panel__section-label {
     margin-bottom: 0;
   }
+}
+
+.plan-detail-panel__alloc-header-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
 }
 
 .plan-detail-panel__alloc-header-title-group {
@@ -4074,6 +4083,21 @@ html[data-active-tab="finance"] {
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.phone-container p.plan-detail-panel__alloc-subtitle {
+  margin: 4px 0 0;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: #9b9c9c;
+  line-height: 1.25;
+  text-align: left;
+
+  &[hidden] {
+    display: none !important;
+  }
 }
 
 .plan-detail-panel__alloc-reset {
@@ -4194,6 +4218,16 @@ html[data-active-tab="finance"] {
   box-sizing: border-box;
 }
 
+.alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-wrap {
+  width: 124px;
+}
+
+// Amount mode with no Auto-invest total: read-only allocation inputs
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .alloc-multi__pct-inner {
   display: flex;
   align-items: center;
@@ -4215,7 +4249,7 @@ html[data-active-tab="finance"] {
   color: #ffffff;
   font-family: 'Manrope', sans-serif;
   caret-color: #3f78ff;
-  text-align: right;
+  text-align: left;
   padding: 0;
 
   &::-webkit-inner-spin-button,

@@ -1099,12 +1099,21 @@
     // Called after multi-asset HTML is rendered into the allocation list.
     // Manages per-asset % sliders, % inputs, and the lock feature (3-asset only).
     const initAllocSliders = (panelEl, count) => {
+      const allocPanelAbortKey = '_allocPanelControlsAbort';
+      if (panelEl[allocPanelAbortKey]) panelEl[allocPanelAbortKey].abort();
+
       if (count < 2) {
         detailPanelAllocPctTweakFn = null;
+        panelEl._planDetailAllocRefreshAmounts = null;
+        delete panelEl.dataset.planDetailAllocInputMode;
         const resetBtnEarly = panelEl.querySelector('[data-alloc-reset]');
         if (resetBtnEarly) resetBtnEarly.hidden = true;
         return;
       }
+
+      const panelAc = new AbortController();
+      panelEl[allocPanelAbortKey] = panelAc;
+      const panelCtlSignal = panelAc.signal;
 
       // Hide stale lock tooltip when switching to a 2-asset plan
       if (count < 3) {
@@ -1119,6 +1128,78 @@
       const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
 
       const items = Array.from(panelEl.querySelectorAll('.alloc-multi__item'));
+      const allocMultiRoot = items[0]?.closest('.alloc-multi');
+      /** @type {'pct' | 'amount'} */
+      let inputMode = 'pct';
+
+      const getPlanDetailInvestTotal = () => {
+        const inp = panelEl.querySelector('[data-plan-detail-amount-input]');
+        return Math.max(0, parseInt(inp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
+      };
+
+      const getPlanDetailCurrency = () =>
+        panelEl.querySelector('[data-plan-detail-currency]')?.textContent?.trim() || 'TWD';
+
+      const formatAllocAmountDisplay = (n) => {
+        const r = Math.round(n);
+        return Number.isFinite(r) ? r.toLocaleString('en-US') : '';
+      };
+
+      /** Comma-format like the main Auto-invest field; keeps cursor on digit count. */
+      const applyAllocInputLiveFormat = (inp) => {
+        const cursor = inp.selectionStart;
+        const oldVal = inp.value;
+        const digitsBeforeCursor = oldVal.slice(0, cursor).replace(/[^0-9]/g, '').length;
+        const raw = oldVal.replace(/[^0-9]/g, '');
+        if (!raw) {
+          inp.value = '';
+          return;
+        }
+        const clamped = Math.min(parseInt(raw, 10), 999999999);
+        const formatted = clamped.toLocaleString('en-US');
+        inp.value = formatted;
+        let newCursor = 0;
+        let digitsSeen = 0;
+        for (let k = 0; k < formatted.length; k += 1) {
+          if (digitsSeen === digitsBeforeCursor) {
+            newCursor = k;
+            break;
+          }
+          if (formatted[k] !== ',') digitsSeen += 1;
+          newCursor = k + 1;
+        }
+        inp.setSelectionRange(newCursor, newCursor);
+      };
+
+      const syncAllocInputModeClass = () => {
+        if (allocMultiRoot) {
+          allocMultiRoot.classList.toggle('alloc-multi--amount-mode', inputMode === 'amount');
+        }
+      };
+
+      /** Amount mode + no Auto-invest: dim pct-wraps and block interaction (% mode always editable). */
+      const syncAllocAmountWrapDisabled = () => {
+        if (!allocMultiRoot) return;
+        const wrapDisabled = inputMode === 'amount' && getPlanDetailInvestTotal() <= 0;
+        allocMultiRoot.classList.toggle('alloc-multi--amount-wrap-disabled', wrapDisabled);
+        if (wrapDisabled) {
+          const ae = document.activeElement;
+          if (ae?.closest?.('.alloc-multi__pct-wrap')) ae.blur();
+        }
+      };
+
+      const updateAllocHeaderSubtitle = () => {
+        const el = panelEl.querySelector('[data-plan-detail-alloc-subtitle]');
+        if (!el) return;
+        if (inputMode === 'amount') {
+          const total = getPlanDetailInvestTotal();
+          const cur = getPlanDetailCurrency();
+          const numStr = total > 0 ? total.toLocaleString('en-US') : '0';
+          el.textContent = `Total ${numStr} ${cur}`;
+        } else {
+          el.textContent = 'Total 100%';
+        }
+      };
 
       const renderItem = (i) => {
         const item = items[i];
@@ -1127,12 +1208,25 @@
         const thumb = item.querySelector('[data-alloc-thumb]');
         const input = item.querySelector('[data-alloc-pct-input]');
         const lockBtn = item.querySelector('[data-alloc-lock-btn]');
+        const symbolEl = item.querySelector('.alloc-multi__pct-symbol');
         const p = pcts[i] / 100;
         const isLocked = locked[i];
 
         if (fill) fill.style.width = `${p * 100}%`;
         if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
-        if (input && document.activeElement !== input) input.value = String(Math.round(pcts[i]));
+        if (symbolEl) {
+          symbolEl.textContent = inputMode === 'amount' ? getPlanDetailCurrency() : '%';
+        }
+        if (input && document.activeElement !== input) {
+          if (inputMode === 'amount') {
+            const total = getPlanDetailInvestTotal();
+            input.value = total > 0 ? formatAllocAmountDisplay((total * pcts[i]) / 100) : '';
+            input.setAttribute('aria-label', 'Allocation amount');
+          } else {
+            input.value = String(Math.round(pcts[i]));
+            input.setAttribute('aria-label', 'Allocation percent');
+          }
+        }
 
         // Toggle locked class on the row for CSS-driven visual + pointer blocking
         item.classList.toggle('is-locked', isLocked);
@@ -1167,6 +1261,8 @@
       const renderAll = () => {
         items.forEach((_, i) => renderItem(i));
         updateAllocResetVisibility();
+        updateAllocHeaderSubtitle();
+        syncAllocAmountWrapDisabled();
       };
 
       // Tooltip when a 3-asset lock caps how far another slider can move.
@@ -1407,7 +1503,7 @@
           });
         }
 
-        // Percentage input interaction
+        // % or amount input (mode toggled in header)
         if (input) {
           input.addEventListener('focus', () => input.select());
 
@@ -1419,6 +1515,25 @@
           });
 
           input.addEventListener('blur', () => {
+            if (inputMode === 'amount') {
+              const total = getPlanDetailInvestTotal();
+              const raw = parseInt(input.value.replace(/[^0-9]/g, ''), 10);
+              if (!total || isNaN(raw) || raw < 1) {
+                input.value = total > 0 ? formatAllocAmountDisplay((total * pcts[i]) / 100) : '';
+                hideAllocLockTooltip();
+                return;
+              }
+              const newPct = Math.round((raw / total) * 100);
+              const ret = redistribute(i, newPct);
+              if (count === 3 && ret.hitLockedCap) {
+                const anchor = input.closest('.alloc-multi__pct-wrap');
+                showAllocLockTooltip(anchor || input, ret.lockedIdx);
+              } else {
+                hideAllocLockTooltip();
+              }
+              return;
+            }
+
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
               const ret = redistribute(i, val);
@@ -1429,14 +1544,16 @@
                 hideAllocLockTooltip();
               }
             } else {
-              // Revert to current stored value
               input.value = String(Math.round(pcts[i]));
               hideAllocLockTooltip();
             }
           });
 
-          // Live preview on input
           input.addEventListener('input', () => {
+            if (inputMode === 'amount') {
+              applyAllocInputLiveFormat(input);
+              return;
+            }
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
               const ret = redistribute(i, val);
@@ -1466,37 +1583,76 @@
 
       const resetAllocBtn = panelEl.querySelector('[data-alloc-reset]');
       if (resetAllocBtn) {
-        resetAllocBtn.addEventListener('click', () => {
-          for (let j = 0; j < count; j += 1) {
-            pcts[j] = defaultPcts[j];
-          }
-          locked.fill(false);
-          hideAllocLockTooltip();
-          renderAll();
-          refreshPlanDetailAllocTweak();
-        });
+        resetAllocBtn.addEventListener(
+          'click',
+          () => {
+            for (let j = 0; j < count; j += 1) {
+              pcts[j] = defaultPcts[j];
+            }
+            locked.fill(false);
+            hideAllocLockTooltip();
+            renderAll();
+            refreshPlanDetailAllocTweak();
+          },
+          { signal: panelCtlSignal },
+        );
       }
+
+      panelEl._planDetailAllocRefreshAmounts = () => {
+        if (inputMode === 'amount') renderAll();
+      };
 
       // Initial render (starts at default split — Reset hidden)
       renderAll();
       refreshPlanDetailAllocTweak();
+      syncAllocInputModeClass();
 
-      // Mode toggle (Amount / %)
+      // Mode toggle (Amount / %) — inputs show % or Auto-invest × allocation
       const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
       if (modeToggle) {
         const pctIcon = modeToggle.querySelector('[data-pct-icon]');
-        modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => b.classList.remove('is-active'));
-            btn.classList.add('is-active');
-            // Swap % icon: black on white (active), white on dark (inactive)
-            if (pctIcon) {
-              const pctIsActive = btn.dataset.allocModeBtn === 'pct';
-              pctIcon.src = pctIsActive
+        // Toggle nodes persist across opens; always start in % mode for a fresh plan view
+        inputMode = 'pct';
+        panelEl.dataset.planDetailAllocInputMode = 'pct';
+        modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
+          b.classList.toggle('is-active', b.dataset.allocModeBtn === 'pct');
+        });
+        if (pctIcon) pctIcon.src = 'assets/icon_percentage_tab_black.svg';
+
+        const setAllocInputMode = (mode) => {
+          const next = mode === 'amount' ? 'amount' : 'pct';
+          const ae = document.activeElement;
+          if (ae?.matches?.('[data-alloc-pct-input]')) ae.blur();
+          inputMode = next;
+          panelEl.dataset.planDetailAllocInputMode = next;
+          modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
+            b.classList.toggle('is-active', b.dataset.allocModeBtn === next);
+          });
+          if (pctIcon) {
+            pctIcon.src =
+              next === 'pct'
                 ? 'assets/icon_percentage_tab_black.svg'
                 : 'assets/icon_percentage_tab_gray.svg';
+          }
+          syncAllocInputModeClass();
+          // Amount allocation mode: Auto-invest must be at least 1 (TWD / USDT)
+          if (next === 'amount') {
+            const investInp = panelEl.querySelector('[data-plan-detail-amount-input]');
+            const t = parseInt(investInp?.value?.replace(/[^0-9]/g, '') || '0', 10);
+            if (investInp && (!t || t < 1)) {
+              investInp.value = (1).toLocaleString('en-US');
+              updateDetailReturn();
+              panelEl._planDetailAllocRefreshAmounts?.();
             }
-          });
+          }
+          renderAll();
+        };
+        modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((btn) => {
+          btn.addEventListener(
+            'click',
+            () => setAllocInputMode(btn.dataset.allocModeBtn === 'amount' ? 'amount' : 'pct'),
+            { signal: panelCtlSignal },
+          );
         });
       }
     };
@@ -1590,6 +1746,7 @@
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
       const allocCountEl = panel.querySelector('[data-plan-detail-alloc-count]');
       const allocSection = panel.querySelector('.plan-detail-panel__allocation-section');
+      const allocSubtitleEl = panel.querySelector('[data-plan-detail-alloc-subtitle]');
 
       if (ctx.source === 'newplan') {
         // Empty state: no assets selected yet
@@ -1603,6 +1760,8 @@
         });
         const resetNewplan = panel.querySelector('[data-alloc-reset]');
         if (resetNewplan) resetNewplan.hidden = true;
+        if (allocSubtitleEl) allocSubtitleEl.hidden = true;
+        delete panel.dataset.planDetailAllocInputMode;
         updateDetailReturn();
         return;
       }
@@ -1625,9 +1784,10 @@
         btn.textContent = addLabel;
       });
 
-      // Show mode toggle for 2+ assets
+      // Show mode toggle + allocation subtitle for 2+ assets only
       const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');
       if (allocModeToggle) allocModeToggle.classList.toggle('is-hidden', allocItems.length < 2);
+      if (allocSubtitleEl) allocSubtitleEl.hidden = allocItems.length < 2;
 
       if (allocItems.length >= 2) {
         // Multi-asset layout with sliders + optional lock
@@ -1675,6 +1835,7 @@
           </div>`).join('');
         const resetSingle = panel.querySelector('[data-alloc-reset]');
         if (resetSingle) resetSingle.hidden = true;
+        delete panel.dataset.planDetailAllocInputMode;
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
@@ -1974,12 +2135,16 @@
       amountInput.addEventListener('input', () => {
         applyLiveFormat();
         updateDetailReturn();
+        panel._planDetailAllocRefreshAmounts?.();
       });
 
       // Blur: handle empty/invalid
       amountInput.addEventListener('blur', () => {
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
-        if (!isNaN(raw) && raw > 0) {
+        const allocAmountModeActive = panel.dataset.planDetailAllocInputMode === 'amount';
+        if (allocAmountModeActive && (isNaN(raw) || raw < 1)) {
+          setDisplayValue(1);
+        } else if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
         } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight' || panelOpenContext.source === 'newplan') {
           amountInput.value = '';
@@ -1990,6 +2155,7 @@
           setDisplayValue(fallbackRaw);
         }
         updateDetailReturn();
+        panel._planDetailAllocRefreshAmounts?.();
       });
 
       // Block non-numeric keys (commas are inserted programmatically, not typed)
@@ -2020,6 +2186,7 @@
           if (detailCur) detailCur.textContent = cur;
           if (detailIcon) detailIcon.src = cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
           updateCoverageUI();
+          panel._planDetailAllocRefreshAmounts?.();
         });
         obs.observe(planCurrencyLabelMain, { childList: true, characterData: true, subtree: true });
       }
