@@ -879,6 +879,13 @@
       panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]')
         .forEach((el) => { el.textContent = cur; });
 
+      // Repeats schedule — reflect the selected frequency
+      const freqItem = document.querySelector('[data-plan-freq-item].is-active');
+      const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+      const freqLabels = { daily: 'Daily · every day at 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
+      const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
+      if (scheduleEl) scheduleEl.textContent = freqLabels[freqKey] || freqLabels.monthly;
+
       // Return footer
       const rangeLabel = (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y');
       panel.querySelector('[data-plan-detail-return-title]').textContent =
