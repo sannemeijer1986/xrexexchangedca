@@ -262,8 +262,16 @@
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatPct = (n) =>
       `${(isFinite(n) ? n : 0).toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
-    const formatTwdNumber = (n) =>
-      Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formatTwdNumber = (n) => {
+      const abs = Math.abs(n);
+      const round1 = (x) => {
+        const r = Math.round(x * 10) / 10;
+        return Number.isInteger(r) ? r.toString() : r.toString();
+      };
+      if (abs < 10000) return abs.toLocaleString('en-US');
+      if (abs < 1000000) return `${round1(abs / 1000)}K`;
+      return `${round1(abs / 1000000)}M`;
+    };
 
     // Rough anchor curves (USD) used for offline, directional simulations.
     const anchorsByPlan = {
