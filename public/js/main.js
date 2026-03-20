@@ -1021,8 +1021,8 @@
       const pcts = [...defaultPcts];
       const locked = new Array(count).fill(false);
 
-      const svgUnlock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
-      const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+      const svgUnlock = `<img src="assets/icon_unlock.svg" width="20" height="20" alt="" />`;
+      const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
 
       const items = Array.from(panelEl.querySelectorAll('.alloc-multi__item'));
 
@@ -1049,36 +1049,45 @@
 
       const renderAll = () => items.forEach((_, i) => renderItem(i));
 
-      // Redistribute delta (change in index `changedIdx` by `delta`) among
-      // unlocked other assets, clamping each to min 1%.
+      // Redistribute: set changedIdx to newPct and spread the remainder
+      // proportionally among unlocked others. Never returns early — always
+      // clamps to a valid range so fast drags can never freeze the slider.
       const redistribute = (changedIdx, newPct) => {
-        const clamped = Math.max(1, Math.min(99, newPct));
-        const delta = clamped - pcts[changedIdx];
-        if (Math.abs(delta) < 0.01) return;
-
         const others = items
           .map((_, j) => j)
           .filter((j) => j !== changedIdx && !locked[j]);
 
-        if (others.length === 0) return; // all locked — can't change
+        if (others.length === 0) return;
 
-        // How much each other must absorb
-        const absorb = -delta / others.length;
-        // Tentatively apply
-        const provisional = others.map((j) => Math.max(1, pcts[j] + absorb));
-        // Actual delta we can achieve
-        const actualAbsorbed = provisional.reduce((s, v, k) => s + (v - pcts[others[k]]), 0);
-        if (Math.abs(actualAbsorbed + delta) > 2) return; // over-constrained, skip
+        // Sum of locked assets that can't move
+        const lockedSum = pcts.reduce((s, p, j) => (locked[j] ? s + p : s), 0);
+
+        // Clamp: each unlocked other needs at least 1%, so the changed asset
+        // can be at most (100 - lockedSum - others.length).
+        const maxForChanged = 100 - lockedSum - others.length;
+        const clamped = Math.max(1, Math.min(maxForChanged, newPct));
 
         pcts[changedIdx] = clamped;
-        others.forEach((j, k) => { pcts[j] = provisional[k]; });
 
-        // Snap rounding to ensure exact 100
-        const total = pcts.reduce((a, b) => a + b, 0);
-        if (Math.abs(total - 100) > 0.01) {
-          // Apply residual to last unlocked other
-          pcts[others[others.length - 1]] += 100 - total;
-          pcts[others[others.length - 1]] = Math.max(1, pcts[others[others.length - 1]]);
+        // Amount left to share among unlocked others
+        const toShare = 100 - clamped - lockedSum;
+
+        if (others.length === 1) {
+          pcts[others[0]] = toShare;
+        } else {
+          // Distribute proportionally to current values (feels natural on sliders)
+          const othersSum = others.reduce((s, j) => s + pcts[j], 0);
+          if (othersSum > 0) {
+            others.forEach((j) => {
+              pcts[j] = Math.max(1, (pcts[j] / othersSum) * toShare);
+            });
+          } else {
+            others.forEach((j) => { pcts[j] = toShare / others.length; });
+          }
+
+          // Absorb any floating-point rounding into the first other
+          const total = pcts.reduce((a, b) => a + b, 0);
+          pcts[others[0]] += 100 - total;
         }
 
         renderAll();
@@ -1314,8 +1323,8 @@
 
       if (allocItems.length >= 2) {
         // Multi-asset layout with sliders + optional lock
-        const svgUnlock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
-        const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+        const svgUnlock = `<img src="assets/icon_unlock.svg" width="20" height="20" alt="" />`;
+        const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
         const showLock = allocItems.length === 3;
 
         allocList.innerHTML = `<div class="alloc-multi">${

@@ -4262,10 +4262,9 @@ html[data-active-tab="finance"] {
   cursor: pointer;
   transition: background 0.15s ease;
 
-  svg {
-    width: 20px;
-    height: 20px;
-    color: #ffffff;
+  img {
+    display: block;
+    flex-shrink: 0;
   }
 
   &.is-locked {
