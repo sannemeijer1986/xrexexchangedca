@@ -2408,7 +2408,8 @@ html[data-active-tab="finance"] {
   padding: 8px 14px 8px 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -2438,12 +2439,13 @@ html[data-active-tab="finance"] {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 2px;
+  padding-bottom: 0px;
 }
 
 .crypto-pill__name {
   font-size: 14px;
   font-weight: 600;
+  margin-bottom: -2px;
   color: #ffffff;
   display: block;
   white-space: nowrap;
@@ -2472,7 +2474,7 @@ html[data-active-tab="finance"] {
 
 .crypto-pill__pct {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #5ac47d;
   white-space: nowrap;
 }
