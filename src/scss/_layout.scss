@@ -2430,6 +2430,12 @@ html[data-active-tab="finance"] {
   gap: 8px;
   height: 48px;
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+
+  .spotlight__scroll.is-dragging & {
+    cursor: grabbing;
+  }
 }
 
 .crypto-pill__icon {
@@ -3795,6 +3801,11 @@ html[data-active-tab="finance"] {
   min-height: 100%;
 }
 
+.plan-detail-panel__amount-section {
+  margin-bottom: -16px;
+}
+
+
 // ── Section label ─────────────────────────────────────────────────────────────
 
 .plan-detail-panel__section-label {
@@ -3853,10 +3864,10 @@ html[data-active-tab="finance"] {
   min-width: 0;
   width: 100%;
   font-family: inherit;
-  caret-color: #ffffff;
+  caret-color: #8FB8FF;
 
   &::placeholder {
-    color: #5a5d5e;
+    color: #58595A;
   }
 }
 
@@ -3878,6 +3889,19 @@ html[data-active-tab="finance"] {
     width: 20px;
     height: 20px;
     display: block;
+  }
+}
+
+.phone-container p.plan-detail-panel__amount-error {
+  font-size: 14px;
+  font-weight: 600;
+  color: #EB5347;
+  margin: 8px 0 0;
+  padding: 0;
+  opacity: 0;
+
+  &.is-visible {
+    opacity: 1;
   }
 }
 

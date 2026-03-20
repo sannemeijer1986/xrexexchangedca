@@ -267,6 +267,26 @@
       ? String(opts.planKey).toLowerCase()
       : (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
 
+    // Map spotlight crypto keys → the closest existing anchor curves.
+    // This lets the detail panel reuse the same offline return simulation.
+    const activeAnchorPlan = (() => {
+      const map = {
+        btc: 'bitcoin',
+        eth: 'ethereum',
+        xaut: 'digitalgold',
+        sol: 'solana',
+        render: 'solana',
+        near: 'solana',
+        link: 'solana',
+        ondo: 'solana',
+        pol: 'solana',
+        xrp: 'solana',
+        aave: 'solana',
+        ada: 'solana',
+      };
+      return map[activePlan] || activePlan;
+    })();
+
     // Rough offline DCA estimate over 5Y anchor data (Jan 2020 → Dec 2024).
     // Shorter ranges (3Y / 1Y) start later into the same dataset.
     const fxTwdPerUsd = 32; // intentionally fixed/rough
@@ -377,12 +397,12 @@
 
     let assetAccum = 0;
     for (let m = startMonth; m < months; m += 1) {
-      const priceLocal = priceUsdAtMonth(activePlan, m) * fxMultiplier;
+      const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
       if (priceLocal <= 0) continue;
       assetAccum += investPerMonth / priceLocal;
     }
 
-    const endPriceLocal = priceUsdAtMonth(activePlan, months - 1) * fxMultiplier;
+    const endPriceLocal = priceUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
     const finalValue = assetAccum * endPriceLocal;
     const profit = finalValue - totalInvested;
     const returnPct = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
@@ -852,7 +872,7 @@
     const container = document.querySelector('.phone-container');
     if (!panel) return;
 
-    /** @type {{ source: 'plan' | 'curated', curatedKey?: string, card?: Element }} */
+    /** @type {{ source: 'plan' | 'curated' | 'spotlight', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
 
     const openBtn = document.querySelector('.plan-strategy__cta');
@@ -891,6 +911,93 @@
       aiessentials: 'RENDER, NEAR, SOL',
     };
 
+    // Static balances for the prototype
+    const BALANCES = { TWD: 15000, USDT: 6250 };
+
+    // Recalculate "Avail." + "Available X covers ≈ Y" based on the current
+    // investment currency, the typed amount, and the active schedule.
+    const updateCoverageUI = () => {
+      const cur = currencyState.plan;
+      const balance = BALANCES[cur] ?? BALANCES.TWD;
+
+      // "Avail. 15,000 TWD"
+      const availEl = panel.querySelector('.plan-detail-panel__avail-text');
+      if (availEl) {
+        availEl.innerHTML = `Avail. ${balance.toLocaleString('en-US')} <span data-plan-detail-coverage-currency>${cur}</span>`;
+      }
+
+      // "Available TWD covers ≈ X"
+      const coverageLabelEl = panel.querySelector('.plan-detail-panel__coverage-label');
+      if (coverageLabelEl) {
+        coverageLabelEl.innerHTML = `Available <span data-plan-detail-coverage-currency2>${cur}</span> covers ≈`;
+      }
+
+      const coverageValueEl = panel.querySelector('.plan-detail-panel__coverage-value');
+      const errorEl = panel.querySelector('[data-plan-detail-amount-error]');
+      const errorCurEl = errorEl?.querySelector('[data-plan-detail-error-currency]');
+
+      // Keep error currency label in sync
+      if (errorCurEl) errorCurEl.textContent = cur;
+
+      const setError = (isError) => {
+        if (coverageValueEl) coverageValueEl.style.color = isError ? '#EB5347' : '';
+        if (errorEl) errorEl.classList.toggle('is-visible', isError);
+      };
+
+      if (!coverageValueEl) return;
+
+      const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+      if (!amount || amount <= 0) {
+        coverageValueEl.textContent = '—';
+        setError(false);
+        return;
+      }
+
+      // Determine frequency: curated/spotlight always monthly; else from widget
+      let freq = 'monthly';
+      if (panelOpenContext.source !== 'curated' && panelOpenContext.source !== 'spotlight') {
+        const freqItem = document.querySelector('[data-plan-freq-item].is-active');
+        freq = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+      }
+
+      // How many invest occurrences fit within the balance
+      const occurrences = Math.floor(balance / amount);
+
+      if (occurrences === 0) {
+        // Amount exceeds balance — show error state
+        const unit = freq === 'daily' ? 'day' : freq === 'weekly' ? 'week' : 'month';
+        coverageValueEl.textContent = `0 ${unit}s`;
+        setError(true);
+        return;
+      }
+
+      setError(false);
+
+      if (freq === 'daily') {
+        const days = occurrences;
+        if (days < 7) {
+          coverageValueEl.textContent = `${days} day${days !== 1 ? 's' : ''}`;
+        } else if (days < 30) {
+          const w = Math.floor(days / 7);
+          coverageValueEl.textContent = `${w} week${w !== 1 ? 's' : ''}`;
+        } else {
+          const m = Math.floor(days / 30);
+          coverageValueEl.textContent = `${m} month${m !== 1 ? 's' : ''}`;
+        }
+      } else if (freq === 'weekly') {
+        const weeks = occurrences;
+        if (weeks < 4) {
+          coverageValueEl.textContent = `${weeks} week${weeks !== 1 ? 's' : ''}`;
+        } else {
+          const m = Math.floor(weeks / 4);
+          coverageValueEl.textContent = `${m} month${m !== 1 ? 's' : ''}`;
+        }
+      } else {
+        const months = occurrences;
+        coverageValueEl.textContent = `${months} month${months !== 1 ? 's' : ''}`;
+      }
+    };
+
     // Sync all footer return elements from the main widget's currently displayed values.
     const syncFooterFromMainWidget = () => {
       const absEl = panel.querySelector('[data-plan-detail-return-abs]');
@@ -921,6 +1028,13 @@
         ticker = card.querySelector('.curated-portfolios__tickers')?.textContent?.trim() || planTicker[planKey] || '';
         iconSrc = card.querySelector('.curated-portfolios__icon')?.getAttribute('src') || iconSrc;
         if (amountInput) amountInput.value = '';
+      } else if (ctx.source === 'spotlight' && ctx.spotlightKey && ctx.card) {
+        const card = ctx.card;
+        title = card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto';
+        ticker = card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || String(ctx.spotlightKey).toUpperCase();
+        iconSrc = card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc;
+        planKey = String(ctx.spotlightKey).toLowerCase();
+        if (amountInput) amountInput.value = '';
       } else {
         const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
           || carousel?.querySelector('[data-plan-carousel-item]');
@@ -949,15 +1063,13 @@
       panel.querySelector('[data-plan-detail-amount-icon]').src =
         cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
 
-      // Coverage currency labels
-      panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]')
-        .forEach((el) => { el.textContent = cur; });
+      updateCoverageUI();
 
       // Repeats schedule
       const freqLabels = { daily: 'Daily · every day at 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
-        if (ctx.source === 'curated') {
+        if (ctx.source === 'curated' || ctx.source === 'spotlight') {
           scheduleEl.textContent = freqLabels.monthly;
         } else {
           const freqItem = document.querySelector('[data-plan-freq-item].is-active');
@@ -967,7 +1079,7 @@
       }
 
       // Return footer: full sync from main widget only for carousel "Use this plan" flow
-      if (ctx.source === 'curated') {
+      if (ctx.source === 'curated' || ctx.source === 'spotlight') {
         const titleEl = panel.querySelector('[data-plan-detail-return-title]');
         const currEl = panel.querySelector('[data-plan-detail-return-currency]');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
@@ -979,7 +1091,14 @@
       // Allocation list
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
       const allocCountEl = panel.querySelector('[data-plan-detail-alloc-count]');
-      const allocItems = planAllocation[planKey] || planAllocation.bitcoin;
+      const allocItems =
+        (ctx.source === 'spotlight' && ctx.card)
+          ? [{
+              name: ctx.card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto',
+              ticker: ctx.card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || ticker,
+              icon: ctx.card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc,
+            }]
+          : (planAllocation[planKey] || planAllocation.bitcoin);
       allocList.innerHTML = allocItems.map((item) => `
         <div class="plan-detail-panel__alloc-item">
           <img class="plan-detail-panel__alloc-icon" src="${item.icon}" alt="" />
@@ -995,7 +1114,7 @@
           allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
       }
 
-      if (ctx.source === 'curated') {
+      if (ctx.source === 'curated' || ctx.source === 'spotlight') {
         // Amount 0 + curated basket → footer return from detail calculation only
         updateDetailReturn();
       }
@@ -1040,9 +1159,12 @@
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
-        panelOpenContext = openCtx && openCtx.source === 'curated' && openCtx.curatedKey
-          ? { source: 'curated', curatedKey: String(openCtx.curatedKey).toLowerCase(), card: openCtx.card }
-          : { source: 'plan' };
+        panelOpenContext =
+          openCtx && openCtx.source === 'curated' && openCtx.curatedKey
+            ? { source: 'curated', curatedKey: String(openCtx.curatedKey).toLowerCase(), card: openCtx.card }
+            : openCtx && openCtx.source === 'spotlight' && openCtx.spotlightKey
+              ? { source: 'spotlight', spotlightKey: String(openCtx.spotlightKey).toLowerCase(), card: openCtx.card }
+              : { source: 'plan' };
         populatePanel();
         resetScrollState();
         panel.hidden = false;
@@ -1074,6 +1196,9 @@
           panel.removeEventListener('transitionend', onEnd);
         };
         panel.addEventListener('transitionend', onEnd);
+        // Reset spotlight scroll position when returning to the Finance page
+        const spotlightEl = document.querySelector('.spotlight__scroll');
+        if (spotlightEl) spotlightEl.scrollLeft = 0;
       }
     };
 
@@ -1102,6 +1227,32 @@
       });
     });
 
+    // Spotlight crypto pills → open detail panel with empty auto-invest amount.
+    const spotlightScrollEl = document.querySelector('.spotlight__scroll');
+    document.querySelectorAll('.crypto-pill').forEach((pill) => {
+      pill.setAttribute('role', 'button');
+      pill.setAttribute('tabindex', '0');
+      const openFromPill = () => {
+        // Suppress click if the user was dragging
+        if (spotlightScrollEl?._getDidDrag?.()) return;
+        const key = pill.getAttribute('data-spotlight-key');
+        if (!key) return;
+        setOpen(true, { source: 'spotlight', spotlightKey: key, card: pill });
+        setTimeout(() => {
+          const inp = panel.querySelector('[data-plan-detail-amount-input]');
+          inp?.focus();
+          if (inp && inp.value === '') inp.select();
+        }, 380);
+      };
+      pill.addEventListener('click', openFromPill);
+      pill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openFromPill();
+        }
+      });
+    });
+
     // ── Amount input ──────────────────────────────────────────────────────────
     const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
@@ -1117,6 +1268,11 @@
     const updateDetailReturn = () => {
       const ctx = panelOpenContext;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+      const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+
+      // Always recalculate coverage whenever amount or currency changes
+      updateCoverageUI();
 
       if (ctx.source === 'curated' && ctx.curatedKey) {
         if (returnObserver) returnObserver.disconnect();
@@ -1126,8 +1282,6 @@
           planKey: ctx.curatedKey,
           freq: 'monthly',
         });
-        const titleEl = panel.querySelector('[data-plan-detail-return-title]');
-        const currEl = panel.querySelector('[data-plan-detail-return-currency]');
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         }
@@ -1138,7 +1292,23 @@
         return;
       }
 
-      if (!amount) return;
+      if (ctx.source === 'spotlight' && ctx.spotlightKey) {
+        if (returnObserver) returnObserver.disconnect();
+        updatePlanStrategyHistoricalReturn({
+          detailPanel: true,
+          amount,
+          planKey: ctx.spotlightKey,
+          freq: 'monthly',
+        });
+        if (titleEl) {
+          titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
+        }
+        if (currEl) {
+          currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+        }
+        if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
+        return;
+      }
 
       const slider = document.querySelector('[data-plan-slider]');
       if (slider) {
@@ -1212,7 +1382,7 @@
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
         if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
-        } else if (panelOpenContext.source === 'curated') {
+        } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight') {
           amountInput.value = '';
         } else {
           const fallbackRaw = parseInt(
@@ -1248,10 +1418,9 @@
           const cur = planCurrencyLabelMain.textContent.trim();
           const detailCur = panel.querySelector('[data-plan-detail-currency]');
           const detailIcon = panel.querySelector('[data-plan-detail-amount-icon]');
-          const coverageCurrencies = panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]');
           if (detailCur) detailCur.textContent = cur;
           if (detailIcon) detailIcon.src = cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
-          coverageCurrencies.forEach((el) => { el.textContent = cur; });
+          updateCoverageUI();
         });
         obs.observe(planCurrencyLabelMain, { childList: true, characterData: true, subtree: true });
       }
@@ -1262,35 +1431,49 @@
 
   initPrototypeReset();
 
-  // Drag-to-scroll for spotlight crypto grid
+  // Drag-to-scroll for spotlight crypto grid.
+  // Uses document-level move/up listeners (NOT pointer capture) so that:
+  //   a) dragging continues smoothly when the pointer leaves the element, and
+  //   b) child .crypto-pill click events are never swallowed by capture.
   const spotlightScroll = document.querySelector('.spotlight__scroll');
   if (spotlightScroll) {
-    let isDragging = false;
+    const DRAG_THRESHOLD = 6; // px of movement before we call it a drag
+    let isDown = false;
     let startX = 0;
     let scrollLeft = 0;
+    let didDrag = false;
 
-    spotlightScroll.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startX = e.pageX - spotlightScroll.offsetLeft;
+    spotlightScroll.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isDown = true;
+      startX = e.clientX;
       scrollLeft = spotlightScroll.scrollLeft;
+      didDrag = false;
       spotlightScroll.classList.add('is-dragging');
     });
 
+    document.addEventListener('pointermove', (e) => {
+      if (!isDown) return;
+      const delta = startX - e.clientX;
+      if (Math.abs(delta) > DRAG_THRESHOLD) {
+        didDrag = true;
+        spotlightScroll.scrollLeft = scrollLeft + delta;
+      }
+    });
+
     const stopDrag = () => {
-      isDragging = false;
+      if (!isDown) return;
+      isDown = false;
       spotlightScroll.classList.remove('is-dragging');
+      // Reset after the click event has had a chance to fire
+      setTimeout(() => { didDrag = false; }, 50);
     };
 
-    spotlightScroll.addEventListener('mouseleave', stopDrag);
-    spotlightScroll.addEventListener('mouseup', stopDrag);
+    document.addEventListener('pointerup', stopDrag);
+    document.addEventListener('pointercancel', stopDrag);
 
-    spotlightScroll.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const x = e.pageX - spotlightScroll.offsetLeft;
-      const delta = x - startX;
-      spotlightScroll.scrollLeft = scrollLeft - delta;
-    });
+    // Expose drag state for pill click guard
+    spotlightScroll._getDidDrag = () => didDrag;
   }
 
   const initHeaderScrollSwap = () => {

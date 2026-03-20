@@ -447,7 +447,7 @@
                                                 </div>
                                                 <button class="plan-strategy__currency" type="button" aria-label="Currency selector" data-currency-sheet-trigger="plan">
                                                     <span data-plan-currency-label>TWD</span>
-                                                    <img src="assets/icon_chevron_down_grey.svg" alt="" />
+                                                    <img src="assets/icon_chevron_down_white.svg" alt="" />
                                                 </button>
                                             </div>
 
@@ -547,7 +547,7 @@
                                         <div class="curated-portfolios__card" data-curated-key="aiessentials">
                                             <div class="curated-portfolios__card-main">
                                                 <div class="curated-portfolios__icon-wrap">
-                                                    <img src="assets/icon_solana.svg" alt="AI essentials" class="curated-portfolios__icon" />
+                                                    <img src="assets/icon_aiessentials.svg" alt="AI essentials" class="curated-portfolios__icon" />
                                                 </div>
                                                 <div class="curated-portfolios__info">
                                                     <span class="curated-portfolios__name">AI essentials</span>
@@ -888,7 +888,7 @@
             </button>
             <div class="plan-detail-panel__header-title-area">
                 <!-- Default state: "Plan your strategy" -->
-                <div class="plan-detail-panel__page-title" data-plan-detail-page-title>Plan your strategy</div>
+                <div class="plan-detail-panel__page-title" data-plan-detail-page-title>Plan</div>
                 <!-- Collapsed state: product name + ticker -->
                 <div class="plan-detail-panel__header-collapsed" data-plan-detail-header-collapsed>
                     <span class="plan-detail-panel__header-name" data-plan-detail-header-name>Bitcoin</span>
@@ -925,14 +925,15 @@
                     <div class="plan-detail-panel__amount-row">
                         <div class="plan-detail-panel__amount-display">
                             <img class="plan-detail-panel__amount-icon" data-plan-detail-amount-icon src="assets/icon_currency_TWD.svg" alt="" />
-                            <input class="plan-detail-panel__amount-input" data-plan-detail-amount-input inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10000" aria-label="Auto-invest amount" />
+                            <input class="plan-detail-panel__amount-input" data-plan-detail-amount-input inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10000" placeholder="0" aria-label="Auto-invest amount" />
                         </div>
                         <button class="plan-detail-panel__currency-pill" type="button" aria-label="Investment currency" data-currency-sheet-trigger="plan">
                             <span data-plan-detail-currency>TWD</span>
-                            <img src="assets/icon_chevron_down_grey.svg" alt="" width="20" height="20" />
+                            <img src="assets/icon_chevron_down_white.svg" alt="" width="20" height="20" />
                         </button>
                     </div>
                     <div class="plan-detail-panel__amount-divider"></div>
+                    <p class="plan-detail-panel__amount-error" data-plan-detail-amount-error>Not enough <span data-plan-detail-error-currency>TWD</span> for one run</p>
                 </div>
 
                 <!-- Repeats -->

@@ -2454,6 +2454,11 @@ html[data-active-tab=finance] .app-header__tabs {
   gap: 8px;
   height: 48px;
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+.spotlight__scroll.is-dragging .crypto-pill {
+  cursor: grabbing;
 }
 
 .crypto-pill__icon {
@@ -3789,6 +3794,10 @@ html[data-active-tab=finance] .app-header__tabs {
   min-height: 100%;
 }
 
+.plan-detail-panel__amount-section {
+  margin-bottom: -16px;
+}
+
 .plan-detail-panel__section-label {
   font-size: 16px;
   font-weight: 700;
@@ -3843,10 +3852,10 @@ html[data-active-tab=finance] .app-header__tabs {
   min-width: 0;
   width: 100%;
   font-family: inherit;
-  caret-color: #ffffff;
+  caret-color: #8FB8FF;
 }
 .plan-detail-panel__amount-input::placeholder {
-  color: #5a5d5e;
+  color: #58595A;
 }
 
 .plan-detail-panel__currency-pill {
@@ -3867,6 +3876,18 @@ html[data-active-tab=finance] .app-header__tabs {
   width: 20px;
   height: 20px;
   display: block;
+}
+
+.phone-container p.plan-detail-panel__amount-error {
+  font-size: 14px;
+  font-weight: 600;
+  color: #EB5347;
+  margin: 8px 0 0;
+  padding: 0;
+  opacity: 0;
+}
+.phone-container p.plan-detail-panel__amount-error.is-visible {
+  opacity: 1;
 }
 
 .plan-detail-panel__amount-divider {
