@@ -2080,7 +2080,7 @@ html[data-active-tab="finance"] {
 .plan-strategy__slider {
   position: relative;
   height: 18px;
-  margin: 2px 0 14px;
+  margin: 2px 0 24px;
 }
 
 .plan-strategy__slider-track {
@@ -4091,7 +4091,7 @@ html[data-active-tab="finance"] {
   font-size: 14px;
   font-weight: 600;
   font-family: 'Manrope', sans-serif;
-  color: #9b9c9c;
+  color: #9B9C9C;
   line-height: 1.25;
   text-align: left;
 
@@ -4222,8 +4222,10 @@ html[data-active-tab="finance"] {
   width: 124px;
 }
 
-// Amount mode with no Auto-invest total: read-only allocation inputs
-.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap {
+// Amount mode when total is 0 or too small to give each asset ≥1 unit: read-only controls
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap,
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__slider,
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__lock-btn {
   opacity: 0.35;
   pointer-events: none;
 }

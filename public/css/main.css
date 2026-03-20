@@ -2114,7 +2114,7 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-strategy__slider {
   position: relative;
   height: 18px;
-  margin: 2px 0 14px;
+  margin: 2px 0 24px;
 }
 
 .plan-strategy__slider-track {
@@ -4069,7 +4069,7 @@ html[data-active-tab=finance] .app-header__tabs {
   font-size: 14px;
   font-weight: 600;
   font-family: "Manrope", sans-serif;
-  color: #9b9c9c;
+  color: #9B9C9C;
   line-height: 1.25;
   text-align: left;
 }
@@ -4193,7 +4193,9 @@ html[data-active-tab=finance] .app-header__tabs {
   width: 124px;
 }
 
-.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap {
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap,
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__slider,
+.alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__lock-btn {
   opacity: 0.35;
   pointer-events: none;
 }

@@ -1105,7 +1105,6 @@
       if (count < 2) {
         detailPanelAllocPctTweakFn = null;
         panelEl._planDetailAllocRefreshAmounts = null;
-        delete panelEl.dataset.planDetailAllocInputMode;
         const resetBtnEarly = panelEl.querySelector('[data-alloc-reset]');
         if (resetBtnEarly) resetBtnEarly.hidden = true;
         return;
@@ -1177,14 +1176,20 @@
         }
       };
 
-      /** Amount mode + no Auto-invest: dim pct-wraps and block interaction (% mode always editable). */
+      /**
+       * Amount mode only: dim + block allocation controls when Auto-invest can't assign
+       * at least 1 unit per asset (or total is 0). % mode is always fully interactive.
+       */
       const syncAllocAmountWrapDisabled = () => {
         if (!allocMultiRoot) return;
-        const wrapDisabled = inputMode === 'amount' && getPlanDetailInvestTotal() <= 0;
+        const total = getPlanDetailInvestTotal();
+        const cannotSplitWholeUnits = total > 0 && total < count;
+        const wrapDisabled =
+          inputMode === 'amount' && (total <= 0 || cannotSplitWholeUnits);
         allocMultiRoot.classList.toggle('alloc-multi--amount-wrap-disabled', wrapDisabled);
         if (wrapDisabled) {
           const ae = document.activeElement;
-          if (ae?.closest?.('.alloc-multi__pct-wrap')) ae.blur();
+          if (ae && allocMultiRoot.contains(ae)) ae.blur();
         }
       };
 
@@ -1389,6 +1394,20 @@
       // Redistribute: set changedIdx to newPct and spread the remainder
       // proportionally among unlocked others. Never returns early — always
       // clamps to a valid range so fast drags can never freeze the slider.
+      /**
+       * In Amount mode, minimum % per slot so round(total × pct / 100) ≥ 1.
+       * In % mode, legacy minimum 1% per unlocked slot.
+       */
+      const getMinPctPerOpenSlot = () => {
+        if (inputMode !== 'amount') return 1;
+        const t = getPlanDetailInvestTotal();
+        if (!t || t <= 0) return 1;
+        const need = Math.ceil(100 / t);
+        const minPct = Math.max(1, Math.min(99, need));
+        if (minPct * count > 100) return 1;
+        return minPct;
+      };
+
       /** @returns {{ hitLockedCap: boolean, lockedIdx: number }} */
       const redistribute = (changedIdx, newPct) => {
         const others = items
@@ -1397,14 +1416,15 @@
 
         if (others.length === 0) return { hitLockedCap: false, lockedIdx: -1 };
 
+        const minSlot = getMinPctPerOpenSlot();
+
         // Sum of locked assets that can't move
         const lockedSum = pcts.reduce((s, p, j) => (locked[j] ? s + p : s), 0);
 
-        // Clamp: each unlocked other needs at least 1%, so the changed asset
-        // can be at most (100 - lockedSum - others.length).
-        const maxForChanged = 100 - lockedSum - others.length;
+        // Each unlocked other needs at least minSlot%; changed asset also ≥ minSlot.
+        const maxForChanged = 100 - lockedSum - others.length * minSlot;
         const raw = newPct;
-        const clamped = Math.max(1, Math.min(maxForChanged, newPct));
+        const clamped = Math.max(minSlot, Math.min(maxForChanged, newPct));
         const triedToExceedMax = raw > maxForChanged + 0.08;
         const lockedIdx = locked.findIndex((l) => l);
         const hitLockedCap = count === 3 && lockedIdx >= 0 && lockedSum > 0 && triedToExceedMax;
@@ -1421,15 +1441,15 @@
           const othersSum = others.reduce((s, j) => s + pcts[j], 0);
           if (othersSum > 0) {
             others.forEach((j) => {
-              pcts[j] = Math.max(1, (pcts[j] / othersSum) * toShare);
+              pcts[j] = Math.max(minSlot, (pcts[j] / othersSum) * toShare);
             });
           } else {
             others.forEach((j) => { pcts[j] = toShare / others.length; });
           }
 
           // Absorb any floating-point rounding into the first other
-          const total = pcts.reduce((a, b) => a + b, 0);
-          pcts[others[0]] += 100 - total;
+          const pSum = pcts.reduce((a, b) => a + b, 0);
+          pcts[others[0]] += 100 - pSum;
         }
 
         renderAll();
@@ -1613,7 +1633,6 @@
         const pctIcon = modeToggle.querySelector('[data-pct-icon]');
         // Toggle nodes persist across opens; always start in % mode for a fresh plan view
         inputMode = 'pct';
-        panelEl.dataset.planDetailAllocInputMode = 'pct';
         modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
           b.classList.toggle('is-active', b.dataset.allocModeBtn === 'pct');
         });
@@ -1624,7 +1643,6 @@
           const ae = document.activeElement;
           if (ae?.matches?.('[data-alloc-pct-input]')) ae.blur();
           inputMode = next;
-          panelEl.dataset.planDetailAllocInputMode = next;
           modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
             b.classList.toggle('is-active', b.dataset.allocModeBtn === next);
           });
@@ -1635,16 +1653,6 @@
                 : 'assets/icon_percentage_tab_gray.svg';
           }
           syncAllocInputModeClass();
-          // Amount allocation mode: Auto-invest must be at least 1 (TWD / USDT)
-          if (next === 'amount') {
-            const investInp = panelEl.querySelector('[data-plan-detail-amount-input]');
-            const t = parseInt(investInp?.value?.replace(/[^0-9]/g, '') || '0', 10);
-            if (investInp && (!t || t < 1)) {
-              investInp.value = (1).toLocaleString('en-US');
-              updateDetailReturn();
-              panelEl._planDetailAllocRefreshAmounts?.();
-            }
-          }
           renderAll();
         };
         modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((btn) => {
@@ -1669,7 +1677,7 @@
       const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
       if (ctx.source === 'newplan') {
-        title = 'Custom plan';
+        title = 'Your plan';
         const now = new Date();
         ticker = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         iconSrc = 'assets/icon_noallocation.svg';
@@ -1761,7 +1769,6 @@
         const resetNewplan = panel.querySelector('[data-alloc-reset]');
         if (resetNewplan) resetNewplan.hidden = true;
         if (allocSubtitleEl) allocSubtitleEl.hidden = true;
-        delete panel.dataset.planDetailAllocInputMode;
         updateDetailReturn();
         return;
       }
@@ -1835,7 +1842,6 @@
           </div>`).join('');
         const resetSingle = panel.querySelector('[data-alloc-reset]');
         if (resetSingle) resetSingle.hidden = true;
-        delete panel.dataset.planDetailAllocInputMode;
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
@@ -2141,10 +2147,7 @@
       // Blur: handle empty/invalid
       amountInput.addEventListener('blur', () => {
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
-        const allocAmountModeActive = panel.dataset.planDetailAllocInputMode === 'amount';
-        if (allocAmountModeActive && (isNaN(raw) || raw < 1)) {
-          setDisplayValue(1);
-        } else if (!isNaN(raw) && raw > 0) {
+        if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
         } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight' || panelOpenContext.source === 'newplan') {
           amountInput.value = '';
