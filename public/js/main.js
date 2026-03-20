@@ -1043,10 +1043,15 @@
         // Toggle locked class on the row for CSS-driven visual + pointer blocking
         item.classList.toggle('is-locked', isLocked);
 
+        // Only update lock button DOM when the state actually changed —
+        // calling innerHTML on every pointermove causes the img to blink.
         if (lockBtn) {
-          lockBtn.classList.toggle('is-locked', isLocked);
-          lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
-          lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
+          const wasLocked = lockBtn.classList.contains('is-locked');
+          if (wasLocked !== isLocked) {
+            lockBtn.classList.toggle('is-locked', isLocked);
+            lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
+            lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
+          }
         }
       };
 
