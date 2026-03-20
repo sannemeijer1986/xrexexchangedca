@@ -2760,6 +2760,15 @@ html[data-active-tab="finance"] {
   padding: 2px 0;
 }
 
+// Top-up sheet only: trailing chevron after row text
+.currency-sheet__item-chevron {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: block;
+  margin-left: auto;
+}
+
 .currency-sheet__divider {
   height: 1px;
   background: #3c4248;

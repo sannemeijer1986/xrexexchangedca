@@ -1114,7 +1114,7 @@
     </div>
 
     <!-- Plan detail: top up / add funds (Deposit · Convert) -->
-    <div class="currency-sheet" data-topup-sheet hidden aria-modal="true" role="dialog" aria-label="Add funds">
+    <div class="currency-sheet" data-topup-sheet hidden aria-modal="true" role="dialog" aria-label="Get TWD">
         <button class="currency-sheet__backdrop" type="button" data-topup-sheet-close aria-label="Close"></button>
         <div class="currency-sheet__panel">
             <div class="currency-sheet__handle-wrap">
@@ -1122,16 +1122,17 @@
             </div>
             <div class="currency-sheet__body">
                 <div class="currency-sheet__headerwrapper">
-                    <h2 class="currency-sheet__title">Get USDT</h2>
-                    <p class="currency-sheet__subtitle">Choose from these options</p>
+                    <h2 class="currency-sheet__title" data-topup-sheet-title>Get TWD</h2>
+                    <p class="currency-sheet__subtitle" data-topup-sheet-subtitle>Choose from these options</p>
                 </div>
                 <div class="currency-sheet__list">
                     <button class="currency-sheet__item currency-sheet__item--action" type="button" data-topup-action="convert">
                         <div class="currency-sheet__item-icon currency-sheet__item-icon--convert" aria-hidden="true"></div>
                         <div class="currency-sheet__item-content">
                             <span class="currency-sheet__item-name">Convert</span>
-                            <span class="currency-sheet__item-desc">Convert other currencies to USDT</span>
+                            <span class="currency-sheet__item-desc" data-topup-convert-desc>Convert other currencies to TWD</span>
                         </div>
+                        <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
                     <div class="currency-sheet__divider"></div>
                     <button class="currency-sheet__item currency-sheet__item--action" type="button" data-topup-action="deposit">
@@ -1140,6 +1141,7 @@
                             <span class="currency-sheet__item-name">Deposit</span>
                             <span class="currency-sheet__item-desc">Deposit funds into your XREX wallet</span>
                         </div>
+                        <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
 
                 </div>

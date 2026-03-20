@@ -909,7 +909,18 @@
 
     const panel = sheet.querySelector('.currency-sheet__panel');
 
+    const syncTopupSheetCopy = () => {
+      const cur = currencyState.plan;
+      const sub = `Convert other currencies to ${cur}`;
+      const titleEl = sheet.querySelector('[data-topup-sheet-title]');
+      const convertDesc = sheet.querySelector('[data-topup-convert-desc]');
+      if (titleEl) titleEl.textContent = `Get ${cur}`;
+      if (convertDesc) convertDesc.textContent = sub;
+      sheet.setAttribute('aria-label', `Get ${cur}`);
+    };
+
     const open = () => {
+      syncTopupSheetCopy();
       sheet.hidden = false;
       requestAnimationFrame(() => sheet.classList.add('is-open'));
     };
