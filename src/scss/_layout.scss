@@ -4297,6 +4297,71 @@ html[data-active-tab="finance"] {
   }
 }
 
+// Lock cap hint — lives in .plan-detail-panel__content (scrolls with content)
+.alloc-multi__lock-tooltip {
+  position: absolute;
+  z-index: 60;
+  left: 0;
+  top: 0;
+  // Fixed width — JS edge-clamp uses getBoundingClientRect().width from this
+  width: 280px;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  padding: 12px 16px 14px;
+  margin: 0;
+  background: #2d2f2f;
+  border: 1px solid #3c4248;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: #ffffff;
+  line-height: 1.45;
+  text-align: center;
+  pointer-events: none;
+  box-shadow:
+    0 14px 48px rgba(0, 0, 0, 0.62),
+    0 8px 28px rgba(0, 0, 0, 0.5),
+    0 3px 10px rgba(0, 0, 0, 0.4);
+  // --alloc-tip-nudge: horizontal shift (px) after edge clamp; set in JS
+  transform: translate(calc(-50% + var(--alloc-tip-nudge, 0px)), calc(-100% - 14px));
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+
+  // Arrow (border + fill) — bottom; --alloc-tip-arrow-left = px from tooltip left to aim at knob
+  &::before {
+    content: '';
+    position: absolute;
+    left: var(--alloc-tip-arrow-left, 50%);
+    bottom: -9px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 9px solid #3c4248;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: var(--alloc-tip-arrow-left, 50%);
+    bottom: -7px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #2d2f2f;
+  }
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 // Empty allocation state (New plan — no assets selected yet)
 .plan-detail-panel__allocation-section.is-empty {
   .plan-detail-panel__allocation-list {

@@ -1028,6 +1028,11 @@
     const initAllocSliders = (panelEl, count) => {
       if (count < 2) return;
 
+      // Hide stale lock tooltip when switching to a 2-asset plan
+      if (count < 3) {
+        document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
+      }
+
       const defaultPcts = count === 2 ? [50, 50] : [34, 33, 33];
       const pcts = [...defaultPcts];
       const locked = new Array(count).fill(false);
@@ -1068,15 +1073,137 @@
 
       const renderAll = () => items.forEach((_, i) => renderItem(i));
 
+      // Tooltip when a 3-asset lock caps how far another slider can move.
+      // Lives inside .plan-detail-panel__content so it scrolls with the page.
+      const contentEl = panelEl.querySelector('.plan-detail-panel__content');
+      const scrollRoot = panelEl.querySelector('[data-plan-detail-scroller]');
+      let tipEl = contentEl?.querySelector('[data-alloc-lock-tooltip]')
+        || document.querySelector('[data-alloc-lock-tooltip]');
+      if (!tipEl) {
+        tipEl = document.createElement('div');
+        tipEl.className = 'alloc-multi__lock-tooltip';
+        tipEl.setAttribute('data-alloc-lock-tooltip', '');
+        tipEl.setAttribute('role', 'tooltip');
+      }
+      if (contentEl) contentEl.appendChild(tipEl);
+
+      let hideTooltipTimer = null;
+      /** @type {Element | null} */
+      let lastTooltipAnchor = null;
+
+      const clipBoundsEl =
+        panelEl.closest('.phone-container') || scrollRoot || panelEl;
+
+      /** Position tooltip on the knob, nudge horizontally to stay inside clip bounds, aim arrow at knob. */
+      const updateAllocLockTooltipPosition = () => {
+        if (!lastTooltipAnchor || !tipEl || !contentEl) return;
+        const a = lastTooltipAnchor.getBoundingClientRect();
+        const c = contentEl.getBoundingClientRect();
+        const left = a.left - c.left + a.width / 2;
+        const top = a.top - c.top;
+        tipEl.style.left = `${left}px`;
+        tipEl.style.top = `${top}px`;
+        tipEl.style.setProperty('--alloc-tip-nudge', '0px');
+
+        const bounds = clipBoundsEl.getBoundingClientRect();
+        const margin = 8;
+        const knobCX = a.left + a.width / 2;
+
+        void tipEl.offsetWidth;
+        const W = tipEl.getBoundingClientRect().width;
+        const idealLeft = knobCX - W / 2;
+        const minL = bounds.left + margin;
+        const maxL = bounds.right - margin - W;
+        const clampedLeft = maxL >= minL
+          ? Math.max(minL, Math.min(maxL, idealLeft))
+          : minL;
+        const nudge = clampedLeft - idealLeft;
+        tipEl.style.setProperty('--alloc-tip-nudge', `${nudge}px`);
+
+        void tipEl.offsetWidth;
+        const finalR = tipEl.getBoundingClientRect();
+        let arrowLeft = knobCX - finalR.left;
+        const pad = 18;
+        arrowLeft = Math.max(pad, Math.min(finalR.width - pad, arrowLeft));
+        tipEl.style.setProperty('--alloc-tip-arrow-left', `${arrowLeft}px`);
+      };
+
+      const hideAllocLockTooltip = () => {
+        lastTooltipAnchor = null;
+        if (hideTooltipTimer) {
+          clearTimeout(hideTooltipTimer);
+          hideTooltipTimer = null;
+        }
+        tipEl.classList.remove('is-visible');
+        tipEl.style.removeProperty('--alloc-tip-nudge');
+        tipEl.style.removeProperty('--alloc-tip-arrow-left');
+      };
+
+      const resetAllocLockTooltipAutoHide = () => {
+        if (hideTooltipTimer) clearTimeout(hideTooltipTimer);
+        hideTooltipTimer = setTimeout(() => {
+          tipEl.classList.remove('is-visible');
+          lastTooltipAnchor = null;
+          hideTooltipTimer = null;
+        }, 3800);
+      };
+
+      const showAllocLockTooltip = (anchorEl, lockedIdx) => {
+        if (count !== 3 || lockedIdx < 0 || !anchorEl || !tipEl || !contentEl) return;
+        lastTooltipAnchor = anchorEl;
+        const lockedItem = items[lockedIdx];
+        const name = lockedItem?.querySelector('.alloc-multi__name')?.textContent?.trim() || 'Asset';
+        const pct = Math.round(pcts[lockedIdx]);
+        tipEl.textContent = `${name} locked at ${pct}%: unlock it to increase this asset's allocation`;
+        tipEl.classList.add('is-visible');
+        updateAllocLockTooltipPosition();
+        resetAllocLockTooltipAutoHide();
+      };
+
+      // Reposition on scroll (new closure each init — abort prior listener to avoid stacking)
+      const scrollAbortKey = '_allocLockTooltipScrollAbort';
+      if (scrollRoot) {
+        const prevAbort = scrollRoot[scrollAbortKey];
+        if (prevAbort) prevAbort.abort();
+        const ac = new AbortController();
+        scrollRoot[scrollAbortKey] = ac;
+        scrollRoot.addEventListener(
+          'scroll',
+          () => {
+            if (tipEl.classList.contains('is-visible')) updateAllocLockTooltipPosition();
+          },
+          { passive: true, signal: ac.signal },
+        );
+      }
+
+      // Dismiss on any tap outside the tooltip (e.g. after slider release)
+      const docAbortKey = '_allocLockTooltipDocPointerAbort';
+      {
+        const prevDoc = document[docAbortKey];
+        if (prevDoc) prevDoc.abort();
+        const acDoc = new AbortController();
+        document[docAbortKey] = acDoc;
+        document.addEventListener(
+          'pointerdown',
+          (e) => {
+            if (!tipEl?.classList.contains('is-visible')) return;
+            if (tipEl.contains(e.target)) return;
+            hideAllocLockTooltip();
+          },
+          { capture: true, signal: acDoc.signal },
+        );
+      }
+
       // Redistribute: set changedIdx to newPct and spread the remainder
       // proportionally among unlocked others. Never returns early — always
       // clamps to a valid range so fast drags can never freeze the slider.
+      /** @returns {{ hitLockedCap: boolean, lockedIdx: number }} */
       const redistribute = (changedIdx, newPct) => {
         const others = items
           .map((_, j) => j)
           .filter((j) => j !== changedIdx && !locked[j]);
 
-        if (others.length === 0) return;
+        if (others.length === 0) return { hitLockedCap: false, lockedIdx: -1 };
 
         // Sum of locked assets that can't move
         const lockedSum = pcts.reduce((s, p, j) => (locked[j] ? s + p : s), 0);
@@ -1084,7 +1211,11 @@
         // Clamp: each unlocked other needs at least 1%, so the changed asset
         // can be at most (100 - lockedSum - others.length).
         const maxForChanged = 100 - lockedSum - others.length;
+        const raw = newPct;
         const clamped = Math.max(1, Math.min(maxForChanged, newPct));
+        const triedToExceedMax = raw > maxForChanged + 0.08;
+        const lockedIdx = locked.findIndex((l) => l);
+        const hitLockedCap = count === 3 && lockedIdx >= 0 && lockedSum > 0 && triedToExceedMax;
 
         pcts[changedIdx] = clamped;
 
@@ -1110,6 +1241,7 @@
         }
 
         renderAll();
+        return { hitLockedCap, lockedIdx };
       };
 
       items.forEach((item, i) => {
@@ -1130,14 +1262,25 @@
 
           slider.addEventListener('pointerdown', (e) => {
             e.preventDefault();
+            hideAllocLockTooltip();
             slider.setPointerCapture(e.pointerId);
-            redistribute(i, getSliderPct(e.clientX));
+            const ret = redistribute(i, getSliderPct(e.clientX));
+            if (count === 3 && ret.hitLockedCap) {
+              const thumb = items[i].querySelector('[data-alloc-thumb]');
+              showAllocLockTooltip(thumb, ret.lockedIdx);
+            }
           });
 
           slider.addEventListener('pointermove', (e) => {
             if (!slider.hasPointerCapture(e.pointerId)) return;
             e.preventDefault();
-            redistribute(i, getSliderPct(e.clientX));
+            const ret = redistribute(i, getSliderPct(e.clientX));
+            if (count === 3 && ret.hitLockedCap) {
+              const thumb = items[i].querySelector('[data-alloc-thumb]');
+              showAllocLockTooltip(thumb, ret.lockedIdx);
+            } else {
+              hideAllocLockTooltip();
+            }
           });
 
           slider.addEventListener('pointerup', (e) => {
@@ -1152,6 +1295,7 @@
             if (slider.hasPointerCapture(e.pointerId)) {
               slider.releasePointerCapture(e.pointerId);
             }
+            hideAllocLockTooltip();
           });
         }
 
@@ -1169,10 +1313,17 @@
           input.addEventListener('blur', () => {
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
-              redistribute(i, val);
+              const ret = redistribute(i, val);
+              if (count === 3 && ret.hitLockedCap) {
+                const anchor = input.closest('.alloc-multi__pct-wrap');
+                showAllocLockTooltip(anchor || input, ret.lockedIdx);
+              } else {
+                hideAllocLockTooltip();
+              }
             } else {
               // Revert to current stored value
               input.value = String(Math.round(pcts[i]));
+              hideAllocLockTooltip();
             }
           });
 
@@ -1180,7 +1331,13 @@
           input.addEventListener('input', () => {
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
-              redistribute(i, val);
+              const ret = redistribute(i, val);
+              if (count === 3 && ret.hitLockedCap) {
+                const anchor = input.closest('.alloc-multi__pct-wrap');
+                showAllocLockTooltip(anchor || input, ret.lockedIdx);
+              } else {
+                hideAllocLockTooltip();
+              }
             }
           });
         }
@@ -1188,6 +1345,7 @@
         // Lock button (3-asset only) — only one asset can be locked at a time
         if (lockBtn) {
           lockBtn.addEventListener('click', () => {
+            hideAllocLockTooltip();
             const willLock = !locked[i];
             // Unlock all others first
             locked.fill(false);
@@ -1463,6 +1621,7 @@
           }
         }, 350);
       } else {
+        document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
         panelOpenContext = { source: 'plan' };
         panel.classList.remove('is-open');
         if (container) {
