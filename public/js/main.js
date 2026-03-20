@@ -1601,6 +1601,8 @@
         panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
           btn.textContent = 'Add assets';
         });
+        const resetNewplan = panel.querySelector('[data-alloc-reset]');
+        if (resetNewplan) resetNewplan.hidden = true;
         updateDetailReturn();
         return;
       }
@@ -1671,6 +1673,8 @@
               <span class="plan-detail-panel__alloc-ticker">${item.ticker}</span>
             </div>
           </div>`).join('');
+        const resetSingle = panel.querySelector('[data-alloc-reset]');
+        if (resetSingle) resetSingle.hidden = true;
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
