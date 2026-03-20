@@ -4056,6 +4056,224 @@ html[data-active-tab="finance"] {
   display: block;
 }
 
+// Allocation section header (label + mode toggle)
+.plan-detail-panel__alloc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+
+  .plan-detail-panel__section-label {
+    margin-bottom: 0;
+  }
+}
+
+// Amount / % mode toggle
+.alloc-mode-toggle {
+  background: #1b1d1d;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  height: 32px;
+}
+
+.alloc-mode-toggle__btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+
+  &.is-active {
+    background: #ffffff;
+    color: #000000;
+    width: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Multi-asset allocation layout (2–3 assets)
+.alloc-multi {
+  background: #151718;
+  border-radius: 16px;
+  padding: 8px 16px 16px;
+  width: 100%;
+}
+
+.alloc-multi__item {
+  padding-bottom: 12px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #2d2f2f;
+  }
+}
+
+.alloc-multi__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.alloc-multi__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+}
+
+.alloc-multi__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.alloc-multi__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alloc-multi__ticker {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  display: block;
+}
+
+.alloc-multi__pct-wrap {
+  border: 1px solid #3c4248;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 87px;
+  height: 48px;
+  padding: 0 8px;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.alloc-multi__pct-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  caret-color: #3f78ff;
+  text-align: right;
+  padding: 0;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.alloc-multi__pct-symbol {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  flex-shrink: 0;
+}
+
+// Slider row (slider track + optional lock button)
+.alloc-multi__slider-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+// Slider (reuses same visual as plan-strategy slider)
+.alloc-multi__slider {
+  flex: 1;
+  height: 18px;
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.alloc-multi__slider-bg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: #47494a;
+  border-radius: 4px;
+}
+
+.alloc-multi__slider-fill {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  height: 5px;
+  background: #ffffff;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.alloc-multi__slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
+// Lock button (3-asset plans only)
+.alloc-multi__lock-btn {
+  width: 40px;
+  height: 32px;
+  border-radius: 12px;
+  background: #2d2f2f;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+  }
+
+  &.is-locked {
+    background: #275cfd;
+  }
+}
+
 // Empty allocation state (New plan — no assets selected yet)
 .plan-detail-panel__allocation-section.is-empty {
   .plan-detail-panel__allocation-list {

@@ -1011,6 +1011,167 @@
       if (pctEl) pctEl.textContent = document.querySelector('.plan-strategy__return-pct')?.textContent || pctEl.textContent;
     };
 
+    // ── Multi-asset allocation sliders ────────────────────────────────────────
+    // Called after multi-asset HTML is rendered into the allocation list.
+    // Manages per-asset % sliders, % inputs, and the lock feature (3-asset only).
+    const initAllocSliders = (panelEl, count) => {
+      if (count < 2) return;
+
+      const defaultPcts = count === 2 ? [50, 50] : [34, 33, 33];
+      const pcts = [...defaultPcts];
+      const locked = new Array(count).fill(false);
+
+      const svgUnlock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
+      const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+
+      const items = Array.from(panelEl.querySelectorAll('.alloc-multi__item'));
+
+      const renderItem = (i) => {
+        const item = items[i];
+        if (!item) return;
+        const fill = item.querySelector('[data-alloc-fill]');
+        const thumb = item.querySelector('[data-alloc-thumb]');
+        const input = item.querySelector('[data-alloc-pct-input]');
+        const lockBtn = item.querySelector('[data-alloc-lock-btn]');
+        const p = pcts[i] / 100;
+
+        if (fill) fill.style.width = `${p * 100}%`;
+        if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
+        if (input && document.activeElement !== input) input.value = String(Math.round(pcts[i]));
+
+        if (lockBtn) {
+          const isLocked = locked[i];
+          lockBtn.classList.toggle('is-locked', isLocked);
+          lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
+          lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
+        }
+      };
+
+      const renderAll = () => items.forEach((_, i) => renderItem(i));
+
+      // Redistribute delta (change in index `changedIdx` by `delta`) among
+      // unlocked other assets, clamping each to min 1%.
+      const redistribute = (changedIdx, newPct) => {
+        const clamped = Math.max(1, Math.min(99, newPct));
+        const delta = clamped - pcts[changedIdx];
+        if (Math.abs(delta) < 0.01) return;
+
+        const others = items
+          .map((_, j) => j)
+          .filter((j) => j !== changedIdx && !locked[j]);
+
+        if (others.length === 0) return; // all locked — can't change
+
+        // How much each other must absorb
+        const absorb = -delta / others.length;
+        // Tentatively apply
+        const provisional = others.map((j) => Math.max(1, pcts[j] + absorb));
+        // Actual delta we can achieve
+        const actualAbsorbed = provisional.reduce((s, v, k) => s + (v - pcts[others[k]]), 0);
+        if (Math.abs(actualAbsorbed + delta) > 2) return; // over-constrained, skip
+
+        pcts[changedIdx] = clamped;
+        others.forEach((j, k) => { pcts[j] = provisional[k]; });
+
+        // Snap rounding to ensure exact 100
+        const total = pcts.reduce((a, b) => a + b, 0);
+        if (Math.abs(total - 100) > 0.01) {
+          // Apply residual to last unlocked other
+          pcts[others[others.length - 1]] += 100 - total;
+          pcts[others[others.length - 1]] = Math.max(1, pcts[others[others.length - 1]]);
+        }
+
+        renderAll();
+      };
+
+      items.forEach((item, i) => {
+        const slider = item.querySelector('[data-alloc-slider]');
+        const input = item.querySelector('[data-alloc-pct-input]');
+        const lockBtn = item.querySelector('[data-alloc-lock-btn]');
+
+        // Slider pointer interaction
+        if (slider) {
+          const getSliderPct = (clientX) => {
+            const rect = slider.getBoundingClientRect();
+            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+            return (x / rect.width) * 100;
+          };
+
+          slider.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            slider.setPointerCapture(e.pointerId);
+            redistribute(i, getSliderPct(e.clientX));
+          });
+
+          slider.addEventListener('pointermove', (e) => {
+            if (!slider.hasPointerCapture(e.pointerId)) return;
+            e.preventDefault();
+            redistribute(i, getSliderPct(e.clientX));
+          });
+
+          slider.addEventListener('pointerup', (e) => {
+            if (slider.hasPointerCapture(e.pointerId)) {
+              slider.releasePointerCapture(e.pointerId);
+            }
+          });
+        }
+
+        // Percentage input interaction
+        if (input) {
+          input.addEventListener('focus', () => input.select());
+
+          input.addEventListener('keydown', (e) => {
+            const allowed = ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+            if (!allowed.includes(e.key) && !/^\d$/.test(e.key) && !(e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+            }
+          });
+
+          input.addEventListener('blur', () => {
+            const val = parseInt(input.value, 10);
+            if (!isNaN(val) && val >= 1 && val <= 99) {
+              redistribute(i, val);
+            } else {
+              // Revert to current stored value
+              input.value = String(Math.round(pcts[i]));
+            }
+          });
+
+          // Live preview on input
+          input.addEventListener('input', () => {
+            const val = parseInt(input.value, 10);
+            if (!isNaN(val) && val >= 1 && val <= 99) {
+              redistribute(i, val);
+            }
+          });
+        }
+
+        // Lock button (3-asset only)
+        if (lockBtn) {
+          lockBtn.addEventListener('click', () => {
+            locked[i] = !locked[i];
+            renderItem(i);
+          });
+        }
+      });
+
+      // Initial render
+      renderAll();
+
+      // Mode toggle (Amount / %)
+      const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
+      if (modeToggle) {
+        modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            // Amount mode: read auto-invest input for display
+            // (visual toggle for prototype — sliders always control %)
+          });
+        });
+      }
+    };
+
     const populatePanel = () => {
       const ctx = panelOpenContext;
       const cur = currencyState.plan;
@@ -1106,6 +1267,8 @@
         if (allocCountEl) allocCountEl.textContent = '0';
         allocList.innerHTML = '';
         if (allocSection) allocSection.classList.add('is-empty');
+        const allocModeToggleNewplan = panel.querySelector('[data-alloc-mode-toggle]');
+        if (allocModeToggleNewplan) allocModeToggleNewplan.hidden = true;
         const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
         if (addAssetsBtn) addAssetsBtn.textContent = 'Add assets';
         updateDetailReturn();
@@ -1122,19 +1285,61 @@
               icon: ctx.card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc,
             }]
           : (planAllocation[planKey] || planAllocation.bitcoin);
-      allocList.innerHTML = allocItems.map((item) => `
-        <div class="plan-detail-panel__alloc-item">
-          <img class="plan-detail-panel__alloc-icon" src="${item.icon}" alt="" />
-          <div class="plan-detail-panel__alloc-info">
-            <span class="plan-detail-panel__alloc-name">${item.name}</span>
-            <span class="plan-detail-panel__alloc-ticker">${item.ticker}</span>
-          </div>
-        </div>`).join('');
+
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
+
       const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
       if (addAssetsBtn) {
         addAssetsBtn.textContent =
           allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      }
+
+      // Show mode toggle for 2+ assets
+      const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');
+      if (allocModeToggle) allocModeToggle.hidden = allocItems.length < 2;
+
+      if (allocItems.length >= 2) {
+        // Multi-asset layout with sliders + optional lock
+        const svgUnlock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
+        const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+        const showLock = allocItems.length === 3;
+
+        allocList.innerHTML = `<div class="alloc-multi">${
+          allocItems.map((item, i) => `
+            <div class="alloc-multi__item" data-alloc-idx="${i}">
+              <div class="alloc-multi__row">
+                <img class="alloc-multi__icon" src="${item.icon}" alt="" />
+                <div class="alloc-multi__info">
+                  <span class="alloc-multi__name">${item.name}</span>
+                  <span class="alloc-multi__ticker">${item.ticker}</span>
+                </div>
+                <div class="alloc-multi__pct-wrap">
+                  <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
+                  <span class="alloc-multi__pct-symbol">%</span>
+                </div>
+              </div>
+              <div class="alloc-multi__slider-row">
+                <div class="alloc-multi__slider" data-alloc-slider>
+                  <div class="alloc-multi__slider-bg"></div>
+                  <div class="alloc-multi__slider-fill" data-alloc-fill></div>
+                  <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
+                </div>
+                ${showLock ? `<button class="alloc-multi__lock-btn" type="button" aria-label="Lock allocation" data-alloc-lock-btn>${svgUnlock}</button>` : ''}
+              </div>
+            </div>`).join('')
+        }</div>`;
+
+        initAllocSliders(panel, allocItems.length);
+      } else {
+        // Single-asset layout (simple, no slider)
+        allocList.innerHTML = allocItems.map((item) => `
+          <div class="plan-detail-panel__alloc-item">
+            <img class="plan-detail-panel__alloc-icon" src="${item.icon}" alt="" />
+            <div class="plan-detail-panel__alloc-info">
+              <span class="plan-detail-panel__alloc-name">${item.name}</span>
+              <span class="plan-detail-panel__alloc-ticker">${item.ticker}</span>
+            </div>
+          </div>`).join('');
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
