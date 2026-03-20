@@ -440,7 +440,9 @@
 
     const pctFromValue = (v) => {
       const mn = getMin(); const mx = getMax();
-      return mx === mn ? 0 : (v - mn) / (mx - mn);
+      if (mx === mn) return 0;
+      if (v <= mn) return 0;
+      return (v - mn) / (mx - mn);
     };
     const stepForPct = (pct) => {
       const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
@@ -703,9 +705,17 @@
     document.querySelectorAll('[data-summary-selector-label]').forEach((el) => { el.textContent = cur; });
   };
 
-  const updatePlanCurrencyUI = () => {
+  /**
+   * @param {object} [opts]
+   * @param {boolean} [opts.fromPlanDetailPanel] — currency sheet opened from plan *detail* pill:
+   *   clear that panel’s Auto-invest only (0 / empty); main Finance slider stays (clamped to new min/max).
+   *   When false (Finance → Auto-invest page): main slider → currency defaults (300 USDT / 10,000 TWD).
+   */
+  const updatePlanCurrencyUI = (opts = {}) => {
+    const fromPlanDetailPanel = !!opts.fromPlanDetailPanel;
     const cur = currencyState.plan;
     const isUsdt = cur === 'USDT';
+    const defaultVal = isUsdt ? 300 : 10000;
 
     // Labels
     document.querySelectorAll('[data-plan-currency-label]').forEach((el) => { el.textContent = cur; });
@@ -717,29 +727,49 @@
       amountIcon.src = isUsdt ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
     }
 
-    // Slider range
     const slider = document.querySelector('[data-plan-slider]');
+    const detailInp = document.querySelector('[data-plan-detail-amount-input]');
+
     if (slider) {
       const min = isUsdt ? 15 : 500;
       const max = isUsdt ? 3000 : 100000;
-      const defaultVal = isUsdt ? 300 : 10000;
       slider.setAttribute('data-min', String(min));
       slider.setAttribute('data-max', String(max));
       slider.setAttribute('aria-valuemin', String(min));
       slider.setAttribute('aria-valuemax', String(max));
 
-      const clamped = defaultVal;
-      if (typeof slider._planSliderSetValue === 'function') {
-        slider._planSliderSetValue(clamped);
+      if (fromPlanDetailPanel) {
+        // Deeper plan-detail page only: reset Auto-invest *field* to empty; keep main widget amount
+        const curVal = parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
+        if (curVal > 0) {
+          const clamped = Math.min(max, Math.max(min, curVal));
+          if (typeof slider._planSliderSetValue === 'function') {
+            slider._planSliderSetValue(clamped);
+          } else {
+            slider.setAttribute('aria-valuenow', String(clamped));
+            updatePlanStrategyHistoricalReturn();
+          }
+        }
+        if (detailInp) detailInp.value = '';
       } else {
-        slider.setAttribute('aria-valuenow', String(clamped));
+        // Finance → Auto-invest: restore defaults on main slider + sync detail if present
+        if (typeof slider._planSliderSetValue === 'function') {
+          slider._planSliderSetValue(defaultVal);
+        } else {
+          slider.setAttribute('aria-valuenow', String(defaultVal));
+          const amtEl = document.querySelector('[data-plan-amount]');
+          if (amtEl) amtEl.textContent = defaultVal.toLocaleString('en-US');
+          updatePlanStrategyHistoricalReturn();
+        }
+        if (detailInp) detailInp.value = defaultVal.toLocaleString('en-US');
       }
-    }
-
-    // updatePlanStrategyHistoricalReturn is called by setValue above; skip if slider existed
-    if (!slider || typeof slider._planSliderSetValue !== 'function') {
+    } else {
       updatePlanStrategyHistoricalReturn();
     }
+
+    document.dispatchEvent(
+      new CustomEvent('plan-investment-currency-updated', { detail: { fromPlanDetailPanel } }),
+    );
   };
 
   const initCurrencySheet = () => {
@@ -750,6 +780,8 @@
     const titleEl = sheet.querySelector('[data-currency-sheet-title]');
     const options = sheet.querySelectorAll('[data-currency-sheet-option]');
     let currentContext = null;
+    /** Investment currency opened from plan detail pill → clear detail Auto-invest only. */
+    let planCurrencyOpenedFromDetailPanel = false;
 
     const setSelected = (value) => {
       options.forEach((opt) => {
@@ -781,7 +813,11 @@
 
     // Open triggers
     document.querySelectorAll('[data-currency-sheet-trigger]').forEach((btn) => {
-      btn.addEventListener('click', () => open(btn.getAttribute('data-currency-sheet-trigger')));
+      btn.addEventListener('click', () => {
+        const ctx = btn.getAttribute('data-currency-sheet-trigger');
+        planCurrencyOpenedFromDetailPanel = ctx === 'plan' && !!btn.closest('.plan-detail-panel');
+        open(ctx);
+      });
     });
 
     // Close triggers
@@ -797,7 +833,9 @@
         currencyState[currentContext] = value;
         setSelected(value);
         if (currentContext === 'summary') updateSummaryCurrencyUI();
-        if (currentContext === 'plan') updatePlanCurrencyUI();
+        if (currentContext === 'plan') {
+          updatePlanCurrencyUI({ fromPlanDetailPanel: planCurrencyOpenedFromDetailPanel });
+        }
         close();
       });
     });
@@ -1225,7 +1263,13 @@
         if (input && document.activeElement !== input) {
           if (inputMode === 'amount') {
             const total = getPlanDetailInvestTotal();
-            input.value = total > 0 ? formatAllocAmountDisplay((total * pcts[i]) / 100) : '';
+            if (total > 0) {
+              const rounded = Math.round((total * pcts[i]) / 100);
+              const minOne = total >= count && rounded < 1 ? 1 : rounded;
+              input.value = formatAllocAmountDisplay(minOne);
+            } else {
+              input.value = '';
+            }
             input.setAttribute('aria-label', 'Allocation amount');
           } else {
             input.value = String(Math.round(pcts[i]));
@@ -1395,14 +1439,15 @@
       // proportionally among unlocked others. Never returns early — always
       // clamps to a valid range so fast drags can never freeze the slider.
       /**
-       * In Amount mode, minimum % per slot so round(total × pct / 100) ≥ 1.
-       * In % mode, legacy minimum 1% per unlocked slot.
+       * Amount mode: min % so Math.round(total × pct / 100) ≥ 1 → pct ≥ 50/t (ceil).
+       * (Using 100/t was too loose and still allowed 0 after rounding.)
+       * % mode: legacy 1% minimum per unlocked slot.
        */
       const getMinPctPerOpenSlot = () => {
         if (inputMode !== 'amount') return 1;
         const t = getPlanDetailInvestTotal();
         if (!t || t <= 0) return 1;
-        const need = Math.ceil(100 / t);
+        const need = Math.ceil(50 / t);
         const minPct = Math.max(1, Math.min(99, need));
         if (minPct * count > 100) return 1;
         return minPct;
@@ -1450,6 +1495,37 @@
           // Absorb any floating-point rounding into the first other
           const pSum = pcts.reduce((a, b) => a + b, 0);
           pcts[others[0]] += 100 - pSum;
+        }
+
+        // Amount mode: absorb can leave a slot rounding to 0 TWD/USDT — bump then trim donors
+        if (inputMode === 'amount') {
+          const t = getPlanDetailInvestTotal();
+          const minS = getMinPctPerOpenSlot();
+          if (t >= count && t > 0) {
+            let adjusted = false;
+            for (let j = 0; j < count; j += 1) {
+              if (locked[j]) continue;
+              if (Math.round((t * pcts[j]) / 100) < 1) {
+                pcts[j] = minS;
+                adjusted = true;
+              }
+            }
+            if (adjusted) {
+              let sum = pcts.reduce((a, b) => a + b, 0);
+              let over = sum - 100;
+              if (over > 1e-6) {
+                for (let j = count - 1; j >= 0 && over > 1e-6; j -= 1) {
+                  if (locked[j]) continue;
+                  const room = pcts[j] - minS;
+                  if (room > 1e-6) {
+                    const d = Math.min(room, over);
+                    pcts[j] -= d;
+                    over -= d;
+                  }
+                }
+              }
+            }
+          }
         }
 
         renderAll();
@@ -2087,6 +2163,12 @@
         applyFooterAllocSliderTweak();
       }
     };
+
+    document.addEventListener('plan-investment-currency-updated', () => {
+      if (!panel.classList.contains('is-open')) return;
+      updateDetailReturn();
+      panel._planDetailAllocRefreshAmounts?.();
+    });
 
     // Watch main widget's return-abs — fires when range or currency changes externally.
     if (mainReturnAbsEl) {
