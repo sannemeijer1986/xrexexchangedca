@@ -881,6 +881,113 @@
             </div>
         </section>
 
+    <!-- Plan detail panel -->
+    <section class="plan-detail-panel" data-plan-detail-panel hidden aria-label="Plan your strategy">
+
+        <!-- Sticky header — two overlapping title states + divider + icon -->
+        <div class="plan-detail-panel__header" data-plan-detail-header>
+            <button class="plan-detail-panel__icon-btn" type="button" data-plan-detail-close aria-label="Back">
+                <img src="assets/icon_back.svg" alt="" />
+            </button>
+            <div class="plan-detail-panel__header-title-area">
+                <!-- Default state: "Plan your strategy" -->
+                <div class="plan-detail-panel__page-title" data-plan-detail-page-title>Plan your strategy</div>
+                <!-- Collapsed state: product name + ticker -->
+                <div class="plan-detail-panel__header-collapsed" data-plan-detail-header-collapsed>
+                    <span class="plan-detail-panel__header-name" data-plan-detail-header-name>Bitcoin</span>
+                    <span class="plan-detail-panel__header-ticker" data-plan-detail-header-ticker>BTC</span>
+                </div>
+            </div>
+            <!-- Product icon — fades in when collapsed -->
+            <img class="plan-detail-panel__header-icon" data-plan-detail-header-icon src="assets/icon_currency_btc.svg" alt="" />
+            <!-- Divider — fades in when collapsed -->
+            <div class="plan-detail-panel__header-divider"></div>
+        </div>
+
+        <!-- Single scrollable container: product area + content body -->
+        <div class="plan-detail-panel__scroller" data-plan-detail-scroller>
+
+            <!-- Product hero — parallax + fade on scroll, behind content -->
+            <div class="plan-detail-panel__product" data-plan-detail-product-area>
+                <div class="plan-detail-panel__product-info">
+                    <span class="plan-detail-panel__product-name" data-plan-detail-name>Bitcoin</span>
+                    <span class="plan-detail-panel__product-ticker" data-plan-detail-ticker>BTC</span>
+                </div>
+                <img class="plan-detail-panel__product-icon" data-plan-detail-icon src="assets/icon_currency_btc.svg" alt="" />
+            </div>
+
+            <!-- Content body — dark bg, rounded top, z-index on top of product -->
+            <div class="plan-detail-panel__content">
+
+                <!-- Auto-invest amount -->
+                <div class="plan-detail-panel__amount-section">
+                    <div class="plan-detail-panel__amount-header">
+                        <span class="plan-detail-panel__section-label">Auto-invest</span>
+                        <span class="plan-detail-panel__avail-text">Avail. 15,000 <span data-plan-detail-coverage-currency>TWD</span></span>
+                    </div>
+                    <div class="plan-detail-panel__amount-row">
+                        <div class="plan-detail-panel__amount-display">
+                            <img class="plan-detail-panel__amount-icon" data-plan-detail-amount-icon src="assets/icon_currency_TWD.svg" alt="" />
+                            <span class="plan-detail-panel__amount-value" data-plan-detail-amount>10,000</span>
+                        </div>
+                        <div class="plan-detail-panel__currency-pill">
+                            <span data-plan-detail-currency>TWD</span>
+                            <img src="assets/icon_chevron_down_grey.svg" alt="" width="20" height="20" />
+                        </div>
+                    </div>
+                    <div class="plan-detail-panel__amount-divider"></div>
+                </div>
+
+                <!-- Repeats -->
+                <div class="plan-detail-panel__repeats-section">
+                    <div class="plan-detail-panel__section-label">Repeats</div>
+                    <div class="plan-detail-panel__repeats-card">
+                        <div class="plan-detail-panel__repeats-row">
+                            <div class="plan-detail-panel__cal-icon" aria-hidden="true"></div>
+                            <div class="plan-detail-panel__repeats-info">
+                                <span class="plan-detail-panel__repeats-schedule">Monthly · 15th at 12:00</span>
+                                <span class="plan-detail-panel__repeats-type">Continuous</span>
+                            </div>
+                            <button class="plan-detail-panel__edit-btn" type="button" aria-label="Edit schedule">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="#9B9C9C"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="plan-detail-panel__repeats-divider"></div>
+                        <div class="plan-detail-panel__coverage-row">
+                            <span class="plan-detail-panel__coverage-label">Available <span data-plan-detail-coverage-currency2>TWD</span> covers ≈</span>
+                            <span class="plan-detail-panel__coverage-value">3 months</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allocation -->
+                <div class="plan-detail-panel__allocation-section">
+                    <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
+                    <div class="plan-detail-panel__allocation-list" data-plan-detail-allocation></div>
+                    <div class="plan-detail-panel__add-assets-wrap">
+                        <button class="plan-detail-panel__add-assets" type="button">Add assets</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sticky footer -->
+        <div class="plan-detail-panel__footer">
+            <div class="plan-detail-panel__return">
+                <div class="plan-detail-panel__return-label" data-plan-detail-return-title>5Y historical return ≈</div>
+                <div class="plan-detail-panel__return-value">
+                    <span class="plan-detail-panel__return-abs" data-plan-detail-return-abs>+58,723.23</span>
+                    <span class="plan-detail-panel__return-currency" data-plan-detail-return-currency> TWD</span>
+                </div>
+            </div>
+            <button class="plan-detail-panel__continue" type="button">Continue</button>
+        </div>
+
+    </section>
+
     <!-- Currency bottom sheet -->
     <div class="currency-sheet" data-currency-sheet hidden aria-modal="true" role="dialog" aria-label="Select currency">
         <button class="currency-sheet__backdrop" type="button" data-currency-sheet-close aria-label="Close"></button>

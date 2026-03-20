@@ -810,6 +810,177 @@
   initLimitsPanel();
   initCurrencySheet();
   initRangeSheet();
+
+  // ─── Plan Detail Panel ──────────────────────────────────────────────────────
+  const initPlanDetailPanel = () => {
+    const panel = document.querySelector('[data-plan-detail-panel]');
+    const container = document.querySelector('.phone-container');
+    if (!panel) return;
+
+    const openBtn = document.querySelector('.plan-strategy__cta');
+    const closeButtons = panel.querySelectorAll('[data-plan-detail-close]');
+    const scroller = panel.querySelector('[data-plan-detail-scroller]');
+    const productArea = panel.querySelector('[data-plan-detail-product-area]');
+    const header = panel.querySelector('[data-plan-detail-header]');
+    const pageTitle = panel.querySelector('[data-plan-detail-page-title]');
+
+    const planAllocation = {
+      bitcoin:    [{ name: 'Bitcoin',      ticker: 'BTC',  icon: 'assets/icon_currency_btc.svg' }],
+      ethereum:   [{ name: 'Ethereum',     ticker: 'ETH',  icon: 'assets/icon_currency_eth.svg' }],
+      solana:     [{ name: 'Solana',       ticker: 'SOL',  icon: 'assets/icon_solana.svg' }],
+      bigthree:   [
+        { name: 'Bitcoin',  ticker: 'BTC',  icon: 'assets/icon_currency_btc.svg' },
+        { name: 'Ethereum', ticker: 'ETH',  icon: 'assets/icon_currency_eth.svg' },
+        { name: 'Solana',   ticker: 'SOL',  icon: 'assets/icon_solana.svg' },
+      ],
+      digitalgold: [
+        { name: 'Bitcoin',      ticker: 'BTC',  icon: 'assets/icon_currency_btc.svg' },
+        { name: 'Tether Gold',  ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg' },
+      ],
+    };
+
+    const planTicker = {
+      bitcoin:     'BTC',
+      ethereum:    'ETH',
+      solana:      'SOL',
+      bigthree:    'BTC · ETH · SOL',
+      digitalgold: 'BTC · XAUT',
+    };
+
+    const populatePanel = () => {
+      const carousel = document.querySelector('[data-plan-carousel]');
+      const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
+        || carousel?.querySelector('[data-plan-carousel-item]');
+      const planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+
+      const title = activeSlide?.getAttribute('data-title') || 'Bitcoin';
+      const iconSrc = activeSlide?.querySelector('img')?.getAttribute('src') || 'assets/icon_currency_btc.svg';
+      const ticker = planTicker[planKey] || 'BTC';
+      const cur = currencyState.plan;
+
+      // Product hero
+      panel.querySelector('[data-plan-detail-name]').textContent = title;
+      panel.querySelector('[data-plan-detail-ticker]').textContent = ticker;
+      panel.querySelector('[data-plan-detail-icon]').src = iconSrc;
+
+      // Collapsed header state
+      panel.querySelector('[data-plan-detail-header-name]').textContent = title;
+      panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
+      panel.querySelector('[data-plan-detail-header-icon]').src = iconSrc;
+
+      // Amount + currency
+      const amountText = document.querySelector('[data-plan-amount]')?.textContent || '10,000';
+      panel.querySelector('[data-plan-detail-amount]').textContent = amountText;
+      panel.querySelector('[data-plan-detail-currency]').textContent = cur;
+      panel.querySelector('[data-plan-detail-amount-icon]').src =
+        cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
+
+      // Coverage currency labels
+      panel.querySelectorAll('[data-plan-detail-coverage-currency], [data-plan-detail-coverage-currency2]')
+        .forEach((el) => { el.textContent = cur; });
+
+      // Return footer
+      const rangeLabel = (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y');
+      panel.querySelector('[data-plan-detail-return-title]').textContent =
+        `${rangeLabel} historical return ≈`;
+      panel.querySelector('[data-plan-detail-return-abs]').textContent =
+        document.querySelector('.plan-strategy__return-abs')?.textContent || '+58,723.23';
+      panel.querySelector('[data-plan-detail-return-currency]').textContent =
+        document.querySelector('[data-plan-return-currency]')?.textContent || ' TWD';
+
+      // Allocation list
+      const allocList = panel.querySelector('[data-plan-detail-allocation]');
+      const allocCountEl = panel.querySelector('[data-plan-detail-alloc-count]');
+      const allocItems = planAllocation[planKey] || planAllocation.bitcoin;
+      allocList.innerHTML = allocItems.map((item) => `
+        <div class="plan-detail-panel__alloc-item">
+          <img class="plan-detail-panel__alloc-icon" src="${item.icon}" alt="" />
+          <div class="plan-detail-panel__alloc-info">
+            <span class="plan-detail-panel__alloc-name">${item.name}</span>
+            <span class="plan-detail-panel__alloc-ticker">${item.ticker}</span>
+          </div>
+        </div>`).join('');
+      if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
+    };
+
+    // ── Scroll-driven collapse behaviour ──────────────────────────────────────
+    const resetScrollState = () => {
+      if (!scroller || !productArea || !header || !pageTitle) return;
+      scroller.scrollTop = 0;
+      productArea.style.opacity = '';
+      productArea.style.transform = '';
+      pageTitle.style.opacity = '';
+      header.classList.remove('is-collapsed');
+    };
+
+    let rafPending = false;
+    const onScroll = () => {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        if (!scroller || !productArea || !header || !pageTitle) return;
+
+        const scrollTop = scroller.scrollTop;
+        const productH = productArea.offsetHeight;
+
+        // Fade product content and page title together (0→1 over the product height)
+        const fadeProgress = Math.min(1, Math.max(0, scrollTop / productH));
+        productArea.style.opacity = String(1 - fadeProgress);
+        pageTitle.style.opacity = String(1 - fadeProgress);
+
+        // Parallax: counteract 50% of the scroll → product moves up at 0.5× speed
+        productArea.style.transform = `translateY(${scrollTop * 0.5}px)`;
+
+        // Collapse header once content has fully covered the product
+        header.classList.toggle('is-collapsed', scrollTop >= productH);
+      });
+    };
+
+    if (scroller) scroller.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Open / close ──────────────────────────────────────────────────────────
+    const setOpen = (nextOpen) => {
+      if (nextOpen) {
+        populatePanel();
+        resetScrollState();
+        panel.hidden = false;
+        if (container) {
+          container.classList.remove('is-plan-detail-open');
+          container.classList.remove('is-plan-detail-fading');
+        }
+        requestAnimationFrame(() => { panel.classList.add('is-open'); });
+        setTimeout(() => {
+          if (container && panel.classList.contains('is-open')) {
+            container.classList.add('is-plan-detail-fading');
+          }
+        }, 80);
+        setTimeout(() => {
+          if (container && panel.classList.contains('is-open')) {
+            container.classList.add('is-plan-detail-open');
+          }
+        }, 350);
+      } else {
+        panel.classList.remove('is-open');
+        if (container) {
+          container.classList.add('is-plan-detail-fading');
+          container.classList.remove('is-plan-detail-open');
+          requestAnimationFrame(() => { container.classList.remove('is-plan-detail-fading'); });
+        }
+        const onEnd = () => {
+          if (!panel.classList.contains('is-open')) panel.hidden = true;
+          panel.removeEventListener('transitionend', onEnd);
+        };
+        panel.addEventListener('transitionend', onEnd);
+      }
+    };
+
+    if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
+    closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
+  };
+
+  initPlanDetailPanel();
+
   initPrototypeReset();
 
   // Drag-to-scroll for spotlight crypto grid
