@@ -395,17 +395,28 @@
     const investPerMonth = amount * occurrencesPerMonth;
     const totalInvested = investPerMonth * periodMonths;
 
+    // Use a unit amount for % calculation so it is independent of the invested
+    // amount — DCA return % is scale-invariant (only timing matters, not size).
+    const unitPerMonth = occurrencesPerMonth;
+
     let assetAccum = 0;
+    let unitAccum = 0;
     for (let m = startMonth; m < months; m += 1) {
       const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
       if (priceLocal <= 0) continue;
       assetAccum += investPerMonth / priceLocal;
+      unitAccum  += unitPerMonth  / priceLocal;
     }
 
     const endPriceLocal = priceUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
     const finalValue = assetAccum * endPriceLocal;
     const profit = finalValue - totalInvested;
-    const returnPct = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
+
+    const unitTotalInvested = unitPerMonth * periodMonths;
+    const unitFinalValue    = unitAccum * endPriceLocal;
+    const returnPct = unitTotalInvested > 0
+      ? ((unitFinalValue - unitTotalInvested) / unitTotalInvested) * 100
+      : 0;
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
     pctEl.textContent = formatPct(returnPct);
@@ -913,7 +924,7 @@
     };
 
     // Static balances for the prototype
-    const BALANCES = { TWD: 15000, USDT: 6250 };
+    const BALANCES = { TWD: 75000, USDT: 2750 };
 
     // Recalculate "Avail." + "Available X covers ≈ Y" based on the current
     // investment currency, the typed amount, and the active schedule.
@@ -1192,12 +1203,18 @@
       // Mode toggle (Amount / %)
       const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
       if (modeToggle) {
+        const pctIcon = modeToggle.querySelector('[data-pct-icon]');
         modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((btn) => {
           btn.addEventListener('click', () => {
             modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => b.classList.remove('is-active'));
             btn.classList.add('is-active');
-            // Amount mode: read auto-invest input for display
-            // (visual toggle for prototype — sliders always control %)
+            // Swap % icon: black on white (active), white on dark (inactive)
+            if (pctIcon) {
+              const pctIsActive = btn.dataset.allocModeBtn === 'pct';
+              pctIcon.src = pctIsActive
+                ? 'assets/icon_percentage_tab_black.svg'
+                : 'assets/icon_percentage_tab_gray.svg';
+            }
           });
         });
       }
@@ -1299,7 +1316,7 @@
         allocList.innerHTML = '';
         if (allocSection) allocSection.classList.add('is-empty');
         const allocModeToggleNewplan = panel.querySelector('[data-alloc-mode-toggle]');
-        if (allocModeToggleNewplan) allocModeToggleNewplan.hidden = true;
+        if (allocModeToggleNewplan) allocModeToggleNewplan.classList.add('is-hidden');
         const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
         if (addAssetsBtn) addAssetsBtn.textContent = 'Add assets';
         updateDetailReturn();
@@ -1327,7 +1344,7 @@
 
       // Show mode toggle for 2+ assets
       const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');
-      if (allocModeToggle) allocModeToggle.hidden = allocItems.length < 2;
+      if (allocModeToggle) allocModeToggle.classList.toggle('is-hidden', allocItems.length < 2);
 
       if (allocItems.length >= 2) {
         // Multi-asset layout with sliders + optional lock
@@ -1345,8 +1362,10 @@
                   <span class="alloc-multi__ticker">${item.ticker}</span>
                 </div>
                 <div class="alloc-multi__pct-wrap">
-                  <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
-                  <span class="alloc-multi__pct-symbol">%</span>
+                  <div class="alloc-multi__pct-inner">
+                    <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
+                    <span class="alloc-multi__pct-symbol">%</span>
+                  </div>
                 </div>
               </div>
               <div class="alloc-multi__slider-row">
