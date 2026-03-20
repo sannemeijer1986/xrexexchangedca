@@ -1317,8 +1317,9 @@
         if (allocSection) allocSection.classList.add('is-empty');
         const allocModeToggleNewplan = panel.querySelector('[data-alloc-mode-toggle]');
         if (allocModeToggleNewplan) allocModeToggleNewplan.classList.add('is-hidden');
-        const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
-        if (addAssetsBtn) addAssetsBtn.textContent = 'Add assets';
+        panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
+          btn.textContent = 'Add assets';
+        });
         updateDetailReturn();
         return;
       }
@@ -1336,11 +1337,10 @@
 
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
 
-      const addAssetsBtn = panel.querySelector('.plan-detail-panel__add-assets');
-      if (addAssetsBtn) {
-        addAssetsBtn.textContent =
-          allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
-      }
+      const addLabel = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
+        btn.textContent = addLabel;
+      });
 
       // Show mode toggle for 2+ assets
       const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');

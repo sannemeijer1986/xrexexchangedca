@@ -4307,6 +4307,11 @@ html[data-active-tab="finance"] {
     display: flex;
   }
 
+  // Duplicate button below list is hidden — only the in-card button shows
+  .plan-detail-panel__add-assets-wrap--below-list {
+    display: none;
+  }
+
   .plan-detail-panel__add-assets {
     width: 100%;
     height: 48px;
@@ -4365,6 +4370,10 @@ html[data-active-tab="finance"] {
   justify-content: center;
   padding: 0;
   margin-top: 0;
+}
+
+.plan-detail-panel__add-assets-wrap--below-list {
+  margin-top: 12px;
 }
 
 .plan-detail-panel__add-assets {
