@@ -1089,7 +1089,10 @@
         const input = item.querySelector('[data-alloc-pct-input]');
         const lockBtn = item.querySelector('[data-alloc-lock-btn]');
 
-        // Slider pointer interaction
+        // Slider pointer interaction.
+        // setPointerCapture keeps events routed to the slider even when the
+        // pointer moves outside it or moves fast, and prevents the browser
+        // from firing pointercancel due to scroll-gesture detection.
         if (slider) {
           const getSliderPct = (clientX) => {
             const rect = slider.getBoundingClientRect();
@@ -1110,6 +1113,14 @@
           });
 
           slider.addEventListener('pointerup', (e) => {
+            if (slider.hasPointerCapture(e.pointerId)) {
+              slider.releasePointerCapture(e.pointerId);
+            }
+          });
+
+          // pointercancel can still fire (e.g. stylus loss-of-contact).
+          // Release capture gracefully without stopping redistribution.
+          slider.addEventListener('pointercancel', (e) => {
             if (slider.hasPointerCapture(e.pointerId)) {
               slider.releasePointerCapture(e.pointerId);
             }
@@ -1146,11 +1157,14 @@
           });
         }
 
-        // Lock button (3-asset only)
+        // Lock button (3-asset only) — only one asset can be locked at a time
         if (lockBtn) {
           lockBtn.addEventListener('click', () => {
-            locked[i] = !locked[i];
-            renderItem(i);
+            const willLock = !locked[i];
+            // Unlock all others first
+            locked.fill(false);
+            locked[i] = willLock;
+            renderAll();
           });
         }
       });
