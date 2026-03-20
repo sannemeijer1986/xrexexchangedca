@@ -877,11 +877,84 @@
   initCurrencySheet();
   initRangeSheet();
 
+  /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
+  let detailPanelAllocPctTweakFn = null;
+  let refreshPlanDetailAllocTweak = () => {};
+
   // ─── Plan Detail Panel ──────────────────────────────────────────────────────
   const initPlanDetailPanel = () => {
     const panel = document.querySelector('[data-plan-detail-panel]');
     const container = document.querySelector('.phone-container');
     if (!panel) return;
+
+    const formatDetailFooterProfit = (n) => {
+      const abs = Math.abs(n);
+      const round1 = (x) => {
+        const r = Math.round(x * 10) / 10;
+        return Number.isInteger(r) ? r.toString() : r.toString();
+      };
+      if (abs < 10000) return abs.toLocaleString('en-US');
+      if (abs < 1000000) return `${round1(abs / 1000)}K`;
+      return `${round1(abs / 1000000)}M`;
+    };
+
+    const parseDetailFooterAbsText = (text) => {
+      const s = String(text || '').trim();
+      const neg = s.startsWith('-');
+      const t = s.replace(/^[+-]/, '').replace(/,/g, '').trim();
+      if (!t) return NaN;
+      let mult = 1;
+      let numPart = t;
+      if (/K$/i.test(numPart)) {
+        mult = 1e3;
+        numPart = numPart.slice(0, -1).trim();
+      } else if (/M$/i.test(numPart)) {
+        mult = 1e6;
+        numPart = numPart.slice(0, -1).trim();
+      }
+      const n = parseFloat(numPart);
+      if (!isFinite(n)) return NaN;
+      const v = n * mult;
+      return neg ? -v : v;
+    };
+
+    const snapshotFooterAllocBases = () => {
+      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      if (pctEl) {
+        const raw = parseFloat(String(pctEl.textContent).replace(/[^0-9.\-]/g, ''));
+        if (isFinite(raw)) pctEl.dataset.allocBasePct = String(raw);
+      }
+      if (absEl) {
+        const profit = parseDetailFooterAbsText(absEl.textContent);
+        if (isFinite(profit)) absEl.dataset.allocBaseAbs = String(profit);
+      }
+    };
+
+    const applyFooterAllocSliderTweak = () => {
+      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      if (!pctEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
+      const base = parseFloat(pctEl.dataset.allocBasePct || '');
+      if (!isFinite(base)) return;
+      const tw = detailPanelAllocPctTweakFn();
+      if (!isFinite(tw)) return;
+      const nextPct = base + tw;
+      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+
+      if (absEl) {
+        const baseAbs = parseFloat(absEl.dataset.allocBaseAbs || '');
+        if (isFinite(baseAbs) && Math.abs(base) > 1e-6) {
+          const nextAbs = baseAbs * (nextPct / base);
+          const sign = nextAbs >= 0 ? '+' : '-';
+          absEl.textContent = `${sign}${formatDetailFooterProfit(Math.abs(nextAbs))}`;
+        }
+      }
+    };
+
+    refreshPlanDetailAllocTweak = () => {
+      if (panel.classList.contains('is-open')) applyFooterAllocSliderTweak();
+    };
 
     /** @type {{ source: 'plan' | 'curated' | 'spotlight' | 'newplan', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
@@ -1026,7 +1099,12 @@
     // Called after multi-asset HTML is rendered into the allocation list.
     // Manages per-asset % sliders, % inputs, and the lock feature (3-asset only).
     const initAllocSliders = (panelEl, count) => {
-      if (count < 2) return;
+      if (count < 2) {
+        detailPanelAllocPctTweakFn = null;
+        const resetBtnEarly = panelEl.querySelector('[data-alloc-reset]');
+        if (resetBtnEarly) resetBtnEarly.hidden = true;
+        return;
+      }
 
       // Hide stale lock tooltip when switching to a 2-asset plan
       if (count < 3) {
@@ -1059,19 +1137,37 @@
         // Toggle locked class on the row for CSS-driven visual + pointer blocking
         item.classList.toggle('is-locked', isLocked);
 
-        // Only update lock button DOM when the state actually changed —
-        // calling innerHTML on every pointermove causes the img to blink.
+        // Lock icon: toggle class every frame; swap img src only when needed (no innerHTML — avoids blink)
         if (lockBtn) {
-          const wasLocked = lockBtn.classList.contains('is-locked');
-          if (wasLocked !== isLocked) {
-            lockBtn.classList.toggle('is-locked', isLocked);
+          lockBtn.classList.toggle('is-locked', isLocked);
+          const lockSrc = 'assets/icon_lock.svg';
+          const unlockSrc = 'assets/icon_unlock.svg';
+          const img = lockBtn.querySelector('img');
+          if (!img) {
             lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
-            lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
+          } else {
+            const cur = img.getAttribute('src') || '';
+            const wantFile = isLocked ? 'icon_lock.svg' : 'icon_unlock.svg';
+            if (!cur.endsWith(wantFile)) img.setAttribute('src', isLocked ? lockSrc : unlockSrc);
           }
+          lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
         }
       };
 
-      const renderAll = () => items.forEach((_, i) => renderItem(i));
+      const isAtDefaultAllocation = () =>
+        pcts.every((p, i) => Math.abs(p - defaultPcts[i]) < 0.45);
+
+      const updateAllocResetVisibility = () => {
+        const btn = panelEl.querySelector('[data-alloc-reset]');
+        if (!btn) return;
+        const anyLock = locked.some((x) => x);
+        btn.hidden = isAtDefaultAllocation() && !anyLock;
+      };
+
+      const renderAll = () => {
+        items.forEach((_, i) => renderItem(i));
+        updateAllocResetVisibility();
+      };
 
       // Tooltip when a 3-asset lock caps how far another slider can move.
       // Lives inside .plan-detail-panel__content so it scrolls with the page.
@@ -1241,7 +1337,19 @@
         }
 
         renderAll();
+        refreshPlanDetailAllocTweak();
         return { hitLockedCap, lockedIdx };
+      };
+
+      // Tiny synthetic sensitivity vs default split → footer % moves slightly (prototype only)
+      const allocBaseline = [...defaultPcts];
+      detailPanelAllocPctTweakFn = () => {
+        const sens = count === 3 ? [0.018, 0.01, -0.007] : [0.014, -0.014];
+        let t = 0;
+        for (let i = 0; i < count; i += 1) {
+          t += (pcts[i] - allocBaseline[i]) * sens[i];
+        }
+        return Math.max(-1.6, Math.min(1.6, t));
       };
 
       items.forEach((item, i) => {
@@ -1351,12 +1459,27 @@
             locked.fill(false);
             locked[i] = willLock;
             renderAll();
+            refreshPlanDetailAllocTweak();
           });
         }
       });
 
-      // Initial render
+      const resetAllocBtn = panelEl.querySelector('[data-alloc-reset]');
+      if (resetAllocBtn) {
+        resetAllocBtn.addEventListener('click', () => {
+          for (let j = 0; j < count; j += 1) {
+            pcts[j] = defaultPcts[j];
+          }
+          locked.fill(false);
+          hideAllocLockTooltip();
+          renderAll();
+          refreshPlanDetailAllocTweak();
+        });
+      }
+
+      // Initial render (starts at default split — Reset hidden)
       renderAll();
+      refreshPlanDetailAllocTweak();
 
       // Mode toggle (Amount / %)
       const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
@@ -1552,6 +1675,10 @@
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
         updateDetailReturn();
+      } else if (ctx.source === 'plan') {
+        // Footer % was synced from main widget earlier; capture base + alloc slider tweak
+        snapshotFooterAllocBases();
+        applyFooterAllocSliderTweak();
       }
     };
 
@@ -1726,7 +1853,11 @@
         const absEl = panel.querySelector('[data-plan-detail-return-abs]');
         const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
         if (absEl) absEl.textContent = amount > 0 ? '+0' : '+0';
-        if (pctEl) pctEl.textContent = '0.0%';
+        if (pctEl) {
+          pctEl.textContent = '0.0%';
+          pctEl.removeAttribute('data-alloc-base-pct');
+        }
+        if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
         return;
@@ -1747,6 +1878,8 @@
           currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
         }
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
+        snapshotFooterAllocBases();
+        applyFooterAllocSliderTweak();
         return;
       }
 
@@ -1765,6 +1898,8 @@
           currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
         }
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
+        snapshotFooterAllocBases();
+        applyFooterAllocSliderTweak();
         return;
       }
 
@@ -1777,6 +1912,8 @@
         slider.setAttribute('aria-valuenow', prev);
         syncFooterFromMainWidget();
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
+        snapshotFooterAllocBases();
+        applyFooterAllocSliderTweak();
       }
     };
 
