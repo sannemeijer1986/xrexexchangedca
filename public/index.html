@@ -949,7 +949,7 @@
                             <div class="plan-detail-panel__cal-icon" aria-hidden="true"></div>
                             <div class="plan-detail-panel__repeats-info">
                                 <span class="plan-detail-panel__repeats-schedule" data-plan-detail-schedule>Monthly · 15th at 12:00</span>
-                                <span class="plan-detail-panel__repeats-type">Continuous</span>
+                                <span class="plan-detail-panel__repeats-type" data-plan-detail-repeats-end>Continuous</span>
                             </div>
                             <button class="plan-detail-panel__edit-btn" type="button" aria-label="Edit schedule">
                                 <img src="assets/icon_edit_white.svg" width="24" height="24" alt="" />
@@ -1148,6 +1148,89 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-topup-sheet-close>Not now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan detail: auto-invest schedule -->
+    <div class="currency-sheet currency-sheet--schedule" data-schedule-sheet hidden aria-modal="true" role="dialog"
+        aria-label="Auto-invest schedule">
+        <button class="currency-sheet__backdrop" type="button" data-schedule-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--schedule">
+                <h2 class="currency-sheet__title">Auto-invest schedule</h2>
+
+                <div class="schedule-sheet__block">
+                    <div class="schedule-sheet__field-label">Repeats</div>
+                    <div class="plan-strategy__freq schedule-sheet__freq" role="tablist" aria-label="Repeat frequency">
+                        <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false"
+                            data-schedule-freq="daily">Daily</button>
+                        <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false"
+                            data-schedule-freq="weekly">Weekly</button>
+                        <button class="plan-strategy__freq-item is-active" type="button" role="tab" aria-selected="true"
+                            data-schedule-freq="monthly">Monthly</button>
+                    </div>
+                </div>
+
+                <div class="schedule-sheet__block">
+                    <div class="schedule-sheet__field-label" data-schedule-timing-label>Every month on</div>
+                    <button class="schedule-sheet__timing-row" type="button" aria-label="Edit run time">
+                        <div class="schedule-sheet__timing-cal" aria-hidden="true"></div>
+                        <span class="schedule-sheet__timing-value" data-schedule-timing-value>15th at 12:00</span>
+                        <img class="schedule-sheet__timing-chevron" src="assets/icon_chevron_down_white.svg" width="20"
+                            height="20" alt="" aria-hidden="true" />
+                    </button>
+                </div>
+
+                <div class="schedule-sheet__block">
+                    <div class="schedule-sheet__field-label">End condition</div>
+                    <div class="currency-sheet__list">
+                        <button class="currency-sheet__item currency-sheet__item--schedule-end is-selected" type="button"
+                            data-schedule-end="continuous">
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-continuous"
+                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-content">
+                                <span class="currency-sheet__item-name">Continuous</span>
+                                <span class="currency-sheet__item-desc">Runs until you pause</span>
+                            </div>
+                            <div class="currency-sheet__item-radio" aria-hidden="true">
+                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                            </div>
+                        </button>
+                        <div class="currency-sheet__divider"></div>
+                        <button class="currency-sheet__item currency-sheet__item--schedule-end" type="button"
+                            data-schedule-end="enddate">
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-flag"
+                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-content">
+                                <span class="currency-sheet__item-name">End on date</span>
+                                <span class="currency-sheet__item-desc">Select an end date</span>
+                            </div>
+                            <div class="currency-sheet__item-radio" aria-hidden="true">
+                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                            </div>
+                        </button>
+                        <div class="currency-sheet__divider"></div>
+                        <button class="currency-sheet__item currency-sheet__item--schedule-end" type="button"
+                            data-schedule-end="buys">
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-buys"
+                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-content">
+                                <span class="currency-sheet__item-name">After number of buys</span>
+                                <span class="currency-sheet__item-desc">Select a number of buys</span>
+                            </div>
+                            <div class="currency-sheet__item-radio" aria-hidden="true">
+                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-schedule-sheet-confirm>Confirm</button>
             </div>
         </div>
     </div>

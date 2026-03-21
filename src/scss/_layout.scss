@@ -2822,6 +2822,113 @@ html[data-active-tab="finance"] {
   }
 }
 
+// Plan detail: auto-invest schedule bottom sheet (Figma 8510:9549)
+.currency-sheet__body--schedule {
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 20px;
+}
+
+.currency-sheet__body--schedule .currency-sheet__title {
+  text-align: center;
+}
+
+.schedule-sheet__block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedule-sheet__field-label {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 22px;
+}
+
+.schedule-sheet__freq {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-sheet__timing-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #2d2f2f;
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.schedule-sheet__timing-cal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #47494a;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: url('../assets/icon_calendar_gray.svg') no-repeat center;
+    background-size: contain;
+  }
+}
+
+.schedule-sheet__timing-value {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.schedule-sheet__timing-chevron {
+  flex-shrink: 0;
+  display: block;
+}
+
+.currency-sheet__item--schedule-end {
+  align-items: center;
+}
+
+.currency-sheet__item-icon--schedule-continuous::before {
+  content: '∞';
+  width: auto;
+  height: auto;
+  background: none;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.currency-sheet__item-icon--schedule-flag::before {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M4 3v14M4 4.5l4-1.5 3 2 5-2v8l-5 2-3-2-4 1.5' stroke='%23fff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat center;
+  background-size: contain;
+}
+
+.currency-sheet__item-icon--schedule-buys::before {
+  background: url('../assets/icon_checklist.svg') no-repeat center;
+  background-size: contain;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 .support__card {
@@ -4036,7 +4143,12 @@ html[data-active-tab="finance"] {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  border-radius: 12px;
+  margin: -4px;
+  padding: 4px;
 }
+
 
 .plan-detail-panel__cal-icon {
   width: 32px;

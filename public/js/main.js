@@ -950,6 +950,153 @@
     });
   };
 
+  /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
+  const initScheduleSheet = () => {
+    const sheet = document.querySelector('[data-schedule-sheet]');
+    if (!sheet) return;
+
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const planDetail = document.querySelector('[data-plan-detail-panel]');
+    const freqButtons = sheet.querySelectorAll('[data-schedule-freq]');
+    const timingLabelEl = sheet.querySelector('[data-schedule-timing-label]');
+    const timingValueEl = sheet.querySelector('[data-schedule-timing-value]');
+    const endButtons = sheet.querySelectorAll('[data-schedule-end]');
+
+    const timingSectionLabels = {
+      daily: 'Every day at',
+      weekly: 'Every week on',
+      monthly: 'Every month on',
+    };
+    const defaultTimingDetail = {
+      daily: 'every day at 12:00',
+      weekly: 'Mon at 12:00',
+      monthly: '15th at 12:00',
+    };
+    const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
+
+    const setFreqUI = (freq) => {
+      freqButtons.forEach((btn) => {
+        const v = btn.getAttribute('data-schedule-freq');
+        const on = v === freq;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    };
+
+    const setEndUI = (end) => {
+      endButtons.forEach((btn) => {
+        const v = btn.getAttribute('data-schedule-end');
+        btn.classList.toggle('is-selected', v === end);
+      });
+    };
+
+    const parseFreqFromScheduleText = (text) => {
+      const head = (text || '').split('·')[0]?.trim().toLowerCase() || '';
+      if (head.startsWith('daily')) return 'daily';
+      if (head.startsWith('weekly')) return 'weekly';
+      return 'monthly';
+    };
+
+    const parseTimingFromScheduleText = (text, freq) => {
+      const parts = (text || '').split('·').map((s) => s.trim());
+      if (parts.length >= 2) return parts.slice(1).join(' · ');
+      return defaultTimingDetail[freq];
+    };
+
+    const open = () => {
+      const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
+      const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
+      const scheduleText = scheduleEl?.textContent?.trim() || '';
+
+      const mainFreqBtn = document.querySelector('[data-plan-freq-item].is-active');
+      const mainFreq = (mainFreqBtn?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+      const freq = scheduleText ? parseFreqFromScheduleText(scheduleText) : mainFreq;
+
+      setFreqUI(freq);
+      if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
+      if (timingValueEl) {
+        timingValueEl.textContent = scheduleText
+          ? parseTimingFromScheduleText(scheduleText, freq)
+          : defaultTimingDetail[freq];
+      }
+
+      let end = 'continuous';
+      const endText = endEl?.textContent?.trim() || '';
+      if (endText === 'End on date') end = 'enddate';
+      else if (endText.startsWith('After')) end = 'buys';
+      setEndUI(end);
+
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 400);
+    };
+
+    const applyAndClose = () => {
+      const freqBtn = sheet.querySelector('[data-schedule-freq].is-active');
+      const freq = (freqBtn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
+      const endBtn = sheet.querySelector('[data-schedule-end].is-selected');
+      const end = endBtn?.getAttribute('data-schedule-end') || 'continuous';
+      const timing = (timingValueEl?.textContent || '').trim() || defaultTimingDetail[freq];
+      const prefix = freqSchedulePrefix[freq] || freqSchedulePrefix.monthly;
+
+      document.querySelectorAll('[data-plan-freq-item]').forEach((item) => {
+        const v = item.getAttribute('data-plan-freq-item');
+        const on = v === freq;
+        item.classList.toggle('is-active', on);
+        item.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      updatePlanStrategyHistoricalReturn();
+
+      const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
+      const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
+      if (scheduleEl) scheduleEl.textContent = `${prefix} · ${timing}`;
+      if (endEl) {
+        if (end === 'continuous') endEl.textContent = 'Continuous';
+        else if (end === 'enddate') endEl.textContent = 'End on date';
+        else endEl.textContent = 'After number of buys';
+      }
+      close();
+    };
+
+    document.querySelectorAll('.plan-detail-panel__repeats-row').forEach((row) => {
+      row.addEventListener('click', () => {
+        open();
+      });
+    });
+
+    sheet.querySelectorAll('[data-schedule-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+
+    const confirmBtn = sheet.querySelector('[data-schedule-sheet-confirm]');
+    if (confirmBtn) confirmBtn.addEventListener('click', applyAndClose);
+
+    freqButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const freq = (btn.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
+        setFreqUI(freq);
+        if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
+        if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
+      });
+    });
+
+    endButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setEndUI(btn.getAttribute('data-schedule-end') || 'continuous');
+      });
+    });
+
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   initStates();
@@ -964,6 +1111,7 @@
   initCurrencySheet();
   initRangeSheet();
   initTopupSheet();
+  initScheduleSheet();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
