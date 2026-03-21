@@ -1767,8 +1767,6 @@
 
         // % or amount input (mode toggled in header)
         if (input) {
-          input.addEventListener('focus', () => input.select());
-
           input.addEventListener('keydown', (e) => {
             const allowed = ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
             if (!allowed.includes(e.key) && !/^\d$/.test(e.key) && !(e.ctrlKey || e.metaKey)) {
@@ -2202,7 +2200,6 @@
         setTimeout(() => {
           const inp = panel.querySelector('[data-plan-detail-amount-input]');
           inp?.focus();
-          if (inp && inp.value === '') inp.select();
         }, 380);
       };
       card.addEventListener('click', openFromCard);
@@ -2228,7 +2225,6 @@
         setTimeout(() => {
           const inp = panel.querySelector('[data-plan-detail-amount-input]');
           inp?.focus();
-          if (inp && inp.value === '') inp.select();
         }, 380);
       };
       pill.addEventListener('click', openFromPill);
@@ -2393,9 +2389,6 @@
       // Set initial formatted value
       const initialRaw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
       setDisplayValue(initialRaw);
-
-      // Focus: just select all (value is already formatted — no need to strip)
-      amountInput.addEventListener('focus', () => amountInput.select());
 
       // Input: reformat live + update return
       amountInput.addEventListener('input', () => {
