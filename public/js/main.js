@@ -1200,6 +1200,14 @@
     const newPlanBtn = document.querySelector('.finance-summary__btn--primary');
     const closeButtons = panel.querySelectorAll('[data-plan-detail-close]');
     const scroller = panel.querySelector('[data-plan-detail-scroller]');
+    /** Scroll plan-detail scroller so `el` sits near the top (with optional padding). */
+    const scrollPlanDetailContentTo = (el, topOffsetPx = 0) => {
+      if (!scroller || !el) return;
+      const sr = scroller.getBoundingClientRect();
+      const er = el.getBoundingClientRect();
+      const nextTop = scroller.scrollTop + (er.top - sr.top) - topOffsetPx;
+      scroller.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' });
+    };
     const productArea = panel.querySelector('[data-plan-detail-product-area]');
     const header = panel.querySelector('[data-plan-detail-header]');
     const pageTitle = panel.querySelector('[data-plan-detail-page-title]');
@@ -1767,6 +1775,12 @@
 
         // % or amount input (mode toggled in header)
         if (input) {
+          const ALLOC_NAME_SCROLL_TOP_PAD = 20;
+          input.addEventListener('focus', () => {
+            const nameEl = item.querySelector('.alloc-multi__name');
+            //scrollPlanDetailContentTo(nameEl, ALLOC_NAME_SCROLL_TOP_PAD);
+          });
+
           input.addEventListener('keydown', (e) => {
             const allowed = ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
             if (!allowed.includes(e.key) && !/^\d$/.test(e.key) && !(e.ctrlKey || e.metaKey)) {
@@ -2389,6 +2403,13 @@
       // Set initial formatted value
       const initialRaw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
       setDisplayValue(initialRaw);
+
+      amountInput.addEventListener('focus', () => {
+        const labelEl = amountInput
+          .closest('.plan-detail-panel__amount-section')
+          ?.querySelector('.plan-detail-panel__section-label');
+        //scrollPlanDetailContentTo(labelEl, 0);
+      });
 
       // Input: reformat live + update return
       amountInput.addEventListener('input', () => {

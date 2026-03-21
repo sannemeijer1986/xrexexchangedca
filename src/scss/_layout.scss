@@ -77,21 +77,18 @@
     transform: translateY(0);
   }
 
+  // Asset: public/assets/fakekeyboard.jpg (750×506) — full width, height from aspect ratio
   .fake-keyboard__panel {
-    min-height: 340px;
-    background: #3a3c3d;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    width: 100%;
+    aspect-ratio: 750 / 506;
+    max-width: 100%;
     box-sizing: border-box;
-  }
-
-  .fake-keyboard__label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #9b9c9c;
+    border-radius: 12px 12px 0 0;
+    background-color: #2d2f2f;
+    background-image: url('../assets/fakekeyboard.jpg');
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 100% auto;
   }
 }
 
@@ -4017,7 +4014,7 @@ html[data-active-tab="finance"] {
 .plan-detail-panel__content {
   background: #0d0e0f;
   border-radius: 16px 16px 0 0;
-  padding: 32px 16px 24px;
+  padding: 32px 16px 120px;
   position: relative;
   z-index: 2;
   display: flex;
