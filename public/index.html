@@ -467,7 +467,7 @@
                                                 <div class="plan-strategy__slider-thumb" data-plan-slider-thumb></div>
                                             </div>
 
-                                            <div class="plan-strategy__freq" aria-label="Frequency" data-plan-freq role="tablist">
+                                            <div class="plan-strategy__freq plan-strategy__freq-widget" aria-label="Frequency" data-plan-freq role="tablist">
                                                 <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false" data-plan-freq-item="daily">Daily</button>
                                                 <button class="plan-strategy__freq-item" type="button" role="tab" aria-selected="false" data-plan-freq-item="weekly">Weekly</button>
                                                 <button class="plan-strategy__freq-item is-active" type="button" role="tab" aria-selected="true" data-plan-freq-item="monthly">Monthly</button>
@@ -958,7 +958,7 @@
                         <div class="plan-detail-panel__repeats-divider"></div>
                         <div class="plan-detail-panel__coverage-row">
                             <span class="plan-detail-panel__coverage-label">Available <span data-plan-detail-coverage-currency2>TWD</span> covers ≈</span>
-                            <span class="plan-detail-panel__coverage-value">3 months</span>
+                            <span class="plan-detail-panel__coverage-value">7 buys</span>
                         </div>
                     </div>
                 </div>
@@ -1190,8 +1190,9 @@
                     <div class="currency-sheet__list">
                         <button class="currency-sheet__item currency-sheet__item--schedule-end is-selected" type="button"
                             data-schedule-end="continuous">
-                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-continuous"
-                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
+                                <img src="assets/icon_ec_continuous.svg" width="20" height="20" alt="" />
+                            </div>
                             <div class="currency-sheet__item-content">
                                 <span class="currency-sheet__item-name">Continuous</span>
                                 <span class="currency-sheet__item-desc">Runs until you pause</span>
@@ -1203,8 +1204,9 @@
                         <div class="currency-sheet__divider"></div>
                         <button class="currency-sheet__item currency-sheet__item--schedule-end" type="button"
                             data-schedule-end="enddate">
-                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-flag"
-                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
+                                <img src="assets/icon_ec_enddate.svg" width="20" height="20" alt="" />
+                            </div>
                             <div class="currency-sheet__item-content">
                                 <span class="currency-sheet__item-name">End on date</span>
                                 <span class="currency-sheet__item-desc">Select an end date</span>
@@ -1216,8 +1218,9 @@
                         <div class="currency-sheet__divider"></div>
                         <button class="currency-sheet__item currency-sheet__item--schedule-end" type="button"
                             data-schedule-end="buys">
-                            <div class="currency-sheet__item-icon currency-sheet__item-icon--schedule-buys"
-                                aria-hidden="true"></div>
+                            <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
+                                <img src="assets/icon_ec_count.svg" width="20" height="20" alt="" />
+                            </div>
                             <div class="currency-sheet__item-content">
                                 <span class="currency-sheet__item-name">After number of buys</span>
                                 <span class="currency-sheet__item-desc">Select a number of buys</span>

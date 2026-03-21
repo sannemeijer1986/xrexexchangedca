@@ -968,7 +968,7 @@
       monthly: 'Every month on',
     };
     const defaultTimingDetail = {
-      daily: 'every day at 12:00',
+      daily: '12:00',
       weekly: 'Mon at 12:00',
       monthly: '15th at 12:00',
     };
@@ -1054,7 +1054,6 @@
         item.classList.toggle('is-active', on);
         item.setAttribute('aria-selected', on ? 'true' : 'false');
       });
-      updatePlanStrategyHistoricalReturn();
 
       const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
       const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
@@ -1064,6 +1063,8 @@
         else if (end === 'enddate') endEl.textContent = 'End on date';
         else endEl.textContent = 'After number of buys';
       }
+
+      document.dispatchEvent(new CustomEvent('plan-schedule-confirmed', { detail: { freq, end } }));
       close();
     };
 
@@ -1235,8 +1236,7 @@
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
 
-    // Recalculate "Avail." + "Available X covers ≈ Y" based on the current
-    // investment currency, the typed amount, and the active schedule.
+    // Recalculate "Avail." + "Available X covers ≈ N buys" from balance ÷ per-buy amount.
     const updateCoverageUI = () => {
       const cur = currencyState.plan;
       const balance = BALANCES[cur] ?? BALANCES.TWD;
@@ -1274,49 +1274,17 @@
         return;
       }
 
-      // Determine frequency: curated/spotlight always monthly; else from widget
-      let freq = 'monthly';
-      if (panelOpenContext.source !== 'curated' && panelOpenContext.source !== 'spotlight') {
-        const freqItem = document.querySelector('[data-plan-freq-item].is-active');
-        freq = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
-      }
+      // How many buys fit in the available balance (same for daily / weekly / monthly).
+      const buys = Math.floor(balance / amount);
 
-      // How many invest occurrences fit within the balance
-      const occurrences = Math.floor(balance / amount);
-
-      if (occurrences === 0) {
-        // Amount exceeds balance — show error state
-        const unit = freq === 'daily' ? 'day' : freq === 'weekly' ? 'week' : 'month';
-        coverageValueEl.textContent = `0 ${unit}s`;
+      if (buys === 0) {
+        coverageValueEl.textContent = '0 buys';
         setError(true);
         return;
       }
 
       setError(false);
-
-      if (freq === 'daily') {
-        const days = occurrences;
-        if (days < 7) {
-          coverageValueEl.textContent = `${days} day${days !== 1 ? 's' : ''}`;
-        } else if (days < 30) {
-          const w = Math.floor(days / 7);
-          coverageValueEl.textContent = `${w} week${w !== 1 ? 's' : ''}`;
-        } else {
-          const m = Math.floor(days / 30);
-          coverageValueEl.textContent = `${m} month${m !== 1 ? 's' : ''}`;
-        }
-      } else if (freq === 'weekly') {
-        const weeks = occurrences;
-        if (weeks < 4) {
-          coverageValueEl.textContent = `${weeks} week${weeks !== 1 ? 's' : ''}`;
-        } else {
-          const m = Math.floor(weeks / 4);
-          coverageValueEl.textContent = `${m} month${m !== 1 ? 's' : ''}`;
-        }
-      } else {
-        const months = occurrences;
-        coverageValueEl.textContent = `${months} month${months !== 1 ? 's' : ''}`;
-      }
+      coverageValueEl.textContent = `${buys.toLocaleString('en-US')} buy${buys !== 1 ? 's' : ''}`;
     };
 
     // Sync all footer return elements from the main widget's currently displayed values.
@@ -2002,7 +1970,7 @@
       updateCoverageUI();
 
       // Repeats schedule
-      const freqLabels = { daily: 'Daily · every day at 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
+      const freqLabels = { daily: 'Daily · 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
         if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
@@ -2310,11 +2278,13 @@
 
       if (ctx.source === 'curated' && ctx.curatedKey) {
         if (returnObserver) returnObserver.disconnect();
+        const freqItemCurated = document.querySelector('[data-plan-freq-item].is-active');
+        const freqCurated = (freqItemCurated?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
         updatePlanStrategyHistoricalReturn({
           detailPanel: true,
           amount,
           planKey: ctx.curatedKey,
-          freq: 'monthly',
+          freq: freqCurated,
         });
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
@@ -2330,11 +2300,13 @@
 
       if (ctx.source === 'spotlight' && ctx.spotlightKey) {
         if (returnObserver) returnObserver.disconnect();
+        const freqItemSpot = document.querySelector('[data-plan-freq-item].is-active');
+        const freqSpot = (freqItemSpot?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
         updatePlanStrategyHistoricalReturn({
           detailPanel: true,
           amount,
           planKey: ctx.spotlightKey,
-          freq: 'monthly',
+          freq: freqSpot,
         });
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
@@ -2366,6 +2338,14 @@
       if (!panel.classList.contains('is-open')) return;
       updateDetailReturn();
       panel._planDetailAllocRefreshAmounts?.();
+    });
+
+    document.addEventListener('plan-schedule-confirmed', () => {
+      updatePlanStrategyHistoricalReturn();
+      if (panel.classList.contains('is-open')) {
+        updateCoverageUI();
+        updateDetailReturn();
+      }
     });
 
     // Watch main widget's return-abs — fires when range or currency changes externally.
