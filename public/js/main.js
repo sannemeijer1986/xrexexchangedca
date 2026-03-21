@@ -2551,6 +2551,65 @@
 
   initSideMenu();
 
+  /** Desktop viewport only: show a sliding fake keyboard when a field inside the phone is focused. */
+  const initFakeKeyboard = () => {
+    const container = document.querySelector('.phone-container');
+    const keyboard = document.querySelector('[data-fake-keyboard]');
+    if (!container || !keyboard) return;
+
+    const mq = window.matchMedia('(min-width: 641px)');
+    const nonKeyboardInputTypes = new Set([
+      'button', 'submit', 'reset', 'hidden', 'checkbox', 'radio', 'file', 'image', 'range', 'color',
+    ]);
+
+    const isKeyboardField = (el) => {
+      if (!el || el.closest('[data-fake-keyboard]')) return false;
+      if (el.disabled || el.getAttribute('aria-hidden') === 'true') return false;
+      const tag = el.tagName;
+      if (tag === 'TEXTAREA') return true;
+      if (tag === 'SELECT') return true;
+      if (tag !== 'INPUT') return false;
+      const t = (el.getAttribute('type') || 'text').toLowerCase();
+      return !nonKeyboardInputTypes.has(t);
+    };
+
+    const show = () => {
+      if (!mq.matches) return;
+      keyboard.classList.add('is-visible');
+      keyboard.setAttribute('aria-hidden', 'false');
+    };
+
+    const hide = () => {
+      keyboard.classList.remove('is-visible');
+      keyboard.setAttribute('aria-hidden', 'true');
+    };
+
+    container.addEventListener('focusin', (e) => {
+      if (!mq.matches) return;
+      if (!isKeyboardField(e.target)) return;
+      show();
+    });
+
+    container.addEventListener('focusout', () => {
+      if (!mq.matches) return;
+      requestAnimationFrame(() => {
+        const ae = document.activeElement;
+        if (!container.contains(ae) || !isKeyboardField(ae)) hide();
+      });
+    });
+
+    const onMqChange = () => {
+      if (!mq.matches) hide();
+    };
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', onMqChange);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(onMqChange);
+    }
+  };
+
+  initFakeKeyboard();
+
   try {
     window.prototypeStates = {
       get: (group) => states[group],
