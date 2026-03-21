@@ -77,18 +77,32 @@
     transform: translateY(0);
   }
 
-  // Asset: public/assets/fakekeyboard.jpg (750×506) — full width, height from aspect ratio
+  // Asset: public/assets/fakekeyboard.jpg (750×506) — image on ::before so opacity is independent of panel fill
   .fake-keyboard__panel {
+    --fake-keyboard-image-opacity: 1;
+
+    position: relative;
     width: 100%;
     aspect-ratio: 750 / 506;
     max-width: 100%;
     box-sizing: border-box;
     border-radius: 12px 12px 0 0;
+    overflow: hidden;
     background-color: #2d2f2f;
-    background-image: url('../assets/fakekeyboard.jpg');
-    background-repeat: no-repeat;
-    background-position: center bottom;
-    background-size: 100% auto;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-image: url('../assets/fakekeyboard.jpg');
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      background-size: 100% auto;
+      opacity: var(--fake-keyboard-image-opacity);
+      pointer-events: none;
+      opacity: 0.25;
+    }
   }
 }
 
