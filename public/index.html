@@ -1238,6 +1238,34 @@
         </div>
     </div>
 
+    <!-- Schedule: day + time wheel (above main schedule sheet) -->
+    <div class="currency-sheet currency-sheet--schedule-time" data-schedule-time-sheet hidden aria-modal="true"
+        role="dialog" aria-label="Choose run time">
+        <button class="currency-sheet__backdrop" type="button" data-schedule-time-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--schedule-time">
+                <h2 class="currency-sheet__title" data-schedule-time-sheet-title>Every month on</h2>
+                <div class="schedule-time-sheet__picker" data-schedule-time-picker>
+                    <div class="schedule-time-sheet__selection-bar" aria-hidden="true"></div>
+                    <div class="schedule-time-sheet__cols">
+                        <div class="schedule-time-sheet__col schedule-time-sheet__col--primary" data-schedule-time-col="primary"
+                            hidden></div>
+                        <div class="schedule-time-sheet__col schedule-time-sheet__col--time" data-schedule-time-col="time"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-schedule-time-sheet-cancel>Cancel</button>
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
+                    data-schedule-time-sheet-confirm>Confirm</button>
+            </div>
+        </div>
+    </div>
+
         <!-- Desktop prototype only (>640px): simulates device keyboard on field focus -->
         <div class="fake-keyboard" data-fake-keyboard aria-hidden="true">
             <div class="fake-keyboard__panel" role="presentation"></div>

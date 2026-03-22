@@ -2664,7 +2664,7 @@ html[data-active-tab=finance] .app-header__tabs {
   border: 0;
   padding: 0;
   cursor: default;
-  transition: background 0.3s ease;
+  transition: background 0.22s ease;
 }
 
 .currency-sheet.is-open .currency-sheet__backdrop {
@@ -2677,7 +2677,7 @@ html[data-active-tab=finance] .app-header__tabs {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
   padding-bottom: 16px;
 }
@@ -2957,6 +2957,123 @@ html[data-active-tab=finance] .app-header__tabs {
 .schedule-sheet__timing-chevron {
   flex-shrink: 0;
   display: block;
+}
+
+.currency-sheet--schedule-time {
+  z-index: 35;
+}
+
+.currency-sheet__body--schedule-time {
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.currency-sheet__footer--split {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 16px;
+  background: #1b1d1d;
+}
+
+.schedule-time-sheet__btn {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-time-sheet__btn--secondary {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+
+.schedule-time-sheet__btn--primary {
+  background: #275cfd;
+  color: #ffffff;
+}
+
+.schedule-time-sheet__picker {
+  position: relative;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.schedule-time-sheet__selection-bar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 44px;
+  background: #3a3a3c;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.schedule-time-sheet__cols {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 216px;
+}
+
+.schedule-time-sheet__col {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+.schedule-time-sheet__col::-webkit-scrollbar {
+  display: none;
+}
+
+.schedule-time-sheet__col--primary[hidden] {
+  display: none !important;
+}
+
+.schedule-time-picker--daily .schedule-time-sheet__cols {
+  justify-content: center;
+}
+
+.schedule-time-picker--daily .schedule-time-sheet__col--time {
+  flex: 0 0 58%;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  border-left: 0;
+}
+
+.schedule-time-sheet__spacer {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.schedule-time-sheet__option {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  font-size: 16px;
+  font-weight: 600;
+  color: #58595A;
+  flex-shrink: 0;
+}
+
+.schedule-time-sheet__option.is-active {
+  color: #ffffff;
 }
 
 .currency-sheet__item--schedule-end {

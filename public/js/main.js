@@ -808,7 +808,7 @@
         sheet.removeEventListener('transitionend', onEnd);
       };
       panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 400);
+      setTimeout(onEnd, 290);
     };
 
     // Open triggers
@@ -877,7 +877,7 @@
         panel.removeEventListener('transitionend', onEnd);
       };
       panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 400);
+      setTimeout(onEnd, 290);
     };
 
     document.querySelectorAll('[data-range-sheet-trigger]').forEach((btn) => {
@@ -932,7 +932,7 @@
         panel.removeEventListener('transitionend', onEnd);
       };
       panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 400);
+      setTimeout(onEnd, 290);
     };
 
     document.querySelectorAll('[data-plan-detail-topup-trigger]').forEach((btn) => {
@@ -948,6 +948,14 @@
         // Prototype: no navigation yet
       });
     });
+  };
+
+  /** Coordinates nested time-picker: close schedule sheet first, reopen after time sheet closes. */
+  const scheduleSheetApi = {
+    /** @type {null | ((onClosed?: () => void) => void)} */
+    closeAnimatedForChild: null,
+    /** @type {null | (() => void)} */
+    reopenFromChild: null,
   };
 
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
@@ -1032,13 +1040,45 @@
 
     const close = () => {
       sheet.classList.remove('is-open');
+      let done = false;
       const onEnd = () => {
-        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        if (done) return;
+        done = true;
         panel.removeEventListener('transitionend', onEnd);
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
       };
       panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 400);
+      setTimeout(onEnd, 290);
     };
+
+    /** Used by time-picker: animate schedule sheet out, then run `onClosed`. */
+    const closeAnimatedForChild = (onClosed) => {
+      if (!sheet.classList.contains('is-open')) {
+        sheet.hidden = true;
+        onClosed?.();
+        return;
+      }
+      sheet.classList.remove('is-open');
+      let done = false;
+      const onEnd = () => {
+        if (done) return;
+        done = true;
+        panel.removeEventListener('transitionend', onEnd);
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        onClosed?.();
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    /** After time-picker closes — show schedule sheet again (state unchanged). */
+    const reopenFromChild = () => {
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    scheduleSheetApi.closeAnimatedForChild = closeAnimatedForChild;
+    scheduleSheetApi.reopenFromChild = reopenFromChild;
 
     const applyAndClose = () => {
       const freqBtn = sheet.querySelector('[data-schedule-freq].is-active');
@@ -1098,6 +1138,215 @@
 
   };
 
+  /** Schedule sheet: day + time wheel (Figma 8514:6906) — monthly / weekly / daily. */
+  const initScheduleTimePicker = () => {
+    const timeSheet = document.querySelector('[data-schedule-time-sheet]');
+    const scheduleSheet = document.querySelector('[data-schedule-sheet]');
+    if (!timeSheet || !scheduleSheet) return;
+
+    const panel = timeSheet.querySelector('.currency-sheet__panel');
+    const titleEl = timeSheet.querySelector('[data-schedule-time-sheet-title]');
+    const pickerRoot = timeSheet.querySelector('[data-schedule-time-picker]');
+    const primaryCol = timeSheet.querySelector('[data-schedule-time-col="primary"]');
+    const timeCol = timeSheet.querySelector('[data-schedule-time-col="time"]');
+    const timingRow = scheduleSheet.querySelector('.schedule-sheet__timing-row');
+    const timingValueEl = scheduleSheet.querySelector('[data-schedule-timing-value]');
+
+    const ITEM_H = 44;
+    const SPACER_H = 86;
+
+    const timingTitles = {
+      daily: 'Every day at',
+      weekly: 'Every week on',
+      monthly: 'Every month on',
+    };
+
+    const WEEKDAYS = [
+      { short: 'Mon', label: 'Monday' },
+      { short: 'Tue', label: 'Tuesday' },
+      { short: 'Wed', label: 'Wednesday' },
+      { short: 'Thu', label: 'Thursday' },
+      { short: 'Fri', label: 'Friday' },
+      { short: 'Sat', label: 'Saturday' },
+      { short: 'Sun', label: 'Sunday' },
+    ];
+
+    const timeLabels = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`);
+
+    /** @param {number} n 1–31 */
+    const ordinalSuffix = (n) => {
+      const j = n % 10;
+      const k = n % 100;
+      if (k >= 11 && k <= 13) return `${n}th`;
+      if (j === 1) return `${n}st`;
+      if (j === 2) return `${n}nd`;
+      if (j === 3) return `${n}rd`;
+      return `${n}th`;
+    };
+
+    const parseHourIndex = (text) => {
+      const m = String(text || '').match(/(\d{1,2}):(\d{2})/);
+      if (!m) return 12;
+      let hh = parseInt(m[1], 10);
+      if (!Number.isFinite(hh)) return 12;
+      hh = Math.max(0, Math.min(23, hh));
+      return hh;
+    };
+
+    const parseMonthlyDayIndex = (text) => {
+      const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)/i);
+      if (!m) return 14;
+      const d = Math.max(1, Math.min(31, parseInt(m[1], 10)));
+      return d - 1;
+    };
+
+    const parseWeeklyDayIndex = (text) => {
+      const beforeAt = String(text || '').split(/\s+at\s+/i)[0]?.trim().toLowerCase() || '';
+      const idx = WEEKDAYS.findIndex(
+        (w) => beforeAt.startsWith(w.short.toLowerCase())
+          || beforeAt.startsWith(w.label.toLowerCase()),
+      );
+      return idx >= 0 ? idx : 0;
+    };
+
+    const buildColumnHtml = (labels, activeIndex) => {
+      const opts = labels.map(
+        (label, i) => `<div class="schedule-time-sheet__option${i === activeIndex ? ' is-active' : ''}" data-index="${i}">${label}</div>`,
+      );
+      return `<div class="schedule-time-sheet__spacer" style="height:${SPACER_H}px" aria-hidden="true"></div>${
+        opts.join('')}<div class="schedule-time-sheet__spacer" style="height:${SPACER_H}px" aria-hidden="true"></div>`;
+    };
+
+    const scrollToIndex = (colEl, index, maxIndex) => {
+      const i = Math.max(0, Math.min(maxIndex, Math.floor(index)));
+      colEl.scrollTop = i * ITEM_H;
+    };
+
+    const updateColumnHighlight = (colEl, count) => {
+      const idx = Math.max(0, Math.min(count - 1, Math.round(colEl.scrollTop / ITEM_H)));
+      colEl.querySelectorAll('.schedule-time-sheet__option').forEach((opt, i) => {
+        opt.classList.toggle('is-active', i === idx);
+      });
+    };
+
+    let highlightAbort;
+
+    const bindColumnScroll = (colEl, count) => {
+      const onScroll = () => {
+        updateColumnHighlight(colEl, count);
+      };
+      colEl.addEventListener('scroll', onScroll, { passive: true, signal: highlightAbort.signal });
+      onScroll();
+    };
+
+    const getActiveScheduleFreq = () => {
+      const btn = scheduleSheet.querySelector('[data-schedule-freq].is-active');
+      return (btn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
+    };
+
+    const revealTimePicker = () => {
+      highlightAbort?.abort();
+      highlightAbort = new AbortController();
+
+      const freq = getActiveScheduleFreq();
+      if (titleEl) titleEl.textContent = timingTitles[freq] || timingTitles.monthly;
+      pickerRoot.classList.toggle('schedule-time-picker--daily', freq === 'daily');
+
+      const tv = (timingValueEl?.textContent || '').trim();
+      const timeIdx = parseHourIndex(tv);
+
+      if (freq === 'daily') {
+        primaryCol.hidden = true;
+        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
+        scrollToIndex(timeCol, timeIdx, 23);
+        bindColumnScroll(timeCol, 24);
+      } else if (freq === 'weekly') {
+        primaryCol.hidden = false;
+        const dayLabels = WEEKDAYS.map((w) => w.label);
+        const dayIdx = parseWeeklyDayIndex(tv);
+        primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
+        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
+        scrollToIndex(primaryCol, dayIdx, 6);
+        scrollToIndex(timeCol, timeIdx, 23);
+        bindColumnScroll(primaryCol, 7);
+        bindColumnScroll(timeCol, 24);
+      } else {
+        primaryCol.hidden = false;
+        const dayLabels = Array.from({ length: 31 }, (_, i) => ordinalSuffix(i + 1));
+        const dayIdx = parseMonthlyDayIndex(tv);
+        primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
+        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
+        scrollToIndex(primaryCol, dayIdx, 30);
+        scrollToIndex(timeCol, timeIdx, 23);
+        bindColumnScroll(primaryCol, 31);
+        bindColumnScroll(timeCol, 24);
+      }
+
+      timeSheet.hidden = false;
+      requestAnimationFrame(() => timeSheet.classList.add('is-open'));
+    };
+
+    const openTimePicker = () => {
+      const handoff = scheduleSheetApi.closeAnimatedForChild;
+      if (typeof handoff === 'function') {
+        handoff(() => revealTimePicker());
+      } else {
+        revealTimePicker();
+      }
+    };
+
+    /** Animate time sheet out, then slide schedule sheet back in. */
+    const closeTimePickerAndReopenSchedule = () => {
+      const reopen = scheduleSheetApi.reopenFromChild;
+      if (!timeSheet.classList.contains('is-open')) {
+        timeSheet.hidden = true;
+        reopen?.();
+        return;
+      }
+      timeSheet.classList.remove('is-open');
+      let done = false;
+      const onEnd = () => {
+        if (done) return;
+        done = true;
+        panel.removeEventListener('transitionend', onEnd);
+        if (!timeSheet.classList.contains('is-open')) timeSheet.hidden = true;
+        reopen?.();
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const confirmTimePicker = () => {
+      const freq = getActiveScheduleFreq();
+      const ti = Math.max(0, Math.min(23, Math.round(timeCol.scrollTop / ITEM_H)));
+      const tlab = timeLabels[ti];
+      let next = '';
+      if (freq === 'daily') {
+        next = `every day at ${tlab}`;
+      } else if (freq === 'weekly') {
+        const pi = Math.max(0, Math.min(6, Math.round(primaryCol.scrollTop / ITEM_H)));
+        next = `${WEEKDAYS[pi].short} at ${tlab}`;
+      } else {
+        const pi = Math.max(0, Math.min(30, Math.round(primaryCol.scrollTop / ITEM_H)));
+        next = `${ordinalSuffix(pi + 1)} at ${tlab}`;
+      }
+      if (timingValueEl) timingValueEl.textContent = next;
+      closeTimePickerAndReopenSchedule();
+    };
+
+    timingRow?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openTimePicker();
+    });
+
+    timeSheet.querySelectorAll('[data-schedule-time-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', closeTimePickerAndReopenSchedule);
+    });
+    timeSheet.querySelector('[data-schedule-time-sheet-cancel]')?.addEventListener('click', closeTimePickerAndReopenSchedule);
+    timeSheet.querySelector('[data-schedule-time-sheet-confirm]')?.addEventListener('click', confirmTimePicker);
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   initStates();
@@ -1113,6 +1362,7 @@
   initRangeSheet();
   initTopupSheet();
   initScheduleSheet();
+  initScheduleTimePicker();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
