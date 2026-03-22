@@ -1266,6 +1266,48 @@
         </div>
     </div>
 
+    <!-- Schedule: end date (nested — same handoff as time picker) -->
+    <div class="currency-sheet currency-sheet--schedule-followup" data-schedule-enddate-sheet hidden aria-modal="true"
+        role="dialog" aria-label="Select end date">
+        <button class="currency-sheet__backdrop" type="button" data-schedule-enddate-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--schedule-followup">
+                <h2 class="currency-sheet__title">Select end date</h2>
+                <div class="schedule-followup-sheet__content" aria-hidden="true"></div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-schedule-enddate-sheet-cancel>Cancel</button>
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
+                    data-schedule-enddate-sheet-confirm>Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule: number of buys (nested) -->
+    <div class="currency-sheet currency-sheet--schedule-followup" data-schedule-buys-sheet hidden aria-modal="true"
+        role="dialog" aria-label="Set number of buys">
+        <button class="currency-sheet__backdrop" type="button" data-schedule-buys-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--schedule-followup">
+                <h2 class="currency-sheet__title">Set number of buys</h2>
+                <div class="schedule-followup-sheet__content" aria-hidden="true"></div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-schedule-buys-sheet-cancel>Cancel</button>
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
+                    data-schedule-buys-sheet-confirm>Confirm</button>
+            </div>
+        </div>
+    </div>
+
         <!-- Desktop prototype only (>640px): simulates device keyboard on field focus -->
         <div class="fake-keyboard" data-fake-keyboard aria-hidden="true">
             <div class="fake-keyboard__panel" role="presentation"></div>

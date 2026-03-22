@@ -2666,6 +2666,18 @@ html[data-active-tab="finance"] {
   background: rgba(0, 0, 0, 0.6);
 }
 
+// Nested bottom-sheet swap: keep dimmer steady (no fade) while the panel slides.
+.currency-sheet.currency-sheet--backdrop-handoff .currency-sheet__backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  transition: none !important;
+}
+
+// Next sheet in chain: scrim at full dim immediately (no fade-in) until class is removed.
+.currency-sheet.currency-sheet--backdrop-instant-in .currency-sheet__backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  transition: none !important;
+}
+
 .currency-sheet__panel {
   position: relative;
   background: #1b1d1d;
@@ -2966,6 +2978,30 @@ html[data-active-tab="finance"] {
 // Schedule time wheel (Figma 8514:6906) — stacks above main schedule sheet
 .currency-sheet--schedule-time {
   z-index: 35;
+}
+
+// Schedule nested follow-ups (end date, # buys) — above time picker layer
+.currency-sheet--schedule-followup {
+  z-index: 36;
+}
+
+.currency-sheet__body--schedule-followup {
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 16px;
+  min-height: 120px;
+}
+
+.currency-sheet__body--schedule-followup .currency-sheet__title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.schedule-followup-sheet__content {
+  flex: 1;
+  min-height: 80px;
 }
 
 .currency-sheet__body--schedule-time {

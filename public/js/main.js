@@ -956,6 +956,48 @@
     closeAnimatedForChild: null,
     /** @type {null | (() => void)} */
     reopenFromChild: null,
+    /** @type {null | ((end: string) => void)} */
+    onEndOptionSelect: null,
+  };
+
+  const SHEET_BACKDROP_HANDOFF = 'currency-sheet--backdrop-handoff';
+  const SHEET_BACKDROP_INSTANT_IN = 'currency-sheet--backdrop-instant-in';
+
+  /** Close sheet with panel slide; backdrop stays dim until hidden (nested handoff). */
+  const sheetCloseWithBackdropHandoff = (rootEl, panelEl, onDone) => {
+    if (!rootEl.classList.contains('is-open')) {
+      rootEl.hidden = true;
+      rootEl.classList.remove(SHEET_BACKDROP_HANDOFF);
+      onDone?.();
+      return;
+    }
+    rootEl.classList.add(SHEET_BACKDROP_HANDOFF);
+    rootEl.classList.remove('is-open');
+    let done = false;
+    const onEnd = () => {
+      if (done) return;
+      done = true;
+      panelEl.removeEventListener('transitionend', onEnd);
+      if (!rootEl.classList.contains('is-open')) {
+        rootEl.hidden = true;
+        rootEl.classList.remove(SHEET_BACKDROP_HANDOFF);
+      }
+      onDone?.();
+    };
+    panelEl.addEventListener('transitionend', onEnd);
+    setTimeout(onEnd, 290);
+  };
+
+  /** Open sheet: scrim snaps to dim, then panel opens; restores normal backdrop transitions after. */
+  const sheetOpenWithInstantBackdrop = (rootEl) => {
+    rootEl.classList.add(SHEET_BACKDROP_INSTANT_IN);
+    rootEl.hidden = false;
+    requestAnimationFrame(() => {
+      rootEl.classList.add('is-open');
+      requestAnimationFrame(() => {
+        rootEl.classList.remove(SHEET_BACKDROP_INSTANT_IN);
+      });
+    });
   };
 
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
@@ -1007,7 +1049,20 @@
 
     const parseTimingFromScheduleText = (text, freq) => {
       const parts = (text || '').split('·').map((s) => s.trim());
-      if (parts.length >= 2) return parts.slice(1).join(' · ');
+      if (parts.length >= 2) {
+        const detail = parts.slice(1).join(' · ');
+        if (freq === 'daily') {
+          const m = detail.match(/(\d{1,2}:\d{2})/);
+          if (m) {
+            const [hh, mm] = m[1].split(':').map((x) => parseInt(x, 10));
+            if (Number.isFinite(hh) && Number.isFinite(mm)) {
+              return `${String(Math.max(0, Math.min(23, hh))).padStart(2, '0')}:${String(Math.max(0, Math.min(59, mm))).padStart(2, '0')}`;
+            }
+          }
+          return defaultTimingDetail.daily;
+        }
+        return detail;
+      }
       return defaultTimingDetail[freq];
     };
 
@@ -1051,30 +1106,14 @@
       setTimeout(onEnd, 290);
     };
 
-    /** Used by time-picker: animate schedule sheet out, then run `onClosed`. */
+    /** Used by nested sheets: slide schedule out without fading the scrim, then `onClosed`. */
     const closeAnimatedForChild = (onClosed) => {
-      if (!sheet.classList.contains('is-open')) {
-        sheet.hidden = true;
-        onClosed?.();
-        return;
-      }
-      sheet.classList.remove('is-open');
-      let done = false;
-      const onEnd = () => {
-        if (done) return;
-        done = true;
-        panel.removeEventListener('transitionend', onEnd);
-        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
-        onClosed?.();
-      };
-      panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 290);
+      sheetCloseWithBackdropHandoff(sheet, panel, onClosed);
     };
 
-    /** After time-picker closes — show schedule sheet again (state unchanged). */
+    /** After nested sheet closes — reopen schedule; scrim appears without fade-in. */
     const reopenFromChild = () => {
-      sheet.hidden = false;
-      requestAnimationFrame(() => sheet.classList.add('is-open'));
+      sheetOpenWithInstantBackdrop(sheet);
     };
 
     scheduleSheetApi.closeAnimatedForChild = closeAnimatedForChild;
@@ -1132,10 +1171,71 @@
 
     endButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        setEndUI(btn.getAttribute('data-schedule-end') || 'continuous');
+        const end = btn.getAttribute('data-schedule-end') || 'continuous';
+        setEndUI(end);
+        scheduleSheetApi.onEndOptionSelect?.(end);
       });
     });
 
+  };
+
+  /** Schedule sheet: nested “Select end date” / “Set number of buys” (blank body for now). */
+  const initScheduleEndFollowupSheets = () => {
+    const scheduleSheet = document.querySelector('[data-schedule-sheet]');
+    const endDateSheet = document.querySelector('[data-schedule-enddate-sheet]');
+    const buysSheet = document.querySelector('[data-schedule-buys-sheet]');
+    if (!scheduleSheet || !endDateSheet || !buysSheet) return;
+
+    const endDatePanel = endDateSheet.querySelector('.currency-sheet__panel');
+    const buysPanel = buysSheet.querySelector('.currency-sheet__panel');
+    const handoff = scheduleSheetApi.closeAnimatedForChild;
+    const reopen = scheduleSheetApi.reopenFromChild;
+
+    const revealSheet = (el) => {
+      sheetOpenWithInstantBackdrop(el);
+    };
+
+    const closeFollowupThenReopenSchedule = (el, elPanel) => {
+      sheetCloseWithBackdropHandoff(el, elPanel, () => reopen?.());
+    };
+
+    const openEndDate = () => {
+      const run = () => revealSheet(endDateSheet);
+      if (typeof handoff === 'function') handoff(run);
+      else run();
+    };
+
+    const openBuys = () => {
+      const run = () => revealSheet(buysSheet);
+      if (typeof handoff === 'function') handoff(run);
+      else run();
+    };
+
+    scheduleSheetApi.onEndOptionSelect = (end) => {
+      if (end === 'enddate') openEndDate();
+      else if (end === 'buys') openBuys();
+    };
+
+    const wireClose = (root, closeAttr) => {
+      root.querySelectorAll(`[${closeAttr}]`).forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (root === endDateSheet) closeFollowupThenReopenSchedule(endDateSheet, endDatePanel);
+          else closeFollowupThenReopenSchedule(buysSheet, buysPanel);
+        });
+      });
+    };
+
+    wireClose(endDateSheet, 'data-schedule-enddate-sheet-close');
+    endDateSheet.querySelector('[data-schedule-enddate-sheet-cancel]')
+      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(endDateSheet, endDatePanel));
+    endDateSheet.querySelector('[data-schedule-enddate-sheet-confirm]')
+      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(endDateSheet, endDatePanel));
+
+    wireClose(buysSheet, 'data-schedule-buys-sheet-close');
+    buysSheet.querySelector('[data-schedule-buys-sheet-cancel]')
+      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel));
+    buysSheet.querySelector('[data-schedule-buys-sheet-confirm]')
+      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel));
   };
 
   /** Schedule sheet: day + time wheel (Figma 8514:6906) — monthly / weekly / daily. */
@@ -1282,8 +1382,7 @@
         bindColumnScroll(timeCol, 24);
       }
 
-      timeSheet.hidden = false;
-      requestAnimationFrame(() => timeSheet.classList.add('is-open'));
+      sheetOpenWithInstantBackdrop(timeSheet);
     };
 
     const openTimePicker = () => {
@@ -1298,22 +1397,7 @@
     /** Animate time sheet out, then slide schedule sheet back in. */
     const closeTimePickerAndReopenSchedule = () => {
       const reopen = scheduleSheetApi.reopenFromChild;
-      if (!timeSheet.classList.contains('is-open')) {
-        timeSheet.hidden = true;
-        reopen?.();
-        return;
-      }
-      timeSheet.classList.remove('is-open');
-      let done = false;
-      const onEnd = () => {
-        if (done) return;
-        done = true;
-        panel.removeEventListener('transitionend', onEnd);
-        if (!timeSheet.classList.contains('is-open')) timeSheet.hidden = true;
-        reopen?.();
-      };
-      panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 290);
+      sheetCloseWithBackdropHandoff(timeSheet, panel, () => reopen?.());
     };
 
     const confirmTimePicker = () => {
@@ -1322,7 +1406,7 @@
       const tlab = timeLabels[ti];
       let next = '';
       if (freq === 'daily') {
-        next = `every day at ${tlab}`;
+        next = tlab;
       } else if (freq === 'weekly') {
         const pi = Math.max(0, Math.min(6, Math.round(primaryCol.scrollTop / ITEM_H)));
         next = `${WEEKDAYS[pi].short} at ${tlab}`;
@@ -1363,6 +1447,7 @@
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
+  initScheduleEndFollowupSheets();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
