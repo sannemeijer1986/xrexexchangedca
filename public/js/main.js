@@ -1000,6 +1000,7 @@
   const fadeOutScheduleNestedScrim = () => {
     const { phoneContainer, nestedScrim } = getScheduleNestedScrimEls();
     if (!nestedScrim || !scheduleNestedScrimSession) return;
+    if (nestedScrim.classList.contains('is-fading-out')) return;
     nestedScrim.classList.add('is-fading-out');
     let finished = false;
     const done = () => {
@@ -1013,7 +1014,7 @@
       scheduleNestedScrimSession = false;
     };
     nestedScrim.addEventListener('transitionend', done);
-    setTimeout(done, 280);
+    setTimeout(done, 240);
   };
 
   /** Close sheet with panel slide; backdrop stays dim until hidden (nested handoff). */
@@ -1151,6 +1152,9 @@
     };
 
     const close = () => {
+      if (scheduleNestedScrimSession) {
+        fadeOutScheduleNestedScrim();
+      }
       sheet.classList.remove('is-open');
       let done = false;
       const onEnd = () => {
@@ -1158,9 +1162,6 @@
         done = true;
         panel.removeEventListener('transitionend', onEnd);
         if (!sheet.classList.contains('is-open')) sheet.hidden = true;
-        if (scheduleNestedScrimSession) {
-          fadeOutScheduleNestedScrim();
-        }
       };
       panel.addEventListener('transitionend', onEnd);
       setTimeout(onEnd, 290);
