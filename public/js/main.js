@@ -963,8 +963,64 @@
   const SHEET_BACKDROP_HANDOFF = 'currency-sheet--backdrop-handoff';
   const SHEET_BACKDROP_INSTANT_IN = 'currency-sheet--backdrop-instant-in';
 
+  const isScheduleStackSheet = (el) =>
+    !!el?.matches?.(
+      '[data-schedule-sheet], [data-schedule-time-sheet], [data-schedule-enddate-sheet], [data-schedule-buys-sheet]',
+    );
+
+  const getScheduleNestedScrimEls = () => {
+    const phoneContainer = document.querySelector('.phone-container');
+    const nestedScrim = document.querySelector('[data-nested-sheet-scrim]');
+    return { phoneContainer, nestedScrim };
+  };
+
+  let scheduleNestedScrimSession = false;
+
+  /** One shared dimmer for schedule + nested sheets so two sheet backdrops never stack visually. */
+  const activateScheduleNestedScrim = () => {
+    const { phoneContainer, nestedScrim } = getScheduleNestedScrimEls();
+    if (!phoneContainer || !nestedScrim) return;
+    scheduleNestedScrimSession = true;
+    nestedScrim.classList.remove('is-fading-out');
+    nestedScrim.hidden = false;
+    nestedScrim.setAttribute('aria-hidden', 'false');
+    phoneContainer.classList.add('phone-container--nested-sheet-scrim');
+  };
+
+  const resetScheduleNestedScrimHard = () => {
+    const { phoneContainer, nestedScrim } = getScheduleNestedScrimEls();
+    if (!phoneContainer || !nestedScrim) return;
+    scheduleNestedScrimSession = false;
+    nestedScrim.hidden = true;
+    nestedScrim.classList.remove('is-fading-out');
+    nestedScrim.setAttribute('aria-hidden', 'true');
+    phoneContainer.classList.remove('phone-container--nested-sheet-scrim');
+  };
+
+  const fadeOutScheduleNestedScrim = () => {
+    const { phoneContainer, nestedScrim } = getScheduleNestedScrimEls();
+    if (!nestedScrim || !scheduleNestedScrimSession) return;
+    nestedScrim.classList.add('is-fading-out');
+    let finished = false;
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      nestedScrim.removeEventListener('transitionend', done);
+      nestedScrim.hidden = true;
+      nestedScrim.classList.remove('is-fading-out');
+      nestedScrim.setAttribute('aria-hidden', 'true');
+      phoneContainer?.classList.remove('phone-container--nested-sheet-scrim');
+      scheduleNestedScrimSession = false;
+    };
+    nestedScrim.addEventListener('transitionend', done);
+    setTimeout(done, 280);
+  };
+
   /** Close sheet with panel slide; backdrop stays dim until hidden (nested handoff). */
   const sheetCloseWithBackdropHandoff = (rootEl, panelEl, onDone) => {
+    if (isScheduleStackSheet(rootEl)) {
+      activateScheduleNestedScrim();
+    }
     if (!rootEl.classList.contains('is-open')) {
       rootEl.hidden = true;
       rootEl.classList.remove(SHEET_BACKDROP_HANDOFF);
@@ -1089,6 +1145,7 @@
       else if (endText.startsWith('After')) end = 'buys';
       setEndUI(end);
 
+      resetScheduleNestedScrimHard();
       sheet.hidden = false;
       requestAnimationFrame(() => sheet.classList.add('is-open'));
     };
@@ -1101,6 +1158,9 @@
         done = true;
         panel.removeEventListener('transitionend', onEnd);
         if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        if (scheduleNestedScrimSession) {
+          fadeOutScheduleNestedScrim();
+        }
       };
       panel.addEventListener('transitionend', onEnd);
       setTimeout(onEnd, 290);

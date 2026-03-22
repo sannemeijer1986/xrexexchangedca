@@ -2634,6 +2634,42 @@ html[data-active-tab="finance"] {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─── Shared scrim: schedule stack (main + time + end-date + buys) ───────────
+.phone-container__nested-sheet-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 29;
+  background: rgba(0, 0, 0, 0.6);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  pointer-events: auto;
+  cursor: default;
+  transition: background 0.22s ease;
+}
+
+.phone-container__nested-sheet-scrim[hidden] {
+  display: none !important;
+}
+
+.phone-container--nested-sheet-scrim .phone-container__nested-sheet-scrim {
+  transition: none;
+}
+
+.phone-container__nested-sheet-scrim.is-fading-out {
+  transition: background 0.22s ease !important;
+  background: rgba(0, 0, 0, 0) !important;
+}
+
+// Participant sheets draw no scrim — shared layer above provides the dim.
+.phone-container--nested-sheet-scrim [data-schedule-sheet] .currency-sheet__backdrop,
+.phone-container--nested-sheet-scrim [data-schedule-time-sheet] .currency-sheet__backdrop,
+.phone-container--nested-sheet-scrim [data-schedule-enddate-sheet] .currency-sheet__backdrop,
+.phone-container--nested-sheet-scrim [data-schedule-buys-sheet] .currency-sheet__backdrop {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
 // ─── Currency bottom sheet ────────────────────────────────────────────────────
 
 .currency-sheet {
