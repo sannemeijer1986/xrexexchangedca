@@ -2692,6 +2692,23 @@
         }
       }
 
+      // If user confirms a custom manual coin mix from allocation picker, present as "Your plan".
+      if (detailAllocOverride?.kind === 'coins' && detailAllocOverride.items?.length) {
+        const selectedTickers = detailAllocOverride.items
+          .map((item) => String(item?.ticker || '').trim())
+          .filter(Boolean);
+        title = 'Your plan';
+        ticker = selectedTickers.join(', ');
+      }
+      if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.items?.length) {
+        const curatedMeta = pickerCurated.find((p) => p.key === detailAllocOverride.key);
+        const curatedTickers = detailAllocOverride.items
+          .map((item) => String(item?.ticker || '').trim())
+          .filter(Boolean);
+        title = curatedMeta?.title || title;
+        ticker = curatedTickers.join(', ');
+      }
+
       // Product hero
       panel.querySelector('[data-plan-detail-name]').textContent = title;
       panel.querySelector('[data-plan-detail-ticker]').textContent = ticker;
