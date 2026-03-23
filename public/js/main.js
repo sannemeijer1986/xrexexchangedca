@@ -1783,6 +1783,36 @@
     const productArea = panel.querySelector('[data-plan-detail-product-area]');
     const header = panel.querySelector('[data-plan-detail-header]');
     const pageTitle = panel.querySelector('[data-plan-detail-page-title]');
+    let snackbarTimer = null;
+    let snackbarEl = null;
+
+    const ensureTopSnackbar = () => {
+      if (snackbarEl && snackbarEl.isConnected) return snackbarEl;
+      snackbarEl = document.createElement('div');
+      snackbarEl.className = 'snackbar';
+      snackbarEl.setAttribute('role', 'status');
+      snackbarEl.setAttribute('aria-live', 'polite');
+      snackbarEl.innerHTML = `
+        <span class="snackbar__icon" aria-hidden="true">
+          <img src="assets/icon_timeline_activewarning.svg" alt="" />
+        </span>
+        <span data-plan-detail-snackbar-text></span>
+      `;
+      (container || panel).appendChild(snackbarEl);
+      return snackbarEl;
+    };
+
+    const showTopSnackbar = (message) => {
+      const el = ensureTopSnackbar();
+      const textEl = el.querySelector('[data-plan-detail-snackbar-text]');
+      if (textEl) textEl.textContent = String(message || '');
+      el.classList.add('is-visible');
+      if (snackbarTimer) clearTimeout(snackbarTimer);
+      snackbarTimer = setTimeout(() => {
+        el.classList.remove('is-visible');
+        snackbarTimer = null;
+      }, 1800);
+    };
 
     const planAllocation = {
       bitcoin:    [{ name: 'Bitcoin',      ticker: 'BTC',  icon: 'assets/icon_currency_btc.svg' }],
@@ -2940,7 +2970,13 @@
       };
 
       const open = () => {
-        const currentItems = detailAllocOverride?.items?.length
+        const currentPanelTickers = Array.from(
+          panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
+        )
+          .map((el) => String(el.textContent || '').trim().toLowerCase())
+          .filter(Boolean);
+
+        const fallbackItems = detailAllocOverride?.items?.length
           ? detailAllocOverride.items
           : (() => {
               const activePlan =
@@ -2948,7 +2984,19 @@
               const fallback = planAllocation[activePlan] || planAllocation.bitcoin;
               return fallback || [];
             })();
-        selectedCoinKeys = currentItems.map((it) => String(it.ticker || '').toLowerCase()).slice(0, 3);
+
+        const initialKeysFromPanel = currentPanelTickers
+          .map((ticker) => pickableCoins.find((c) => c.ticker.toLowerCase() === ticker)?.key)
+          .filter(Boolean);
+        const initialKeysFromFallback = fallbackItems
+          .map((it) => {
+            const ticker = String(it.ticker || '').trim().toLowerCase();
+            return pickableCoins.find((c) => c.ticker.toLowerCase() === ticker)?.key;
+          })
+          .filter(Boolean);
+
+        const seed = initialKeysFromPanel.length ? initialKeysFromPanel : initialKeysFromFallback;
+        selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
         activeTab = 'coins';
         if (searchInput) searchInput.value = '';
         syncTabs();
@@ -2991,6 +3039,8 @@
           selectedCoinKeys.splice(idx, 1);
         } else if (selectedCoinKeys.length < 3) {
           selectedCoinKeys.push(key);
+        } else {
+          showTopSnackbar('Max 3 coins');
         }
         renderCoins();
         renderChips();
