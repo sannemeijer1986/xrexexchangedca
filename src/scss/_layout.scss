@@ -2664,7 +2664,6 @@ html[data-active-tab="finance"] {
 // Participant sheets draw no scrim — shared layer above provides the dim.
 .phone-container--nested-sheet-scrim [data-schedule-sheet] .currency-sheet__backdrop,
 .phone-container--nested-sheet-scrim [data-schedule-time-sheet] .currency-sheet__backdrop,
-.phone-container--nested-sheet-scrim [data-schedule-enddate-sheet] .currency-sheet__backdrop,
 .phone-container--nested-sheet-scrim [data-schedule-buys-sheet] .currency-sheet__backdrop {
   opacity: 0 !important;
   transition: none !important;
@@ -2705,6 +2704,13 @@ html[data-active-tab="finance"] {
 // Nested bottom-sheet swap: keep dimmer steady (no fade) while the panel slides.
 .currency-sheet.currency-sheet--backdrop-handoff .currency-sheet__backdrop {
   background: rgba(0, 0, 0, 0.6) !important;
+  transition: none !important;
+}
+
+// Bottom sheet stacking: dismissing a child — clear this sheet’s scrim at once so the parent’s dim shows
+// while the panel still slides down. (Non-stacking keeps using --backdrop-handoff instead.)
+.currency-sheet.currency-sheet--stack-pop-dismiss .currency-sheet__backdrop {
+  background: rgba(0, 0, 0, 0) !important;
   transition: none !important;
 }
 
@@ -2816,6 +2822,7 @@ html[data-active-tab="finance"] {
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
+  margin-bottom: -3px;
   display: block;
 }
 
@@ -2965,20 +2972,9 @@ html[data-active-tab="finance"] {
   line-height: 22px;
 }
 
-// When "Set a limit" is selected: hide Continuous subtitle; show buy count + projected end on limit row
+// Set a limit: summary lives in inline stepper (Figma 8520:8386); row subtitle span unused
 [data-schedule-sheet] [data-schedule-endlimit-desc] {
   display: none;
-}
-
-[data-schedule-sheet].schedule-sheet--end-limit-selected
-  [data-schedule-end='continuous']
-  .currency-sheet__item-content
-  > .currency-sheet__item-desc {
-  display: none;
-}
-
-[data-schedule-sheet].schedule-sheet--end-limit-selected [data-schedule-endlimit-desc] {
-  display: block;
 }
 
 .schedule-sheet__freq {
@@ -3056,48 +3052,91 @@ html[data-active-tab="finance"] {
   font-weight: 700;
 }
 
-// Figma 8520:7416 — modal set limit (number of buys + projected end)
-.currency-sheet__body--schedule-setlimit {
-  gap: 16px;
-  padding-bottom: 16px;
-  min-height: 0;
+// Figma 8520:8386 — inline set-limit stepper (expand/collapse with grid + subtle fade/slide)
+// Collapsed: max-height 0 so no stray gap under the list (0fr grid could still leave subpixel space)
+.schedule-setlimit-inline {
+  width: 100%;
+  box-sizing: border-box;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: max-height 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+
+  &:not(.schedule-setlimit-inline--open) {
+    pointer-events: none;
+  }
+
+  &--open {
+    max-height: 260px;
+    pointer-events: auto;
+  }
 }
 
-.currency-sheet__body--schedule-setlimit .currency-sheet__title {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.currency-sheet--schedule-setlimit .currency-sheet__footer--schedule-setlimit {
-  gap: 16px;
-}
-
-.schedule-setlimit {
+.schedule-setlimit-inline__inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+  padding: 0 16px 16px;
   width: 100%;
-}
-
-.schedule-setlimit__stepper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
-  background: #2d2f2f;
-  border-radius: 16px;
   box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.24s ease-out,
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.schedule-setlimit__step-btn {
+.schedule-setlimit-inline--open .schedule-setlimit-inline__inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule-setlimit-inline {
+    transition-duration: 0.01ms;
+  }
+
+  .schedule-setlimit-inline__inner {
+    transition-duration: 0.01ms;
+    transform: none;
+  }
+
+  .schedule-setlimit-inline--open .schedule-setlimit-inline__inner {
+    transform: none;
+  }
+}
+
+// Figma 8520:9994 — set-limit pill (surface tertiary + secondary jump + primary circles)
+.schedule-setlimit-inline__pill {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 8px;
+  border: 0;
+  border-radius: 20px;
+  box-sizing: border-box;
+  background: rgba(71, 73, 74, 0.5);
+}
+
+.schedule-setlimit-inline__step-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.schedule-setlimit-inline__step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 100px;
@@ -3105,49 +3144,70 @@ html[data-active-tab="finance"] {
   color: #ffffff;
   cursor: pointer;
   flex-shrink: 0;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
-.schedule-setlimit__step-btn:disabled {
+.schedule-setlimit-inline__step-btn--jump {
+  width: auto;
+  min-width: 36px;
+  height: 32px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #2d2f2f;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.schedule-setlimit-inline__step-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.schedule-setlimit__step-icon {
+.schedule-setlimit-inline__step-icon {
   display: block;
 }
 
-.phone-container p.schedule-setlimit__value {
-  margin: 0;
-  width: 80px;
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1;
-  color: #ffffff;
-  text-align: center;
-}
-
-.schedule-setlimit__projection {
+.schedule-setlimit-inline__value-cell {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex: 1 1 auto;
+  align-items: baseline;
+  justify-content: center;
   gap: 4px;
-  text-align: center;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 0 12px;
 }
 
-.phone-container p.schedule-setlimit__projection-label {
+.schedule-setlimit-inline__value-text {
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.schedule-setlimit-inline__value-suffix {
+  flex: 0 0 auto;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+.phone-container p.schedule-setlimit-inline__ends {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: normal;
-  color: #ffffff;
-}
-
-.phone-container p.schedule-setlimit__projection-date {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: normal;
   color: #8fb8ff;
+  text-align: center;
 }
 
 .schedule-followup-sheet__content {
@@ -3282,6 +3342,14 @@ html[data-active-tab="finance"] {
 // End-condition subtitles (schedule sheet only)
 .currency-sheet--schedule [data-schedule-end='continuous'] .currency-sheet__item-desc {
   color: #8fb8ff;
+  transition: color 0.22s ease-out;
+}
+
+// Unselected Continuous row when "Set a limit" is active — mute subtitle, keep layout
+.currency-sheet--schedule.schedule-sheet--end-limit-selected
+  [data-schedule-end='continuous']
+  .currency-sheet__item-desc {
+  color: #58595a;
 }
 
 // Enddate row subtitle is [data-schedule-endlimit-desc] — toggled via .schedule-sheet--end-limit-selected; do not force display:none here.
@@ -4558,6 +4626,7 @@ html[data-active-tab="finance"] {
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
+  margin-bottom: -3px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;

@@ -1218,6 +1218,38 @@
                                 <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
                             </div>
                         </button>
+                        <!-- Figma 8520:8386 — inline stepper inside end-condition card -->
+                        <div class="schedule-setlimit-inline" data-schedule-setlimit-inline aria-hidden="true">
+                            <div class="schedule-setlimit-inline__inner" role="group" aria-label="Number of buys">
+                                <div class="schedule-setlimit-inline__pill">
+                                    <div class="schedule-setlimit-inline__step-cluster">
+                                        <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
+                                            aria-label="Decrease by 10" data-schedule-setlimit-dec-10>-10</button>
+                                        <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Decrease by 1"
+                                            data-schedule-setlimit-dec>
+                                            <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="schedule-setlimit-inline__value-cell" aria-live="polite">
+                                        <span class="schedule-setlimit-inline__value-text" data-schedule-setlimit-value>12</span>
+                                        <span class="schedule-setlimit-inline__value-suffix" data-schedule-setlimit-suffix>buys</span>
+                                    </div>
+                                    <div class="schedule-setlimit-inline__step-cluster">
+                                        <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Increase by 1"
+                                            data-schedule-setlimit-inc>
+                                            <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            </svg>
+                                        </button>
+                                        <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
+                                            aria-label="Increase by 10" data-schedule-setlimit-inc-10>+10</button>
+                                    </div>
+                                </div>
+                                <p class="schedule-setlimit-inline__ends" data-schedule-setlimit-end-date>Ends ~ Jun 18, 2026</p>
+                            </div>
+                        </div>
                         <!-- <div class="currency-sheet__divider"></div>
                         <button class="currency-sheet__item currency-sheet__item--schedule-end" type="button"
                             data-schedule-end="buys">
@@ -1265,47 +1297,6 @@
                     data-schedule-time-sheet-cancel>Cancel</button>
                 <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
                     data-schedule-time-sheet-confirm>Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Schedule: set limit — Figma DCA1.0_modal_setlimit (8520:7416) -->
-    <div class="currency-sheet currency-sheet--schedule-followup currency-sheet--schedule-setlimit" data-schedule-enddate-sheet hidden aria-modal="true"
-        role="dialog" aria-label="Number of buys">
-        <button class="currency-sheet__backdrop" type="button" data-schedule-enddate-sheet-close aria-label="Close"></button>
-        <div class="currency-sheet__panel">
-            <div class="currency-sheet__handle-wrap">
-                <div class="currency-sheet__handle"></div>
-            </div>
-            <div class="currency-sheet__body currency-sheet__body--schedule-followup currency-sheet__body--schedule-setlimit">
-                <h2 class="currency-sheet__title" id="schedule-setlimit-title">Number of buys</h2>
-                <div class="schedule-setlimit" role="group" aria-labelledby="schedule-setlimit-title">
-                    <div class="schedule-setlimit__stepper">
-                        <button class="schedule-setlimit__step-btn" type="button" aria-label="Decrease number of buys"
-                            data-schedule-setlimit-dec>
-                            <svg class="schedule-setlimit__step-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg>
-                        </button>
-                        <p class="schedule-setlimit__value" data-schedule-setlimit-value aria-live="polite">12</p>
-                        <button class="schedule-setlimit__step-btn" type="button" aria-label="Increase number of buys"
-                            data-schedule-setlimit-inc>
-                            <svg class="schedule-setlimit__step-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="schedule-setlimit__projection">
-                        <p class="schedule-setlimit__projection-label">Ends around</p>
-                        <p class="schedule-setlimit__projection-date" data-schedule-setlimit-end-date>Jun 18, 2026</p>
-                    </div>
-                </div>
-            </div>
-            <div class="currency-sheet__footer currency-sheet__footer--split currency-sheet__footer--schedule-setlimit">
-                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
-                    data-schedule-enddate-sheet-cancel>Cancel</button>
-                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
-                    data-schedule-enddate-sheet-confirm>Confirm</button>
             </div>
         </div>
     </div>
