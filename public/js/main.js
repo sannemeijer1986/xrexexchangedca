@@ -950,6 +950,13 @@
     });
   };
 
+  /** Prototype: when true, nested schedule sheets open on top without animating the parent closed. */
+  const getBottomSheetStacking = () => {
+    const input = document.querySelector('[data-prototype-bottomsheet-stacking]');
+    if (!input) return true;
+    return Boolean(input.checked);
+  };
+
   /** Coordinates nested time-picker: close schedule sheet first, reopen after time sheet closes. */
   const scheduleSheetApi = {
     /** @type {null | ((onClosed?: () => void) => void)} */
@@ -1021,9 +1028,13 @@
     setTimeout(done, 240);
   };
 
-  /** Close sheet with panel slide; backdrop stays dim until hidden (nested handoff). */
-  const sheetCloseWithBackdropHandoff = (rootEl, panelEl, onDone) => {
-    if (isScheduleStackSheet(rootEl)) {
+  /**
+   * Close sheet with panel slide; backdrop stays dim until hidden (nested handoff).
+   * @param {{ suppressNestedScrim?: boolean }} [opts] If true, skip shared nested scrim (stacked child closing while parent stays open).
+   */
+  const sheetCloseWithBackdropHandoff = (rootEl, panelEl, onDone, opts = {}) => {
+    const { suppressNestedScrim } = opts;
+    if (isScheduleStackSheet(rootEl) && !suppressNestedScrim) {
       activateScheduleNestedScrim();
     }
     if (!rootEl.classList.contains('is-open')) {
@@ -1177,11 +1188,18 @@
 
     /** Used by nested sheets: slide schedule out without fading the scrim, then `onClosed`. */
     const closeAnimatedForChild = (onClosed) => {
+      if (getBottomSheetStacking()) {
+        onClosed?.();
+        return;
+      }
       sheetCloseWithBackdropHandoff(sheet, panel, onClosed);
     };
 
     /** After nested sheet closes — reopen schedule; scrim appears without fade-in. */
     const reopenFromChild = () => {
+      if (getBottomSheetStacking()) {
+        if (!sheet.hidden && sheet.classList.contains('is-open')) return;
+      }
       sheetOpenWithInstantBackdrop(sheet);
     };
 
@@ -1359,10 +1377,16 @@
     };
 
     const closeFollowupThenReopenSchedule = (el, elPanel) => {
-      sheetCloseWithBackdropHandoff(el, elPanel, () => {
-        reopen?.();
-        requestAnimationFrame(() => scheduleSheetApi.refreshEndConditionSubtitles?.());
-      });
+      const suppressNestedScrim = getBottomSheetStacking();
+      sheetCloseWithBackdropHandoff(
+        el,
+        elPanel,
+        () => {
+          reopen?.();
+          requestAnimationFrame(() => scheduleSheetApi.refreshEndConditionSubtitles?.());
+        },
+        { suppressNestedScrim },
+      );
     };
 
     const openEndDate = () => {
@@ -1566,7 +1590,8 @@
     /** Animate time sheet out, then slide schedule sheet back in. */
     const closeTimePickerAndReopenSchedule = () => {
       const reopen = scheduleSheetApi.reopenFromChild;
-      sheetCloseWithBackdropHandoff(timeSheet, panel, () => reopen?.());
+      const suppressNestedScrim = getBottomSheetStacking();
+      sheetCloseWithBackdropHandoff(timeSheet, panel, () => reopen?.(), { suppressNestedScrim });
     };
 
     const confirmTimePicker = () => {
