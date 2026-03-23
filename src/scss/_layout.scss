@@ -2965,6 +2965,22 @@ html[data-active-tab="finance"] {
   line-height: 22px;
 }
 
+// When "Set a limit" is selected: hide Continuous subtitle; show buy count + projected end on limit row
+[data-schedule-sheet] [data-schedule-endlimit-desc] {
+  display: none;
+}
+
+[data-schedule-sheet].schedule-sheet--end-limit-selected
+  [data-schedule-end='continuous']
+  .currency-sheet__item-content
+  > .currency-sheet__item-desc {
+  display: none;
+}
+
+[data-schedule-sheet].schedule-sheet--end-limit-selected [data-schedule-endlimit-desc] {
+  display: block;
+}
+
 .schedule-sheet__freq {
   width: 100%;
   box-sizing: border-box;
@@ -3268,7 +3284,7 @@ html[data-active-tab="finance"] {
   color: #8fb8ff;
 }
 
-.currency-sheet--schedule [data-schedule-end='enddate'] .currency-sheet__item-desc,
+// Enddate row subtitle is [data-schedule-endlimit-desc] — toggled via .schedule-sheet--end-limit-selected; do not force display:none here.
 .currency-sheet--schedule [data-schedule-end='buys'] .currency-sheet__item-desc {
   display: none;
   color: #8fb8ff;
