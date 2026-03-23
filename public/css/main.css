@@ -1374,6 +1374,9 @@ html[data-active-tab=finance] .app-header__tabs {
   display: flex;
   gap: 8px;
 }
+.asset-card__actions .asset-btn {
+  width: 120px;
+}
 
 .asset-btn {
   height: 32px;
@@ -3116,7 +3119,7 @@ html[data-active-tab=finance] .app-header__tabs {
   height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 100px;
+  border-radius: 12px;
   background: #275cfd;
   color: #ffffff;
   cursor: pointer;

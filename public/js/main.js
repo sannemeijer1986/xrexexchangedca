@@ -1183,9 +1183,11 @@
 
       let end = 'continuous';
       const endText = endEl?.textContent?.trim() || '';
+      // Match "… · Ends ~ Jun 18, 2026" or legacy "… · Ends Jun 18, 2026 ~" (tilde after date).
       const isSetLimitPlanDetail =
         endText === 'End on date'
-        || (/\b(buy|buys)\b/i.test(endText) && endText.includes('Ends ~'));
+        || (/\b(buy|buys)\b/i.test(endText)
+          && (endText.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(endText)));
       if (isSetLimitPlanDetail) end = 'enddate';
       else if (endText.startsWith('After')) end = 'buys';
       setEndUI(end);
@@ -1818,7 +1820,9 @@
     const isPlanDetailSetLimitEnd = (text) => {
       const t = String(text || '').trim();
       if (!t || t === 'Continuous' || t.startsWith('After')) return false;
-      return t === 'End on date' || (/\b(buy|buys)\b/i.test(t) && t.includes('Ends ~'));
+      if (t === 'End on date') return true;
+      if (!/\b(buy|buys)\b/i.test(t)) return false;
+      return t.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(t);
     };
 
     /** "Total planned investment" row only for Set a limit; Continuous uses current balance + cover + hint (Figma 8527:4820 / 8527:4835). */

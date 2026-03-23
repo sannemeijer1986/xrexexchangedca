@@ -1343,6 +1343,10 @@ html[data-active-tab="finance"] {
 .asset-card__actions {
   display: flex;
   gap: 8px;
+
+  .asset-btn {
+    width: 120px;
+  }
 }
 
 .asset-btn {
@@ -3139,7 +3143,7 @@ html[data-active-tab="finance"] {
   height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 100px;
+  border-radius: 12px;
   background: #275cfd;
   color: #ffffff;
   cursor: pointer;
