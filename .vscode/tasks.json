@@ -4,8 +4,19 @@
     {
       "label": "SCSS: watch",
       "type": "npm",
-      "script": "watch:css",
-      "problemMatcher": [],
+      "script": "watch:css:poll",
+      "problemMatcher": {
+        "owner": "sass",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Sass is watching"
+        }
+      },
+      "isBackground": true,
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
@@ -20,10 +31,21 @@
       }
     },
     {
-      "label": "SCSS: watch (poll)",
+      "label": "SCSS: watch (native FS)",
       "type": "npm",
-      "script": "watch:css:poll",
-      "problemMatcher": [],
+      "script": "watch:css",
+      "problemMatcher": {
+        "owner": "sass",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Sass is watching"
+        }
+      },
+      "isBackground": true,
       "presentation": {
         "reveal": "always",
         "panel": "dedicated"

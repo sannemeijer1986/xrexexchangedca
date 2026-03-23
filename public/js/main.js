@@ -1240,7 +1240,63 @@
 
   };
 
-  /** Schedule sheet: nested “Select end date” / “Set number of buys” (blank body for now). */
+  /**
+   * “Set a limit” nested sheet — Figma DCA1.0_modal_setlimit (8520:7416): stepper + projected end date.
+   * @returns {{ refresh: () => void } | null}
+   */
+  const initScheduleSetLimitStepper = (endDateSheet) => {
+    const valueEl = endDateSheet.querySelector('[data-schedule-setlimit-value]');
+    const dateEl = endDateSheet.querySelector('[data-schedule-setlimit-end-date]');
+    const decBtn = endDateSheet.querySelector('[data-schedule-setlimit-dec]');
+    const incBtn = endDateSheet.querySelector('[data-schedule-setlimit-inc]');
+    if (!valueEl || !dateEl || !decBtn || !incBtn) return null;
+
+    const MIN = 1;
+    const MAX = 999;
+    let count = 12;
+
+    const getActiveFreq = () => {
+      const btn = document.querySelector('[data-schedule-sheet] [data-schedule-freq].is-active');
+      return (btn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
+    };
+
+    const projectEndDate = (buys) => {
+      const freq = getActiveFreq();
+      const d = new Date();
+      const n = Math.max(MIN, Math.min(MAX, buys));
+      if (freq === 'daily') d.setDate(d.getDate() + n);
+      else if (freq === 'weekly') d.setDate(d.getDate() + n * 7);
+      else d.setMonth(d.getMonth() + n);
+      return d;
+    };
+
+    const formatProjection = (d) => d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    const sync = () => {
+      valueEl.textContent = String(count);
+      dateEl.textContent = formatProjection(projectEndDate(count));
+      decBtn.disabled = count <= MIN;
+      incBtn.disabled = count >= MAX;
+    };
+
+    decBtn.addEventListener('click', () => {
+      if (count > MIN) count -= 1;
+      sync();
+    });
+    incBtn.addEventListener('click', () => {
+      if (count < MAX) count += 1;
+      sync();
+    });
+
+    sync();
+    return { refresh: sync };
+  };
+
+  /** Schedule sheet: nested follow-ups (set limit / number of buys). */
   const initScheduleEndFollowupSheets = () => {
     const scheduleSheet = document.querySelector('[data-schedule-sheet]');
     const endDateSheet = document.querySelector('[data-schedule-enddate-sheet]');
@@ -1252,6 +1308,8 @@
     const handoff = scheduleSheetApi.closeAnimatedForChild;
     const reopen = scheduleSheetApi.reopenFromChild;
 
+    const setLimitStepper = initScheduleSetLimitStepper(endDateSheet);
+
     const revealSheet = (el) => {
       sheetOpenWithInstantBackdrop(el);
     };
@@ -1261,7 +1319,10 @@
     };
 
     const openEndDate = () => {
-      const run = () => revealSheet(endDateSheet);
+      const run = () => {
+        revealSheet(endDateSheet);
+        requestAnimationFrame(() => setLimitStepper?.refresh());
+      };
       if (typeof handoff === 'function') handoff(run);
       else run();
     };

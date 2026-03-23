@@ -2820,10 +2820,15 @@ html[data-active-tab="finance"] {
 }
 
 .currency-sheet__item-desc {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #9b9c9c;
   display: block;
+}
+
+.currency-sheet__item-desc--highlight {
+  color: #8fb8ff;
+  font-size: 14px !important;
 }
 
 .currency-sheet__item-radio {
@@ -3033,6 +3038,100 @@ html[data-active-tab="finance"] {
   text-align: center;
   font-size: 18px;
   font-weight: 700;
+}
+
+// Figma 8520:7416 — modal set limit (number of buys + projected end)
+.currency-sheet__body--schedule-setlimit {
+  gap: 16px;
+  padding-bottom: 16px;
+  min-height: 0;
+}
+
+.currency-sheet__body--schedule-setlimit .currency-sheet__title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.currency-sheet--schedule-setlimit .currency-sheet__footer--schedule-setlimit {
+  gap: 16px;
+}
+
+.schedule-setlimit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.schedule-setlimit__stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: #2d2f2f;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.schedule-setlimit__step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 100px;
+  background: #275cfd;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.schedule-setlimit__step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.schedule-setlimit__step-icon {
+  display: block;
+}
+
+.schedule-setlimit__value {
+  margin: 0;
+  width: 80px;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  color: #ffffff;
+  text-align: center;
+}
+
+.schedule-setlimit__projection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.schedule-setlimit__projection-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #ffffff;
+}
+
+.schedule-setlimit__projection-date {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  color: #8fb8ff;
 }
 
 .schedule-followup-sheet__content {

@@ -1198,7 +1198,7 @@
                             </div>
                             <div class="currency-sheet__item-content">
                                 <span class="currency-sheet__item-name">Continuous</span>
-                                <span class="currency-sheet__item-desc">Runs until you pause</span>
+                                <span class="currency-sheet__item-desc currency-sheet__item-desc--highlight">Runs until you pause</span>
                             </div>
                             <div class="currency-sheet__item-radio" aria-hidden="true">
                                 <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
@@ -1269,19 +1269,39 @@
         </div>
     </div>
 
-    <!-- Schedule: end date (nested — same handoff as time picker) -->
-    <div class="currency-sheet currency-sheet--schedule-followup" data-schedule-enddate-sheet hidden aria-modal="true"
-        role="dialog" aria-label="Set a limit">
+    <!-- Schedule: set limit — Figma DCA1.0_modal_setlimit (8520:7416) -->
+    <div class="currency-sheet currency-sheet--schedule-followup currency-sheet--schedule-setlimit" data-schedule-enddate-sheet hidden aria-modal="true"
+        role="dialog" aria-label="Number of buys">
         <button class="currency-sheet__backdrop" type="button" data-schedule-enddate-sheet-close aria-label="Close"></button>
         <div class="currency-sheet__panel">
             <div class="currency-sheet__handle-wrap">
                 <div class="currency-sheet__handle"></div>
             </div>
-            <div class="currency-sheet__body currency-sheet__body--schedule-followup">
-                <h2 class="currency-sheet__title">Set a limit</h2>
-                <div class="schedule-followup-sheet__content" aria-hidden="true"></div>
+            <div class="currency-sheet__body currency-sheet__body--schedule-followup currency-sheet__body--schedule-setlimit">
+                <h2 class="currency-sheet__title" id="schedule-setlimit-title">Number of buys</h2>
+                <div class="schedule-setlimit" role="group" aria-labelledby="schedule-setlimit-title">
+                    <div class="schedule-setlimit__stepper">
+                        <button class="schedule-setlimit__step-btn" type="button" aria-label="Decrease number of buys"
+                            data-schedule-setlimit-dec>
+                            <svg class="schedule-setlimit__step-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </button>
+                        <p class="schedule-setlimit__value" data-schedule-setlimit-value aria-live="polite">12</p>
+                        <button class="schedule-setlimit__step-btn" type="button" aria-label="Increase number of buys"
+                            data-schedule-setlimit-inc>
+                            <svg class="schedule-setlimit__step-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="schedule-setlimit__projection">
+                        <p class="schedule-setlimit__projection-label">Ends around</p>
+                        <p class="schedule-setlimit__projection-date" data-schedule-setlimit-end-date>Jun 18, 2026</p>
+                    </div>
+                </div>
             </div>
-            <div class="currency-sheet__footer currency-sheet__footer--split">
+            <div class="currency-sheet__footer currency-sheet__footer--split currency-sheet__footer--schedule-setlimit">
                 <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
                     data-schedule-enddate-sheet-cancel>Cancel</button>
                 <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
