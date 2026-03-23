@@ -1814,7 +1814,22 @@
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
 
-    // Recalculate "Avail." + "Available X covers ≈ N buys" from balance ÷ per-buy amount.
+    /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
+    const isPlanDetailSetLimitEnd = (text) => {
+      const t = String(text || '').trim();
+      if (!t || t === 'Continuous' || t.startsWith('After')) return false;
+      return t === 'End on date' || (/\b(buy|buys)\b/i.test(t) && t.includes('Ends ~'));
+    };
+
+    /** "Total planned investment" row only for Set a limit; Continuous uses current balance + cover + hint (Figma 8527:4820 / 8527:4835). */
+    const syncPlanDetailSetLimitDetailRowsVisibility = () => {
+      const totalPlannedRow = panel.querySelector('[data-plan-detail-total-planned-row]');
+      const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+      const show = isPlanDetailSetLimitEnd(endEl?.textContent || '');
+      if (totalPlannedRow) totalPlannedRow.hidden = !show;
+    };
+
+    // Recalculate header "Avail.", Details rows (Figma 8527:4820 / 8527:4835), and balance-can-cover copy.
     const updateCoverageUI = () => {
       const cur = currencyState.plan;
       const balance = BALANCES[cur] ?? BALANCES.TWD;
@@ -1825,13 +1840,13 @@
         availEl.innerHTML = `Avail. ${balance.toLocaleString('en-US')} <span data-plan-detail-coverage-currency>${cur}</span>`;
       }
 
-      // "Available TWD covers ≈ X"
-      const coverageLabelEl = panel.querySelector('.plan-detail-panel__coverage-label');
-      if (coverageLabelEl) {
-        coverageLabelEl.innerHTML = `Available <span data-plan-detail-coverage-currency2>${cur}</span> covers ≈`;
+      const currentBalanceEl = panel.querySelector('[data-plan-detail-current-balance]');
+      if (currentBalanceEl) {
+        currentBalanceEl.textContent = `${balance.toLocaleString('en-US')} ${cur}`;
       }
 
-      const coverageValueEl = panel.querySelector('.plan-detail-panel__coverage-value');
+      const totalPlannedEl = panel.querySelector('[data-plan-detail-total-planned]');
+      const coverageValueEl = panel.querySelector('[data-plan-detail-coverage-value]');
       const errorEl = panel.querySelector('[data-plan-detail-amount-error]');
       const errorCurEl = errorEl?.querySelector('[data-plan-detail-error-currency]');
 
@@ -1845,10 +1860,80 @@
 
       if (!coverageValueEl) return;
 
+      const getRepeatsEndText = () =>
+        panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
+
+      const parseLimitBuysFromRepeatsEnd = (endT) => {
+        const lead = String(endT || '').match(/^(\d+)/);
+        const n = lead ? parseInt(lead[1], 10) : NaN;
+        return Number.isFinite(n) && n >= 1 ? n : NaN;
+      };
+
+      /** Set a limit: total planned = auto-invest × scheduled buys (Figma 8527:4835). */
+      const refillTotalPlannedForSetLimit = () => {
+        if (!totalPlannedEl) return;
+        const endT = getRepeatsEndText();
+        if (!isPlanDetailSetLimitEnd(endT)) return;
+        const amt = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+        if (!amt || amt <= 0) {
+          totalPlannedEl.textContent = '—';
+          return;
+        }
+        const limitBuys = parseLimitBuysFromRepeatsEnd(endT);
+        if (!Number.isFinite(limitBuys)) {
+          totalPlannedEl.textContent = '—';
+          return;
+        }
+        totalPlannedEl.textContent = `${(amt * limitBuys).toLocaleString('en-US')} ${cur}`;
+      };
+
+      const formatCoverageBuysValue = (balanceBuys, endT) => {
+        const setLimit = isPlanDetailSetLimitEnd(endT);
+        const limitBuys = setLimit ? parseLimitBuysFromRepeatsEnd(endT) : NaN;
+        const b = Math.max(0, Math.floor(balanceBuys));
+        if (setLimit && Number.isFinite(limitBuys)) {
+          const limWord = limitBuys === 1 ? 'buy' : 'buys';
+          return `~${b} / ${limitBuys} ${limWord}`;
+        }
+        const buyWord = b === 1 ? 'buy' : 'buys';
+        return `~${b} ${buyWord}`;
+      };
+
+      const HINT_NEUTRAL = 'You only need enough for 1 buy before each run';
+      const HINT_ERROR = 'You need enough for 1 buy before each run';
+      const HINT_OK = 'You have enough for 1 buy before the first run';
+
+      const syncPlanDetailCoverageHint = ({ hasAmount, balanceBuys }) => {
+        const hintEl = panel.querySelector('[data-plan-detail-coverage-hint]');
+        if (!hintEl) return;
+        hintEl.classList.remove(
+          'plan-detail-panel__coverage-hint--neutral',
+          'plan-detail-panel__coverage-hint--error',
+          'plan-detail-panel__coverage-hint--ok',
+        );
+        if (!hasAmount) {
+          hintEl.classList.add('plan-detail-panel__coverage-hint--neutral');
+          hintEl.textContent = HINT_NEUTRAL;
+          return;
+        }
+        if (balanceBuys <= 0) {
+          hintEl.classList.add('plan-detail-panel__coverage-hint--error');
+          hintEl.textContent = HINT_ERROR;
+          return;
+        }
+        hintEl.classList.add('plan-detail-panel__coverage-hint--ok');
+        hintEl.textContent = HINT_OK;
+      };
+
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+      const endT = getRepeatsEndText();
+
       if (!amount || amount <= 0) {
-        coverageValueEl.textContent = '—';
+        coverageValueEl.textContent = '- -';
         setError(false);
+        refillTotalPlannedForSetLimit();
+        syncPlanDetailSetLimitDetailRowsVisibility();
+        syncPlanDetailCoverageHint({ hasAmount: false, balanceBuys: 0 });
         return;
       }
 
@@ -1856,13 +1941,19 @@
       const buys = Math.floor(balance / amount);
 
       if (buys === 0) {
-        coverageValueEl.textContent = '0 buys';
+        coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
         setError(true);
+        refillTotalPlannedForSetLimit();
+        syncPlanDetailSetLimitDetailRowsVisibility();
+        syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: 0 });
         return;
       }
 
       setError(false);
-      coverageValueEl.textContent = `${buys.toLocaleString('en-US')} buy${buys !== 1 ? 's' : ''}`;
+      coverageValueEl.textContent = formatCoverageBuysValue(buys, endT);
+      refillTotalPlannedForSetLimit();
+      syncPlanDetailSetLimitDetailRowsVisibility();
+      syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: buys });
     };
 
     // Sync all footer return elements from the main widget's currently displayed values.
@@ -3013,6 +3104,25 @@
         if (!/^\d$/.test(e.key)) e.preventDefault();
       });
     }
+
+    // Repeats card: collapsible "Details" (coverage rows) — Figma 8527:4738 / 8527:4757
+    const detailsCollapse = panel.querySelector('[data-plan-detail-details-collapse]');
+    const detailsToggle = panel.querySelector('[data-plan-detail-details-toggle]');
+    const detailsChevron = panel.querySelector('[data-plan-detail-details-chevron]');
+    if (detailsCollapse && detailsToggle && detailsChevron) {
+      detailsToggle.addEventListener('click', () => {
+        const expanded = detailsCollapse.classList.toggle('plan-detail-panel__details-collapse--expanded');
+        detailsToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        detailsChevron.setAttribute(
+          'src',
+          expanded ? 'assets/icon_chevron_up_white.svg' : 'assets/icon_chevron_down_white.svg',
+        );
+      });
+    }
+
+    document.addEventListener('plan-schedule-confirmed', () => {
+      syncPlanDetailSetLimitDetailRowsVisibility();
+    });
 
     // ── Currency pill: trigger the shared investment currency bottom sheet ────
     // The pill already has data-currency-sheet-trigger="plan" in HTML, so

@@ -2753,7 +2753,7 @@ html[data-active-tab="finance"] {
   flex-direction: column;
   gap: 24px;
   align-items: center;
-  padding: 0 16px 24px;
+  padding: 0px 16px 20px 16px;
 }
 
 .currency-sheet__headerwrapper {
@@ -3118,10 +3118,10 @@ html[data-active-tab="finance"] {
   max-width: 100%;
   margin: 0 auto;
   padding: 8px;
-  border: 0;
+  border: 1px solid #3C4248;
   border-radius: 20px;
   box-sizing: border-box;
-  background: rgba(71, 73, 74, 0.5);
+  background: rgba(71, 73, 74, 0.35);
 }
 
 .schedule-setlimit-inline__step-cluster {
@@ -4656,20 +4656,153 @@ html[data-active-tab="finance"] {
   background: #3c4248;
 }
 
+// Figma 8527:4738 (collapsed) / 8527:4757 (expanded) — Details disclosure + coverage rows
+.plan-detail-panel__details-collapse {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.plan-detail-panel__details-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px;
+  padding: 3px 0;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    border-radius: 8px;
+    box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
+  }
+}
+
+.plan-detail-panel__details-toggle-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #ffffff;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-detail-panel__details-chevron {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.plan-detail-panel__details-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.plan-detail-panel__details-collapse--expanded .plan-detail-panel__details-body {
+  grid-template-rows: 1fr;
+}
+
+.plan-detail-panel__details-body-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.plan-detail-panel__coverage-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+// Figma 8527:4820 / 8527:4835 — cover row + blue caption (hint text right-aligned; row must stretch full width)
+.plan-detail-panel__coverage-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+
+.phone-container p.plan-detail-panel__coverage-hint {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  text-align: right;
+
+  &.plan-detail-panel__coverage-hint--neutral {
+    color: #8fb8ff;
+  }
+
+  &.plan-detail-panel__coverage-hint--error {
+    color: #eb5347;
+  }
+
+  &.plan-detail-panel__coverage-hint--ok {
+    color: #5ac47d;
+  }
+}
+
 .plan-detail-panel__coverage-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px;
   font-size: 14px;
   font-weight: 600;
+  line-height: normal;
+  box-sizing: border-box;
+}
+
+// `display: flex` above beats the UA `[hidden]` rule; re-assert hide (e.g. total planned when Continuous).
+.plan-detail-panel__coverage-row[hidden] {
+  display: none;
 }
 
 .plan-detail-panel__coverage-label {
+  flex: 1 1 auto;
+  min-width: 0;
   color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .plan-detail-panel__coverage-value {
+  flex-shrink: 0;
   color: #ffffff;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-detail-panel__details-body {
+    transition-duration: 0.01ms;
+  }
 }
 
 // ── Allocation section ────────────────────────────────────────────────────────
