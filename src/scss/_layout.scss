@@ -3341,6 +3341,7 @@ html[data-active-tab="finance"] {
 
 .currency-sheet__item--schedule-end {
   align-items: center;
+  min-height: 74px;
 }
 
 // // End-condition subtitles (schedule sheet only)
@@ -4629,6 +4630,7 @@ html[data-active-tab="finance"] {
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
+  margin-bottom: -3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4637,7 +4639,6 @@ html[data-active-tab="finance"] {
 
 .plan-detail-panel__repeats-type {
   font-size: 14px;
-  margin-bottom: -3px;
   font-weight: 600;
   color: #8fb8ff;
   display: block;
@@ -4716,6 +4717,7 @@ html[data-active-tab="finance"] {
 
 .plan-detail-panel__details-body {
   display: grid;
+  margin-bottom: 4px;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -4766,7 +4768,19 @@ html[data-active-tab="finance"] {
   }
 
   &.plan-detail-panel__coverage-hint--ok {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
     color: #5ac47d;
+
+    &::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      background: url('../assets/icon_check_green.svg') center / 16px 16px no-repeat;
+    }
   }
 }
 
@@ -4801,6 +4815,10 @@ html[data-active-tab="finance"] {
   flex-shrink: 0;
   color: #ffffff;
   text-align: right;
+}
+
+.plan-detail-panel__coverage-value.plan-detail-panel__coverage-value--placeholder {
+  color: #58595a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5442,6 +5460,12 @@ html[data-active-tab="finance"] {
   font-weight: 600;
 }
 
+.plan-detail-panel__continue:disabled {
+  background: #081b68;
+  color: #58595a;
+  opacity: 1;
+}
+
 .alloc-picker-panel {
   position: absolute;
   inset: 0;
@@ -5723,6 +5747,7 @@ html[data-active-tab="finance"] {
 }
 
 .alloc-picker-panel__continue:disabled {
-  background: #242b3e;
-  color: #8d95a7;
+  background: #081b68;
+  color: #58595a;
+  opacity: 1;
 }

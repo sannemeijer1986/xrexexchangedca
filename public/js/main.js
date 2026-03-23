@@ -1412,7 +1412,7 @@
         setLimitStepper.syncDom();
         const { count, endsApprox } = setLimitStepper.getSummary();
         const buyWord = count === 1 ? 'buy' : 'buys';
-        scheduleSheetApi.planDetailRepeatsEndLimitText = `${count} ${buyWord} · ~ Ends ${endsApprox}`;
+        scheduleSheetApi.planDetailRepeatsEndLimitText = `${count} ${buyWord} ~ Ends ${endsApprox}`;
         inlineEl?.classList.add('schedule-setlimit-inline--open');
         inlineEl?.setAttribute('aria-hidden', 'false');
       } else {
@@ -1867,6 +1867,28 @@
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
 
+    const syncPlanDetailContinueState = () => {
+      const continueBtn = panel.querySelector('.plan-detail-panel__continue');
+      if (!continueBtn) return;
+
+      const allocCount = parseInt(
+        panel.querySelector('[data-plan-detail-alloc-count]')?.textContent?.trim() || '0',
+        10,
+      ) || 0;
+      const amount = parseInt(
+        panel.querySelector('[data-plan-detail-amount-input]')?.value?.replace(/[^0-9]/g, '') || '0',
+        10,
+      );
+      const cur = currencyState.plan;
+      const balance = BALANCES[cur] ?? BALANCES.TWD;
+
+      const noAssets = allocCount < 1;
+      const noAmount = !amount || amount <= 0;
+      const exceedsBalance = amount > balance;
+
+      continueBtn.disabled = noAssets || noAmount || exceedsBalance;
+    };
+
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
     const isPlanDetailSetLimitEnd = (text) => {
       const t = String(text || '').trim();
@@ -1912,11 +1934,17 @@
         if (coverageValueEl) coverageValueEl.style.color = isError ? '#EB5347' : '';
         if (errorEl) errorEl.classList.toggle('is-visible', isError);
         if (errorEl && typeof message === 'string' && message.trim()) {
-          errorEl.innerHTML = `${message}${message.includes(cur) ? '' : ` <span data-plan-detail-error-currency>${cur}</span>`}`;
+          errorEl.innerHTML = `${message}${message.includes(cur) ? '' : ` <span data-plan-detail-error-currency></span>`}`;
         }
       };
 
       if (!coverageValueEl) return;
+      const syncCoveragePlaceholderTone = (el) => {
+        if (!el) return;
+        const t = String(el.textContent || '').trim();
+        const isPlaceholder = t === '- -' || t === '—';
+        el.classList.toggle('plan-detail-panel__coverage-value--placeholder', isPlaceholder);
+      };
 
       const getRepeatsEndText = () =>
         panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
@@ -1935,14 +1963,17 @@
         const amt = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
         if (!amt || amt <= 0) {
           totalPlannedEl.textContent = '- -';
+          syncCoveragePlaceholderTone(totalPlannedEl);
           return;
         }
         const limitBuys = parseLimitBuysFromRepeatsEnd(endT);
         if (!Number.isFinite(limitBuys)) {
           totalPlannedEl.textContent = '- -';
+          syncCoveragePlaceholderTone(totalPlannedEl);
           return;
         }
         totalPlannedEl.textContent = `${(amt * limitBuys).toLocaleString('en-US')} ${cur}`;
+        syncCoveragePlaceholderTone(totalPlannedEl);
       };
 
       const formatCoverageBuysValue = (balanceBuys, endT) => {
@@ -1958,9 +1989,9 @@
         return `~${raw} ${buyWord}`;
       };
 
-      const HINT_NEUTRAL = 'You only need enough for 1 buy before each run';
-      const HINT_ERROR = 'You need enough for 1 buy before each run';
-      const HINT_OK = 'You have enough for 1 buy before the first run';
+      const HINT_NEUTRAL = '';
+      const HINT_ERROR = 'Not enough for 1 buy';
+      const HINT_OK = 'Enough for 1 buy';
 
       const syncPlanDetailCoverageHint = ({ hasAmount, balanceBuys }) => {
         const hintEl = panel.querySelector('[data-plan-detail-coverage-hint]');
@@ -1990,6 +2021,7 @@
       if (!amount || amount <= 0) {
         coverageValueEl.textContent = '- -';
         setError(false);
+        syncCoveragePlaceholderTone(coverageValueEl);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
         syncPlanDetailCoverageHint({ hasAmount: false, balanceBuys: 0 });
@@ -1998,10 +2030,11 @@
 
       if (amount > balance) {
         coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
-        setError(true, 'Exceeds available balance');
+        setError(true, 'Not enough balance for one buy');
+        syncCoveragePlaceholderTone(coverageValueEl);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
-        syncPlanDetailCoverageHint({ hasAmount: false, balanceBuys: 0 });
+        syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: 0 });
         return;
       }
 
@@ -2011,6 +2044,7 @@
       if (buys === 0) {
         coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
         setError(true, `Not enough <span data-plan-detail-error-currency>${cur}</span> for one buy`);
+        syncCoveragePlaceholderTone(coverageValueEl);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
         syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: 0 });
@@ -2019,9 +2053,11 @@
 
       setError(false);
       coverageValueEl.textContent = formatCoverageBuysValue(buys, endT);
+      syncCoveragePlaceholderTone(coverageValueEl);
       refillTotalPlannedForSetLimit();
       syncPlanDetailSetLimitDetailRowsVisibility();
       syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: buys });
+      syncPlanDetailContinueState();
     };
 
     // Sync all footer return elements from the main widget's currently displayed values.
@@ -2648,8 +2684,9 @@
       }
     };
 
-    const populatePanel = () => {
+    const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
+      const shouldPreserveCurrentAmount = !!opts.preserveAmount;
       const cur = currencyState.plan;
       const carousel = document.querySelector('[data-plan-carousel]');
       let planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
@@ -2665,21 +2702,21 @@
         ticker = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         iconSrc = 'assets/icon_noallocation.svg';
         planKey = 'newplan';
-        if (amountInput) amountInput.value = '';
+        if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
         planKey = ctx.curatedKey.toLowerCase();
         const card = ctx.card;
         title = card.querySelector('.curated-portfolios__name')?.textContent?.trim() || 'Portfolio';
         ticker = card.querySelector('.curated-portfolios__tickers')?.textContent?.trim() || planTicker[planKey] || '';
         iconSrc = card.querySelector('.curated-portfolios__icon')?.getAttribute('src') || iconSrc;
-        if (amountInput) amountInput.value = '';
+        if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else if (ctx.source === 'spotlight' && ctx.spotlightKey && ctx.card) {
         const card = ctx.card;
         title = card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto';
         ticker = card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || String(ctx.spotlightKey).toUpperCase();
         iconSrc = card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc;
         planKey = String(ctx.spotlightKey).toLowerCase();
-        if (amountInput) amountInput.value = '';
+        if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else {
         const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
           || carousel?.querySelector('[data-plan-carousel-item]');
@@ -2688,7 +2725,7 @@
         iconSrc = activeSlide?.querySelector('img')?.getAttribute('src') || 'assets/icon_currency_btc.svg';
         ticker = planTicker[planKey] || 'BTC';
         const amountRaw = document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000';
-        if (amountInput) {
+        if (amountInput && !shouldPreserveCurrentAmount) {
           const amountNum = parseInt(amountRaw, 10);
           amountInput.value = !isNaN(amountNum) ? amountNum.toLocaleString('en-US') : amountRaw;
         }
@@ -2770,6 +2807,7 @@
         if (resetNewplan) resetNewplan.hidden = true;
         if (allocSubtitleEl) allocSubtitleEl.hidden = true;
         updateDetailReturn();
+        syncPlanDetailContinueState();
         return;
       }
 
@@ -2854,6 +2892,7 @@
         snapshotFooterAllocBases();
         applyFooterAllocSliderTweak();
       }
+      syncPlanDetailContinueState();
     };
 
     // ── Scroll-driven collapse behaviour ──────────────────────────────────────
@@ -2985,7 +3024,8 @@
         }));
         if (!items.length) return;
         detailAllocOverride = { kind: 'coins', items };
-        populatePanel();
+        populatePanel({ preserveAmount: true });
+        updateDetailReturn();
       };
 
       const open = () => {
@@ -3085,7 +3125,8 @@
         const items = planAllocation[key];
         if (!items?.length) return;
         detailAllocOverride = { kind: 'curated', key, items };
-        populatePanel();
+        populatePanel({ preserveAmount: true });
+        updateDetailReturn();
         close();
       });
 
@@ -3229,8 +3270,9 @@
 
       // Always recalculate coverage whenever amount or currency changes
       updateCoverageUI();
+      syncPlanDetailContinueState();
 
-      if (ctx.source === 'newplan') {
+      if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) {
         // No allocation yet — show blank return footer
         const absEl = panel.querySelector('[data-plan-detail-return-abs]');
         const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
@@ -3245,14 +3287,22 @@
         return;
       }
 
-      if (ctx.source === 'curated' && ctx.curatedKey) {
+      const overrideCuratedKey =
+        detailAllocOverride?.kind === 'curated' && detailAllocOverride.key
+          ? String(detailAllocOverride.key).toLowerCase()
+          : '';
+      const effectiveCuratedKey = (ctx.source === 'curated' && ctx.curatedKey)
+        ? String(ctx.curatedKey).toLowerCase()
+        : overrideCuratedKey;
+
+      if (effectiveCuratedKey) {
         if (returnObserver) returnObserver.disconnect();
         const freqItemCurated = document.querySelector('[data-plan-freq-item].is-active');
         const freqCurated = (freqItemCurated?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
         updatePlanStrategyHistoricalReturn({
           detailPanel: true,
           amount,
-          planKey: ctx.curatedKey,
+          planKey: effectiveCuratedKey,
           freq: freqCurated,
         });
         if (titleEl) {
@@ -3382,13 +3432,9 @@
         const raw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
         if (!isNaN(raw) && raw > 0) {
           setDisplayValue(raw);
-        } else if (panelOpenContext.source === 'curated' || panelOpenContext.source === 'spotlight' || panelOpenContext.source === 'newplan') {
-          amountInput.value = '';
         } else {
-          const fallbackRaw = parseInt(
-            document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000', 10
-          );
-          setDisplayValue(fallbackRaw);
+          // Keep 0/empty as empty; do not repopulate from the main page slider.
+          amountInput.value = '';
         }
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
