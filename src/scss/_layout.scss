@@ -2838,7 +2838,7 @@ html[data-active-tab="finance"] {
 }
 
 .currency-sheet__item-desc--highlight {
-  color: #8fb8ff;
+  color: #9B9C9C;
   font-size: 14px !important;
 }
 
@@ -3210,7 +3210,7 @@ html[data-active-tab="finance"] {
   font-size: 14px;
   font-weight: 600;
   line-height: normal;
-  color: #8fb8ff;
+  color: #ffffff;
   text-align: center;
 }
 
@@ -3343,18 +3343,18 @@ html[data-active-tab="finance"] {
   align-items: center;
 }
 
-// End-condition subtitles (schedule sheet only)
-.currency-sheet--schedule [data-schedule-end='continuous'] .currency-sheet__item-desc {
-  color: #8fb8ff;
-  transition: color 0.22s ease-out;
-}
+// // End-condition subtitles (schedule sheet only)
+// .currency-sheet--schedule [data-schedule-end='continuous'] .currency-sheet__item-desc {
+//   color: #8fb8ff;
+//   transition: color 0.22s ease-out;
+// }
 
-// Unselected Continuous row when "Set a limit" is active — mute subtitle, keep layout
-.currency-sheet--schedule.schedule-sheet--end-limit-selected
-  [data-schedule-end='continuous']
-  .currency-sheet__item-desc {
-  color: #58595a;
-}
+// // Unselected Continuous row when "Set a limit" is active — mute subtitle, keep layout
+// .currency-sheet--schedule.schedule-sheet--end-limit-selected
+//   [data-schedule-end='continuous']
+//   .currency-sheet__item-desc {
+//   color: #58595a;
+// }
 
 // Enddate row subtitle is [data-schedule-endlimit-desc] — toggled via .schedule-sheet--end-limit-selected; do not force display:none here.
 .currency-sheet--schedule [data-schedule-end='buys'] .currency-sheet__item-desc {
@@ -4630,7 +4630,6 @@ html[data-active-tab="finance"] {
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
-  margin-bottom: -3px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
@@ -4638,6 +4637,7 @@ html[data-active-tab="finance"] {
 
 .plan-detail-panel__repeats-type {
   font-size: 14px;
+  margin-bottom: -3px;
   font-weight: 600;
   color: #8fb8ff;
   display: block;

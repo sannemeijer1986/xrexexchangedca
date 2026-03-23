@@ -1183,11 +1183,13 @@
 
       let end = 'continuous';
       const endText = endEl?.textContent?.trim() || '';
-      // Match "… · Ends ~ Jun 18, 2026" or legacy "… · Ends Jun 18, 2026 ~" (tilde after date).
+      // Match "… · ~ Ends Jun 18, 2026" plus legacy variants.
       const isSetLimitPlanDetail =
         endText === 'End on date'
         || (/\b(buy|buys)\b/i.test(endText)
-          && (endText.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(endText)));
+          && (endText.includes('~ Ends')
+            || endText.includes('Ends ~')
+            || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(endText)));
       if (isSetLimitPlanDetail) end = 'enddate';
       else if (endText.startsWith('After')) end = 'buys';
       setEndUI(end);
@@ -1361,7 +1363,7 @@
     const syncDom = () => {
       valueEl.textContent = String(count);
       suffixEl.textContent = count === 1 ? 'buy' : 'buys';
-      dateEl.textContent = `Ends ~ ${formatProjection(projectEndDate(count))}`;
+      dateEl.textContent = `~ Ends ${formatProjection(projectEndDate(count))}`;
       decBtn.disabled = count <= MIN;
       dec10Btn.disabled = count <= MIN;
       incBtn.disabled = count >= MAX;
@@ -1410,7 +1412,7 @@
         setLimitStepper.syncDom();
         const { count, endsApprox } = setLimitStepper.getSummary();
         const buyWord = count === 1 ? 'buy' : 'buys';
-        scheduleSheetApi.planDetailRepeatsEndLimitText = `${count} ${buyWord} · Ends ~ ${endsApprox}`;
+        scheduleSheetApi.planDetailRepeatsEndLimitText = `${count} ${buyWord} · ~ Ends ${endsApprox}`;
         inlineEl?.classList.add('schedule-setlimit-inline--open');
         inlineEl?.setAttribute('aria-hidden', 'false');
       } else {
@@ -1871,7 +1873,7 @@
       if (!t || t === 'Continuous' || t.startsWith('After')) return false;
       if (t === 'End on date') return true;
       if (!/\b(buy|buys)\b/i.test(t)) return false;
-      return t.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(t);
+      return t.includes('~ Ends') || t.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(t);
     };
 
     /** "Total planned investment" row only for Set a limit; Continuous uses current balance + cover + hint (Figma 8527:4820 / 8527:4835). */
