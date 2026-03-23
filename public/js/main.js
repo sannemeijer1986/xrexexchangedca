@@ -1876,12 +1876,12 @@
         if (!isPlanDetailSetLimitEnd(endT)) return;
         const amt = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
         if (!amt || amt <= 0) {
-          totalPlannedEl.textContent = '—';
+          totalPlannedEl.textContent = '- -';
           return;
         }
         const limitBuys = parseLimitBuysFromRepeatsEnd(endT);
         if (!Number.isFinite(limitBuys)) {
-          totalPlannedEl.textContent = '—';
+          totalPlannedEl.textContent = '- -';
           return;
         }
         totalPlannedEl.textContent = `${(amt * limitBuys).toLocaleString('en-US')} ${cur}`;
@@ -1890,13 +1890,14 @@
       const formatCoverageBuysValue = (balanceBuys, endT) => {
         const setLimit = isPlanDetailSetLimitEnd(endT);
         const limitBuys = setLimit ? parseLimitBuysFromRepeatsEnd(endT) : NaN;
-        const b = Math.max(0, Math.floor(balanceBuys));
+        const raw = Math.max(0, Math.floor(balanceBuys));
         if (setLimit && Number.isFinite(limitBuys)) {
+          const shown = Math.min(raw, limitBuys);
           const limWord = limitBuys === 1 ? 'buy' : 'buys';
-          return `~${b} / ${limitBuys} ${limWord}`;
+          return `~${shown} / ${limitBuys} ${limWord}`;
         }
-        const buyWord = b === 1 ? 'buy' : 'buys';
-        return `~${b} ${buyWord}`;
+        const buyWord = raw === 1 ? 'buy' : 'buys';
+        return `~${raw} ${buyWord}`;
       };
 
       const HINT_NEUTRAL = 'You only need enough for 1 buy before each run';
