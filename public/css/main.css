@@ -4302,7 +4302,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .plan-detail-panel__product {
   background: #1b1d1d;
-  padding: 400px 16px 16px 24px;
+  padding: 400px 16px 24px 16px;
   margin-top: -400px;
   display: flex;
   align-items: flex-start;
