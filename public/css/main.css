@@ -5104,6 +5104,10 @@ html[data-active-tab=finance] .app-header__tabs {
   visibility: visible;
 }
 
+.plan-detail-panel__allocation-section {
+  padding-top: 8px;
+}
+
 .plan-detail-panel__allocation-section.is-empty .plan-detail-panel__allocation-list {
   display: none;
 }

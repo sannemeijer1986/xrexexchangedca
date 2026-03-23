@@ -5221,6 +5221,10 @@ html[data-active-tab="finance"] {
   }
 }
 
+.plan-detail-panel__allocation-section {
+  padding-top: 8px;
+}
+
 // Empty allocation state (New plan — no assets selected yet)
 .plan-detail-panel__allocation-section.is-empty {
   .plan-detail-panel__allocation-list {
