@@ -1015,7 +1015,7 @@
                     <div class="plan-detail-panel__alloc-empty">
                         <div class="plan-detail-panel__alloc-empty-row">
                             <div class="plan-detail-panel__alloc-empty-icon" aria-hidden="true"></div>
-                            <span class="plan-detail-panel__alloc-empty-label">Select up to 3 assets</span>
+                            <span class="plan-detail-panel__alloc-empty-label">Select up to 3 coins, or pick a curated portfolio</span>
                         </div>
                         <div class="plan-detail-panel__add-assets-wrap">
                             <button class="plan-detail-panel__add-assets" type="button">Add assets</button>
@@ -1059,6 +1059,42 @@
             </div>
         </div>
 
+    </section>
+
+    <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->
+    <section class="alloc-picker-panel" data-alloc-picker-panel hidden aria-label="Allocation">
+        <div class="alloc-picker-panel__header">
+            <button class="alloc-picker-panel__icon-btn" type="button" data-alloc-picker-close aria-label="Back">
+                <img src="assets/icon_back.svg" alt="" />
+            </button>
+            <div class="alloc-picker-panel__title-wrap">
+                <div class="alloc-picker-panel__title-kicker">Allocation</div>
+                <div class="alloc-picker-panel__title-main">What do you wish to buy?</div>
+            </div>
+        </div>
+        <div class="alloc-picker-panel__seg-wrap">
+            <div class="finance__section-nav alloc-picker-panel__seg" data-alloc-picker-seg>
+                <button class="finance__section-nav-item is-active" type="button" data-alloc-picker-tab="coins">Coins</button>
+                <button class="finance__section-nav-item" type="button" data-alloc-picker-tab="curated">Curated portfolios</button>
+            </div>
+        </div>
+        <div class="alloc-picker-panel__body">
+            <div class="alloc-picker-panel__view" data-alloc-picker-view="coins">
+                <div class="alloc-picker-panel__search-wrap">
+                    <input class="alloc-picker-panel__search" type="text" data-alloc-picker-search placeholder="Search" aria-label="Search coins" />
+                </div>
+                <p class="alloc-picker-panel__hint">Select up to 3 coins</p>
+                <div class="alloc-picker-panel__coins" data-alloc-picker-coins-list></div>
+            </div>
+            <div class="alloc-picker-panel__view" data-alloc-picker-view="curated" hidden>
+                <p class="alloc-picker-panel__hint alloc-picker-panel__hint--title">Select a curated portfolio</p>
+                <div class="alloc-picker-panel__curated" data-alloc-picker-curated-list></div>
+            </div>
+        </div>
+        <div class="alloc-picker-panel__footer" data-alloc-picker-footer>
+            <div class="alloc-picker-panel__chips" data-alloc-picker-chips></div>
+            <button class="alloc-picker-panel__continue" type="button" data-alloc-picker-continue>Continue (0)</button>
+        </div>
     </section>
 
     <!-- Single dimmer for schedule sheet + nested follow-ups (avoids stacked per-sheet backdrops) -->

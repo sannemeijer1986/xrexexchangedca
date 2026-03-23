@@ -1813,6 +1813,25 @@
       aiessentials: 'RENDER, NEAR, SOL',
     };
 
+    const pickableCoins = [
+      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '+121.23%' },
+      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '+73.88%' },
+      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '+142.11%' },
+      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '+28.30%' },
+      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '+65.20%' },
+      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '+41.80%' },
+      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '+35.60%' },
+      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '+44.20%' },
+    ];
+
+    const pickerCurated = [
+      { key: 'bigthree', title: 'Big Three', desc: 'The core large-cap stack for broad crypto exposure.', ret: '+45.23%' },
+      { key: 'digitalgold', title: 'Digital Gold', desc: 'Bitcoin with tokenized gold for lower volatility.', ret: '+35.23%' },
+      { key: 'aiessentials', title: 'AI Essentials', desc: 'AI and compute-linked assets with high growth potential.', ret: '+52.23%' },
+    ];
+
+    let detailAllocOverride = null;
+
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
 
@@ -1857,9 +1876,12 @@
       // Keep error currency label in sync
       if (errorCurEl) errorCurEl.textContent = cur;
 
-      const setError = (isError) => {
+      const setError = (isError, message = null) => {
         if (coverageValueEl) coverageValueEl.style.color = isError ? '#EB5347' : '';
         if (errorEl) errorEl.classList.toggle('is-visible', isError);
+        if (errorEl && typeof message === 'string' && message.trim()) {
+          errorEl.innerHTML = `${message}${message.includes(cur) ? '' : ` <span data-plan-detail-error-currency>${cur}</span>`}`;
+        }
       };
 
       if (!coverageValueEl) return;
@@ -1942,12 +1964,21 @@
         return;
       }
 
+      if (amount > balance) {
+        coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
+        setError(true, 'Exceeds available balance');
+        refillTotalPlannedForSetLimit();
+        syncPlanDetailSetLimitDetailRowsVisibility();
+        syncPlanDetailCoverageHint({ hasAmount: false, balanceBuys: 0 });
+        return;
+      }
+
       // How many buys fit in the available balance (same for daily / weekly / monthly).
       const buys = Math.floor(balance / amount);
 
       if (buys === 0) {
         coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
-        setError(true);
+        setError(true, `Not enough <span data-plan-detail-error-currency>${cur}</span> for one buy`);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
         syncPlanDetailCoverageHint({ hasAmount: true, balanceBuys: 0 });
@@ -2676,7 +2707,7 @@
       const allocSection = panel.querySelector('.plan-detail-panel__allocation-section');
       const allocSubtitleEl = panel.querySelector('[data-plan-detail-alloc-subtitle]');
 
-      if (ctx.source === 'newplan') {
+      if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) {
         // Empty state: no assets selected yet
         if (allocCountEl) allocCountEl.textContent = '0';
         allocList.innerHTML = '';
@@ -2696,13 +2727,16 @@
       if (allocSection) allocSection.classList.remove('is-empty');
 
       const allocItems =
-        (ctx.source === 'spotlight' && ctx.card)
+        (detailAllocOverride?.items?.length
+          ? detailAllocOverride.items
+          : null)
+        || ((ctx.source === 'spotlight' && ctx.card)
           ? [{
               name: ctx.card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto',
               ticker: ctx.card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || ticker,
               icon: ctx.card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc,
             }]
-          : (planAllocation[planKey] || planAllocation.bitcoin);
+          : (planAllocation[planKey] || planAllocation.bitcoin));
 
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
 
@@ -2809,9 +2843,193 @@
 
     if (scroller) scroller.addEventListener('scroll', onScroll, { passive: true });
 
+    // ── Allocation picker panel (right-slide child screen) ────────────────────
+    const allocPickerPanel = document.querySelector('[data-alloc-picker-panel]');
+    const initPlanAllocPicker = () => {
+      if (!allocPickerPanel) return { open: () => {}, close: () => {} };
+      const tabBtns = Array.from(allocPickerPanel.querySelectorAll('[data-alloc-picker-tab]'));
+      const viewCoins = allocPickerPanel.querySelector('[data-alloc-picker-view="coins"]');
+      const viewCurated = allocPickerPanel.querySelector('[data-alloc-picker-view="curated"]');
+      const coinsListEl = allocPickerPanel.querySelector('[data-alloc-picker-coins-list]');
+      const curatedListEl = allocPickerPanel.querySelector('[data-alloc-picker-curated-list]');
+      const chipsEl = allocPickerPanel.querySelector('[data-alloc-picker-chips]');
+      const footerEl = allocPickerPanel.querySelector('[data-alloc-picker-footer]');
+      const continueBtn = allocPickerPanel.querySelector('[data-alloc-picker-continue]');
+      const searchInput = allocPickerPanel.querySelector('[data-alloc-picker-search]');
+      let activeTab = 'coins';
+      let selectedCoinKeys = [];
+
+      const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
+
+      const syncTabs = () => {
+        tabBtns.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.allocPickerTab === activeTab));
+        if (viewCoins) viewCoins.hidden = activeTab !== 'coins';
+        if (viewCurated) viewCurated.hidden = activeTab !== 'curated';
+        if (footerEl) footerEl.hidden = activeTab !== 'coins';
+      };
+
+      const renderCoins = () => {
+        if (!coinsListEl) return;
+        const q = String(searchInput?.value || '').trim().toLowerCase();
+        const visible = pickableCoins.filter((c) => !q || c.name.toLowerCase().includes(q) || c.ticker.toLowerCase().includes(q));
+        coinsListEl.innerHTML = visible.map((c) => {
+          const isSelected = selectedCoinKeys.includes(c.key);
+          return `
+            <button class="alloc-picker-panel__coin-row ${isSelected ? 'is-selected' : ''}" type="button" data-alloc-picker-coin="${c.key}">
+              <img class="alloc-picker-panel__coin-icon" src="${c.icon}" alt="" />
+              <div class="alloc-picker-panel__coin-main">
+                <span class="alloc-picker-panel__coin-ticker">${c.ticker}</span>
+                <span class="alloc-picker-panel__coin-name">${c.name}</span>
+              </div>
+              <span class="alloc-picker-panel__coin-pct">${c.ret}</span>
+              <img
+                class="alloc-picker-panel__coin-check"
+                src="${isSelected ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg'}"
+                width="20"
+                height="20"
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+          `;
+        }).join('');
+      };
+
+      const renderChips = () => {
+        if (!chipsEl || !continueBtn) return;
+        const selected = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean);
+        chipsEl.innerHTML = selected.map((c) => `
+          <button class="alloc-picker-panel__chip" type="button" data-alloc-picker-chip-remove="${c.key}">
+            <img src="${c.icon}" alt="" />
+            <span class="alloc-picker-panel__chip-label">${c.ticker}</span>
+            <img class="alloc-picker-panel__chip-close" src="assets/icon_close.svg" width="12" height="12" alt="" aria-hidden="true" />
+          </button>
+        `).join('');
+        continueBtn.textContent = `Continue (${selected.length})`;
+        continueBtn.disabled = selected.length < 1;
+      };
+
+      const renderCurated = () => {
+        if (!curatedListEl) return;
+        curatedListEl.innerHTML = pickerCurated.map((p) => {
+          const tickers = (planAllocation[p.key] || []).map((x) => x.ticker).join(' · ');
+          return `
+            <button class="alloc-picker-panel__curated-card" type="button" data-alloc-picker-curated="${p.key}">
+              <div class="alloc-picker-panel__curated-head">
+                <div>
+                  <span class="alloc-picker-panel__curated-title">${p.title}</span>
+                  <span class="alloc-picker-panel__curated-tickers">${tickers}</span>
+                </div>
+                <span class="alloc-picker-panel__curated-pct">${p.ret}</span>
+              </div>
+              <p class="alloc-picker-panel__curated-desc">${p.desc}</p>
+            </button>
+          `;
+        }).join('');
+      };
+
+      const applySelectedCoins = () => {
+        const items = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean).map((c) => ({
+          name: c.name,
+          ticker: c.ticker,
+          icon: c.icon,
+        }));
+        if (!items.length) return;
+        detailAllocOverride = { kind: 'coins', items };
+        populatePanel();
+      };
+
+      const open = () => {
+        const currentItems = detailAllocOverride?.items?.length
+          ? detailAllocOverride.items
+          : (() => {
+              const activePlan =
+                (document.querySelector('[data-plan-carousel]')?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+              const fallback = planAllocation[activePlan] || planAllocation.bitcoin;
+              return fallback || [];
+            })();
+        selectedCoinKeys = currentItems.map((it) => String(it.ticker || '').toLowerCase()).slice(0, 3);
+        activeTab = 'coins';
+        if (searchInput) searchInput.value = '';
+        syncTabs();
+        renderCurated();
+        renderCoins();
+        renderChips();
+        allocPickerPanel.hidden = false;
+        requestAnimationFrame(() => allocPickerPanel.classList.add('is-open'));
+      };
+
+      const close = () => {
+        allocPickerPanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!allocPickerPanel.classList.contains('is-open')) allocPickerPanel.hidden = true;
+          allocPickerPanel.removeEventListener('transitionend', onEnd);
+        };
+        allocPickerPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 420);
+      };
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.allocPickerTab === 'curated' ? 'curated' : 'coins';
+          syncTabs();
+        });
+      });
+
+      allocPickerPanel.querySelectorAll('[data-alloc-picker-close]').forEach((btn) => {
+        btn.addEventListener('click', () => close());
+      });
+
+      searchInput?.addEventListener('input', () => renderCoins());
+
+      coinsListEl?.addEventListener('click', (e) => {
+        const row = e.target.closest('[data-alloc-picker-coin]');
+        if (!row) return;
+        const key = row.getAttribute('data-alloc-picker-coin');
+        const idx = selectedCoinKeys.indexOf(key);
+        if (idx >= 0) {
+          selectedCoinKeys.splice(idx, 1);
+        } else if (selectedCoinKeys.length < 3) {
+          selectedCoinKeys.push(key);
+        }
+        renderCoins();
+        renderChips();
+      });
+
+      chipsEl?.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-alloc-picker-chip-remove]');
+        if (!chip) return;
+        selectedCoinKeys = selectedCoinKeys.filter((k) => k !== chip.getAttribute('data-alloc-picker-chip-remove'));
+        renderCoins();
+        renderChips();
+      });
+
+      continueBtn?.addEventListener('click', () => {
+        applySelectedCoins();
+        close();
+      });
+
+      curatedListEl?.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-alloc-picker-curated]');
+        if (!card) return;
+        const key = String(card.getAttribute('data-alloc-picker-curated') || '').toLowerCase();
+        const items = planAllocation[key];
+        if (!items?.length) return;
+        detailAllocOverride = { kind: 'curated', key, items };
+        populatePanel();
+        close();
+      });
+
+      return { open, close };
+    };
+    const allocPickerApi = initPlanAllocPicker();
+
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
+        if (openCtx && openCtx.source && openCtx.source !== 'plan') {
+          detailAllocOverride = null;
+        }
         panelOpenContext =
           openCtx?.source === 'newplan'
             ? { source: 'newplan' }
@@ -2869,6 +3087,12 @@
       });
     }
     closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
+    panel.addEventListener('click', (e) => {
+      const addAssetsBtn = e.target.closest('.plan-detail-panel__add-assets');
+      if (!addAssetsBtn) return;
+      e.preventDefault();
+      allocPickerApi.open();
+    });
 
     document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
       card.setAttribute('role', 'button');
