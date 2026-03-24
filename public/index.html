@@ -1125,6 +1125,76 @@
             </div>
         </section>
 
+        <!-- Auto-invest plan overview (slides in from right over plan detail) -->
+        <section class="plan-overview-panel" data-plan-overview-panel hidden aria-label="Auto-invest plan overview">
+            <header class="plan-overview-panel__header">
+                <button class="plan-overview-panel__icon-btn" type="button" data-plan-overview-close aria-label="Back">
+                    <img src="assets/icon_back.svg" alt="" width="24" height="24" />
+                </button>
+                <h1 class="plan-overview-panel__title">Auto-invest plan overview</h1>
+            </header>
+            <div class="plan-overview-panel__divider plan-overview-panel__divider--header" aria-hidden="true"></div>
+            <div class="plan-overview-panel__scroller">
+                <div class="plan-overview-panel__body">
+                    <div class="plan-overview-panel__alloc-block">
+                        <span class="plan-overview-panel__section-label" data-plan-overview-alloc-heading>Allocation (0)</span>
+                        <div class="plan-overview-panel__chips" data-plan-overview-chips></div>
+                    </div>
+
+                    <div class="plan-overview-panel__summary">
+                    <div class="plan-overview-panel__row">
+                        <span class="plan-overview-panel__row-label">Invest</span>
+                        <span class="plan-overview-panel__row-value" data-plan-overview-invest>—</span>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--light" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row">
+                        <span class="plan-overview-panel__row-label">Frequency</span>
+                        <span class="plan-overview-panel__row-value" data-plan-overview-frequency>—</span>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--light" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row">
+                        <span class="plan-overview-panel__row-label" data-plan-overview-timing-label>Every month on</span>
+                        <span class="plan-overview-panel__row-value" data-plan-overview-timing-value>—</span>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--light" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">End condition</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value" data-plan-overview-end-main>—</span>
+                            <span class="plan-overview-panel__row-sub" data-plan-overview-end-sub></span>
+                        </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--light" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">Payment</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value">Spot wallet</span>
+                            <span class="plan-overview-panel__row-sub" data-plan-overview-payment-sub>—</span>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="plan-overview-panel__reserve" role="group" aria-label="Reserve per period">
+                        <div class="plan-overview-panel__reserve-icon" aria-hidden="true">
+                            <img src="assets/icon_reserve_per_period.svg" alt="" width="20" height="20" />
+                        </div>
+                        <div class="plan-overview-panel__reserve-text">
+                            <span class="plan-overview-panel__reserve-title">Reserve per period</span>
+                            <span class="plan-overview-panel__reserve-hint">Stay on track, avoid missed buys</span>
+                        </div>
+                        <div class="plan-overview-panel__reserve-action">
+                            <span class="plan-overview-panel__reserve-state">Off</span>
+                            <img src="assets/icon_chevron_right_white.svg" alt="" class="plan-overview-panel__reserve-chev" width="24" height="24" />
+                        </div>
+                    </div>
+                </div>
+                <div class="plan-overview-panel__footer">
+                    <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm</button>
+                    <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-plan-overview-close>Back</button>
+                </div>
+            </div>
+        </section>
+
     </section>
 
     <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->

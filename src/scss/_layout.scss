@@ -61,7 +61,8 @@
 
 @media (min-width: #{$bp-mobile + 1}) {
   .fake-keyboard {
-    display: block;
+    //display: block; //TEMP HIDE
+    display: none;
     position: absolute;
     left: 0;
     right: 0;
@@ -257,7 +258,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 0px 16px 0px;
+  padding: 16px 0px 16px 0px;
   // border-bottom: 1px solid $border-color;
   background-color: transparent;
   flex-wrap: wrap;
@@ -4231,6 +4232,10 @@ html[data-active-tab="finance"] {
   overflow: hidden;
 }
 
+.plan-detail-panel.is-plan-overview-open .plan-detail-panel__scroller {
+  overflow: hidden;
+}
+
 // ── Header ────────────────────────────────────────────────────────────────────
 
 .plan-detail-panel__header {
@@ -5851,6 +5856,335 @@ html[data-active-tab="finance"] {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+}
+
+// ── Auto-invest plan overview (Figma 8538:77120) ───────────────────────────────
+
+.plan-overview-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 31;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+.plan-overview-panel.is-open {
+  transform: translateX(0);
+}
+
+// Top inset matches alloc-picker + plan-detail headers (status / safe area), not Figma’s cropped 24px
+.plan-overview-panel__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+}
+
+.plan-overview-panel__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+// Match plan detail / limits nav titles; override .phone-container h1 from _base.scss (28px)
+.phone-container h1.plan-overview-panel__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.plan-overview-panel__divider {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  background: #252627;
+
+  &--header {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &--light {
+    background: #3c4248;
+  }
+}
+
+.plan-overview-panel__scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+.plan-overview-panel__body {
+  flex: 1;
+  padding: 32px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.plan-overview-panel__alloc-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 0;
+}
+
+// Figma 8538:77120 — 8px between chips block and Invest row; 8px between each row + divider stack
+.plan-overview-panel__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.plan-overview-panel__section-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: 1.2;
+}
+
+.plan-overview-panel__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plan-overview-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px 4px 5px;
+  border-radius: 33px;
+  background: #2d2f2f;
+  max-width: 100%;
+}
+
+.plan-overview-panel__chip-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.plan-overview-panel__chip-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.plan-overview-panel__chip-ticker {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.plan-overview-panel__chip-pct {
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.plan-overview-panel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  &--stack {
+    align-items: center;
+  }
+}
+
+.plan-overview-panel__row-label {
+  flex: 1;
+  min-width: 0;
+  color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-overview-panel__row-value {
+  flex-shrink: 0;
+  color: #ffffff;
+  text-align: right;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-overview-panel__row-value-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  text-align: right;
+  max-width: 60%;
+}
+
+.plan-overview-panel__row-value-col .plan-overview-panel__row-value {
+  max-width: 100%;
+}
+
+.phone-container span.plan-overview-panel__row-sub {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: 1.25;
+  text-align: right;
+  max-width: 100%;
+}
+
+.plan-overview-panel__reserve {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: #1b1d1d;
+}
+
+.plan-overview-panel__reserve-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #275cfd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.plan-overview-panel__reserve-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.phone-container span.plan-overview-panel__reserve-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.phone-container span.plan-overview-panel__reserve-hint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8fb8ff;
+  line-height: 1.25;
+}
+
+.plan-overview-panel__reserve-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.plan-overview-panel__reserve-state {
+  font-size: 16px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.plan-overview-panel__reserve-chev {
+  display: block;
+  width: 24px;
+  height: 24px;
+  opacity: 0.9;
+}
+
+.plan-overview-panel__footer {
+  flex-shrink: 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #0d0e0f;
+}
+
+.plan-overview-panel__btn {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-overview-panel__btn--primary {
+  background: #275cfd;
+  color: #ffffff;
+}
+
+.plan-overview-panel__btn--secondary {
+  background: #2d2f2f;
+  color: #ffffff;
 }
 
 .alloc-picker-panel {

@@ -2813,6 +2813,7 @@
     };
 
     let planBreakdownApi = { sync: () => {}, close: () => {} };
+    let planOverviewApi = { open: () => {}, close: () => {}, sync: () => {} };
 
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
@@ -3030,6 +3031,9 @@
         applyFooterAllocSliderTweak();
       }
       syncPlanDetailContinueState();
+      if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
+        planOverviewApi.sync();
+      }
     };
 
     // ── Scroll-driven collapse behaviour ──────────────────────────────────────
@@ -3485,10 +3489,137 @@
     };
     planBreakdownApi = initPlanBreakdownPanel();
 
+    const initPlanOverviewPanel = () => {
+      const overviewPanel = panel.querySelector('[data-plan-overview-panel]');
+      if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
+
+      const overviewTimingLabels = {
+        daily: 'Every day at',
+        weekly: 'Every week on',
+        monthly: 'Every month on',
+      };
+
+      const escOv = (s) =>
+        String(s ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;');
+
+      const syncFromPlanDetail = () => {
+        const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
+        const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
+        const investEl = overviewPanel.querySelector('[data-plan-overview-invest]');
+        const freqEl = overviewPanel.querySelector('[data-plan-overview-frequency]');
+        const timingLabelEl = overviewPanel.querySelector('[data-plan-overview-timing-label]');
+        const timingValEl = overviewPanel.querySelector('[data-plan-overview-timing-value]');
+        const endMainEl = overviewPanel.querySelector('[data-plan-overview-end-main]');
+        const endSubEl = overviewPanel.querySelector('[data-plan-overview-end-sub]');
+        const paySubEl = overviewPanel.querySelector('[data-plan-overview-payment-sub]');
+
+        const multiItems = panel.querySelectorAll('.alloc-multi__item');
+        const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
+        const chips = [];
+
+        if (multiItems.length) {
+          multiItems.forEach((row) => {
+            const icon = row.querySelector('.alloc-multi__icon')?.getAttribute('src') || '';
+            const ticker = row.querySelector('.alloc-multi__ticker')?.textContent?.trim() || '';
+            const pctIn = row.querySelector('[data-alloc-pct-input]');
+            const pctRaw = pctIn ? String(pctIn.value || '').replace(/[^0-9]/g, '') : '';
+            const pct = pctRaw ? `${parseInt(pctRaw, 10)}` : '';
+            if (!ticker) return;
+            const pctPart = pct ? `<span class="plan-overview-panel__chip-pct">${escOv(pct)}%</span>` : '';
+            chips.push(`<div class="plan-overview-panel__chip"><img class="plan-overview-panel__chip-icon" src="${escPlanDetailIconAttr(icon)}" alt="" /><div class="plan-overview-panel__chip-meta"><span class="plan-overview-panel__chip-ticker">${escOv(ticker)}</span>${pctPart}</div></div>`);
+          });
+        } else {
+          singleItems.forEach((row) => {
+            const icon = row.querySelector('.plan-detail-panel__alloc-icon')?.getAttribute('src') || '';
+            const ticker = row.querySelector('.plan-detail-panel__alloc-ticker')?.textContent?.trim() || '';
+            if (!ticker) return;
+            chips.push(`<div class="plan-overview-panel__chip"><img class="plan-overview-panel__chip-icon" src="${escPlanDetailIconAttr(icon)}" alt="" /><div class="plan-overview-panel__chip-meta"><span class="plan-overview-panel__chip-ticker">${escOv(ticker)}</span><span class="plan-overview-panel__chip-pct">100%</span></div></div>`);
+          });
+        }
+
+        if (chipsEl) chipsEl.innerHTML = chips.join('');
+        const n = chips.length;
+        if (headingEl) headingEl.textContent = `Allocation (${n})`;
+
+        const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+        const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+        if (investEl) investEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
+
+        const freqKey = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const freqBtn = document.querySelector('[data-plan-freq-item].is-active');
+        if (freqEl) freqEl.textContent = freqBtn?.textContent?.trim() || 'Monthly';
+
+        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
+        const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : schedParts[0] || '—';
+        if (timingLabelEl) timingLabelEl.textContent = overviewTimingLabels[freqKey] || overviewTimingLabels.monthly;
+        if (timingValEl) timingValEl.textContent = timingDetail;
+
+        const endMain = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '—';
+        let endSub = '';
+        const endLower = endMain.toLowerCase();
+        if (endLower === 'continuous') endSub = 'Runs until you pause';
+        else if (/^after\s*\d+/i.test(endMain) || /^after number/i.test(endMain)) endSub = 'Stops after set number of buys';
+        else if (isPlanDetailSetLimitEnd(endMain)) endSub = 'Stops on end date';
+        if (endMainEl) endMainEl.textContent = endMain;
+        if (endSubEl) {
+          endSubEl.textContent = endSub;
+          endSubEl.hidden = !endSub;
+        }
+
+        const balCur = currencyState.plan || 'TWD';
+        const bal = BALANCES[balCur] ?? BALANCES.TWD;
+        if (paySubEl) paySubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
+      };
+
+      const open = () => {
+        planBreakdownApi.close();
+        syncFromPlanDetail();
+        panel.classList.add('is-plan-overview-open');
+        overviewPanel.hidden = false;
+        requestAnimationFrame(() => overviewPanel.classList.add('is-open'));
+      };
+
+      const close = () => {
+        overviewPanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!overviewPanel.classList.contains('is-open')) {
+            overviewPanel.hidden = true;
+            panel.classList.remove('is-plan-overview-open');
+          }
+          overviewPanel.removeEventListener('transitionend', onEnd);
+        };
+        overviewPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      overviewPanel.querySelectorAll('[data-plan-overview-close]').forEach((b) => b.addEventListener('click', close));
+      overviewPanel.querySelector('[data-plan-overview-confirm]')?.addEventListener('click', () => {
+        showTopSnackbar('Plan confirmed');
+        close();
+      });
+
+      panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        if (btn.disabled) return;
+        e.preventDefault();
+        open();
+      });
+
+      return { open, close, sync: syncFromPlanDetail };
+    };
+    planOverviewApi = initPlanOverviewPanel();
+
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
         planBreakdownApi.close();
+        planOverviewApi.close();
         if (openCtx && openCtx.source && openCtx.source !== 'plan') {
           detailAllocOverride = null;
         }
@@ -3520,6 +3651,7 @@
         }, 350);
       } else {
         planBreakdownApi.close();
+        planOverviewApi.close();
         document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
         panelOpenContext = { source: 'plan' };
         panel.classList.remove('is-open');
@@ -3549,7 +3681,16 @@
         }, 380);
       });
     }
-    closeButtons.forEach((btn) => btn.addEventListener('click', () => setOpen(false)));
+    closeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const ovp = panel.querySelector('[data-plan-overview-panel]');
+        if (ovp?.classList.contains('is-open')) {
+          planOverviewApi.close();
+          return;
+        }
+        setOpen(false);
+      });
+    });
     panel.addEventListener('click', (e) => {
       const addAssetsBtn = e.target.closest('.plan-detail-panel__add-assets');
       if (!addAssetsBtn) return;
@@ -3717,6 +3858,9 @@
       if (panel.classList.contains('is-open')) {
         updateCoverageUI();
         updateDetailReturn();
+        if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
+          planOverviewApi.sync();
+        }
       }
     });
 
@@ -3780,6 +3924,8 @@
         panel._planDetailAllocRefreshAmounts?.();
         const bp = panel.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
+        const op = panel.querySelector('[data-plan-overview-panel]');
+        if (op?.classList.contains('is-open')) planOverviewApi.sync();
       });
 
       // Blur: handle empty/invalid
@@ -3795,6 +3941,8 @@
         panel._planDetailAllocRefreshAmounts?.();
         const bp = panel.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
+        const op = panel.querySelector('[data-plan-overview-panel]');
+        if (op?.classList.contains('is-open')) planOverviewApi.sync();
       });
 
       // Block non-numeric keys (commas are inserted programmatically, not typed)
