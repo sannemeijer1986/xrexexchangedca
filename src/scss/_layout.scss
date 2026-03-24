@@ -6242,7 +6242,7 @@ div.currency-sheet__item-icon {
   align-items: center;
   gap: 12px;
   min-height: 68px;
-  padding: 0 16px;
+  padding: 16px 16px;
   border-radius: 16px;
   background: #1b1d1d;
 }
@@ -6554,7 +6554,8 @@ div.currency-sheet__item-icon {
 .my-plans-panel {
   position: absolute;
   inset: 0;
-  z-index: 22;
+  // Above plan-success-panel (33) so “My plans” can slide in over the completed screen
+  z-index: 34;
   width: 100%;
   height: 100%;
   background: #0d0e0f;

@@ -1780,8 +1780,13 @@
     if (content) content.scrollTop = 0;
   };
 
+  /** Set in initPlanDetailPanel — instant teardown of plan detail + overlays when backing out of My plans (post-success). */
+  let dismissPlanDetailStackInstant = () => {};
+
   const initMyPlansPanel = (opts = {}) => {
     const goFinance = typeof opts.goFinanceAutoInvest === 'function' ? opts.goFinanceAutoInvest : () => {};
+    const getDismissPlanDetail =
+      typeof opts.getDismissPlanDetailStackInstant === 'function' ? opts.getDismissPlanDetailStackInstant : () => () => {};
     const panel = document.querySelector('[data-my-plans-panel]');
     const container = document.querySelector('.phone-container');
     if (!panel) {
@@ -1827,7 +1832,10 @@
 
     syncMyPlansFlowUi = syncMyPlansFromFlow;
 
-    const open = () => {
+    let backFromPlanSuccessView = false;
+
+    const open = (openOpts = {}) => {
+      backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       syncMyPlansFromFlow();
       setFilter('all');
       panel.hidden = false;
@@ -1850,7 +1858,7 @@
       }, 350);
     };
 
-    const close = () => {
+    const closeMyPlans = () => {
       panel.classList.remove('is-open');
       if (container) {
         container.classList.add('is-my-plans-fading');
@@ -1867,7 +1875,17 @@
       setTimeout(onEnd, 380);
     };
 
-    panel.querySelector('[data-my-plans-close]')?.addEventListener('click', close);
+    panel.querySelector('[data-my-plans-close]')?.addEventListener('click', () => {
+      if (backFromPlanSuccessView) {
+        backFromPlanSuccessView = false;
+        goFinance();
+        const dismiss = getDismissPlanDetail();
+        if (typeof dismiss === 'function') dismiss();
+        closeMyPlans();
+        return;
+      }
+      closeMyPlans();
+    });
 
     document.querySelectorAll('[data-open-my-plans]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -1878,10 +1896,13 @@
 
     syncMyPlansFromFlow();
 
-    return { open, close };
+    return { open, close: closeMyPlans };
   };
 
-  const myPlansPanelApi = initMyPlansPanel({ goFinanceAutoInvest });
+  const myPlansPanelApi = initMyPlansPanel({
+    goFinanceAutoInvest,
+    getDismissPlanDetailStackInstant: () => dismissPlanDetailStackInstant,
+  });
 
   initFinanceSectionNav();
   initPlanStrategySlider();
@@ -3442,7 +3463,8 @@
         updateDetailReturn();
       };
 
-      const open = () => {
+      const open = (openOpts = {}) => {
+        const emptyEntry = openOpts.emptyEntry === true;
         const currentPanelTickers = Array.from(
           panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
         )
@@ -3468,7 +3490,11 @@
           })
           .filter(Boolean);
 
-        const seed = initialKeysFromPanel.length ? initialKeysFromPanel : initialKeysFromFallback;
+        const seed = emptyEntry
+          ? []
+          : initialKeysFromPanel.length
+            ? initialKeysFromPanel
+            : initialKeysFromFallback;
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
         activeTab = 'coins';
         if (searchInput) searchInput.value = '';
@@ -3481,7 +3507,15 @@
         requestAnimationFrame(() => allocPickerPanel.classList.add('is-open'));
       };
 
-      const close = () => {
+      const close = (closeOpts = {}) => {
+        if (closeOpts.instant) {
+          allocPickerPanel.style.transition = 'none';
+          allocPickerPanel.classList.remove('is-open');
+          void allocPickerPanel.offsetHeight;
+          allocPickerPanel.style.transition = '';
+          allocPickerPanel.hidden = true;
+          return;
+        }
         allocPickerPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!allocPickerPanel.classList.contains('is-open')) allocPickerPanel.hidden = true;
@@ -3654,7 +3688,16 @@
         requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
       };
 
-      const close = () => {
+      const close = (closeOpts = {}) => {
+        if (closeOpts.instant) {
+          breakdownPanel.style.transition = 'none';
+          breakdownPanel.classList.remove('is-open');
+          void breakdownPanel.offsetHeight;
+          breakdownPanel.style.transition = '';
+          breakdownPanel.hidden = true;
+          panel.classList.remove('is-plan-breakdown-open');
+          return;
+        }
         breakdownPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!breakdownPanel.classList.contains('is-open')) {
@@ -3850,6 +3893,28 @@
           }
         }, 350);
       } else {
+        const instant = !!(openCtx && openCtx.instant);
+        if (instant) {
+          planBreakdownApi.close({ instant: true });
+          planOverviewApi.close({ instant: true });
+          planSuccessApi.forceClose();
+          const submitLoader = panel.querySelector('[data-plan-submit-loader]');
+          if (submitLoader) submitLoader.hidden = true;
+          document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
+          panelOpenContext = { source: 'plan' };
+          panel.style.transition = 'none';
+          panel.classList.remove('is-open');
+          void panel.offsetHeight;
+          panel.style.transition = '';
+          panel.hidden = true;
+          if (container) {
+            container.classList.remove('is-plan-detail-open');
+            container.classList.remove('is-plan-detail-fading');
+          }
+          const spotlightEl = document.querySelector('.spotlight__scroll');
+          if (spotlightEl) spotlightEl.scrollLeft = 0;
+          return;
+        }
         planBreakdownApi.close();
         planOverviewApi.close();
         planSuccessApi.forceClose();
@@ -3872,6 +3937,11 @@
         const spotlightEl = document.querySelector('.spotlight__scroll');
         if (spotlightEl) spotlightEl.scrollLeft = 0;
       }
+    };
+
+    dismissPlanDetailStackInstant = () => {
+      allocPickerApi.close({ instant: true });
+      setOpen(false, { instant: true });
     };
 
     const initPlanSubmitSuccessFlow = () => {
@@ -3981,10 +4051,6 @@
       };
 
       const leaveSuccessToMyPlans = () => {
-        planOverviewApi.close({ instant: true });
-        forceClose();
-        setOpen(false);
-        goFinanceAutoInvestFromSuccess();
         openMyPlansAfterPlanFlow();
       };
 
@@ -4033,7 +4099,8 @@
       const addAssetsBtn = e.target.closest('.plan-detail-panel__add-assets');
       if (!addAssetsBtn) return;
       e.preventDefault();
-      allocPickerApi.open();
+      const emptyEntry = !!addAssetsBtn.closest('.plan-detail-panel__alloc-empty');
+      allocPickerApi.open(emptyEntry ? { emptyEntry: true } : {});
     });
 
     document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
@@ -4340,9 +4407,7 @@
   initPlanDetailPanel({
     goFinanceAutoInvest,
     openMyPlansAfterPlanFlow: () => {
-      window.setTimeout(() => {
-        myPlansPanelApi.open();
-      }, 380);
+      myPlansPanelApi.open({ fromPlanSuccessView: true });
     },
   });
 
