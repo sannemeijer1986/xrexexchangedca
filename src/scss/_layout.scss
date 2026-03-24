@@ -6450,7 +6450,7 @@ div.currency-sheet__item-icon {
   margin: 0;
   flex: 1;
   min-width: 0;
-  text-align: center;
+  text-align: left;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -6465,6 +6465,160 @@ div.currency-sheet__item-icon {
 
 .plan-overview-reserve-info-panel__body {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+.plan-overview-reserve-info-panel__content {
+  padding: 24px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.phone-container h3.plan-overview-reserve-info-panel__hero-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.phone-container p.plan-overview-reserve-info-panel__hero-desc {
+  margin: -12px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #9b9c9c;
+}
+
+.plan-overview-reserve-info-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phone-container h4.plan-overview-reserve-info-panel__section-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.plan-overview-reserve-info-panel__graphic {
+  position: relative;
+  background: #141819;
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  min-height: 292px;
+  overflow: hidden;
+}
+
+.plan-overview-reserve-info-panel__window {
+  position: absolute;
+  background: rgba(116, 142, 196, 0.42);
+}
+
+.plan-overview-reserve-info-panel__window--guaranteed {
+  left: 60px;
+  right: 136px;
+  bottom: 34px;
+  height: 162px;
+}
+
+.plan-overview-reserve-info-panel__window--flexible {
+  width: 52px;
+  right: 136px;
+  bottom: 34px;
+  height: 162px;
+}
+
+.phone-container .plan-overview-reserve-info-panel__hint {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  width: 80%;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #89abef;
+}
+
+.phone-container .plan-overview-reserve-info-panel__hint--flexible {
+  width: 60%;
+  margin: 0 auto;
+}
+
+.plan-overview-reserve-info-panel__timeline {
+  position: absolute;
+  left: 58px;
+  right: 66px;
+  bottom: 118px;
+  height: 2px;
+  background: #cfd9ea;
+  opacity: 0.98;
+}
+
+.plan-overview-reserve-info-panel__marker {
+  position: absolute;
+  bottom: 109px;
+  width: 2px;
+  height: 20px;
+  background: #cfd9ea;
+}
+
+.plan-overview-reserve-info-panel__marker--left {
+  left: 58px;
+}
+
+.plan-overview-reserve-info-panel__marker--buy {
+  right: 136px;
+}
+
+.plan-overview-reserve-info-panel__marker--right {
+  right: 66px;
+}
+
+.phone-container .plan-overview-reserve-info-panel__label {
+  position: absolute;
+  bottom: 72px;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #a4a9b0;
+}
+
+.plan-overview-reserve-info-panel__label--left {
+  left: 36px;
+}
+
+.plan-overview-reserve-info-panel__label--right {
+  right: 52px;
+}
+
+.phone-container .plan-overview-reserve-info-panel__buy-tag {
+  position: absolute;
+  left: calc(100% - 136px);
+  bottom: 148px;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
 }
 
 .plan-overview-reserve-info-panel__footer {
