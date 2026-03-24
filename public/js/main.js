@@ -3762,7 +3762,6 @@
         const endMainEl = overviewPanel.querySelector('[data-plan-overview-end-main]');
         const endSubEl = overviewPanel.querySelector('[data-plan-overview-end-sub]');
         const totalPlannedRowEl = overviewPanel.querySelector('[data-plan-overview-total-planned-row]');
-        const totalPlannedDividerEl = overviewPanel.querySelector('[data-plan-overview-total-planned-divider]');
         const totalPlannedValEl = overviewPanel.querySelector('[data-plan-overview-total-planned]');
         const paySubEl = overviewPanel.querySelector('[data-plan-overview-payment-sub]');
 
@@ -3771,12 +3770,36 @@
         const chips = [];
 
         if (multiItems.length) {
-          multiItems.forEach((row) => {
+          const allocRoot = panel.querySelector('.alloc-multi');
+          const isAmountMode = !!allocRoot?.classList.contains('alloc-multi--amount-mode');
+          /** @type {number[]} */
+          let pctValues = [];
+          if (isAmountMode) {
+            const amounts = Array.from(multiItems).map((row) => {
+              const pctIn = row.querySelector('[data-alloc-pct-input]');
+              const raw = pctIn ? String(pctIn.value || '').replace(/[^0-9]/g, '') : '';
+              return raw ? parseInt(raw, 10) : 0;
+            });
+            const totalAmt = amounts.reduce((s, n) => s + (isFinite(n) ? n : 0), 0);
+            if (totalAmt > 0) {
+              pctValues = amounts.map((n) => Math.max(0, Math.round((n / totalAmt) * 100)));
+              // Keep display totals stable at 100% after rounding.
+              const sumPct = pctValues.reduce((s, n) => s + n, 0);
+              const adjIdx = pctValues.length - 1;
+              if (adjIdx >= 0 && sumPct !== 100) pctValues[adjIdx] += 100 - sumPct;
+            } else {
+              pctValues = amounts.map(() => 0);
+            }
+          }
+          multiItems.forEach((row, idx) => {
             const icon = row.querySelector('.alloc-multi__icon')?.getAttribute('src') || '';
             const ticker = row.querySelector('.alloc-multi__ticker')?.textContent?.trim() || '';
             const pctIn = row.querySelector('[data-alloc-pct-input]');
             const pctRaw = pctIn ? String(pctIn.value || '').replace(/[^0-9]/g, '') : '';
-            const pct = pctRaw ? `${parseInt(pctRaw, 10)}` : '';
+            const pctNum = isAmountMode
+              ? (isFinite(pctValues[idx]) ? pctValues[idx] : 0)
+              : (pctRaw ? parseInt(pctRaw, 10) : 0);
+            const pct = pctNum > 0 ? `${pctNum}` : '';
             if (!ticker) return;
             const pctPart = pct ? `<span class="plan-overview-panel__chip-pct">${escOv(pct)}%</span>` : '';
             chips.push(`<div class="plan-overview-panel__chip"><img class="plan-overview-panel__chip-icon" src="${escPlanDetailIconAttr(icon)}" alt="" /><div class="plan-overview-panel__chip-meta"><span class="plan-overview-panel__chip-ticker">${escOv(ticker)}</span>${pctPart}</div></div>`);
@@ -3835,7 +3858,6 @@
         }
         const isSetLimitEnd = isPlanDetailSetLimitEnd(endRaw);
         if (totalPlannedRowEl) totalPlannedRowEl.hidden = !isSetLimitEnd;
-        if (totalPlannedDividerEl) totalPlannedDividerEl.hidden = !isSetLimitEnd;
         if (totalPlannedValEl) {
           const detailTotalPlanned =
             panel.querySelector('[data-plan-detail-total-planned]')?.textContent?.trim() || '- -';
