@@ -6093,6 +6093,10 @@ div.currency-sheet__item-icon {
   &--light {
     background: #3c4248;
   }
+
+  &--dark {
+    background: #252627;
+  }
 }
 
 .plan-overview-panel__scroller {
@@ -6154,15 +6158,15 @@ div.currency-sheet__item-icon {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 8px 4px 5px;
+  padding: 4px 10px 4px 5px;
   border-radius: 33px;
   background: #2d2f2f;
   max-width: 100%;
 }
 
 .plan-overview-panel__chip-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   border-radius: 50%;
   object-fit: cover;
@@ -6178,11 +6182,15 @@ div.currency-sheet__item-icon {
 }
 
 .plan-overview-panel__chip-ticker {
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
   color: #ffffff;
 }
 
 .plan-overview-panel__chip-pct {
+  font-size: 14px;
+  line-height: 1;
   font-weight: 600;
   color: #9b9c9c;
 }

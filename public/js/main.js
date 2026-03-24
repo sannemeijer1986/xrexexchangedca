@@ -3743,6 +3743,15 @@
           .replace(/</g, '&lt;')
           .replace(/"/g, '&quot;');
 
+      const reserveItems = Array.from(overviewPanel.querySelectorAll('.plan-overview-panel__reserve-item'));
+      const setReserveSelection = (selectedItem) => {
+        reserveItems.forEach((item) => {
+          const isSelected = item === selectedItem;
+          item.classList.toggle('is-selected', isSelected);
+          item.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        });
+      };
+
       const syncFromPlanDetail = () => {
         const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
         const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
@@ -3752,6 +3761,9 @@
         const timingValEl = overviewPanel.querySelector('[data-plan-overview-timing-value]');
         const endMainEl = overviewPanel.querySelector('[data-plan-overview-end-main]');
         const endSubEl = overviewPanel.querySelector('[data-plan-overview-end-sub]');
+        const totalPlannedRowEl = overviewPanel.querySelector('[data-plan-overview-total-planned-row]');
+        const totalPlannedDividerEl = overviewPanel.querySelector('[data-plan-overview-total-planned-divider]');
+        const totalPlannedValEl = overviewPanel.querySelector('[data-plan-overview-total-planned]');
         const paySubEl = overviewPanel.querySelector('[data-plan-overview-payment-sub]');
 
         const multiItems = panel.querySelectorAll('.alloc-multi__item');
@@ -3798,16 +3810,36 @@
         if (timingLabelEl) timingLabelEl.textContent = overviewTimingLabels[freqKey] || overviewTimingLabels.monthly;
         if (timingValEl) timingValEl.textContent = timingDetail;
 
-        const endMain = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '—';
+        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '—';
+        let endMain = endRaw;
         let endSub = '';
-        const endLower = endMain.toLowerCase();
-        if (endLower === 'continuous') endSub = 'Runs until you pause';
-        else if (/^after\s*\d+/i.test(endMain) || /^after number/i.test(endMain)) endSub = 'Stops after set number of buys';
-        else if (isPlanDetailSetLimitEnd(endMain)) endSub = 'Stops on end date';
+        const endLower = endRaw.toLowerCase();
+        // When set to number-of-buys mode, plan-detail stores values like:
+        // "12 buys ~ Ends Mar 24, 2027" (or small legacy variants). Split this
+        // so overview shows title: "12 buys", subtitle: "~ Ends Mar 24, 2027".
+        const buysEndsMatch = endRaw.match(/^(.+?\bbuys?\b)\s*(?:~\s*)?Ends\s+(.+)$/i);
+        if (buysEndsMatch) {
+          endMain = buysEndsMatch[1].trim();
+          endSub = `~ Ends ${buysEndsMatch[2].trim()}`;
+        } else if (endLower === 'continuous') {
+          endSub = 'Runs until you pause';
+        } else if (/^after\s*\d+/i.test(endRaw) || /^after number/i.test(endRaw)) {
+          endSub = 'Stops after set number of buys';
+        } else if (isPlanDetailSetLimitEnd(endRaw)) {
+          endSub = 'Stops on end date';
+        }
         if (endMainEl) endMainEl.textContent = endMain;
         if (endSubEl) {
           endSubEl.textContent = endSub;
           endSubEl.hidden = !endSub;
+        }
+        const isSetLimitEnd = isPlanDetailSetLimitEnd(endRaw);
+        if (totalPlannedRowEl) totalPlannedRowEl.hidden = !isSetLimitEnd;
+        if (totalPlannedDividerEl) totalPlannedDividerEl.hidden = !isSetLimitEnd;
+        if (totalPlannedValEl) {
+          const detailTotalPlanned =
+            panel.querySelector('[data-plan-detail-total-planned]')?.textContent?.trim() || '- -';
+          totalPlannedValEl.textContent = isSetLimitEnd ? detailTotalPlanned : '- -';
         }
 
         const balCur = currencyState.plan || 'TWD';
@@ -3847,6 +3879,9 @@
       };
 
       overviewPanel.querySelectorAll('[data-plan-overview-close]').forEach((b) => b.addEventListener('click', close));
+      reserveItems.forEach((item) => {
+        item.addEventListener('click', () => setReserveSelection(item));
+      });
 
       panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {
         const btn = e.currentTarget;
