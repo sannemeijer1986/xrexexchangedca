@@ -2753,6 +2753,123 @@ html[data-active-tab="finance"] {
   border-radius: 12px;
 }
 
+// Promo intro (Figma DCA1.0_modal_intro — node 8383:64209)
+.currency-sheet--promo-intro .currency-sheet__panel {
+  padding-bottom: 0;
+}
+
+.promo-intro-sheet__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 16px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.promo-intro-sheet__heading {
+  text-align: center;
+  width: 100%;
+}
+
+.phone-container p.promo-intro-sheet__kicker {
+  margin: 0 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #8fb8ff;
+  line-height: 1.25;
+}
+
+.promo-intro-sheet__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.promo-intro-sheet__list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.promo-intro-sheet__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.promo-intro-sheet__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2d2f2f;
+}
+
+.promo-intro-sheet__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.promo-intro-sheet__row-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.phone-container p.promo-intro-sheet__row-desc {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #9b9c9c;
+}
+
+.promo-intro-sheet__footer.currency-sheet__footer--split {
+  gap: 16px;
+  padding: 16px;
+  border-radius: 0;
+}
+
+.build-badge__promo-trigger {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  text-align: center;
+}
+
+.build-badge__promo-trigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.build-badge__promo-trigger:focus-visible {
+  outline: 2px solid #4d88ff;
+  outline-offset: 2px;
+}
+
 .currency-sheet__body {
   display: flex;
   flex-direction: column;

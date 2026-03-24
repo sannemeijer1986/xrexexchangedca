@@ -1295,6 +1295,52 @@
     <!-- Single dimmer for schedule sheet + nested follow-ups (avoids stacked per-sheet backdrops) -->
     <div class="phone-container__nested-sheet-scrim" data-nested-sheet-scrim hidden aria-hidden="true"></div>
 
+    <!-- Promo intro (DCA 1.0) — opened from desktop prototype controls -->
+    <div class="currency-sheet currency-sheet--promo-intro" data-promo-intro-sheet hidden aria-modal="true" role="dialog"
+        aria-labelledby="promo-intro-sheet-title">
+        <button class="currency-sheet__backdrop" type="button" data-promo-intro-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="promo-intro-sheet__body">
+                <div class="promo-intro-sheet__heading">
+                    <p class="promo-intro-sheet__kicker">New on XREX</p>
+                    <h2 class="promo-intro-sheet__title" id="promo-intro-sheet-title">Auto-invest</h2>
+                </div>
+                <div class="promo-intro-sheet__list">
+                    <div class="promo-intro-sheet__row">
+                        <div class="promo-intro-sheet__icon" aria-hidden="true"></div>
+                        <div class="promo-intro-sheet__text">
+                            <div class="promo-intro-sheet__row-title">Dollar-cost average easily</div>
+                            <p class="promo-intro-sheet__row-desc">Rather than timing the market, average it out with automated buys</p>
+                        </div>
+                    </div>
+                    <div class="promo-intro-sheet__row">
+                        <div class="promo-intro-sheet__icon" aria-hidden="true"></div>
+                        <div class="promo-intro-sheet__text">
+                            <div class="promo-intro-sheet__row-title">Flexible investing options</div>
+                            <p class="promo-intro-sheet__row-desc">Auto-invest in assets like Bitcoin, in curated portfolios, or build your own!</p>
+                        </div>
+                    </div>
+                    <div class="promo-intro-sheet__row">
+                        <div class="promo-intro-sheet__icon" aria-hidden="true"></div>
+                        <div class="promo-intro-sheet__text">
+                            <div class="promo-intro-sheet__row-title">See past performance</div>
+                            <p class="promo-intro-sheet__row-desc">See how your strategy performed in the past with the calculator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split promo-intro-sheet__footer">
+                <!-- <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-promo-intro-sheet-close>Not now</button> -->
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
+                    data-promo-intro-sheet-primary>Let's go</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Currency bottom sheet -->
     <div class="currency-sheet" data-currency-sheet hidden aria-modal="true" role="dialog" aria-label="Select currency">
         <button class="currency-sheet__backdrop" type="button" data-currency-sheet-close aria-label="Close"></button>
@@ -1603,6 +1649,7 @@
 
         <div class="build-badge__body" id="prototypeStatesBody">
             <button class="build-badge__reset" type="button" data-prototype-reset>Reset states</button>
+            <button class="build-badge__promo-trigger" type="button" data-prototype-promo-intro-sheet>Fire promo buttonsheet</button>
             <div class="build-badge__section-row">
                 <label class="build-badge__checkbox">
                     <input type="checkbox" data-prototype-bottomsheet-stacking checked

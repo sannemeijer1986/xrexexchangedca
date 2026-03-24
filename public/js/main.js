@@ -861,6 +861,36 @@
       });
     });
   };
+
+  const initPromoIntroSheet = () => {
+    const sheet = document.querySelector('[data-promo-intro-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+
+    const open = () => {
+      sheet.hidden = false;
+      requestAnimationFrame(() => {
+        sheet.classList.add('is-open');
+      });
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    document.querySelector('[data-prototype-promo-intro-sheet]')?.addEventListener('click', open);
+    sheet.querySelectorAll('[data-promo-intro-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+    sheet.querySelector('[data-promo-intro-sheet-primary]')?.addEventListener('click', close);
+  };
+
   const updateRangeUI = (context, range) => {
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
     if (context === 'plan') {
@@ -1713,6 +1743,7 @@
   initPlanStrategyCarousel();
   initLimitsPanel();
   initCurrencySheet();
+  initPromoIntroSheet();
   initRangeSheet();
   initTopupSheet();
   initScheduleSheet();
