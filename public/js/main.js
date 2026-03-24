@@ -3018,18 +3018,50 @@
         }).join('');
       };
 
-      const renderChips = () => {
+      const createAllocPickerChipButton = (c) => {
+        const btn = document.createElement('button');
+        btn.className = 'alloc-picker-panel__chip';
+        btn.type = 'button';
+        btn.setAttribute('data-alloc-picker-chip-remove', c.key);
+        const icon = document.createElement('img');
+        icon.src = c.icon;
+        icon.alt = '';
+        const label = document.createElement('span');
+        label.className = 'alloc-picker-panel__chip-label';
+        label.textContent = c.ticker;
+        const closeImg = document.createElement('img');
+        closeImg.className = 'alloc-picker-panel__chip-close';
+        closeImg.src = 'assets/icon_close_gray.svg';
+        closeImg.width = 12;
+        closeImg.height = 12;
+        closeImg.alt = '';
+        closeImg.setAttribute('aria-hidden', 'true');
+        btn.append(icon, label, closeImg);
+        return btn;
+      };
+
+      const renderChips = (opts = { full: false }) => {
         if (!chipsEl || !continueBtn) return;
         const selected = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean);
-        chipsEl.innerHTML = selected.map((c) => `
-          <button class="alloc-picker-panel__chip" type="button" data-alloc-picker-chip-remove="${c.key}">
-            <img src="${c.icon}" alt="" />
-            <span class="alloc-picker-panel__chip-label">${c.ticker}</span>
-            <img class="alloc-picker-panel__chip-close" src="assets/icon_close_gray.svg" width="12" height="12" alt="" aria-hidden="true" />
-          </button>
-        `).join('');
         continueBtn.textContent = `Continue (${selected.length})`;
         continueBtn.disabled = selected.length < 1;
+
+        if (opts.full) {
+          chipsEl.replaceChildren(...selected.map((c) => createAllocPickerChipButton(c)));
+          return;
+        }
+
+        const wantKeys = new Set(selectedCoinKeys);
+        chipsEl.querySelectorAll('[data-alloc-picker-chip-remove]').forEach((btn) => {
+          const k = btn.getAttribute('data-alloc-picker-chip-remove');
+          if (!wantKeys.has(k)) btn.remove();
+        });
+
+        selected.forEach((c) => {
+          let btn = chipsEl.querySelector(`[data-alloc-picker-chip-remove="${c.key}"]`);
+          if (!btn) btn = createAllocPickerChipButton(c);
+          chipsEl.appendChild(btn);
+        });
       };
 
       const renderCurated = () => {
@@ -3098,7 +3130,7 @@
         syncTabs();
         renderCurated();
         renderCoins();
-        renderChips();
+        renderChips({ full: true });
         allocPickerPanel.hidden = false;
         requestAnimationFrame(() => allocPickerPanel.classList.add('is-open'));
       };
