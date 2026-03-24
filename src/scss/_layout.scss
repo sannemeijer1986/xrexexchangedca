@@ -4226,6 +4226,11 @@ html[data-active-tab="finance"] {
   transform: translateX(0);
 }
 
+// Breakdown overlay: stop underlying plan scroller (avoids visible scrollbar beside overlay)
+.plan-detail-panel.is-plan-breakdown-open .plan-detail-panel__scroller {
+  overflow: hidden;
+}
+
 // ── Header ────────────────────────────────────────────────────────────────────
 
 .plan-detail-panel__header {
@@ -5567,9 +5572,18 @@ html[data-active-tab="finance"] {
   background: #0d0e0f;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   transform: translateY(100%);
   transition: transform 0.35s ease;
   overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 .plan-breakdown-panel.is-open {
@@ -5619,12 +5633,24 @@ html[data-active-tab="finance"] {
 
 .plan-breakdown-panel__body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px 16px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent;
+  }
 }
 
 .plan-breakdown-panel__card {
@@ -5646,19 +5672,23 @@ html[data-active-tab="finance"] {
   justify-content: center;
 }
 
-// Single asset: match plan-strategy hero (larger SVG, contain — stack mode keeps 64px pyramid)
+// Single asset: same footprint as plan-detail icon stack (64px), left-aligned; same coin size as product hero (56px), not pyramid markup
 .plan-breakdown-panel__asset-wrap--single {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
+  align-self: flex-start;
+  margin: 0;
+  justify-content: flex-start;
 }
 
-.plan-breakdown-panel__asset-wrap--single .plan-detail-panel__product-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 0;
-  object-fit: contain;
-  object-position: center;
+.plan-breakdown-panel__asset-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.plan-breakdown-panel__asset-wrap--single .plan-breakdown-panel__asset-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .phone-container p.plan-breakdown-panel__headline {
@@ -5719,8 +5749,8 @@ html[data-active-tab="finance"] {
   margin: 0 auto;
   width: 100%;
   max-width: 299px;
-  margin-top: -
-x}
+  margin-top: -50px;
+}
 
 .plan-breakdown-panel__chart-img {
   display: block;

@@ -244,9 +244,12 @@
    * @param {number} [opts.amount] — override slider amount
    * @param {string} [opts.planKey] — override carousel plan (e.g. curated basket)
    * @param {string} [opts.freq] — 'daily' | 'weekly' | 'monthly' (override active freq chip)
+   * @param {'1Y'|'3Y'|'5Y'} [opts.historicalRangeKey] — simulation window (defaults to rangeState.plan)
+   * @param {boolean} [opts.domWrite=true] — when false, only compute and return { returnPct, profit, totalInvested }
    */
   const updatePlanStrategyHistoricalReturn = (opts = {}) => {
     const detailPanel = !!opts.detailPanel;
+    const domWrite = opts.domWrite !== false;
     const pctEl = detailPanel
       ? document.querySelector('[data-plan-detail-return-pct]')
       : document.querySelector('.plan-strategy__return-pct');
@@ -256,8 +259,12 @@
     const slider = document.querySelector('[data-plan-slider]');
     const freqActive = document.querySelector('[data-plan-freq-item].is-active');
     const carousel = document.querySelector('[data-plan-carousel]');
-    if (!pctEl || !absEl) return;
-    if (!detailPanel && (!slider || !freqActive)) return;
+    if (domWrite) {
+      if (!pctEl || !absEl) return;
+      if (!detailPanel && (!slider || !freqActive)) return;
+    } else if (opts.amount === undefined) {
+      return null;
+    }
 
     const amount = opts.amount !== undefined
       ? opts.amount
@@ -292,7 +299,11 @@
     const fxTwdPerUsd = 32; // intentionally fixed/rough
     const totalDataMonths = 60; // full anchor dataset length
     const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
-    const periodMonths = rangeMonthsMap[(typeof rangeState !== 'undefined' ? rangeState.plan : '5Y')] || 60;
+    const simRangeKey =
+      opts.historicalRangeKey ||
+      (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y') ||
+      '5Y';
+    const periodMonths = rangeMonthsMap[simRangeKey] || 60;
     const startMonth = totalDataMonths - periodMonths;
     const months = totalDataMonths; // used for anchor clamping
 
@@ -417,6 +428,10 @@
     const returnPct = unitTotalInvested > 0
       ? ((unitFinalValue - unitTotalInvested) / unitTotalInvested) * 100
       : 0;
+
+    if (!domWrite) {
+      return { returnPct, profit, totalInvested };
+    }
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
     pctEl.textContent = formatPct(returnPct);
@@ -2734,9 +2749,15 @@
         .replace(/"/g, '&quot;')
         .replace(/</g, '&lt;');
 
-    /** Single hero icon or Figma pyramid stack (2 coins + placeholder / 3 coins). */
-    const renderPlanDetailProductIcons = (productWrap, headerWrap, fallbackIconSrc, coinItems) => {
+    /**
+     * Single hero icon or Figma pyramid stack (2 coins + placeholder / 3 coins).
+     * @param {{ singleProductClass?: string, singleHeaderClass?: string }} [iconOpts] — override img classes for single-asset mode (e.g. breakdown panel)
+     */
+    const renderPlanDetailProductIcons = (productWrap, headerWrap, fallbackIconSrc, coinItems, iconOpts = {}) => {
       if (!productWrap || !headerWrap) return;
+
+      const singleProductClass = iconOpts.singleProductClass || 'plan-detail-panel__product-icon';
+      const singleHeaderClass = iconOpts.singleHeaderClass || 'plan-detail-panel__header-icon';
 
       const buildStackMarkup = (variant) => {
         const items = (coinItems || []).slice(0, 3).filter((it) => it && it.icon);
@@ -2766,8 +2787,12 @@
           ? coinItems[0].icon
           : fallbackIconSrc;
       const s = escPlanDetailIconAttr(singleSrc);
-      productWrap.innerHTML = `<img class="plan-detail-panel__product-icon" src="${s}" alt="" />`;
-      headerWrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${s}" alt="" />`;
+      if (productWrap === headerWrap) {
+        productWrap.innerHTML = `<img class="${singleProductClass}" src="${s}" alt="" />`;
+      } else {
+        productWrap.innerHTML = `<img class="${singleProductClass}" src="${s}" alt="" />`;
+        headerWrap.innerHTML = `<img class="${singleHeaderClass}" src="${s}" alt="" />`;
+      }
     };
 
     const getCurrentPlanDisplayAssets = (fallbackIconSrc) => {
@@ -3354,6 +3379,7 @@
       const legendAssetsEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-assets]');
       const periodLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-period-label]');
       const contributionEl = breakdownPanel.querySelector('[data-plan-breakdown-contribution]');
+      const totalLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-total-label]');
       const totalEl = breakdownPanel.querySelector('[data-plan-breakdown-total]');
       const valueEl = breakdownPanel.querySelector('[data-plan-breakdown-value]');
       const profitPctEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-pct]');
@@ -3370,10 +3396,37 @@
         const range = rangeState.breakdown || '5Y';
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
-        const pctRaw = parseFloat(String(panel.querySelector('[data-plan-detail-return-pct]')?.textContent || '').replace(/[^0-9.\-]/g, ''));
-        const pct = Number.isFinite(pctRaw) ? pctRaw : 0;
-        const monthsByRange = { '1Y': 12, '3Y': 36, '5Y': 60 };
-        const totalInvested = amount * (monthsByRange[range] || 60);
+        const freq = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const freqLabel = freq === 'daily' ? 'Daily' : freq === 'weekly' ? 'Weekly' : 'Monthly';
+
+        const ctx = panelOpenContext;
+        const overrideCuratedKey =
+          detailAllocOverride?.kind === 'curated' && detailAllocOverride.key
+            ? String(detailAllocOverride.key).toLowerCase()
+            : '';
+        const effectiveCuratedKey =
+          ctx.source === 'curated' && ctx.curatedKey ? String(ctx.curatedKey).toLowerCase() : overrideCuratedKey;
+        let planKeyOpt;
+        if (effectiveCuratedKey) planKeyOpt = effectiveCuratedKey;
+        else if (ctx.source === 'spotlight' && ctx.spotlightKey) planKeyOpt = String(ctx.spotlightKey).toLowerCase();
+
+        const sim = updatePlanStrategyHistoricalReturn({
+          detailPanel: true,
+          amount,
+          planKey: planKeyOpt,
+          freq,
+          historicalRangeKey: range,
+          domWrite: false,
+        });
+        const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
+
+        const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
+        const periodMonths = rangeMonthsMap[range] || 60;
+        const occurrencesPerMonth =
+          freq === 'daily' ? 365.0 / 12.0 : freq === 'weekly' ? 52.0 / 12.0 : 1.0;
+        const totalInvested = Math.round(amount * occurrencesPerMonth * periodMonths);
         const value = Math.round(totalInvested * (1 + (pct / 100)));
         const profit = value - totalInvested;
 
@@ -3381,10 +3434,14 @@
         const isBreakdownIconStack = stackItems.length >= 2;
         iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
         iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
-        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null);
+        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null, {
+          singleProductClass: 'plan-breakdown-panel__asset-icon',
+          singleHeaderClass: 'plan-breakdown-panel__asset-icon',
+        });
         if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
-        if (periodLabelEl) periodLabelEl.textContent = `{${range}} contribution ≈`;
+        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
+        if (totalLabelEl) totalLabelEl.textContent = `${range} total investment`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
@@ -3394,6 +3451,7 @@
 
       const open = () => {
         sync();
+        panel.classList.add('is-plan-breakdown-open');
         breakdownPanel.hidden = false;
         requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
       };
@@ -3401,7 +3459,10 @@
       const close = () => {
         breakdownPanel.classList.remove('is-open');
         const onEnd = () => {
-          if (!breakdownPanel.classList.contains('is-open')) breakdownPanel.hidden = true;
+          if (!breakdownPanel.classList.contains('is-open')) {
+            breakdownPanel.hidden = true;
+            panel.classList.remove('is-plan-breakdown-open');
+          }
           breakdownPanel.removeEventListener('transitionend', onEnd);
         };
         breakdownPanel.addEventListener('transitionend', onEnd);
@@ -3413,6 +3474,10 @@
 
       document.addEventListener('range-sheet-confirmed', (e) => {
         if (e?.detail?.context !== 'breakdown') return;
+        if (breakdownPanel.classList.contains('is-open')) sync();
+      });
+
+      document.addEventListener('plan-schedule-confirmed', () => {
         if (breakdownPanel.classList.contains('is-open')) sync();
       });
 
@@ -3713,6 +3778,8 @@
         applyLiveFormat();
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
+        const bp = panel.querySelector('[data-plan-breakdown-panel]');
+        if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
       });
 
       // Blur: handle empty/invalid
@@ -3726,6 +3793,8 @@
         }
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
+        const bp = panel.querySelector('[data-plan-breakdown-panel]');
+        if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
       });
 
       // Block non-numeric keys (commas are inserted programmatically, not typed)
