@@ -1969,7 +1969,7 @@ html[data-active-tab="finance"] {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .plan-strategy__return-header .plan-strategy__return-title {
@@ -2221,6 +2221,15 @@ html[data-active-tab="finance"] {
   gap: 8px;
 }
 
+.plan-strategy__freq-subtitle {
+  margin: 12px 0px 12px 0;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
 .plan-strategy__freq-item {
   flex: 1;
   height: 32px;
@@ -2256,13 +2265,13 @@ html[data-active-tab="finance"] {
   margin-top: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
   color: #5AC47D;
 }
 
 .plan-strategy__view-breakdown-link {
-  margin-top: 2px;
-  margin-bottom: 6px;
+  margin-top: 3px;
+  margin-bottom: 0px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -5967,43 +5976,73 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__divider {
-  margin: 4px 0;
+  margin: 8px 0;
   height: 1px;
   background: #3c4248;
 }
 
 .plan-breakdown-panel__row--profit {
   height: auto;
-  align-items: flex-start;
-}
-
-.plan-breakdown-panel__profit-wrap {
-  display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2px;
-}
 
-.plan-breakdown-panel__profit-main {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: #56c488;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
-
-  img {
-    width: 20px;
-    height: 20px;
-    display: block;
+  > span:first-child {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
   }
 }
 
-.plan-breakdown-panel__profit-sub {
-  color: #56c488 !important;
+.plan-breakdown-panel__profit-wrap {
+  display: inline-flex;
+  justify-content: flex-start;
+}
+
+.plan-breakdown-panel__profit-abs-line {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.plan-breakdown-panel__profit-abs {
+  color: #56c488;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.plan-breakdown-panel__profit-currency {
+  color: #56c488;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.plan-breakdown-panel__profit-pct-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #56c488;
+  flex-shrink: 0;
+  transform: translateY(2px);
+
+  span {
+    color: #56c488;
+  }
+
+  img {
+    width: 14px;
+    height: 14px;
+    display: block;
+    flex-shrink: 0;
+  }
 }
 
 .plan-breakdown-panel__bottom {
@@ -6282,6 +6321,7 @@ div.currency-sheet__item-icon {
 
 .plan-overview-panel__reserve {
   margin-top: 40px;
+  opacity: 0.25;
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;

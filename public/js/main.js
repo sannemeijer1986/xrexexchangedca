@@ -675,7 +675,7 @@
 
   // ─── Currency + range state ───────────────────────────────────────────────────
   const currencyState = { summary: 'TWD', plan: 'TWD' };
-  const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y' };
+  const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y', widgetBreakdown: '5Y' };
 
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 · 11:00';
   /** Set when user confirms plan overview; cleared on prototype Reset */
@@ -942,6 +942,11 @@
     }
     if (context === 'breakdown') {
       document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
+        el.textContent = `${range} historical return ≈`;
+      });
+    }
+    if (context === 'widgetBreakdown') {
+      document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
         el.textContent = `${range} historical return ≈`;
       });
     }
@@ -3605,6 +3610,7 @@
     const initPlanBreakdownPanel = () => {
       const breakdownPanel = panel.querySelector('[data-plan-breakdown-panel]');
       if (!breakdownPanel) return { open: () => {}, close: () => {}, sync: () => {} };
+      const widgetBreakdownPanel = document.querySelector('[data-plan-widget-breakdown-panel]');
 
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
@@ -3616,6 +3622,7 @@
       const valueEl = breakdownPanel.querySelector('[data-plan-breakdown-value]');
       const profitPctEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-pct]');
       const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
+      const profitCurEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-currency]');
 
       const sync = (opts = {}) => {
         const fallbackIconSrc = opts.iconSrc || 'assets/icon_currency_btc.svg';
@@ -3673,12 +3680,13 @@
         if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
-        if (totalLabelEl) totalLabelEl.textContent = `${range} total investment`;
+        if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
         if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
-        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString('en-US')} ${cur}`;
+        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
+        if (profitCurEl) profitCurEl.textContent = cur;
       };
 
       const open = () => {
@@ -3689,12 +3697,100 @@
       };
 
       const openFromPlanWidget = () => {
-        if (!panel.classList.contains('is-open')) {
-          setOpen(true);
-          window.setTimeout(open, 380);
+        if (!widgetBreakdownPanel) return;
+        syncFromPlanWidget();
+        widgetBreakdownPanel.hidden = false;
+        requestAnimationFrame(() => widgetBreakdownPanel.classList.add('is-open'));
+      };
+
+      const closeFromPlanWidget = (closeOpts = {}) => {
+        if (!widgetBreakdownPanel) return;
+        if (closeOpts.instant) {
+          widgetBreakdownPanel.style.transition = 'none';
+          widgetBreakdownPanel.classList.remove('is-open');
+          void widgetBreakdownPanel.offsetHeight;
+          widgetBreakdownPanel.style.transition = '';
+          widgetBreakdownPanel.hidden = true;
           return;
         }
-        open();
+        widgetBreakdownPanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!widgetBreakdownPanel.classList.contains('is-open')) {
+            widgetBreakdownPanel.hidden = true;
+          }
+          widgetBreakdownPanel.removeEventListener('transitionend', onEnd);
+        };
+        widgetBreakdownPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      const syncFromPlanWidget = () => {
+        if (!widgetBreakdownPanel) return;
+        const iconWrap = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-icon-wrap]');
+        const headlineEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-headline]');
+        const legendAssetsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-legend-assets]');
+        const periodLabelEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-period-label]');
+        const contributionEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-contribution]');
+        const totalLabelEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-total-label]');
+        const totalEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-total]');
+        const valueEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-value]');
+        const profitPctEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-pct]');
+        const profitAbsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-abs]');
+        const profitCurEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-currency]');
+        const kickerEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-title-kicker]');
+
+        const carousel = document.querySelector('[data-plan-carousel]');
+        const activePlan = String(carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+        const selectedAssets = (planAllocation[activePlan] || planAllocation.bitcoin || []).slice(0, 3);
+        const tickers = selectedAssets
+          .map((it) => String(it?.ticker || '').trim())
+          .filter(Boolean)
+          .slice(0, 3);
+        const prettyTickers = tickers.join(', ') || 'BTC';
+        const range = rangeState.widgetBreakdown || rangeState.plan || '5Y';
+        const amount = parseInt(String(document.querySelector('[data-plan-amount]')?.textContent || '0').replace(/[^0-9]/g, ''), 10) || 0;
+        const cur = String(document.querySelector('[data-plan-currency-label]')?.textContent || currencyState.plan || 'TWD').trim();
+        const freq = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const freqLabel = freq === 'daily' ? 'Daily' : freq === 'weekly' ? 'Weekly' : 'Monthly';
+
+        const sim = updatePlanStrategyHistoricalReturn({
+          amount,
+          planKey: activePlan,
+          freq,
+          historicalRangeKey: range,
+          domWrite: false,
+        });
+        const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
+
+        const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
+        const periodMonths = rangeMonthsMap[range] || 60;
+        const occurrencesPerMonth =
+          freq === 'daily' ? 365.0 / 12.0 : freq === 'weekly' ? 52.0 / 12.0 : 1.0;
+        const totalInvested = Math.round(amount * occurrencesPerMonth * periodMonths);
+        const value = Math.round(totalInvested * (1 + (pct / 100)));
+        const profit = value - totalInvested;
+
+        const fallbackIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
+        const isBreakdownIconStack = selectedAssets.length >= 2;
+        iconWrap?.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
+        iconWrap?.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
+        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null, {
+          singleProductClass: 'plan-breakdown-panel__asset-icon',
+          singleHeaderClass: 'plan-breakdown-panel__asset-icon',
+        });
+        if (kickerEl) kickerEl.textContent = `${range} historical return ≈`;
+        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
+        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
+        if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
+        if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
+        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
+        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
+        if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
+        if (profitCurEl) profitCurEl.textContent = cur;
       };
 
       const close = (closeOpts = {}) => {
@@ -3722,6 +3818,8 @@
       panel.querySelector('.plan-detail-panel__view-breakdown-link')?.addEventListener('click', open);
       document.querySelector('.plan-strategy__view-breakdown-link')?.addEventListener('click', openFromPlanWidget);
       breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
+      widgetBreakdownPanel?.querySelectorAll('[data-plan-widget-breakdown-close]')
+        .forEach((btn) => btn.addEventListener('click', () => closeFromPlanWidget()));
 
       document.addEventListener('range-sheet-confirmed', (e) => {
         if (e?.detail?.context !== 'breakdown') return;
@@ -3730,6 +3828,10 @@
 
       document.addEventListener('plan-schedule-confirmed', () => {
         if (breakdownPanel.classList.contains('is-open')) sync();
+      });
+      document.addEventListener('range-sheet-confirmed', (e) => {
+        if (e?.detail?.context !== 'widgetBreakdown') return;
+        if (widgetBreakdownPanel?.classList.contains('is-open')) syncFromPlanWidget();
       });
 
       return { open, close, sync };
