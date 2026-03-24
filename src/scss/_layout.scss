@@ -1684,7 +1684,7 @@ html[data-active-tab="finance"] {
   font-size: 12px;
   font-weight: 600;
   color: #B4B4B4;
-  padding: 8px 14px;
+  padding: 0px 14px;
   border-radius: 12px;
   flex: 1;
 }
@@ -5532,7 +5532,7 @@ html[data-active-tab="finance"] {
 }
 
 .alloc-picker-panel__seg .finance__section-nav-item {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .alloc-picker-panel__body {
@@ -5543,7 +5543,7 @@ html[data-active-tab="finance"] {
 }
 
 .alloc-picker-panel__search-wrap {
-  margin-top: 8px;
+  margin: 16px 0px;
 }
 
 .alloc-picker-panel__search {
@@ -5563,7 +5563,7 @@ html[data-active-tab="finance"] {
 }
 
 .alloc-picker-panel__hint {
-  margin: 12px 0;
+  margin: 16px 0;
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
@@ -5582,23 +5582,24 @@ html[data-active-tab="finance"] {
 
 .alloc-picker-panel__coin-row {
   width: 100%;
-  border: 1px solid #2d2f2f;
   border-radius: 12px;
   background: #1b1d1d;
-  padding: 10px 12px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
+  height: 70px;
+  border: 0px;
   text-align: left;
 }
 
 .alloc-picker-panel__coin-row.is-selected {
-  border-color: #4a4c4d;
+  outline: 2px solid #ffffff;
 }
 
 .alloc-picker-panel__coin-icon {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -5610,22 +5611,23 @@ html[data-active-tab="finance"] {
 
 .alloc-picker-panel__coin-ticker {
   display: block;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 20px;
+  margin-bottom: -1px;
   color: #ffffff;
 }
 
 .alloc-picker-panel__coin-name {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 18px;
   color: #9b9c9c;
 }
 
 .alloc-picker-panel__coin-pct {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 18px;
   color: #56c488;
@@ -5633,8 +5635,8 @@ html[data-active-tab="finance"] {
 }
 
 .alloc-picker-panel__coin-check {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: block;
   flex-shrink: 0;
 }
@@ -5690,7 +5692,8 @@ html[data-active-tab="finance"] {
   right: 0;
   bottom: 0;
   padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, #0d0e0f 72%, rgba(13, 14, 15, 0));
+  background-color: #151718;
+  border-top: 1px solid #2d2f2f;
 }
 
 .alloc-picker-panel__chips {
