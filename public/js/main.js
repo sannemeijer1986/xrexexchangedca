@@ -3730,6 +3730,7 @@
       const overviewPanel = panel.querySelector('[data-plan-overview-panel]');
       if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
       const overviewScroller = overviewPanel.querySelector('.plan-overview-panel__scroller');
+      const reserveInfoPanel = overviewPanel.querySelector('[data-plan-overview-reserve-info-panel]');
 
       const overviewTimingLabels = {
         daily: 'Every day at',
@@ -3744,12 +3745,41 @@
           .replace(/"/g, '&quot;');
 
       const reserveItems = Array.from(overviewPanel.querySelectorAll('.plan-overview-panel__reserve-item'));
+      const reserveLearnBtn = overviewPanel.querySelector('[data-plan-overview-reserve-learn]');
       const setReserveSelection = (selectedItem) => {
         reserveItems.forEach((item) => {
           const isSelected = item === selectedItem;
           item.classList.toggle('is-selected', isSelected);
           item.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
         });
+      };
+      const openReserveInfo = () => {
+        if (!reserveInfoPanel) return;
+        overviewPanel.classList.add('is-reserve-info-open');
+        reserveInfoPanel.hidden = false;
+        requestAnimationFrame(() => reserveInfoPanel.classList.add('is-open'));
+      };
+      const closeReserveInfo = (opts = {}) => {
+        if (!reserveInfoPanel) return;
+        if (opts.instant) {
+          reserveInfoPanel.style.transition = 'none';
+          reserveInfoPanel.classList.remove('is-open');
+          void reserveInfoPanel.offsetHeight;
+          reserveInfoPanel.style.transition = '';
+          reserveInfoPanel.hidden = true;
+          overviewPanel.classList.remove('is-reserve-info-open');
+          return;
+        }
+        reserveInfoPanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!reserveInfoPanel.classList.contains('is-open')) {
+            reserveInfoPanel.hidden = true;
+            overviewPanel.classList.remove('is-reserve-info-open');
+          }
+          reserveInfoPanel.removeEventListener('transitionend', onEnd);
+        };
+        reserveInfoPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
       };
 
       const syncFromPlanDetail = () => {
@@ -3871,6 +3901,7 @@
 
       const open = () => {
         planBreakdownApi.close();
+        closeReserveInfo({ instant: true });
         syncFromPlanDetail();
         if (overviewScroller) overviewScroller.scrollTop = 0;
         panel.classList.add('is-plan-overview-open');
@@ -3880,6 +3911,7 @@
 
       const close = (closeOpts = {}) => {
         if (closeOpts.instant) {
+          closeReserveInfo({ instant: true });
           overviewPanel.style.transition = 'none';
           overviewPanel.classList.remove('is-open');
           void overviewPanel.offsetHeight;
@@ -3888,6 +3920,7 @@
           panel.classList.remove('is-plan-overview-open');
           return;
         }
+        closeReserveInfo({ instant: true });
         overviewPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!overviewPanel.classList.contains('is-open')) {
@@ -3904,6 +3937,9 @@
       reserveItems.forEach((item) => {
         item.addEventListener('click', () => setReserveSelection(item));
       });
+      reserveLearnBtn?.addEventListener('click', openReserveInfo);
+      reserveInfoPanel?.querySelectorAll('[data-plan-overview-reserve-info-close]')
+        .forEach((btn) => btn.addEventListener('click', () => closeReserveInfo()));
 
       panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {
         const btn = e.currentTarget;

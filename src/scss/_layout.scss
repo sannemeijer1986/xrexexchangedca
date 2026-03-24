@@ -6116,6 +6116,10 @@ div.currency-sheet__item-icon {
   }
 }
 
+.plan-overview-panel.is-reserve-info-open .plan-overview-panel__scroller {
+  overflow: hidden;
+}
+
 .plan-overview-panel__body {
   flex: 1;
   padding: 32px 16px 16px;
@@ -6286,7 +6290,7 @@ div.currency-sheet__item-icon {
   border: 0;
   padding: 0;
   background: transparent;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   color: #3f78ff;
@@ -6334,7 +6338,7 @@ div.currency-sheet__item-icon {
   margin-top: 3px;
   font-weight: 600;
   line-height: 1;
-  color: #5ac47d;
+  color: #8FB8FF;
 }
 
 .phone-container span.plan-overview-panel__reserve-item-sub {
@@ -6394,6 +6398,90 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
+}
+
+// ── Plan overview: reserve info panel (bottom-sheet style) ────────────────────
+.plan-overview-reserve-info-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+}
+
+.plan-overview-reserve-info-panel.is-open {
+  transform: translateY(0);
+}
+
+.plan-overview-reserve-info-panel__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.plan-overview-reserve-info-panel__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.phone-container h2.plan-overview-reserve-info-panel__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.plan-overview-reserve-info-panel__header-spacer {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.plan-overview-reserve-info-panel__body {
+  flex: 1;
+}
+
+.plan-overview-reserve-info-panel__footer {
+  flex-shrink: 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.plan-overview-reserve-info-panel__close-cta {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+  border: 0;
+  background: #2d2f2f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 // ── Plan submit loader (Figma 8539:12955) ─────────────────────────────────────

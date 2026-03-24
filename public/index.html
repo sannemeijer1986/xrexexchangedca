@@ -1176,8 +1176,8 @@
 
                     <div class="plan-overview-panel__reserve" role="group" aria-label="Reserve option">
                         <div class="plan-overview-panel__reserve-head">
-                            <span class="plan-overview-panel__reserve-headline">Guarantee buys or stay flexible</span>
-                            <button class="plan-overview-panel__reserve-learn" type="button">Learn more</button>
+                            <span class="plan-overview-panel__reserve-headline">Guaranteed buys or stay flexible</span>
+                            <button class="plan-overview-panel__reserve-learn" type="button" data-plan-overview-reserve-learn>Learn more</button>
                         </div>
                         <div class="plan-overview-panel__reserve-card">
                             <button class="plan-overview-panel__reserve-item is-selected" type="button" aria-pressed="true">
@@ -1216,6 +1216,20 @@
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-plan-overview-close>Back</button>
                 </div>
             </div>
+
+            <section class="plan-overview-reserve-info-panel" data-plan-overview-reserve-info-panel hidden aria-label="Reserve option details">
+                <header class="plan-overview-reserve-info-panel__header">
+                    <button class="plan-overview-reserve-info-panel__icon-btn" type="button" data-plan-overview-reserve-info-close aria-label="Close">
+                        <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+                    </button>
+                    <h2 class="plan-overview-reserve-info-panel__title">Guarantee buys or stay flexible</h2>
+                    <div class="plan-overview-reserve-info-panel__header-spacer" aria-hidden="true"></div>
+                </header>
+                <div class="plan-overview-reserve-info-panel__body"></div>
+                <div class="plan-overview-reserve-info-panel__footer">
+                    <button class="plan-overview-reserve-info-panel__close-cta" type="button" data-plan-overview-reserve-info-close>Close</button>
+                </div>
+            </section>
         </section>
 
         <!-- Submit loader (centered overlay while confirming) -->
