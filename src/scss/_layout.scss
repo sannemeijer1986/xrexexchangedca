@@ -5559,6 +5559,21 @@ html[data-active-tab="finance"] {
   }
 }
 
+// Coins tab: flex + gap avoids margin collapse between search and hint row
+.alloc-picker-panel__view[data-alloc-picker-view='coins'] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__search-wrap {
+  margin: 16px 0 0;
+}
+
+.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__hint-row {
+  margin: 0;
+}
+
 .alloc-picker-panel__search-wrap {
   position: relative;
   margin: 16px 0;

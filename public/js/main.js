@@ -2965,8 +2965,29 @@
         if (footerEl) footerEl.hidden = activeTab !== 'coins';
       };
 
-      const renderCoins = () => {
+      const syncCoinRowSelectionOnly = () => {
         if (!coinsListEl) return;
+        const onSrc = 'assets/icon_checkbox_on.svg';
+        const offSrc = 'assets/icon_checkbox_off.svg';
+        coinsListEl.querySelectorAll('[data-alloc-picker-coin]').forEach((row) => {
+          const key = row.getAttribute('data-alloc-picker-coin');
+          if (!key) return;
+          const isSelected = selectedCoinKeys.includes(key);
+          row.classList.toggle('is-selected', isSelected);
+          const check = row.querySelector('.alloc-picker-panel__coin-check');
+          if (check) {
+            const next = isSelected ? onSrc : offSrc;
+            if (check.getAttribute('src') !== next) check.setAttribute('src', next);
+          }
+        });
+      };
+
+      const renderCoins = (opts = { full: true }) => {
+        if (!coinsListEl) return;
+        if (!opts.full) {
+          syncCoinRowSelectionOnly();
+          return;
+        }
         const q = String(searchInput?.value || '').trim().toLowerCase();
         const spotRange = rangeState.spotlight;
         const visible = pickableCoins.filter((c) => !q || c.name.toLowerCase().includes(q) || c.ticker.toLowerCase().includes(q));
@@ -3117,7 +3138,7 @@
         } else {
           showTopSnackbar('Max 3 coins');
         }
-        renderCoins();
+        renderCoins({ full: false });
         renderChips();
       });
 
@@ -3125,7 +3146,7 @@
         const chip = e.target.closest('[data-alloc-picker-chip-remove]');
         if (!chip) return;
         selectedCoinKeys = selectedCoinKeys.filter((k) => k !== chip.getAttribute('data-alloc-picker-chip-remove'));
-        renderCoins();
+        renderCoins({ full: false });
         renderChips();
       });
 
