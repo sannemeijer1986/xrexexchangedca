@@ -1,10 +1,17 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="17.5" width="5" height="12.5" rx="2.5" fill="#275CFD" fill-opacity="0.2"/>
-<rect x="17.5" y="27.5" width="5" height="12.5" rx="2.5" fill="#275CFD" fill-opacity="0.6"/>
-<rect x="27.5" y="21.25" width="5" height="12.5" rx="2.5" transform="rotate(-90 27.5 21.25)" fill="#275CFD" fill-opacity="0.4"/>
-<rect x="23.75" y="26.0355" width="5" height="12.5" rx="2.5" transform="rotate(-45 23.75 26.0355)" fill="#275CFD" fill-opacity="0.5"/>
-<rect y="21.25" width="5" height="12.5" rx="2.5" transform="rotate(-90 0 21.25)" fill="#275CFD" fill-opacity="0.8"/>
-<rect x="7.28552" y="34.8743" width="5" height="12.5" rx="2.5" transform="rotate(-135 7.28552 34.8743)" fill="#275CFD" fill-opacity="0.7"/>
-<rect x="3.75" y="7.28552" width="5" height="12.5" rx="2.5" transform="rotate(-45 3.75 7.28552)" fill="#275CFD"/>
-<rect x="32.5888" y="3.75" width="5" height="12.5" rx="2.5" transform="rotate(45 32.5888 3.75)" fill="#275CFD" fill-opacity="0.3"/>
+<g clip-path="url(#clip0_3210_2491)">
+<rect x="17.5" width="5" height="12.5" rx="2.5" fill="#275CFD"/>
+<rect x="17.5" y="27.5" width="5" height="12.5" rx="2.5" fill="#275CFD" fill-opacity="0.5"/>
+<rect x="40" y="17.5" width="5" height="12.5" rx="2.5" transform="rotate(90 40 17.5)" fill="#275CFD" fill-opacity="0.3"/>
+<rect x="12.5" y="17.5" width="5" height="12.5" rx="2.5" transform="rotate(90 12.5 17.5)" fill="#275CFD" fill-opacity="0.7"/>
+<rect x="35.9099" y="32.3744" width="5" height="12.5" rx="2.5" transform="rotate(135 35.9099 32.3744)" fill="#275CFD" fill-opacity="0.4"/>
+<rect x="16.4645" y="12.929" width="5" height="12.5" rx="2.5" transform="rotate(135 16.4645 12.929)" fill="#275CFD" fill-opacity="0.8"/>
+<rect x="7.62567" y="35.9099" width="5" height="12.5" rx="2.5" transform="rotate(-135 7.62567 35.9099)" fill="#275CFD" fill-opacity="0.6"/>
+<rect x="27.0711" y="16.4645" width="5" height="12.5" rx="2.5" transform="rotate(-135 27.0711 16.4645)" fill="#275CFD" fill-opacity="0.2"/>
+</g>
+<defs>
+<clipPath id="clip0_3210_2491">
+<rect width="40" height="40" fill="white"/>
+</clipPath>
+</defs>
 </svg>
