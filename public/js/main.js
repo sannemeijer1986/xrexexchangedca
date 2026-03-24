@@ -150,7 +150,9 @@
     const tabViews = Array.from(document.querySelectorAll('[data-tab-view]'));
     const openTabTriggers = Array.from(document.querySelectorAll('[data-open-tab]'));
 
-    if (!content || tabViews.length === 0) return;
+    if (!content || tabViews.length === 0) {
+      return { setActiveTab: () => {} };
+    }
 
     const setActiveTab = (tabId) => {
       document.documentElement.dataset.activeTab = tabId;
@@ -190,12 +192,15 @@
     setActiveTab('home');
     syncTopChromeHeight();
     window.addEventListener('resize', () => syncTopChromeHeight(), { passive: true });
+    return { setActiveTab };
   };
 
   const initFinanceHeaderTabs = () => {
     const tabButtons = Array.from(document.querySelectorAll('[data-finance-header-tab]'));
     const pages = Array.from(document.querySelectorAll('[data-finance-page]'));
-    if (tabButtons.length === 0 || pages.length === 0) return;
+    if (tabButtons.length === 0 || pages.length === 0) {
+      return { setFinancePage: () => {} };
+    }
 
     const setPage = (pageId) => {
       document.documentElement.dataset.financePage = pageId;
@@ -214,6 +219,7 @@
     });
 
     setPage('auto');
+    return { setFinancePage: setPage };
   };
 
   const initFinanceSectionNav = () => {
@@ -1693,8 +1699,14 @@
 
   initStates();
   initBadgeControls();
-  initTabs();
-  initFinanceHeaderTabs();
+  const tabNavApi = initTabs();
+  const financeHeaderApi = initFinanceHeaderTabs();
+  const goFinanceAutoInvest = () => {
+    tabNavApi.setActiveTab('finance');
+    financeHeaderApi.setFinancePage('auto');
+    const content = document.querySelector('[data-content]');
+    if (content) content.scrollTop = 0;
+  };
   initFinanceSectionNav();
   initPlanStrategySlider();
   initPlanStrategyFreq();
@@ -1716,7 +1728,8 @@
   let refreshPlanDetailAllocTweak = () => {};
 
   // ─── Plan Detail Panel ──────────────────────────────────────────────────────
-  const initPlanDetailPanel = () => {
+  const initPlanDetailPanel = (opts = {}) => {
+    const goFinanceAutoInvestFromSuccess = typeof opts.goFinanceAutoInvest === 'function' ? opts.goFinanceAutoInvest : () => {};
     const panel = document.querySelector('[data-plan-detail-panel]');
     const container = document.querySelector('.phone-container');
     if (!panel) return;
@@ -2814,6 +2827,7 @@
 
     let planBreakdownApi = { sync: () => {}, close: () => {} };
     let planOverviewApi = { open: () => {}, close: () => {}, sync: () => {} };
+    let planSuccessApi = { close: () => {}, forceClose: () => {} };
 
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
@@ -3585,7 +3599,16 @@
         requestAnimationFrame(() => overviewPanel.classList.add('is-open'));
       };
 
-      const close = () => {
+      const close = (closeOpts = {}) => {
+        if (closeOpts.instant) {
+          overviewPanel.style.transition = 'none';
+          overviewPanel.classList.remove('is-open');
+          void overviewPanel.offsetHeight;
+          overviewPanel.style.transition = '';
+          overviewPanel.hidden = true;
+          panel.classList.remove('is-plan-overview-open');
+          return;
+        }
         overviewPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!overviewPanel.classList.contains('is-open')) {
@@ -3599,10 +3622,6 @@
       };
 
       overviewPanel.querySelectorAll('[data-plan-overview-close]').forEach((b) => b.addEventListener('click', close));
-      overviewPanel.querySelector('[data-plan-overview-confirm]')?.addEventListener('click', () => {
-        showTopSnackbar('Plan confirmed');
-        close();
-      });
 
       panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {
         const btn = e.currentTarget;
@@ -3620,6 +3639,7 @@
       if (nextOpen) {
         planBreakdownApi.close();
         planOverviewApi.close();
+        planSuccessApi.forceClose();
         if (openCtx && openCtx.source && openCtx.source !== 'plan') {
           detailAllocOverride = null;
         }
@@ -3652,6 +3672,9 @@
       } else {
         planBreakdownApi.close();
         planOverviewApi.close();
+        planSuccessApi.forceClose();
+        const submitLoader = panel.querySelector('[data-plan-submit-loader]');
+        if (submitLoader) submitLoader.hidden = true;
         document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
         panelOpenContext = { source: 'plan' };
         panel.classList.remove('is-open');
@@ -3671,6 +3694,118 @@
       }
     };
 
+    const initPlanSubmitSuccessFlow = () => {
+      const loaderEl = panel.querySelector('[data-plan-submit-loader]');
+      const successEl = panel.querySelector('[data-plan-success-panel]');
+      const LOADER_MS = 1400;
+      let submitGeneration = 0;
+
+      const forceClose = () => {
+        submitGeneration += 1;
+        if (loaderEl) {
+          loaderEl.hidden = true;
+        }
+        if (successEl) {
+          successEl.classList.remove('is-open');
+          successEl.hidden = true;
+        }
+        panel.classList.remove('is-plan-success-open');
+      };
+
+      const showLoader = () => {
+        if (!loaderEl) return;
+        loaderEl.hidden = false;
+      };
+
+      const hideLoader = () => {
+        if (!loaderEl) return;
+        loaderEl.hidden = true;
+      };
+
+      const buildFirstBuyLine = () => {
+        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
+        const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
+        const timeMatch = tail.match(/at\s+([\d:]+)/i);
+        const timeStr = timeMatch ? timeMatch[1] : '12:00';
+        const dayMatch = tail.match(/(\d{1,2})(?:st|nd|rd|th)/i);
+        if (!dayMatch && tail) {
+          return `First buy on ${tail}`;
+        }
+        const day = dayMatch ? parseInt(dayMatch[1], 10) : 15;
+        const t = new Date();
+        if (t.getDate() >= day) t.setMonth(t.getMonth() + 1);
+        t.setDate(day);
+        const mon = t.toLocaleString('en-US', { month: 'short' });
+        return `First buy on ${mon} ${day} at ${timeStr}`;
+      };
+
+      const syncSuccessCopy = () => {
+        const freqKey = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const freqWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
+        const titleEl = successEl?.querySelector('[data-plan-success-title]');
+        const subEl = successEl?.querySelector('[data-plan-success-sub]');
+        if (titleEl) {
+          titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
+        }
+        if (subEl) subEl.textContent = buildFirstBuyLine();
+      };
+
+      const openSuccess = () => {
+        if (!successEl) return;
+        syncSuccessCopy();
+        panel.classList.add('is-plan-success-open');
+        successEl.hidden = false;
+        requestAnimationFrame(() => successEl.classList.add('is-open'));
+      };
+
+      const closeSuccess = () => {
+        if (!successEl) return;
+        successEl.classList.remove('is-open');
+        const onEnd = () => {
+          if (!successEl.classList.contains('is-open')) {
+            successEl.hidden = true;
+            panel.classList.remove('is-plan-success-open');
+          }
+          successEl.removeEventListener('transitionend', onEnd);
+        };
+        successEl.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      panel.querySelector('[data-plan-overview-confirm]')?.addEventListener('click', () => {
+        const gen = (submitGeneration += 1);
+        showLoader();
+        window.setTimeout(() => {
+          if (gen !== submitGeneration) return;
+          hideLoader();
+          // Keep overview in place (still open under success); success z-index is higher so it
+          // slides in over it—avoids the overview “popping off” before the submitted screen.
+          if (gen !== submitGeneration) return;
+          openSuccess();
+        }, LOADER_MS);
+      });
+
+      const leaveSuccessToFinanceAuto = () => {
+        planOverviewApi.close({ instant: true });
+        forceClose();
+        setOpen(false);
+        goFinanceAutoInvestFromSuccess();
+      };
+
+      successEl?.querySelectorAll('[data-plan-success-dismiss]').forEach((b) => {
+        b.addEventListener('click', leaveSuccessToFinanceAuto);
+      });
+
+      successEl?.querySelector('[data-plan-success-view-plan]')?.addEventListener('click', leaveSuccessToFinanceAuto);
+
+      return { close: closeSuccess, forceClose };
+    };
+
+    planSuccessApi = initPlanSubmitSuccessFlow();
+
     if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
     if (newPlanBtn) {
       newPlanBtn.addEventListener('click', () => {
@@ -3683,6 +3818,16 @@
     }
     closeButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
+        const ld = panel.querySelector('[data-plan-submit-loader]');
+        if (ld && !ld.hidden) {
+          planSuccessApi.forceClose();
+          return;
+        }
+        const sep = panel.querySelector('[data-plan-success-panel]');
+        if (sep?.classList.contains('is-open')) {
+          planSuccessApi.close();
+          return;
+        }
         const ovp = panel.querySelector('[data-plan-overview-panel]');
         if (ovp?.classList.contains('is-open')) {
           planOverviewApi.close();
@@ -3999,7 +4144,7 @@
     }
   };
 
-  initPlanDetailPanel();
+  initPlanDetailPanel({ goFinanceAutoInvest });
 
   initPrototypeReset();
 

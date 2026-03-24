@@ -4236,6 +4236,10 @@ html[data-active-tab="finance"] {
   overflow: hidden;
 }
 
+.plan-detail-panel.is-plan-success-open .plan-detail-panel__scroller {
+  overflow: hidden;
+}
+
 // ── Header ────────────────────────────────────────────────────────────────────
 
 .plan-detail-panel__header {
@@ -6183,6 +6187,218 @@ html[data-active-tab="finance"] {
 }
 
 .plan-overview-panel__btn--secondary {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+
+// ── Plan submit loader (Figma 8539:12955) ─────────────────────────────────────
+
+.plan-submit-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: auto;
+
+  &[hidden] {
+    display: none !important;
+  }
+}
+
+.plan-submit-loader__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.plan-submit-loader__card {
+  position: relative;
+  z-index: 1;
+  width: 104px;
+  height: 104px;
+  border-radius: 16px;
+  background: #2d2f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Discrete 45° ticks: steps(8) holds each eighth of a turn—no tween between angles
+.plan-submit-loader__icon {
+  display: block;
+  width: 40px;
+  height: 40px;
+  transform-origin: 50% 50%;
+  animation: plan-submit-loader-step 0.85s steps(8) infinite;
+}
+
+@keyframes plan-submit-loader-step {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── Plan submitted success (Figma 8539:10986) ──────────────────────────────────
+
+.plan-success-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 33;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+.plan-success-panel.is-open {
+  transform: translateX(0);
+}
+
+.plan-success-panel__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+}
+
+.plan-success-panel__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.plan-success-panel__header-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-success-panel__divider {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.plan-success-panel__scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.plan-success-panel__body {
+  flex: 1;
+  min-height: 0;
+  padding: 32px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-success-panel__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 328px;
+}
+
+.plan-success-panel__icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #56c488;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.plan-success-panel__check {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+.plan-success-panel__headline {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.phone-container p.plan-success-panel__sub {
+  margin: 0;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  color: #9b9c9c;
+  text-align: center;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-success-panel__footer {
+  flex-shrink: 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #0d0e0f;
+}
+
+.plan-success-panel__btn {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-success-panel__btn--primary {
+  background: #275cfd;
+  color: #ffffff;
+}
+
+.plan-success-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
 }

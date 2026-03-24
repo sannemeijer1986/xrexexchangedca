@@ -1195,6 +1195,49 @@
             </div>
         </section>
 
+        <!-- Submit loader (centered overlay while confirming) -->
+        <div class="plan-submit-loader" data-plan-submit-loader hidden>
+            <div class="plan-submit-loader__backdrop" aria-hidden="true"></div>
+            <div class="plan-submit-loader__card" role="status" aria-live="polite" aria-label="Submitting">
+                <img
+                    class="plan-submit-loader__icon"
+                    src="assets/icon-loading.svg"
+                    alt=""
+                    width="40"
+                    height="40"
+                    aria-hidden="true"
+                />
+            </div>
+        </div>
+
+        <!-- Plan submitted success (slides in from right) -->
+        <section class="plan-success-panel" data-plan-success-panel hidden aria-label="Plan submitted">
+            <header class="plan-success-panel__header">
+                <button class="plan-success-panel__icon-btn" type="button" data-plan-success-dismiss aria-label="Close">
+                    <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+                </button>
+                <div class="plan-success-panel__header-spacer" aria-hidden="true"></div>
+            </header>
+            <div class="plan-success-panel__divider" aria-hidden="true"></div>
+            <div class="plan-success-panel__scroller">
+                <div class="plan-success-panel__body">
+                    <div class="plan-success-panel__hero">
+                        <div class="plan-success-panel__icon-wrap" aria-hidden="true">
+                            <svg class="plan-success-panel__check" width="28" height="28" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M13.522 4.62747C13.8194 4.91575 13.8268 5.39056 13.5386 5.688L7.40968 12.0114C7.02981 12.4034 6.40585 12.4183 6.00767 12.045L2.98705 9.21317C2.68486 8.92987 2.66955 8.45524 2.95285 8.15306C3.23615 7.85088 3.71077 7.83557 4.01296 8.11886L6.67483 10.6144L12.4615 4.64404C12.7497 4.3466 13.2245 4.33918 13.522 4.62747Z" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <div class="plan-success-panel__headline" data-plan-success-title>Your monthly<br />auto-invest plan is set</div>
+                        <p class="plan-success-panel__sub" data-plan-success-sub>First buy on Mar 15 at 12:00</p>
+                    </div>
+                </div>
+                <div class="plan-success-panel__footer">
+                    <button class="plan-success-panel__btn plan-success-panel__btn--primary" type="button" data-plan-success-view-plan>View plan</button>
+                    <button class="plan-success-panel__btn plan-success-panel__btn--secondary" type="button" data-plan-success-dismiss>Done</button>
+                </div>
+            </div>
+        </section>
+
     </section>
 
     <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->
