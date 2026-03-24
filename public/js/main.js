@@ -658,7 +658,7 @@
 
   // ─── Currency + range state ───────────────────────────────────────────────────
   const currencyState = { summary: 'TWD', plan: 'TWD' };
-  const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y' };
+  const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y' };
 
   const curatedReturns = {
     bigthree:    { '5Y': '45.23%', '3Y': '28.15%', '1Y': '18.42%' },
@@ -844,6 +844,11 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
+        el.textContent = `${range} historical return ≈`;
+      });
+    }
+    if (context === 'breakdown') {
+      document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
         el.textContent = `${range} historical return ≈`;
       });
     }
@@ -2765,6 +2770,25 @@
       headerWrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${s}" alt="" />`;
     };
 
+    const getCurrentPlanDisplayAssets = (fallbackIconSrc) => {
+      const ctx = panelOpenContext || { source: 'plan' };
+      if (detailAllocOverride?.items?.length) return detailAllocOverride.items.slice(0, 3);
+      if (ctx.source === 'curated' && ctx.curatedKey) return (planAllocation[String(ctx.curatedKey).toLowerCase()] || []).slice(0, 3);
+      if (ctx.source === 'spotlight' && ctx.spotlightKey) {
+        const key = String(ctx.spotlightKey || '').toLowerCase();
+        const coin = pickableCoins.find((c) => c.key === key);
+        return coin ? [{ name: coin.name, ticker: coin.ticker, icon: coin.icon }] : [];
+      }
+      const carousel = document.querySelector('[data-plan-carousel]');
+      const activePlan = String(carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+      const fromPlan = planAllocation[activePlan];
+      if (fromPlan?.length) return fromPlan.slice(0, 3);
+      const ticker = String(planTicker[activePlan] || '').split(/[·,]/)[0].trim() || 'BTC';
+      return [{ name: ticker, ticker, icon: fallbackIconSrc || 'assets/icon_currency_btc.svg' }];
+    };
+
+    let planBreakdownApi = { sync: () => {}, close: () => {} };
+
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
       const shouldPreserveCurrentAmount = !!opts.preserveAmount;
@@ -2840,6 +2864,7 @@
           ? detailAllocOverride.items
           : null;
       renderPlanDetailProductIcons(productIconWrap, headerIconWrap, iconSrc, coinPickItems);
+      planBreakdownApi.sync({ iconSrc });
 
       // Collapsed header state
       panel.querySelector('[data-plan-detail-header-name]').textContent = title;
@@ -3320,9 +3345,81 @@
     };
     const allocPickerApi = initPlanAllocPicker();
 
+    const initPlanBreakdownPanel = () => {
+      const breakdownPanel = panel.querySelector('[data-plan-breakdown-panel]');
+      if (!breakdownPanel) return { open: () => {}, close: () => {}, sync: () => {} };
+
+      const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
+      const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
+      const legendAssetsEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-assets]');
+      const periodLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-period-label]');
+      const contributionEl = breakdownPanel.querySelector('[data-plan-breakdown-contribution]');
+      const totalEl = breakdownPanel.querySelector('[data-plan-breakdown-total]');
+      const valueEl = breakdownPanel.querySelector('[data-plan-breakdown-value]');
+      const profitPctEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-pct]');
+      const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
+
+      const sync = (opts = {}) => {
+        const fallbackIconSrc = opts.iconSrc || 'assets/icon_currency_btc.svg';
+        const selectedAssets = getCurrentPlanDisplayAssets(fallbackIconSrc);
+        const tickers = selectedAssets
+          .map((it) => String(it?.ticker || '').trim())
+          .filter(Boolean)
+          .slice(0, 3);
+        const prettyTickers = tickers.join(', ') || 'BTC';
+        const range = rangeState.breakdown || '5Y';
+        const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+        const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+        const pctRaw = parseFloat(String(panel.querySelector('[data-plan-detail-return-pct]')?.textContent || '').replace(/[^0-9.\-]/g, ''));
+        const pct = Number.isFinite(pctRaw) ? pctRaw : 0;
+        const monthsByRange = { '1Y': 12, '3Y': 36, '5Y': 60 };
+        const totalInvested = amount * (monthsByRange[range] || 60);
+        const value = Math.round(totalInvested * (1 + (pct / 100)));
+        const profit = value - totalInvested;
+
+        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null);
+        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
+        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (periodLabelEl) periodLabelEl.textContent = `{${range}} contribution ≈`;
+        if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
+        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
+        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
+        if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString('en-US')} ${cur}`;
+      };
+
+      const open = () => {
+        sync();
+        breakdownPanel.hidden = false;
+        requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
+      };
+
+      const close = () => {
+        breakdownPanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!breakdownPanel.classList.contains('is-open')) breakdownPanel.hidden = true;
+          breakdownPanel.removeEventListener('transitionend', onEnd);
+        };
+        breakdownPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      panel.querySelector('.plan-detail-panel__breakdown')?.addEventListener('click', open);
+      breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
+
+      document.addEventListener('range-sheet-confirmed', (e) => {
+        if (e?.detail?.context !== 'breakdown') return;
+        if (breakdownPanel.classList.contains('is-open')) sync();
+      });
+
+      return { open, close, sync };
+    };
+    planBreakdownApi = initPlanBreakdownPanel();
+
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
+        planBreakdownApi.close();
         if (openCtx && openCtx.source && openCtx.source !== 'plan') {
           detailAllocOverride = null;
         }
@@ -3353,6 +3450,7 @@
           }
         }, 350);
       } else {
+        planBreakdownApi.close();
         document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
         panelOpenContext = { source: 'plan' };
         panel.classList.remove('is-open');

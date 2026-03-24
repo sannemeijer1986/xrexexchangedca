@@ -1063,6 +1063,65 @@
             </div>
         </div>
 
+        <section class="plan-breakdown-panel" data-plan-breakdown-panel hidden aria-label="Historical return breakdown">
+            <div class="plan-breakdown-panel__header">
+                <button class="plan-breakdown-panel__close" type="button" data-plan-breakdown-close aria-label="Close breakdown">
+                    <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+                </button>
+                <div class="plan-breakdown-panel__title-wrap">
+                    <div class="plan-breakdown-panel__kicker" data-plan-breakdown-title-kicker>5Y historical return ≈</div>
+                    <div class="plan-breakdown-panel__title">Breakdown</div>
+                </div>
+                <button class="plan-detail-panel__return-range" type="button" aria-label="Breakdown range" data-range-sheet-trigger="breakdown">
+                    <span data-range-label="breakdown">5Y</span>
+                    <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" />
+                </button>
+            </div>
+
+            <div class="plan-breakdown-panel__body">
+                <div class="plan-breakdown-panel__card">
+                    <div class="plan-breakdown-panel__asset-wrap" data-plan-breakdown-icon-wrap>
+                        <img class="plan-detail-panel__product-icon" src="assets/icon_currency_btc.svg" alt="" />
+                    </div>
+                    <p class="plan-breakdown-panel__headline" data-plan-breakdown-headline>If you invested in BTC over the past 5y ≈</p>
+                    <p class="plan-breakdown-panel__subnote">For newer assets, we use earliest available data</p>
+
+                    <div class="plan-breakdown-panel__chart">
+                        <div class="plan-breakdown-panel__legend">
+                            <span class="plan-breakdown-panel__legend-item"><i class="plan-breakdown-panel__dot plan-breakdown-panel__dot--asset"></i><span data-plan-breakdown-legend-assets>BTC</span></span>
+                            <span class="plan-breakdown-panel__legend-item"><i class="plan-breakdown-panel__dot plan-breakdown-panel__dot--sp"></i>S&amp;P 500</span>
+                        </div>
+                        <figure class="plan-breakdown-panel__chart-figure">
+                            <img
+                                class="plan-breakdown-panel__chart-img"
+                                src="assets/plan-breakdown-chart.svg"
+                                alt=""
+                                width="299"
+                                height="177"
+                                loading="lazy"
+                                decoding="async"
+                            />
+                        </figure>
+                    </div>
+
+                    <div class="plan-breakdown-panel__stats">
+                        <div class="plan-breakdown-panel__row"><span data-plan-breakdown-period-label>{5Y} contribution ≈</span><span data-plan-breakdown-contribution>10,000 TWD</span></div>
+                        <div class="plan-breakdown-panel__row"><span>Total invested ≈</span><span data-plan-breakdown-total>600,000 TWD</span></div>
+                        <div class="plan-breakdown-panel__row"><span>Value ≈</span><span data-plan-breakdown-value>900,000 TWD</span></div>
+                        <div class="plan-breakdown-panel__divider"></div>
+                        <div class="plan-breakdown-panel__row plan-breakdown-panel__row--profit">
+                            <span>Profit/loss ≈</span>
+                            <span class="plan-breakdown-panel__profit-wrap">
+                                <span class="plan-breakdown-panel__profit-main"><img src="assets/icon_northeast_arrow.svg" alt="" /> <span data-plan-breakdown-profit-pct>50.0%</span></span>
+                                <span class="plan-breakdown-panel__profit-sub" data-plan-breakdown-profit-abs>+300,000 TWD</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <p class="plan-breakdown-panel__footnote">Based on historical data.<br />Not indicative of future result</p>
+            </div>
+        </section>
+
     </section>
 
     <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->
