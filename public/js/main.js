@@ -2723,6 +2723,48 @@
       }
     };
 
+    const escPlanDetailIconAttr = (v) =>
+      String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+
+    /** Single hero icon or Figma pyramid stack (2 coins + placeholder / 3 coins). */
+    const renderPlanDetailProductIcons = (productWrap, headerWrap, fallbackIconSrc, coinItems) => {
+      if (!productWrap || !headerWrap) return;
+
+      const buildStackMarkup = (variant) => {
+        const items = (coinItems || []).slice(0, 3).filter((it) => it && it.icon);
+        if (items.length < 2) return null;
+        const twoOnly = items.length === 2;
+        const mod = twoOnly ? ' plan-detail-panel__icon-stack--two' : '';
+        const baseClass =
+          variant === 'header'
+            ? `plan-detail-panel__icon-stack plan-detail-panel__icon-stack--header${mod}`
+            : `plan-detail-panel__icon-stack${mod}`;
+        const [a, b, c] = [items[0], items[1], items[2]];
+        const br = c?.icon
+          ? `<img src="${escPlanDetailIconAttr(c.icon)}" alt="" />`
+          : '<span class="plan-detail-panel__icon-stack-placeholder" aria-hidden="true"></span>';
+        return `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escPlanDetailIconAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escPlanDetailIconAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+      };
+
+      const stackProduct = buildStackMarkup('product');
+      if (stackProduct) {
+        productWrap.innerHTML = stackProduct;
+        headerWrap.innerHTML = buildStackMarkup('header');
+        return;
+      }
+
+      const singleSrc =
+        coinItems && coinItems.length === 1 && coinItems[0]?.icon
+          ? coinItems[0].icon
+          : fallbackIconSrc;
+      const s = escPlanDetailIconAttr(singleSrc);
+      productWrap.innerHTML = `<img class="plan-detail-panel__product-icon" src="${s}" alt="" />`;
+      headerWrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${s}" alt="" />`;
+    };
+
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
       const shouldPreserveCurrentAmount = !!opts.preserveAmount;
@@ -2791,12 +2833,17 @@
       // Product hero
       panel.querySelector('[data-plan-detail-name]').textContent = title;
       panel.querySelector('[data-plan-detail-ticker]').textContent = ticker;
-      panel.querySelector('[data-plan-detail-icon]').src = iconSrc;
+      const productIconWrap = panel.querySelector('[data-plan-detail-icon-wrap]');
+      const headerIconWrap = panel.querySelector('[data-plan-detail-header-icon-wrap]');
+      const coinPickItems =
+        detailAllocOverride?.kind === 'coins' && Array.isArray(detailAllocOverride.items)
+          ? detailAllocOverride.items
+          : null;
+      renderPlanDetailProductIcons(productIconWrap, headerIconWrap, iconSrc, coinPickItems);
 
       // Collapsed header state
       panel.querySelector('[data-plan-detail-header-name]').textContent = title;
       panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
-      panel.querySelector('[data-plan-detail-header-icon]').src = iconSrc;
 
       panel.querySelector('[data-plan-detail-currency]').textContent = cur;
       panel.querySelector('[data-plan-detail-amount-icon]').src =
