@@ -3377,6 +3377,10 @@
         const value = Math.round(totalInvested * (1 + (pct / 100)));
         const profit = value - totalInvested;
 
+        const stackItems = (selectedAssets || []).slice(0, 3).filter((it) => it && it.icon);
+        const isBreakdownIconStack = stackItems.length >= 2;
+        iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
+        iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
         renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null);
         if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;

@@ -5640,6 +5640,25 @@ html[data-active-tab="finance"] {
 .plan-breakdown-panel__asset-wrap {
   width: 64px;
   height: 64px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Single asset: match plan-strategy hero (larger SVG, contain — stack mode keeps 64px pyramid)
+.plan-breakdown-panel__asset-wrap--single {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.plan-breakdown-panel__asset-wrap--single .plan-detail-panel__product-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
 .phone-container p.plan-breakdown-panel__headline {
@@ -5700,7 +5719,8 @@ html[data-active-tab="finance"] {
   margin: 0 auto;
   width: 100%;
   max-width: 299px;
-}
+  margin-top: -
+x}
 
 .plan-breakdown-panel__chart-img {
   display: block;
@@ -5774,13 +5794,33 @@ html[data-active-tab="finance"] {
   font-weight: 600;
 }
 
-.plan-breakdown-panel__footnote {
+.plan-breakdown-panel__bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+}
+
+.phone-container p.plan-breakdown-panel__footnote {
   margin: 0;
   color: #58595a;
   text-align: center;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.plan-breakdown-panel__close-cta {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+  border: 0;
+  background: #2d2f2f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .alloc-picker-panel {
