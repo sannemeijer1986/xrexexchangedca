@@ -30,6 +30,18 @@
   visibility: hidden;
 }
 
+.phone-container.is-my-plans-open .app-header,
+.phone-container.is-my-plans-open .content,
+.phone-container.is-my-plans-open .tabbar {
+  visibility: hidden;
+}
+
+.phone-container.is-my-plans-fading .app-header,
+.phone-container.is-my-plans-fading .content,
+.phone-container.is-my-plans-fading .tabbar {
+  opacity: 0;
+}
+
 .phone-container .app-header,
 .phone-container .content,
 .phone-container .tabbar {
@@ -6518,6 +6530,176 @@ html[data-active-tab="finance"] {
 .plan-success-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
+}
+
+// ─── My plans panel (Figma 8541:11409) ───────────────────────────────────────
+
+.my-plans-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+.my-plans-panel.is-open {
+  transform: translateX(0);
+}
+
+.my-plans-panel__fixed {
+  flex-shrink: 0;
+  background: #0d0e0f;
+}
+
+// Top inset matches plan-overview / plan-detail (status area), not extra wrapper padding
+.my-plans-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.my-plans-panel__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.phone-container h1.my-plans-panel__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.my-plans-panel__tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-bottom: 1px solid #252627;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.my-plans-panel__tab {
+  position: relative;
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &.is-active {
+    color: #ffffff;
+  }
+
+  &.is-active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: #275cfd;
+    border-radius: 1px;
+  }
+}
+
+.my-plans-panel__scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+// Flow progress = 1 (prototype): empty list — cards not shown yet
+.my-plans-panel.my-plans-panel--hide-cards .my-plans-panel__card {
+  display: none;
+}
+
+.my-plans-panel__views {
+  position: relative;
+  width: 100%;
+}
+
+.my-plans-panel__view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+// Our display:flex wins over UA [hidden] — must hide inactive tab panels or all views stack
+.my-plans-panel__view[hidden] {
+  display: none !important;
+}
+
+.my-plans-panel__card {
+  min-height: 131px;
+  border-radius: 16px;
+  background: #1b1d1d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 16px 20px;
+  box-sizing: border-box;
+}
+
+.my-plans-panel__card-placeholder {
+  font-size: 16px;
+  font-weight: 700;
+  color: #9b9c9c;
+  text-align: center;
 }
 
 .alloc-picker-panel {

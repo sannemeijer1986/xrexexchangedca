@@ -16,6 +16,9 @@
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const states = {};
 
+  /** Set by initMyPlansPanel — refreshes plan cards when Flow progress changes */
+  let syncMyPlansFlowUi = () => {};
+
   const syncTopChromeHeight = () => {
     const topChrome = document.querySelector('.top-chrome');
     if (!topChrome) return;
@@ -73,7 +76,10 @@
       // ignore storage errors
     }
     updateGroupUI(group);
-    if (group === 'flow') syncFinanceSummaryVisibility();
+    if (group === 'flow') {
+      syncFinanceSummaryVisibility();
+      syncMyPlansFlowUi();
+    }
     return clamped;
   };
 
@@ -131,16 +137,6 @@
       const action = button.getAttribute('data-state-action');
       if (action === 'down') changeState(group, -1);
       if (action === 'up') changeState(group, 1);
-    });
-  };
-
-  const initPrototypeReset = () => {
-    const resetBtn = document.querySelector('[data-prototype-reset]');
-    if (!resetBtn) return;
-    resetBtn.addEventListener('click', () => {
-      Object.keys(STATE_CONFIGS).forEach((group) => {
-        setState(group, STATE_CONFIGS[group].min, { force: true });
-      });
     });
   };
 
@@ -681,6 +677,53 @@
   const currencyState = { summary: 'TWD', plan: 'TWD' };
   const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y' };
 
+  const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 · 11:00';
+  /** Set when user confirms plan overview; cleared on prototype Reset */
+  let financeSummaryConfirmedNextBuy = '';
+
+  const summaryDisplaySuffix = (summaryCode) => (summaryCode === 'USDT' ? 'USD' : 'TWD');
+
+  /** Compact "Mar 15 · 12:00" / "Mon · 12:00" from plan-detail schedule line */
+  const formatFinanceNextBuyCompact = (schedText) => {
+    const sched = String(schedText || '').trim();
+    if (!sched) return '';
+    const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
+    const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
+    const timeMatch = tail.match(/at\s+([\d:]+)/i);
+    const timeStr = timeMatch ? timeMatch[1] : '12:00';
+    const dayMatch = tail.match(/(\d{1,2})(?:st|nd|rd|th)/i);
+    if (!dayMatch && tail) {
+      return tail.replace(/\s+at\s+/i, ' · ').replace(/\s+/g, ' ').trim();
+    }
+    const day = dayMatch ? parseInt(dayMatch[1], 10) : 15;
+    const t = new Date();
+    if (t.getDate() >= day) t.setMonth(t.getMonth() + 1);
+    t.setDate(day);
+    const mon = t.toLocaleString('en-US', { month: 'short' });
+    return `${mon} ${day} · ${timeStr}`;
+  };
+
+  const applyFinanceSummaryMeta = () => {
+    const totalEl = document.querySelector('[data-finance-summary-total-invested]');
+    const nextEl = document.querySelector('[data-finance-summary-next-buy]');
+    const suf = summaryDisplaySuffix(currencyState.summary);
+    if (totalEl) totalEl.textContent = `0 ${suf}`;
+    const nb = financeSummaryConfirmedNextBuy.trim();
+    if (nextEl) nextEl.textContent = nb || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+  };
+
+  const initPrototypeReset = () => {
+    const resetBtn = document.querySelector('[data-prototype-reset]');
+    if (!resetBtn) return;
+    resetBtn.addEventListener('click', () => {
+      Object.keys(STATE_CONFIGS).forEach((group) => {
+        setState(group, STATE_CONFIGS[group].min, { force: true });
+      });
+      financeSummaryConfirmedNextBuy = '';
+      applyFinanceSummaryMeta();
+    });
+  };
+
   const curatedReturns = {
     bigthree:    { '5Y': '45.23%', '3Y': '28.15%', '1Y': '18.42%' },
     digitalgold: { '5Y': '35.23%', '3Y': '22.10%', '1Y': '12.35%' },
@@ -724,6 +767,7 @@
     const cur = currencyState.summary;
     document.querySelectorAll('[data-summary-currency-label]').forEach((el) => { el.textContent = cur; });
     document.querySelectorAll('[data-summary-selector-label]').forEach((el) => { el.textContent = cur; });
+    applyFinanceSummaryMeta();
   };
 
   /**
@@ -1737,12 +1781,117 @@
     const content = document.querySelector('[data-content]');
     if (content) content.scrollTop = 0;
   };
+
+  const initMyPlansPanel = (opts = {}) => {
+    const goFinance = typeof opts.goFinanceAutoInvest === 'function' ? opts.goFinanceAutoInvest : () => {};
+    const panel = document.querySelector('[data-my-plans-panel]');
+    const container = document.querySelector('.phone-container');
+    if (!panel) {
+      return { open: () => {}, close: () => {} };
+    }
+
+    const titleEl = panel.querySelector('[data-my-plans-title]');
+
+    /** Plan list count for prototype: 0 until Flow ≥ 2 (after overview Confirm), then 1 */
+    const getMyPlansCount = () => ((states.flow ?? 1) >= 2 ? 1 : 0);
+
+    const syncMyPlansLabels = () => {
+      const n = getMyPlansCount();
+      if (titleEl) titleEl.textContent = `My plans (${n})`;
+      document.querySelectorAll('[data-my-plans-count-label]').forEach((el) => {
+        el.textContent = `My plans (${n})`;
+      });
+    };
+
+    const tabs = panel.querySelectorAll('[data-my-plans-filter]');
+    const views = panel.querySelectorAll('[data-my-plans-view]');
+
+    const setFilter = (id) => {
+      tabs.forEach((tab) => {
+        const on = tab.getAttribute('data-my-plans-filter') === id;
+        tab.classList.toggle('is-active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      views.forEach((view) => {
+        view.hidden = view.getAttribute('data-my-plans-view') !== id;
+      });
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => setFilter(tab.getAttribute('data-my-plans-filter')));
+    });
+
+    const syncMyPlansFromFlow = () => {
+      const flow = states.flow ?? 1;
+      panel.classList.toggle('my-plans-panel--hide-cards', flow === 1);
+      syncMyPlansLabels();
+    };
+
+    syncMyPlansFlowUi = syncMyPlansFromFlow;
+
+    const open = () => {
+      syncMyPlansFromFlow();
+      setFilter('all');
+      panel.hidden = false;
+      if (container) {
+        container.classList.remove('is-my-plans-open');
+        container.classList.remove('is-my-plans-fading');
+      }
+      requestAnimationFrame(() => {
+        panel.classList.add('is-open');
+      });
+      setTimeout(() => {
+        if (container && panel.classList.contains('is-open')) {
+          container.classList.add('is-my-plans-fading');
+        }
+      }, 80);
+      setTimeout(() => {
+        if (container && panel.classList.contains('is-open')) {
+          container.classList.add('is-my-plans-open');
+        }
+      }, 350);
+    };
+
+    const close = () => {
+      panel.classList.remove('is-open');
+      if (container) {
+        container.classList.add('is-my-plans-fading');
+        container.classList.remove('is-my-plans-open');
+        requestAnimationFrame(() => {
+          container.classList.remove('is-my-plans-fading');
+        });
+      }
+      const onEnd = () => {
+        if (!panel.classList.contains('is-open')) panel.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    panel.querySelector('[data-my-plans-close]')?.addEventListener('click', close);
+
+    document.querySelectorAll('[data-open-my-plans]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        goFinance();
+        open();
+      });
+    });
+
+    syncMyPlansFromFlow();
+
+    return { open, close };
+  };
+
+  const myPlansPanelApi = initMyPlansPanel({ goFinanceAutoInvest });
+
   initFinanceSectionNav();
   initPlanStrategySlider();
   initPlanStrategyFreq();
   initPlanStrategyCarousel();
   initLimitsPanel();
   initCurrencySheet();
+  applyFinanceSummaryMeta();
   initPromoIntroSheet();
   initRangeSheet();
   initTopupSheet();
@@ -1761,6 +1910,8 @@
   // ─── Plan Detail Panel ──────────────────────────────────────────────────────
   const initPlanDetailPanel = (opts = {}) => {
     const goFinanceAutoInvestFromSuccess = typeof opts.goFinanceAutoInvest === 'function' ? opts.goFinanceAutoInvest : () => {};
+    const openMyPlansAfterPlanFlow =
+      typeof opts.openMyPlansAfterPlanFlow === 'function' ? opts.openMyPlansAfterPlanFlow : () => {};
     const panel = document.querySelector('[data-plan-detail-panel]');
     const container = document.querySelector('.phone-container');
     if (!panel) return;
@@ -3815,6 +3966,11 @@
           // Keep overview in place (still open under success); success z-index is higher so it
           // slides in over it—avoids the overview “popping off” before the submitted screen.
           if (gen !== submitGeneration) return;
+          setState('flow', 2, { force: true });
+          const schedLine = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+          const nextCompact = formatFinanceNextBuyCompact(schedLine);
+          if (nextCompact) financeSummaryConfirmedNextBuy = nextCompact;
+          applyFinanceSummaryMeta();
           openSuccess();
         }, LOADER_MS);
       });
@@ -3826,11 +3982,19 @@
         goFinanceAutoInvestFromSuccess();
       };
 
+      const leaveSuccessToMyPlans = () => {
+        planOverviewApi.close({ instant: true });
+        forceClose();
+        setOpen(false);
+        goFinanceAutoInvestFromSuccess();
+        openMyPlansAfterPlanFlow();
+      };
+
       successEl?.querySelectorAll('[data-plan-success-dismiss]').forEach((b) => {
         b.addEventListener('click', leaveSuccessToFinanceAuto);
       });
 
-      successEl?.querySelector('[data-plan-success-view-plan]')?.addEventListener('click', leaveSuccessToFinanceAuto);
+      successEl?.querySelector('[data-plan-success-view-plan]')?.addEventListener('click', leaveSuccessToMyPlans);
 
       return { close: closeSuccess, forceClose };
     };
@@ -4175,7 +4339,14 @@
     }
   };
 
-  initPlanDetailPanel({ goFinanceAutoInvest });
+  initPlanDetailPanel({
+    goFinanceAutoInvest,
+    openMyPlansAfterPlanFlow: () => {
+      window.setTimeout(() => {
+        myPlansPanelApi.open();
+      }, 380);
+    },
+  });
 
   initPrototypeReset();
 
