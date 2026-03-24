@@ -2260,6 +2260,20 @@ html[data-active-tab="finance"] {
   color: #5AC47D;
 }
 
+.plan-strategy__view-breakdown-link {
+  margin-top: 2px;
+  margin-bottom: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  align-self: flex-start;
+  color: #3f78ff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
 .plan-strategy__return-pct-line {
   display: flex;
   align-items: center;
@@ -5614,7 +5628,7 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__return {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .plan-detail-panel__return-header {
@@ -5697,7 +5711,7 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__view-breakdown-link {
   margin-top: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   padding: 0;
   border: 0;
   background: transparent;

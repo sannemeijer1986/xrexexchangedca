@@ -3688,6 +3688,15 @@
         requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
       };
 
+      const openFromPlanWidget = () => {
+        if (!panel.classList.contains('is-open')) {
+          setOpen(true);
+          window.setTimeout(open, 380);
+          return;
+        }
+        open();
+      };
+
       const close = (closeOpts = {}) => {
         if (closeOpts.instant) {
           breakdownPanel.style.transition = 'none';
@@ -3711,6 +3720,7 @@
       };
 
       panel.querySelector('.plan-detail-panel__view-breakdown-link')?.addEventListener('click', open);
+      document.querySelector('.plan-strategy__view-breakdown-link')?.addEventListener('click', openFromPlanWidget);
       breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
 
       document.addEventListener('range-sheet-confirmed', (e) => {
