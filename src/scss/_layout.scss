@@ -1719,6 +1719,20 @@ html[data-active-tab="finance"] {
   margin-top: 24px;
 }
 
+// Secured loan → Explore: full-width placeholder art (edge-to-edge in content column)
+.finance-loan-explore {
+  margin-top: -56px;
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
+}
+
+.finance-loan-explore__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .finance__sections {
   display: flex;
   flex-direction: column;
@@ -2936,14 +2950,6 @@ html[data-active-tab="finance"] {
   cursor: pointer;
 }
 
-.currency-sheet__item-icon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
 .currency-sheet__item-content {
   flex: 1;
   min-width: 0;
@@ -3048,15 +3054,21 @@ html[data-active-tab="finance"] {
   cursor: pointer;
 }
 
+// img icons (display + investment currency sheets): no circle fill
 .currency-sheet__item-icon {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: #47494A;
   flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+// div row icons (top-up, schedule, etc.): keep circular keyline background
+div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #47494a;
 
   &::before {
     content: '';

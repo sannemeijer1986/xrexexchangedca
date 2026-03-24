@@ -681,8 +681,6 @@
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
 
-  const summaryDisplaySuffix = (summaryCode) => (summaryCode === 'USDT' ? 'USD' : 'TWD');
-
   /** Compact "Mar 15 · 12:00" / "Mon · 12:00" from plan-detail schedule line */
   const formatFinanceNextBuyCompact = (schedText) => {
     const sched = String(schedText || '').trim();
@@ -706,7 +704,7 @@
   const applyFinanceSummaryMeta = () => {
     const totalEl = document.querySelector('[data-finance-summary-total-invested]');
     const nextEl = document.querySelector('[data-finance-summary-next-buy]');
-    const suf = summaryDisplaySuffix(currencyState.summary);
+    const suf = currencyState.summary;
     if (totalEl) totalEl.textContent = `0 ${suf}`;
     const nb = financeSummaryConfirmedNextBuy.trim();
     if (nextEl) nextEl.textContent = nb || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
