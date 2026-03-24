@@ -4096,6 +4096,16 @@ html[data-active-tab="finance"] {
   transform: translate(-50%, 0);
 }
 
+.snackbar.snackbar--alloc-picker-max {
+  height: 56px;
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #47494a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .snackbar__icon {
   width: 24px;
   height: 24px;
@@ -5566,13 +5576,17 @@ html[data-active-tab="finance"] {
   gap: 20px;
 }
 
-.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__search-wrap {
-  margin: 16px 0 0;
+// `display: flex` on the view beats UA `[hidden]`; keep tab panels mutually exclusive
+.alloc-picker-panel__view[hidden] {
+  display: none !important;
 }
 
-.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__hint-row {
-  margin: 0;
+.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__search-wrap {
+  margin: 16px 0 0;
+  gap: 20px;
 }
+
+// Hint row spacing: edit `.alloc-picker-panel__hint-row` below (do not zero it out here)
 
 .alloc-picker-panel__search-wrap {
   position: relative;
@@ -5606,6 +5620,38 @@ html[data-active-tab="finance"] {
   box-sizing: border-box;
 }
 
+.alloc-picker-panel__search-wrap--has-query .alloc-picker-panel__search {
+  padding-right: 44px;
+}
+
+.alloc-picker-panel__search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.alloc-picker-panel__search-clear[hidden] {
+  display: none !important;
+}
+
+.alloc-picker-panel__search-clear img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  pointer-events: none;
+}
+
 .alloc-picker-panel__search::placeholder {
   color: #9b9c9c;
 }
@@ -5615,11 +5661,12 @@ html[data-active-tab="finance"] {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin: 16px 0;
+  margin: 16px 0 0 0;
 }
 
 .alloc-picker-panel__hint-row--curated {
   margin-top: 24px;
+  margin-bottom: 16px;
 }
 
 .alloc-picker-panel__hint-row .alloc-picker-panel__hint {
@@ -5635,11 +5682,22 @@ html[data-active-tab="finance"] {
   color: #ffffff;
 }
 
-.alloc-picker-panel__coins,
-.alloc-picker-panel__curated {
+.alloc-picker-panel__coins {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.alloc-picker-panel__curated {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.alloc-picker-panel__curated .curated-portfolios__card {
+  width: 100%;
+  border: 0;
+  text-align: left;
 }
 
 .alloc-picker-panel__coin-row {
@@ -5788,7 +5846,7 @@ html[data-active-tab="finance"] {
   background: #141515;
   color: #ffffff;
   height: 30px;
-  padding: 0 4px;
+  padding: 0 6px 0 4px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -5798,10 +5856,12 @@ html[data-active-tab="finance"] {
   line-height: 16px;
 }
 
-.alloc-picker-panel__chip img {
+.alloc-picker-panel__chip-currency {
   width: 20px;
   height: 20px;
   border-radius: 999px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .alloc-picker-panel__chip-label {
@@ -5809,6 +5869,30 @@ html[data-active-tab="finance"] {
   font-weight: 600;
   line-height: 16px;
   color: #ffffff;
+}
+
+.alloc-picker-panel__chip-dismiss {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
+  }
 }
 
 .alloc-picker-panel__chip-close {

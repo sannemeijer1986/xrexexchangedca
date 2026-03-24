@@ -1807,10 +1807,21 @@
       return snackbarEl;
     };
 
-    const showTopSnackbar = (message) => {
+    const showTopSnackbar = (message, opts = {}) => {
       const el = ensureTopSnackbar();
+      const variant = opts.variant || 'default';
       const textEl = el.querySelector('[data-plan-detail-snackbar-text]');
       if (textEl) textEl.textContent = String(message || '');
+      el.classList.toggle('snackbar--alloc-picker-max', variant === 'alloc-picker-max');
+      const iconImg = el.querySelector('.snackbar__icon img');
+      if (iconImg) {
+        iconImg.setAttribute(
+          'src',
+          variant === 'alloc-picker-max'
+            ? 'assets/icon_info_blue.svg'
+            : 'assets/icon_timeline_activewarning.svg',
+        );
+      }
       if (snackbarTimer) clearTimeout(snackbarTimer);
       el.classList.remove('is-visible');
       void el.offsetWidth;
@@ -1820,7 +1831,8 @@
         });
       });
       snackbarTimer = setTimeout(() => {
-        el.classList.remove('is-visible');
+        el.classList.remove('is-visible', 'snackbar--alloc-picker-max');
+        if (iconImg) iconImg.setAttribute('src', 'assets/icon_timeline_activewarning.svg');
         snackbarTimer = null;
       }, 1800);
     };
@@ -1866,9 +1878,27 @@
     ];
 
     const pickerCurated = [
-      { key: 'bigthree', title: 'Big Three', desc: 'The core large-cap stack for broad crypto exposure.', ret: '+45.23%' },
-      { key: 'digitalgold', title: 'Digital Gold', desc: 'Bitcoin with tokenized gold for lower volatility.', ret: '+35.23%' },
-      { key: 'aiessentials', title: 'AI Essentials', desc: 'AI and compute-linked assets with high growth potential.', ret: '+52.23%' },
+      {
+        key: 'bigthree',
+        icon: 'assets/icon_bigthree.svg',
+        title: 'Big Three',
+        tickers: 'BTC, ETH, SOL',
+        desc: 'DCA into the top three cryptos',
+      },
+      {
+        key: 'digitalgold',
+        icon: 'assets/icon_digitalgold.svg',
+        title: 'Digital gold',
+        tickers: 'BTC, XAUT',
+        desc: 'Tokenized Gold and Bitcoin combined',
+      },
+      {
+        key: 'aiessentials',
+        icon: 'assets/icon_aiessentials.svg',
+        title: 'AI essentials',
+        tickers: 'RENDER, NEAR, SOL',
+        desc: 'Leading AI projects and platforms',
+      },
     ];
 
     let detailAllocOverride = null;
@@ -2755,6 +2785,7 @@
           .filter(Boolean);
         title = curatedMeta?.title || title;
         ticker = curatedTickers.join(', ');
+        if (curatedMeta?.icon) iconSrc = curatedMeta.icon;
       }
 
       // Product hero
@@ -2953,6 +2984,8 @@
       const footerEl = allocPickerPanel.querySelector('[data-alloc-picker-footer]');
       const continueBtn = allocPickerPanel.querySelector('[data-alloc-picker-continue]');
       const searchInput = allocPickerPanel.querySelector('[data-alloc-picker-search]');
+      const searchClearBtn = allocPickerPanel.querySelector('[data-alloc-picker-search-clear]');
+      const searchWrap = allocPickerPanel.querySelector('.alloc-picker-panel__search-wrap');
       let activeTab = 'coins';
       let selectedCoinKeys = [];
 
@@ -3018,17 +3051,22 @@
         }).join('');
       };
 
-      const createAllocPickerChipButton = (c) => {
-        const btn = document.createElement('button');
-        btn.className = 'alloc-picker-panel__chip';
-        btn.type = 'button';
-        btn.setAttribute('data-alloc-picker-chip-remove', c.key);
+      const createAllocPickerChip = (c) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'alloc-picker-panel__chip';
+        wrap.setAttribute('data-alloc-picker-chip-key', c.key);
         const icon = document.createElement('img');
+        icon.className = 'alloc-picker-panel__chip-currency';
         icon.src = c.icon;
         icon.alt = '';
         const label = document.createElement('span');
         label.className = 'alloc-picker-panel__chip-label';
         label.textContent = c.ticker;
+        const dismiss = document.createElement('button');
+        dismiss.className = 'alloc-picker-panel__chip-dismiss';
+        dismiss.type = 'button';
+        dismiss.setAttribute('data-alloc-picker-chip-remove', c.key);
+        dismiss.setAttribute('aria-label', `Remove ${c.ticker}`);
         const closeImg = document.createElement('img');
         closeImg.className = 'alloc-picker-panel__chip-close';
         closeImg.src = 'assets/icon_close_gray.svg';
@@ -3036,8 +3074,9 @@
         closeImg.height = 12;
         closeImg.alt = '';
         closeImg.setAttribute('aria-hidden', 'true');
-        btn.append(icon, label, closeImg);
-        return btn;
+        dismiss.appendChild(closeImg);
+        wrap.append(icon, label, dismiss);
+        return wrap;
       };
 
       const renderChips = (opts = { full: false }) => {
@@ -3047,20 +3086,20 @@
         continueBtn.disabled = selected.length < 1;
 
         if (opts.full) {
-          chipsEl.replaceChildren(...selected.map((c) => createAllocPickerChipButton(c)));
+          chipsEl.replaceChildren(...selected.map((c) => createAllocPickerChip(c)));
           return;
         }
 
         const wantKeys = new Set(selectedCoinKeys);
-        chipsEl.querySelectorAll('[data-alloc-picker-chip-remove]').forEach((btn) => {
-          const k = btn.getAttribute('data-alloc-picker-chip-remove');
-          if (!wantKeys.has(k)) btn.remove();
+        chipsEl.querySelectorAll('[data-alloc-picker-chip-key]').forEach((chip) => {
+          const k = chip.getAttribute('data-alloc-picker-chip-key');
+          if (!wantKeys.has(k)) chip.remove();
         });
 
         selected.forEach((c) => {
-          let btn = chipsEl.querySelector(`[data-alloc-picker-chip-remove="${c.key}"]`);
-          if (!btn) btn = createAllocPickerChipButton(c);
-          chipsEl.appendChild(btn);
+          let chip = chipsEl.querySelector(`[data-alloc-picker-chip-key="${c.key}"]`);
+          if (!chip) chip = createAllocPickerChip(c);
+          chipsEl.appendChild(chip);
         });
       };
 
@@ -3068,21 +3107,32 @@
         if (!curatedListEl) return;
         const curRange = rangeState.curated;
         curatedListEl.innerHTML = pickerCurated.map((p) => {
-          const tickers = (planAllocation[p.key] || []).map((x) => x.ticker).join(' · ');
-          const ret = curatedReturns[p.key]?.[curRange] || p.ret;
+          const ret = curatedReturns[p.key]?.[curRange] || '';
           return `
-            <button class="alloc-picker-panel__curated-card" type="button" data-alloc-picker-curated="${p.key}">
-              <div class="alloc-picker-panel__curated-head">
-                <div>
-                  <span class="alloc-picker-panel__curated-title">${p.title}</span>
-                  <span class="alloc-picker-panel__curated-tickers">${tickers}</span>
+            <button class="curated-portfolios__card" type="button" data-alloc-picker-curated="${p.key}">
+              <div class="curated-portfolios__card-main">
+                <div class="curated-portfolios__icon-wrap">
+                  <img src="${p.icon}" alt="" class="curated-portfolios__icon" />
                 </div>
-                <span class="alloc-picker-panel__curated-pct">${ret}</span>
+                <div class="curated-portfolios__info">
+                  <span class="curated-portfolios__name">${p.title}</span>
+                  <span class="curated-portfolios__tickers">${p.tickers}</span>
+                </div>
+                <div class="curated-portfolios__return">
+                  <img src="assets/icon_northeast_arrow.svg" alt="" class="curated-portfolios__return-arrow" />
+                  <span class="curated-portfolios__return-pct">${ret}</span>
+                </div>
               </div>
-              <p class="alloc-picker-panel__curated-desc">${p.desc}</p>
+              <p class="curated-portfolios__desc">${p.desc}</p>
             </button>
           `;
         }).join('');
+      };
+
+      const syncSearchClear = () => {
+        const has = !!(searchInput && String(searchInput.value || '').trim());
+        if (searchClearBtn) searchClearBtn.hidden = !has;
+        if (searchWrap) searchWrap.classList.toggle('alloc-picker-panel__search-wrap--has-query', has);
       };
 
       const applySelectedCoins = () => {
@@ -3127,6 +3177,7 @@
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
         activeTab = 'coins';
         if (searchInput) searchInput.value = '';
+        syncSearchClear();
         syncTabs();
         renderCurated();
         renderCoins();
@@ -3156,7 +3207,18 @@
         btn.addEventListener('click', () => close());
       });
 
-      searchInput?.addEventListener('input', () => renderCoins());
+      searchInput?.addEventListener('input', () => {
+        syncSearchClear();
+        renderCoins();
+      });
+
+      searchClearBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (searchInput) searchInput.value = '';
+        syncSearchClear();
+        renderCoins();
+        searchInput?.focus();
+      });
 
       coinsListEl?.addEventListener('click', (e) => {
         const row = e.target.closest('[data-alloc-picker-coin]');
@@ -3168,16 +3230,18 @@
         } else if (selectedCoinKeys.length < 3) {
           selectedCoinKeys.push(key);
         } else {
-          showTopSnackbar('Max 3 coins');
+          showTopSnackbar('Max 3 coins', { variant: 'alloc-picker-max' });
         }
         renderCoins({ full: false });
         renderChips();
       });
 
       chipsEl?.addEventListener('click', (e) => {
-        const chip = e.target.closest('[data-alloc-picker-chip-remove]');
-        if (!chip) return;
-        selectedCoinKeys = selectedCoinKeys.filter((k) => k !== chip.getAttribute('data-alloc-picker-chip-remove'));
+        const dismiss = e.target.closest('button[data-alloc-picker-chip-remove]');
+        if (!dismiss) return;
+        e.preventDefault();
+        const key = dismiss.getAttribute('data-alloc-picker-chip-remove');
+        selectedCoinKeys = selectedCoinKeys.filter((k) => k !== key);
         renderCoins({ full: false });
         renderChips();
       });
