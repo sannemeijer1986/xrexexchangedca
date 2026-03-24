@@ -1168,22 +1168,45 @@
                     </div>
                     </div>
 
-                    <div class="plan-overview-panel__reserve" role="group" aria-label="Reserve per period">
-                        <div class="plan-overview-panel__reserve-icon" aria-hidden="true">
-                            <img src="assets/icon_reserve_per_period.svg" alt="" width="20" height="20" />
+                    <div class="plan-overview-panel__reserve" role="group" aria-label="Reserve option">
+                        <div class="plan-overview-panel__reserve-head">
+                            <span class="plan-overview-panel__reserve-headline">Guarantee buys or stay flexible</span>
+                            <button class="plan-overview-panel__reserve-learn" type="button">Learn more</button>
                         </div>
-                        <div class="plan-overview-panel__reserve-text">
-                            <span class="plan-overview-panel__reserve-title">Auto-reserve next buy</span>
-                            <span class="plan-overview-panel__reserve-hint">You won't miss out, and the rest of your cash stays free</span>
-                        </div>
-                        <div class="plan-overview-panel__reserve-action">
-                            <span class="plan-overview-panel__reserve-state">On</span>
-                            <img src="assets/icon_chevron_right_white.svg" alt="" class="plan-overview-panel__reserve-chev" width="24" height="24" />
+                        <div class="plan-overview-panel__reserve-card">
+                            <button class="plan-overview-panel__reserve-item is-selected" type="button" aria-pressed="true">
+                                <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
+                                    <img src="assets/icon_gauranteed_gray.svg" alt="" width="20" height="20" />
+                                </div>
+                                <div class="plan-overview-panel__reserve-item-copy">
+                                    <span class="plan-overview-panel__reserve-item-title">
+                                        Guaranteed
+                                        <span class="plan-overview-panel__reserve-item-tag">Recommended</span>
+                                    </span>
+                                    <span class="plan-overview-panel__reserve-item-sub">Funds reserved one period early: Ensures buy execution</span>
+                                </div>
+                                <div class="currency-sheet__item-radio" aria-hidden="true">
+                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                                </div>
+                            </button>
+                            <div class="plan-overview-panel__reserve-divider" aria-hidden="true"></div>
+                            <button class="plan-overview-panel__reserve-item" type="button" aria-pressed="false">
+                                <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
+                                    <img src="assets/icon_flexible_gray.svg" alt="" width="20" height="20" />
+                                </div>
+                                <div class="plan-overview-panel__reserve-item-copy">
+                                    <span class="plan-overview-panel__reserve-item-title">Flexible</span>
+                                    <span class="plan-overview-panel__reserve-item-sub">Charged at execution: May skip buy if insufficient</span>
+                                </div>
+                                <div class="currency-sheet__item-radio" aria-hidden="true">
+                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="plan-overview-panel__footer">
-                    <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm</button>
+                    <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm plan</button>
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-plan-overview-close>Back</button>
                 </div>
             </div>

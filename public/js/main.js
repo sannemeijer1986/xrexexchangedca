@@ -3729,6 +3729,7 @@
     const initPlanOverviewPanel = () => {
       const overviewPanel = panel.querySelector('[data-plan-overview-panel]');
       if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
+      const overviewScroller = overviewPanel.querySelector('.plan-overview-panel__scroller');
 
       const overviewTimingLabels = {
         daily: 'Every day at',
@@ -3817,6 +3818,7 @@
       const open = () => {
         planBreakdownApi.close();
         syncFromPlanDetail();
+        if (overviewScroller) overviewScroller.scrollTop = 0;
         panel.classList.add('is-plan-overview-open');
         overviewPanel.hidden = false;
         requestAnimationFrame(() => overviewPanel.classList.add('is-open'));
