@@ -1741,7 +1741,7 @@ html[data-active-tab="finance"] {
 .finance__sections {
   display: flex;
   flex-direction: column;
-  gap: $finance-section-gap;
+  gap: 56px;
 }
 
 
@@ -1926,7 +1926,7 @@ html[data-active-tab="finance"] {
 }
 
 .plan-strategy {
-  margin: 16px 0 20px;
+  margin: 0;
 }
 
 .plan-strategy__header {
@@ -1938,7 +1938,7 @@ html[data-active-tab="finance"] {
 }
 
 .plan-strategy__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
 }
@@ -2323,7 +2323,7 @@ html[data-active-tab="finance"] {
 // ─── Curated portfolios ───────────────────────────────────────────────────────
 
 .curated-portfolios {
-  margin: 0 0 24px;
+  margin: 0;
 }
 
 .curated-portfolios__header {
@@ -2338,7 +2338,7 @@ html[data-active-tab="finance"] {
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0;
+  margin: 8px 0 0 0;
 }
 
 .curated-portfolios__list {
@@ -2468,7 +2468,7 @@ html[data-active-tab="finance"] {
 // ─── Cryptos in the Spotlight ─────────────────────────────────────────────────
 
 .spotlight {
-  margin: 0 0 24px;
+  margin: 0;
   padding: 0;
 }
 
@@ -2481,10 +2481,10 @@ html[data-active-tab="finance"] {
 }
 
 .spotlight__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0;
+  margin: 8px 0 0 0;
 }
 
 .spotlight__scroll {
@@ -2618,7 +2618,7 @@ html[data-active-tab="finance"] {
 }
 
 .faq__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 16px;
@@ -5695,24 +5695,27 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
+.plan-detail-panel__view-breakdown-link {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3f78ff;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
 .plan-detail-panel__footer-btns {
   display: flex;
   gap: 16px;
 }
 
-.plan-detail-panel__breakdown {
-  flex: 1;
-  height: 48px;
-  border-radius: 16px;
-  border: 0;
-  background: #2d2f2f;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-}
-
 .plan-detail-panel__continue {
-  flex: 1;
+  width: 100%;
   height: 48px;
   border-radius: 16px;
   border: 0;

@@ -3710,7 +3710,7 @@
         setTimeout(onEnd, 380);
       };
 
-      panel.querySelector('.plan-detail-panel__breakdown')?.addEventListener('click', open);
+      panel.querySelector('.plan-detail-panel__view-breakdown-link')?.addEventListener('click', open);
       breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
 
       document.addEventListener('range-sheet-confirmed', (e) => {
