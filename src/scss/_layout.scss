@@ -6560,9 +6560,11 @@ div.currency-sheet__item-icon {
   background: #0d0e0f;
   display: flex;
   flex-direction: column;
+  border-radius: inherit;
   transform: translateX(100%);
   transition: transform 0.35s ease;
   overflow: hidden;
+  overflow: clip;
 }
 
 .my-plans-panel.is-open {
