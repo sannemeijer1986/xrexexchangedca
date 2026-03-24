@@ -897,6 +897,9 @@
         if (currentContext === 'plan') updatePlanStrategyHistoricalReturn();
         if (currentContext === 'curated') updateCuratedReturnsUI();
         if (currentContext === 'spotlight') updateSpotlightReturnsUI();
+        document.dispatchEvent(
+          new CustomEvent('range-sheet-confirmed', { detail: { context: currentContext, value } }),
+        );
         close();
       });
     });
@@ -1808,8 +1811,14 @@
       const el = ensureTopSnackbar();
       const textEl = el.querySelector('[data-plan-detail-snackbar-text]');
       if (textEl) textEl.textContent = String(message || '');
-      el.classList.add('is-visible');
       if (snackbarTimer) clearTimeout(snackbarTimer);
+      el.classList.remove('is-visible');
+      void el.offsetWidth;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.classList.add('is-visible');
+        });
+      });
       snackbarTimer = setTimeout(() => {
         el.classList.remove('is-visible');
         snackbarTimer = null;
@@ -1846,14 +1855,14 @@
     };
 
     const pickableCoins = [
-      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '+121.23%' },
-      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '+73.88%' },
-      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '+142.11%' },
-      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '+28.30%' },
-      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '+65.20%' },
-      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '+41.80%' },
-      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '+35.60%' },
-      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '+44.20%' },
+      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%' },
+      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%' },
+      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%' },
+      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%' },
+      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%' },
+      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%' },
+      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%' },
+      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%' },
     ];
 
     const pickerCurated = [
@@ -2959,9 +2968,11 @@
       const renderCoins = () => {
         if (!coinsListEl) return;
         const q = String(searchInput?.value || '').trim().toLowerCase();
+        const spotRange = rangeState.spotlight;
         const visible = pickableCoins.filter((c) => !q || c.name.toLowerCase().includes(q) || c.ticker.toLowerCase().includes(q));
         coinsListEl.innerHTML = visible.map((c) => {
           const isSelected = selectedCoinKeys.includes(c.key);
+          const ret = spotlightReturns[c.key]?.[spotRange] || c.ret;
           return `
             <button class="alloc-picker-panel__coin-row ${isSelected ? 'is-selected' : ''}" type="button" data-alloc-picker-coin="${c.key}">
               <img class="alloc-picker-panel__coin-icon" src="${c.icon}" alt="" />
@@ -2969,7 +2980,10 @@
                 <span class="alloc-picker-panel__coin-ticker">${c.ticker}</span>
                 <span class="alloc-picker-panel__coin-name">${c.name}</span>
               </div>
-              <span class="alloc-picker-panel__coin-pct">${c.ret}</span>
+              <span class="alloc-picker-panel__coin-pct-wrap">
+                <img class="alloc-picker-panel__coin-pct-arrow" src="assets/icon_northeast_arrow.svg" alt="" />
+                <span class="alloc-picker-panel__coin-pct">${ret}</span>
+              </span>
               <img
                 class="alloc-picker-panel__coin-check"
                 src="${isSelected ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg'}"
@@ -2990,7 +3004,7 @@
           <button class="alloc-picker-panel__chip" type="button" data-alloc-picker-chip-remove="${c.key}">
             <img src="${c.icon}" alt="" />
             <span class="alloc-picker-panel__chip-label">${c.ticker}</span>
-            <img class="alloc-picker-panel__chip-close" src="assets/icon_close.svg" width="12" height="12" alt="" aria-hidden="true" />
+            <img class="alloc-picker-panel__chip-close" src="assets/icon_close_gray.svg" width="12" height="12" alt="" aria-hidden="true" />
           </button>
         `).join('');
         continueBtn.textContent = `Continue (${selected.length})`;
@@ -2999,8 +3013,10 @@
 
       const renderCurated = () => {
         if (!curatedListEl) return;
+        const curRange = rangeState.curated;
         curatedListEl.innerHTML = pickerCurated.map((p) => {
           const tickers = (planAllocation[p.key] || []).map((x) => x.ticker).join(' · ');
+          const ret = curatedReturns[p.key]?.[curRange] || p.ret;
           return `
             <button class="alloc-picker-panel__curated-card" type="button" data-alloc-picker-curated="${p.key}">
               <div class="alloc-picker-panel__curated-head">
@@ -3008,7 +3024,7 @@
                   <span class="alloc-picker-panel__curated-title">${p.title}</span>
                   <span class="alloc-picker-panel__curated-tickers">${tickers}</span>
                 </div>
-                <span class="alloc-picker-panel__curated-pct">${p.ret}</span>
+                <span class="alloc-picker-panel__curated-pct">${ret}</span>
               </div>
               <p class="alloc-picker-panel__curated-desc">${p.desc}</p>
             </button>
@@ -3128,6 +3144,12 @@
         populatePanel({ preserveAmount: true });
         updateDetailReturn();
         close();
+      });
+
+      document.addEventListener('range-sheet-confirmed', () => {
+        if (!allocPickerPanel.classList.contains('is-open')) return;
+        renderCoins();
+        renderCurated();
       });
 
       return { open, close };

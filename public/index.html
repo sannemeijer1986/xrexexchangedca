@@ -1084,11 +1084,23 @@
                     <img class="alloc-picker-panel__search-icon" src="assets/icon_search_gray.svg" alt="" />
                     <input class="alloc-picker-panel__search" type="text" data-alloc-picker-search placeholder="Search" aria-label="Search coins" />
                 </div>
-                <p class="alloc-picker-panel__hint">Select up to 3 coins</p>
+                <div class="alloc-picker-panel__hint-row">
+                    <p class="alloc-picker-panel__hint">Select up to 3 coins</p>
+                    <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="spotlight">
+                        <span data-range-label="spotlight">5Y</span>
+                        <img src="assets/icon_chevron_down_white.svg" alt="" class="plan-strategy__range-icon" />
+                    </button>
+                </div>
                 <div class="alloc-picker-panel__coins" data-alloc-picker-coins-list></div>
             </div>
             <div class="alloc-picker-panel__view" data-alloc-picker-view="curated" hidden>
-                <p class="alloc-picker-panel__hint alloc-picker-panel__hint--title">Select a curated portfolio</p>
+                <div class="alloc-picker-panel__hint-row alloc-picker-panel__hint-row--curated">
+                    <p class="alloc-picker-panel__hint">Select a curated portfolio</p>
+                    <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="curated">
+                        <span data-range-label="curated">5Y</span>
+                        <img src="assets/icon_chevron_down_white.svg" alt="" class="plan-strategy__range-icon" />
+                    </button>
+                </div>
                 <div class="alloc-picker-panel__curated" data-alloc-picker-curated-list></div>
             </div>
         </div>
