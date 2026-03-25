@@ -2644,7 +2644,7 @@ html[data-active-tab="finance"] {
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 16px;
+  margin: 16px 0 16px 0px;
   letter-spacing: -0.01em;
 }
 
@@ -6464,7 +6464,8 @@ div.currency-sheet__item-icon {
 .plan-buffer-panel {
   position: absolute;
   inset: 0;
-  z-index: 31;
+  // Must be below plan-overview-panel so overview can slide over buffer.
+  z-index: 30;
   width: 100%;
   height: 100%;
   background: #0d0e0f;

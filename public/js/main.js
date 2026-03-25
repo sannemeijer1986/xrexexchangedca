@@ -3886,6 +3886,7 @@
       if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
       const overviewScroller = overviewPanel.querySelector('.plan-overview-panel__scroller');
       const reserveInfoPanel = overviewPanel.querySelector('[data-plan-overview-reserve-info-panel]');
+      let openedFromBuffer = false;
 
       const overviewTimingLabels = {
         daily: 'Every day at',
@@ -4054,11 +4055,12 @@
         if (paySubEl) paySubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
       };
 
-      const open = () => {
+      const open = (openOpts = {}) => {
         planBreakdownApi.close();
         closeReserveInfo({ instant: true });
         syncFromPlanDetail();
         if (overviewScroller) overviewScroller.scrollTop = 0;
+        openedFromBuffer = !!openOpts.fromBuffer;
         panel.classList.add('is-plan-overview-open');
         overviewPanel.hidden = false;
         requestAnimationFrame(() => overviewPanel.classList.add('is-open'));
@@ -4073,6 +4075,14 @@
           overviewPanel.style.transition = '';
           overviewPanel.hidden = true;
           panel.classList.remove('is-plan-overview-open');
+          if (openedFromBuffer) {
+            const buf = panel.querySelector('[data-plan-buffer-panel]');
+            if (buf) {
+              buf.hidden = false;
+              buf.classList.add('is-open');
+            }
+          }
+          openedFromBuffer = false;
           return;
         }
         closeReserveInfo({ instant: true });
@@ -4081,6 +4091,14 @@
           if (!overviewPanel.classList.contains('is-open')) {
             overviewPanel.hidden = true;
             panel.classList.remove('is-plan-overview-open');
+            if (openedFromBuffer) {
+              const buf = panel.querySelector('[data-plan-buffer-panel]');
+              if (buf) {
+                buf.hidden = false;
+                buf.classList.add('is-open');
+              }
+            }
+            openedFromBuffer = false;
           }
           overviewPanel.removeEventListener('transitionend', onEnd);
         };
@@ -4272,10 +4290,14 @@
 
       const close = (opts = {}) => {
         if (opts.instant) {
+          // Leaving buffer should always leave the stack clean.
+          planOverviewApi.close({ instant: true });
           bufferPanel.classList.remove('is-open');
           bufferPanel.hidden = true;
           return;
         }
+        // If overview is open above us, close it first.
+        planOverviewApi.close({ instant: true });
         bufferPanel.classList.remove('is-open');
         let done = false;
         const onEnd = () => {
@@ -4298,8 +4320,8 @@
       dec10Btn?.addEventListener('click', () => bump(-10));
 
       bufferPanel.querySelector('[data-plan-buffer-confirm]')?.addEventListener('click', () => {
-        close({ instant: true });
-        requestAnimationFrame(() => planOverviewApi.open());
+        // Keep buffer open underneath overview so "Back" returns to buffer.
+        planOverviewApi.open({ fromBuffer: true });
       });
 
       return { open, close, sync: syncFromPlanDetail };
