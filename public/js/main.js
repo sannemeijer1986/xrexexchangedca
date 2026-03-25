@@ -3075,6 +3075,7 @@
 
     let planBreakdownApi = { sync: () => {}, close: () => {} };
     let planOverviewApi = { open: () => {}, close: () => {}, sync: () => {} };
+    let planBufferApi = { open: () => {}, close: () => {} };
     let planSuccessApi = { close: () => {}, forceClose: () => {} };
 
     const populatePanel = (opts = {}) => {
@@ -4099,12 +4100,208 @@
         const btn = e.currentTarget;
         if (btn.disabled) return;
         e.preventDefault();
-        open();
+        planBufferApi.open();
       });
 
       return { open, close, sync: syncFromPlanDetail };
     };
     planOverviewApi = initPlanOverviewPanel();
+
+    const initPlanBufferPanel = () => {
+      const bufferPanel = panel.querySelector('[data-plan-buffer-panel]');
+      if (!bufferPanel) return { open: () => {}, close: () => {} };
+
+      const bufferScroller = bufferPanel.querySelector('.plan-buffer-panel__scroller');
+      const subtitleEl = bufferPanel.querySelector('[data-plan-buffer-subtitle]');
+      const bannerMainEl = bufferPanel.querySelector('[data-plan-buffer-banner-main]');
+      const bannerSubEl = bufferPanel.querySelector('[data-plan-buffer-banner-sub]');
+      const bannerIconWrap = bufferPanel.querySelector('[data-plan-buffer-banner-icon]');
+
+      const progressWrapEl = bufferPanel.querySelector('[data-plan-buffer-progress]');
+      const progressLeftEl = bufferPanel.querySelector('[data-plan-buffer-progress-left]');
+      const progressRightEl = bufferPanel.querySelector('[data-plan-buffer-progress-right]');
+      const progressFillEl = bufferPanel.querySelector('[data-plan-buffer-progress-fill]');
+
+      const availEl = bufferPanel.querySelector('[data-plan-buffer-avail]');
+      const maxEl = bufferPanel.querySelector('[data-plan-buffer-max]');
+
+      const valueTextEl = bufferPanel.querySelector('[data-plan-buffer-value]');
+      const valueSuffixEl = bufferPanel.querySelector('[data-plan-buffer-value-suffix]');
+
+      const dec10Btn = bufferPanel.querySelector('[data-plan-buffer-dec-10]');
+      const decBtn = bufferPanel.querySelector('[data-plan-buffer-dec]');
+      const incBtn = bufferPanel.querySelector('[data-plan-buffer-inc]');
+      const inc10Btn = bufferPanel.querySelector('[data-plan-buffer-inc-10]');
+
+      const setAsideEl = bufferPanel.querySelector('[data-plan-buffer-set-aside]');
+
+      const coversRowEl = bufferPanel.querySelector('.plan-buffer-panel__row--covers');
+      const coversCountEl = bufferPanel.querySelector('[data-plan-buffer-covers-count]');
+      const coversPlannedPartEl = bufferPanel.querySelector('[data-plan-buffer-covers-planned-part]');
+      const coversSubEl = bufferPanel.querySelector('[data-plan-buffer-covers-sub]');
+
+      let bufferBuys = 0;
+      let bufferMaxBuys = 0;
+      let isSetLimit = false;
+      let plannedBuys = NaN;
+      let limitInvestTotal = 0;
+      let amountPerBuy = 0;
+      let cur = currencyState.plan || 'TWD';
+      let maxBuysFromBalance = 0;
+
+      const parseLimitBuysFromRepeatsEnd = (endT) => {
+        const m = String(endT || '').match(/^(\d+)/);
+        const n = m ? parseInt(m[1], 10) : NaN;
+        return Number.isFinite(n) && n >= 1 ? n : NaN;
+      };
+
+      const freqKey = () => (document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly');
+      const freqLabel = (k) => (k === 'daily' ? 'Daily' : k === 'weekly' ? 'Weekly' : 'Monthly');
+
+      const render = () => {
+        if (valueTextEl) valueTextEl.textContent = String(bufferBuys);
+        if (valueSuffixEl) valueSuffixEl.textContent = bufferBuys === 1 ? 'buy' : 'buys';
+
+        if (dec10Btn) dec10Btn.disabled = bufferBuys <= 0;
+        if (decBtn) decBtn.disabled = bufferBuys <= 0;
+        if (inc10Btn) inc10Btn.disabled = bufferBuys >= bufferMaxBuys;
+        if (incBtn) incBtn.disabled = bufferBuys >= bufferMaxBuys;
+
+        const setAside = bufferBuys * amountPerBuy;
+        if (setAsideEl) setAsideEl.textContent = `${setAside.toLocaleString('en-US')} ${cur}`;
+
+        const showSetLimit = isSetLimit && Number.isFinite(plannedBuys) && plannedBuys > 0;
+
+        // Progress bar: visible only for set-limit plans.
+        if (progressWrapEl) {
+          progressWrapEl.hidden = !showSetLimit;
+          if (showSetLimit) {
+            if (progressLeftEl) progressLeftEl.textContent = `${bufferBuys} buys`;
+            if (progressRightEl) progressRightEl.textContent = `${plannedBuys} buys`;
+            if (progressFillEl) {
+              const pct = plannedBuys > 0 ? (bufferBuys / plannedBuys) * 100 : 0;
+              progressFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+            }
+          }
+        }
+
+        // Covers row: hidden for continuous plans.
+        if (coversRowEl) coversRowEl.hidden = !showSetLimit;
+
+        if (coversCountEl) coversCountEl.textContent = String(bufferBuys);
+        if (coversPlannedPartEl) coversPlannedPartEl.textContent = showSetLimit ? ` / ${plannedBuys} buys` : ` / — buys`;
+
+        if (coversSubEl) {
+          coversSubEl.hidden = !showSetLimit;
+          if (showSetLimit) {
+            coversSubEl.textContent = `${setAside.toLocaleString('en-US')} of ${limitInvestTotal.toLocaleString('en-US')} ${cur} total`;
+          }
+        }
+      };
+
+      const syncFromPlanDetail = () => {
+        const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || 'Continuous';
+        cur = currencyState.plan || 'TWD';
+        amountPerBuy = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+
+        // Plan type: continuous vs "X buys ~ Ends ..."
+        isSetLimit = isPlanDetailSetLimitEnd(endRaw);
+        plannedBuys = isSetLimit ? parseLimitBuysFromRepeatsEnd(endRaw) : NaN;
+
+        const bal = BALANCES[cur] ?? BALANCES.TWD;
+        maxBuysFromBalance = amountPerBuy > 0 ? Math.floor(bal / amountPerBuy) : 0;
+        bufferMaxBuys = isSetLimit && Number.isFinite(plannedBuys) ? Math.min(plannedBuys, maxBuysFromBalance) : maxBuysFromBalance;
+
+        limitInvestTotal = isSetLimit && Number.isFinite(plannedBuys) ? plannedBuys * amountPerBuy : 0;
+
+        // Copy + banner
+        if (subtitleEl) {
+          subtitleEl.textContent = isSetLimit
+            ? 'A buffer ensures every buy goes through'
+            : 'A buffer ensures your continious plan keeps running';
+        }
+
+        if (bannerMainEl) {
+          const fkey = freqKey();
+          const mainAmt = amountPerBuy > 0 ? amountPerBuy.toLocaleString('en-US') : '—';
+          bannerMainEl.textContent = `${mainAmt} ${cur} · ${freqLabel(fkey)}`;
+        }
+
+        if (bannerSubEl) {
+          bannerSubEl.textContent = isSetLimit ? endRaw : 'Continuous';
+        }
+
+        // Icon: keep it simple (use existing plan header icon) — avoids brittle DOM parsing.
+        if (bannerIconWrap) {
+          const iconSrc = document.querySelector('[data-plan-detail-header-icon-wrap] img')?.getAttribute('src');
+          bannerIconWrap.innerHTML = iconSrc ? `<img src="${iconSrc}" alt="" style="width:40px;height:40px;display:block;" />` : '';
+        }
+
+        if (availEl) availEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${cur}`;
+        if (maxEl) {
+          maxEl.textContent = `Max ${bufferMaxBuys} buys`;
+        }
+
+        // Default selection
+        const DEFAULT_COVER_BUYS = 5;
+        bufferBuys = Math.max(0, Math.min(bufferMaxBuys, DEFAULT_COVER_BUYS));
+      };
+
+      const bump = (delta) => {
+        bufferBuys = Math.max(0, Math.min(bufferMaxBuys, bufferBuys + delta));
+        render();
+      };
+
+      const open = () => {
+        planBreakdownApi.close();
+        planOverviewApi.close({ instant: true });
+        planSuccessApi.forceClose();
+
+        syncFromPlanDetail();
+        render();
+
+        if (bufferScroller) bufferScroller.scrollTop = 0;
+        bufferPanel.hidden = false;
+        requestAnimationFrame(() => bufferPanel.classList.add('is-open'));
+      };
+
+      const close = (opts = {}) => {
+        if (opts.instant) {
+          bufferPanel.classList.remove('is-open');
+          bufferPanel.hidden = true;
+          return;
+        }
+        bufferPanel.classList.remove('is-open');
+        let done = false;
+        const onEnd = () => {
+          if (done) return;
+          done = true;
+          bufferPanel.removeEventListener('transitionend', onEnd);
+          if (!bufferPanel.classList.contains('is-open')) bufferPanel.hidden = true;
+        };
+        bufferPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      bufferPanel.querySelector('[data-plan-buffer-back]')?.addEventListener('click', () => close());
+      bufferPanel.querySelector('[data-plan-buffer-back-bottom]')?.addEventListener('click', () => close());
+      bufferPanel.querySelector('[data-plan-buffer-banner-edit]')?.addEventListener('click', () => close({ instant: true }));
+
+      incBtn?.addEventListener('click', () => bump(1));
+      inc10Btn?.addEventListener('click', () => bump(10));
+      decBtn?.addEventListener('click', () => bump(-1));
+      dec10Btn?.addEventListener('click', () => bump(-10));
+
+      bufferPanel.querySelector('[data-plan-buffer-confirm]')?.addEventListener('click', () => {
+        close({ instant: true });
+        requestAnimationFrame(() => planOverviewApi.open());
+      });
+
+      return { open, close, sync: syncFromPlanDetail };
+    };
+
+    planBufferApi = initPlanBufferPanel();
 
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
@@ -4125,6 +4322,36 @@
                 : { source: 'plan' };
         populatePanel();
         resetScrollState();
+        // Always start with the Repeats "Details" disclosure collapsed (instant, no animation).
+        // This avoids reopening the panel in an expanded state from a previous visit.
+        {
+          const detailsCollapse = panel.querySelector('[data-plan-detail-details-collapse]');
+          const detailsToggle = panel.querySelector('[data-plan-detail-details-toggle]');
+          const detailsChevron = panel.querySelector('[data-plan-detail-details-chevron]');
+          const detailsBody = detailsCollapse?.querySelector('.plan-detail-panel__details-body');
+          if (detailsCollapse && detailsToggle && detailsChevron) {
+            if (detailsBody) {
+              detailsBody.style.transition = 'none';
+            }
+            detailsCollapse.classList.remove('plan-detail-panel__details-collapse--expanded');
+            detailsToggle.setAttribute('aria-expanded', 'false');
+            detailsChevron.setAttribute('src', 'assets/icon_chevron_down_white.svg');
+            if (detailsBody) {
+              void detailsBody.offsetHeight;
+              detailsBody.style.transition = '';
+            }
+          }
+        }
+
+        // Ensure the buffer panel never "sticks" open across visits.
+        {
+          const bufPanel = panel.querySelector('[data-plan-buffer-panel]');
+          if (bufPanel) {
+            bufPanel.classList.remove('is-open');
+            bufPanel.hidden = true;
+          }
+        }
+
         panel.hidden = false;
         if (container) {
           container.classList.remove('is-plan-detail-open');

@@ -6460,6 +6460,466 @@ div.currency-sheet__item-icon {
   color: #ffffff;
 }
 
+// ── Plan buffer (Figma 8527:8567 — “Set a buffer”) ─────────────────────────
+.plan-buffer-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 31;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+// Override global typography for this panel:
+// The base `.phone-container p` rule sets font-size/color/margins that can fight the
+// buffer-specific styling. Scoping these resets keeps the buffer design consistent.
+.plan-buffer-panel p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.plan-buffer-panel.is-open {
+  transform: translateX(0);
+}
+
+// Match plan-overview header inset so the title aligns with the main header.
+.plan-buffer-panel__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.phone-container h1.plan-buffer-panel__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.plan-buffer-panel__header-spacer {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.plan-buffer-panel__divider {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  background: #252627;
+
+  &--header {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.plan-buffer-panel__scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+.plan-buffer-panel__body {
+  flex: 1;
+  padding: 32px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plan-buffer-panel__subtitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.15;
+}
+
+.plan-buffer-panel__banner {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: #1b1d1d;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__banner-icon {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.plan-buffer-panel__banner-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.plan-buffer-panel__banner-main {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-buffer-panel__banner-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8fb8ff;
+  line-height: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-buffer-panel__banner-edit {
+  flex-shrink: 0;
+}
+
+.plan-buffer-panel__cover-heading {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__card {
+  background: #151718;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.plan-buffer-panel__progress-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.plan-buffer-panel__progress-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-buffer-panel__progress-label--right {
+  text-align: right;
+}
+
+.plan-buffer-panel__progress-track {
+  background: #2d2f2f;
+  height: 20px;
+  padding: 4px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__progress-fill {
+  background: #8adca5;
+  height: 100%;
+  border-radius: 12px;
+  width: 0%;
+  transition: width 180ms ease-out;
+}
+
+.plan-buffer-panel__stepper-pill {
+  background: rgba(71, 73, 74, 0.35);
+  border: 1px solid #3c4248;
+  border-radius: 20px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.plan-buffer-panel__step-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.plan-buffer-panel__step-cluster--right {
+  justify-content: flex-end;
+}
+
+.plan-buffer-panel__step-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: #275cfd;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__step-btn--jump {
+  width: auto;
+  min-width: 36px;
+  height: 32px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.plan-buffer-panel__step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.plan-buffer-panel__step-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.plan-buffer-panel__step-value-text {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.plan-buffer-panel__step-value-suffix {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+.plan-buffer-panel__avail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-buffer-panel__avail-line {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__max-line {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.plan-buffer-panel__divider {
+  height: 1px;
+  width: 100%;
+  background: #3c4248;
+}
+
+.plan-buffer-panel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-buffer-panel__row-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  margin: 0;
+}
+
+.plan-buffer-panel__row-value {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__row-value--green {
+  color: #8adca5;
+}
+
+.plan-buffer-panel__covers-values {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.plan-buffer-panel__covers-main {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  justify-content: flex-end;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__covers-main [data-plan-buffer-covers-count] {
+  color: #8adca5;
+}
+
+.plan-buffer-panel__covers-sub {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  text-align: right;
+}
+
+.plan-buffer-panel__alert {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.plan-buffer-panel__alert-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px 4px;
+}
+
+.plan-buffer-panel__alert-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8fb8ff;
+}
+
+.plan-buffer-panel__alert-body {
+  margin: 0;
+  padding: 0 8px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #8fb8ff;
+  line-height: 1.4;
+}
+
+.plan-buffer-panel__footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 16px;
+  border: 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__btn--primary {
+  background: #275cfd;
+}
+
+.plan-buffer-panel__btn--secondary {
+  background: #2d2f2f;
+}
+
 // ── Plan overview: reserve info panel (bottom-sheet style) ────────────────────
 .plan-overview-reserve-info-panel {
   position: absolute;
