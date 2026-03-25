@@ -2019,7 +2019,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .plan-strategy__carousel {
   overflow: visible;
-  padding: 16px 0;
+  padding: 8px 0;
   touch-action: pan-y;
 }
 
@@ -2116,7 +2116,7 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .plan-strategy__hero-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0;
@@ -2133,7 +2133,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .plan-strategy__controls {
   background: #151718;
-  padding: 20px 16px 24px;
+  padding: 16px 16px 24px;
 }
 
 .plan-strategy__section-title {
@@ -2246,8 +2246,8 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-strategy__freq-subtitle {
   margin: 12px 0px 12px 0;
   text-align: left;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #ffffff;
   line-height: 1.2;
 }
