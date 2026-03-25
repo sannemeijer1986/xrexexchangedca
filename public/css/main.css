@@ -6373,6 +6373,7 @@ div.currency-sheet__item-icon::before {
   flex: 1;
   min-height: 0;
   display: flex;
+  opacity: 0.25;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;

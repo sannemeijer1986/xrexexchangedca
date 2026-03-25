@@ -4170,7 +4170,8 @@
         const setAside = bufferBuys * amountPerBuy;
         if (setAsideEl) setAsideEl.textContent = `${setAside.toLocaleString('en-US')} ${cur}`;
 
-        const showSetLimit = isSetLimit && Number.isFinite(plannedBuys) && plannedBuys > 0;
+        // Progress + "Covers" are only for "Set a limit" plans.
+        const showSetLimit = isSetLimit && Number.isFinite(plannedBuys);
 
         // Progress bar: visible only for set-limit plans.
         if (progressWrapEl) {
@@ -4182,6 +4183,9 @@
               const pct = plannedBuys > 0 ? (bufferBuys / plannedBuys) * 100 : 0;
               progressFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
             }
+          } else if (progressFillEl) {
+            // Reset so there's no stale bar width if the element becomes visible again.
+            progressFillEl.style.width = '0%';
           }
         }
 
