@@ -1445,13 +1445,28 @@
 
     let count = Math.max(MIN, Math.min(MAX, yearDefaultBuysForFreq(getActiveFreq())));
 
+    /** 1–31 from strings like "15th at 12:00"; null if not monthly-style. */
+    const parseMonthlyBuyDayFromTiming = (text) => {
+      const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)/i);
+      if (!m) return null;
+      return Math.max(1, Math.min(31, parseInt(m[1], 10)));
+    };
+
     const projectEndDate = (buys) => {
       const freq = getActiveFreq();
       const d = new Date();
       const n = Math.max(MIN, Math.min(MAX, buys));
       if (freq === 'daily') d.setDate(d.getDate() + n);
       else if (freq === 'weekly') d.setDate(d.getDate() + n * 7);
-      else d.setMonth(d.getMonth() + n);
+      else {
+        d.setMonth(d.getMonth() + n);
+        const tv = (scheduleSheet.querySelector('[data-schedule-timing-value]')?.textContent || '').trim();
+        const buyDay = parseMonthlyBuyDayFromTiming(tv);
+        if (buyDay != null) {
+          const lastInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+          d.setDate(Math.min(buyDay, lastInMonth));
+        }
+      }
       return d;
     };
 
@@ -1662,6 +1677,11 @@
       colEl.scrollTop = i * ITEM_H;
     };
 
+    const scrollToIndexSmooth = (colEl, index, maxIndex) => {
+      const i = Math.max(0, Math.min(maxIndex, Math.floor(index)));
+      colEl.scrollTo({ top: i * ITEM_H, behavior: 'smooth' });
+    };
+
     const updateColumnHighlight = (colEl, count) => {
       const idx = Math.max(0, Math.min(count - 1, Math.round(colEl.scrollTop / ITEM_H)));
       colEl.querySelectorAll('.schedule-time-sheet__option').forEach((opt, i) => {
@@ -1677,6 +1697,22 @@
       };
       colEl.addEventListener('scroll', onScroll, { passive: true, signal: highlightAbort.signal });
       onScroll();
+    };
+
+    /** Tap an option to snap the column to that index (weekly/monthly day + time; daily time). */
+    const bindColumnOptionClicks = (colEl, optionCount) => {
+      const maxIdx = optionCount - 1;
+      colEl.addEventListener(
+        'click',
+        (e) => {
+          const opt = e.target.closest('.schedule-time-sheet__option');
+          if (!opt || !colEl.contains(opt)) return;
+          const idx = parseInt(opt.getAttribute('data-index'), 10);
+          if (!Number.isFinite(idx)) return;
+          scrollToIndexSmooth(colEl, idx, maxIdx);
+        },
+        { signal: highlightAbort.signal },
+      );
     };
 
     const getActiveScheduleFreq = () => {
@@ -1700,6 +1736,7 @@
         timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
         scrollToIndex(timeCol, timeIdx, 23);
         bindColumnScroll(timeCol, 24);
+        bindColumnOptionClicks(timeCol, 24);
       } else if (freq === 'weekly') {
         primaryCol.hidden = false;
         const dayLabels = WEEKDAYS.map((w) => w.label);
@@ -1710,6 +1747,8 @@
         scrollToIndex(timeCol, timeIdx, 23);
         bindColumnScroll(primaryCol, 7);
         bindColumnScroll(timeCol, 24);
+        bindColumnOptionClicks(primaryCol, 7);
+        bindColumnOptionClicks(timeCol, 24);
       } else {
         primaryCol.hidden = false;
         const dayLabels = Array.from({ length: 31 }, (_, i) => ordinalSuffix(i + 1));
@@ -1720,6 +1759,8 @@
         scrollToIndex(timeCol, timeIdx, 23);
         bindColumnScroll(primaryCol, 31);
         bindColumnScroll(timeCol, 24);
+        bindColumnOptionClicks(primaryCol, 31);
+        bindColumnOptionClicks(timeCol, 24);
       }
 
       sheetOpenWithInstantBackdrop(timeSheet);
@@ -1756,6 +1797,7 @@
         next = `${ordinalSuffix(pi + 1)} at ${tlab}`;
       }
       if (timingValueEl) timingValueEl.textContent = next;
+      scheduleSheetApi.refreshEndConditionSubtitles?.();
       closeTimePickerAndReopenSchedule();
     };
 

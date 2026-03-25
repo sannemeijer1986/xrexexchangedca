@@ -3503,6 +3503,9 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   color: #58595A;
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .schedule-time-sheet__option.is-active {
