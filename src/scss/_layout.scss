@@ -6944,6 +6944,10 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
+.plan-buffer-panel__kv.plan-buffer-panel__kv--reserve-covers {
+  font-size: 16px;
+}
+
 .plan-buffer-panel__kv--strong .plan-buffer-panel__kv-label {
   font-size: 16px;
 }
@@ -6962,6 +6966,7 @@ div.currency-sheet__item-icon {
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 4px;
 }
 
 .plan-buffer-panel__reserve-title {
@@ -6986,6 +6991,7 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 8px;
   box-sizing: border-box;
 }
 
