@@ -1564,9 +1564,9 @@
 
     const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : SETLIMIT_VALUE_PLACEHOLDER);
 
-    let mode = 'periods'; // 'periods' | 'amount'
+    let mode = 'amount'; // 'periods' | 'amount'
     /** Remember Total amount tab for next open (only applied when auto-invest amount is set). */
-    let setLimitFollowupPreferredMode = 'periods';
+    let setLimitFollowupPreferredMode = 'amount';
 
     const setModeUI = (nextMode) => {
       mode = nextMode === 'amount' ? 'amount' : 'periods';
@@ -1580,7 +1580,7 @@
       if (periodsValueCell) periodsValueCell.hidden = mode !== 'periods';
       if (amountValueCell) amountValueCell.hidden = mode !== 'amount';
 
-      if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount' : 'Set buy periods';
+      if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount limit' : 'Set total buys limit';
       if (captionEl) captionEl.hidden = mode !== 'amount';
     };
 
@@ -1595,7 +1595,7 @@
       if (perBuyEl) {
         perBuyEl.textContent = hasPerBuy ? `${fmt(perBuy)} ${cur}` : SETLIMIT_VALUE_PLACEHOLDER;
       }
-      if (totalBuysEl) totalBuysEl.textContent = `${count}`;
+      if (totalBuysEl) totalBuysEl.textContent = `${count} buys`;
       if (totalAmountEl) {
         totalAmountEl.textContent = hasPerBuy ? `${fmt(total)} ${cur}` : SETLIMIT_VALUE_PLACEHOLDER;
       }
@@ -1672,7 +1672,7 @@
 
     const openSetLimitFollowup = () => {
       const perBuyOk = getPerBuyAmount() != null;
-      const nextMode = perBuyOk && setLimitFollowupPreferredMode === 'amount' ? 'amount' : 'periods';
+      const nextMode = perBuyOk ? setLimitFollowupPreferredMode : 'amount';
       setModeUI(nextMode);
       setLimitStepper?.syncDom();
       syncSummary();
@@ -1726,7 +1726,7 @@
       if (buysSheet.classList.contains('is-open')) syncSummary();
     });
 
-    setModeUI('periods');
+    setModeUI('amount');
     scheduleSheetApi.refreshEndConditionSubtitles?.();
   };
 
