@@ -3316,6 +3316,36 @@ div.currency-sheet__item-icon {
   background: rgba(71, 73, 74, 0.35);
 }
 
+.schedule-setlimit-inline__pill--blocked {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.schedule-setlimit-inline__value-cell--amount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0;
+  padding-bottom: 2px;
+  width: 100%;
+}
+
+.schedule-setlimit-inline__value-cur {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+}
+
+.schedule-setlimit-inline__value-amt {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: normal;
+}
+
 .schedule-setlimit-inline__step-cluster {
   display: flex;
   align-items: center;
@@ -3402,9 +3432,113 @@ div.currency-sheet__item-icon {
   text-align: center;
 }
 
+.phone-container p.schedule-setlimit-inline__ends.schedule-setlimit-inline__ends--error {
+  color: #eb5347;
+}
+
 .schedule-followup-sheet__content {
   flex: 1;
   min-height: 80px;
+}
+
+.setlimit-sheet__top {
+  width: 100%;
+}
+
+.setlimit-sheet__segmented {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  border: 1px solid #3C4248;
+  border-radius: 15px;
+  background: #1b1d1d;
+  display: flex;
+  gap: 0;
+}
+
+.setlimit-sheet__seg-btn {
+  flex: 1 1 0;
+  height: 32px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.setlimit-sheet__seg-btn.is-active {
+  background: #ffffff;
+  color: #0d0e0f;
+}
+
+.setlimit-sheet__block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setlimit-sheet__label-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setlimit-sheet__label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.setlimit-sheet__caption {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #58595a;
+  white-space: nowrap;
+}
+
+.setlimit-sheet__divider {
+  width: 100%;
+  height: 1px;
+  background: #3C4248;
+}
+
+.setlimit-sheet__summary {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setlimit-sheet__summary-row {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.setlimit-sheet__summary-label {
+  color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setlimit-sheet__summary-value {
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .currency-sheet__body--schedule-time {
@@ -3433,6 +3567,11 @@ div.currency-sheet__item-icon {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 .schedule-time-sheet__btn--secondary {

@@ -1862,37 +1862,76 @@
             <div class="currency-sheet__body currency-sheet__body--schedule-followup">
                 <h2 class="currency-sheet__title">Set a limit</h2>
                 <div class="schedule-followup-sheet__content">
-                    <!-- Figma 8520:8386 — same stepper UI as former inline block; shown full-height in this sheet -->
-                    <div class="schedule-setlimit-inline schedule-setlimit-inline--open schedule-setlimit-inline--in-sheet"
-                        data-schedule-setlimit-inline aria-hidden="false">
-                        <div class="schedule-setlimit-inline__inner" role="group" aria-label="Number of buys">
-                            <div class="schedule-setlimit-inline__pill">
-                                <div class="schedule-setlimit-inline__step-cluster">
-                                    <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
-                                        aria-label="Decrease by 10" data-schedule-setlimit-dec-10>-10</button>
-                                    <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Decrease by 1"
-                                        data-schedule-setlimit-dec>
-                                        <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                    </button>
+                    <div class="setlimit-sheet__top">
+                        <div class="setlimit-sheet__segmented" role="tablist" aria-label="Set limit mode">
+                            <button class="setlimit-sheet__seg-btn is-active" type="button" role="tab" aria-selected="true"
+                                data-setlimit-mode="periods">Total periods</button>
+                            <button class="setlimit-sheet__seg-btn" type="button" role="tab" aria-selected="false"
+                                data-setlimit-mode="amount">Total amount</button>
+                        </div>
+                    </div>
+
+                    <div class="setlimit-sheet__block">
+                        <div class="setlimit-sheet__label-row">
+                            <div class="setlimit-sheet__label" data-setlimit-label>Set buy periods</div>
+                            <div class="setlimit-sheet__caption" data-setlimit-caption hidden>Steps of 500 USDT</div>
+                        </div>
+
+                        <!-- Figma 8520:8386 — buy counter visual, reused for both modes -->
+                        <div class="schedule-setlimit-inline schedule-setlimit-inline--open schedule-setlimit-inline--in-sheet"
+                            data-schedule-setlimit-inline aria-hidden="false">
+                            <div class="schedule-setlimit-inline__inner" role="group" aria-label="Set limit">
+                                <div class="schedule-setlimit-inline__pill">
+                                    <div class="schedule-setlimit-inline__step-cluster">
+                                        <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
+                                            aria-label="Decrease by 10" data-schedule-setlimit-dec-10>-10</button>
+                                        <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Decrease by 1"
+                                            data-schedule-setlimit-dec>
+                                            <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="schedule-setlimit-inline__value-cell schedule-setlimit-inline__value-cell--amount" data-setlimit-value-mode="amount" hidden>
+                                        <div class="schedule-setlimit-inline__value-cur" data-setlimit-value-cur>USDT</div>
+                                        <div class="schedule-setlimit-inline__value-amt" data-setlimit-value-amt>5,000</div>
+                                    </div>
+                                    <div class="schedule-setlimit-inline__value-cell schedule-setlimit-inline__value-cell--periods" data-setlimit-value-mode="periods" aria-live="polite">
+                                        <span class="schedule-setlimit-inline__value-text" data-schedule-setlimit-value>12</span>
+                                        <span class="schedule-setlimit-inline__value-suffix" data-schedule-setlimit-suffix>buys</span>
+                                    </div>
+
+                                    <div class="schedule-setlimit-inline__step-cluster">
+                                        <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Increase by 1"
+                                            data-schedule-setlimit-inc>
+                                            <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            </svg>
+                                        </button>
+                                        <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
+                                            aria-label="Increase by 10" data-schedule-setlimit-inc-10>+10</button>
+                                    </div>
                                 </div>
-                                <div class="schedule-setlimit-inline__value-cell" aria-live="polite">
-                                    <span class="schedule-setlimit-inline__value-text" data-schedule-setlimit-value>12</span>
-                                    <span class="schedule-setlimit-inline__value-suffix" data-schedule-setlimit-suffix>buys</span>
-                                </div>
-                                <div class="schedule-setlimit-inline__step-cluster">
-                                    <button class="schedule-setlimit-inline__step-btn" type="button" aria-label="Increase by 1"
-                                        data-schedule-setlimit-inc>
-                                        <svg class="schedule-setlimit-inline__step-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                    </button>
-                                    <button class="schedule-setlimit-inline__step-btn schedule-setlimit-inline__step-btn--jump" type="button"
-                                        aria-label="Increase by 10" data-schedule-setlimit-inc-10>+10</button>
-                                </div>
+                                <p class="schedule-setlimit-inline__ends" data-schedule-setlimit-end-date>~ Ends Jun 18, 2026</p>
                             </div>
-                            <p class="schedule-setlimit-inline__ends" data-schedule-setlimit-end-date>~ Ends Jun 18, 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="setlimit-sheet__divider" aria-hidden="true"></div>
+
+                    <div class="setlimit-sheet__summary">
+                        <div class="setlimit-sheet__summary-row">
+                            <span class="setlimit-sheet__summary-label">Per buy</span>
+                            <span class="setlimit-sheet__summary-value" data-setlimit-perbuy>500 USDT</span>
+                        </div>
+                        <div class="setlimit-sheet__summary-row">
+                            <span class="setlimit-sheet__summary-label">Total buys</span>
+                            <span class="setlimit-sheet__summary-value" data-setlimit-totalbuys>10</span>
+                        </div>
+                        <div class="setlimit-sheet__summary-row">
+                            <span class="setlimit-sheet__summary-label">Total planned investment</span>
+                            <span class="setlimit-sheet__summary-value" data-setlimit-totalamount>10,000 USDT</span>
                         </div>
                     </div>
                 </div>

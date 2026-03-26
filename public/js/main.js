@@ -1534,6 +1534,97 @@
     const reopen = scheduleSheetApi.reopenFromChild;
 
     const setLimitStepper = initScheduleSetLimitStepper(scheduleSheet, buysSheet);
+    const modeBtns = buysSheet.querySelectorAll('[data-setlimit-mode]');
+    const labelEl = buysSheet.querySelector('[data-setlimit-label]');
+    const captionEl = buysSheet.querySelector('[data-setlimit-caption]');
+    const perBuyEl = buysSheet.querySelector('[data-setlimit-perbuy]');
+    const totalBuysEl = buysSheet.querySelector('[data-setlimit-totalbuys]');
+    const totalAmountEl = buysSheet.querySelector('[data-setlimit-totalamount]');
+    const periodsValueCell = buysSheet.querySelector('[data-setlimit-value-mode="periods"]');
+    const amountValueCell = buysSheet.querySelector('[data-setlimit-value-mode="amount"]');
+    const amountCurEl = buysSheet.querySelector('[data-setlimit-value-cur]');
+    const amountAmtEl = buysSheet.querySelector('[data-setlimit-value-amt]');
+    const pillEl = buysSheet.querySelector('.schedule-setlimit-inline__pill');
+    const endsEl = buysSheet.querySelector('[data-schedule-setlimit-end-date]');
+    const buysConfirmBtn = buysSheet.querySelector('[data-schedule-buys-sheet-confirm]');
+
+    const SETLIMIT_VALUE_PLACEHOLDER = '- -';
+
+    const getPerBuyAmount = () => {
+      const raw = document.querySelector('[data-plan-detail-amount-input]')?.value ?? '';
+      const s = String(raw).replace(/,/g, '').trim();
+      if (s === '') return null;
+      const n = parseInt(s, 10);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+
+    const getPerBuyCurrency = () => (
+      document.querySelector('[data-plan-detail-currency]')?.textContent?.trim()
+      || document.querySelector('[data-plan-detail-coverage-currency]')?.textContent?.trim()
+      || 'USDT'
+    );
+
+    const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : SETLIMIT_VALUE_PLACEHOLDER);
+
+    let mode = 'periods'; // 'periods' | 'amount'
+
+    const setModeUI = (nextMode) => {
+      mode = nextMode === 'amount' ? 'amount' : 'periods';
+      modeBtns.forEach((btn) => {
+        const v = btn.getAttribute('data-setlimit-mode');
+        const on = v === mode;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+
+      if (periodsValueCell) periodsValueCell.hidden = mode !== 'periods';
+      if (amountValueCell) amountValueCell.hidden = mode !== 'amount';
+
+      if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount' : 'Set buy periods';
+      if (captionEl) captionEl.hidden = mode !== 'amount';
+    };
+
+    const syncSummary = () => {
+      if (!setLimitStepper) return;
+      const perBuy = getPerBuyAmount();
+      const cur = getPerBuyCurrency();
+      const hasPerBuy = perBuy != null && perBuy > 0;
+      const { count } = setLimitStepper.getSummary();
+      const total = hasPerBuy ? perBuy * count : null;
+
+      if (perBuyEl) {
+        perBuyEl.textContent = hasPerBuy ? `${fmt(perBuy)} ${cur}` : SETLIMIT_VALUE_PLACEHOLDER;
+      }
+      if (totalBuysEl) totalBuysEl.textContent = `${count}`;
+      if (totalAmountEl) {
+        totalAmountEl.textContent = hasPerBuy ? `${fmt(total)} ${cur}` : SETLIMIT_VALUE_PLACEHOLDER;
+      }
+
+      if (captionEl) {
+        captionEl.textContent = hasPerBuy ? `Steps of ${fmt(perBuy)} ${cur}` : `Steps of ${SETLIMIT_VALUE_PLACEHOLDER}`;
+      }
+      if (amountCurEl) amountCurEl.textContent = hasPerBuy ? cur : '';
+      if (amountAmtEl) {
+        amountAmtEl.textContent = hasPerBuy ? fmt(total) : SETLIMIT_VALUE_PLACEHOLDER;
+      }
+
+      const blockAmountStepper = mode === 'amount' && !hasPerBuy;
+      if (pillEl) pillEl.classList.toggle('schedule-setlimit-inline__pill--blocked', blockAmountStepper);
+      if (buysConfirmBtn) buysConfirmBtn.disabled = blockAmountStepper;
+
+      if (endsEl) {
+        if (blockAmountStepper) {
+          endsEl.textContent = 'Set auto-invest amount first';
+          endsEl.classList.add('schedule-setlimit-inline__ends--error');
+        } else {
+          endsEl.classList.remove('schedule-setlimit-inline__ends--error');
+          // If we previously replaced the end date with an error, restore it.
+          if (String(endsEl.textContent || '').trim() === 'Set auto-invest amount first') {
+            setLimitStepper?.syncDom();
+          }
+        }
+      }
+    };
 
     const refreshEndConditionSubtitles = () => {
       const selected = scheduleSheet.querySelector('[data-schedule-end].is-selected');
@@ -1549,6 +1640,7 @@
         if (descEl?.textContent.trim()) {
           descEl.textContent = line;
         }
+        syncSummary();
       } else {
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         if (descEl) descEl.textContent = '';
@@ -1579,7 +1671,9 @@
     };
 
     const openSetLimitFollowup = () => {
+      setModeUI('periods');
       setLimitStepper?.syncDom();
+      syncSummary();
       const run = () => revealSheet(buysSheet);
       if (typeof handoff === 'function') handoff(run);
       else run();
@@ -1612,6 +1706,19 @@
         closeFollowupThenReopenSchedule(buysSheet, buysPanel);
       });
 
+    modeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const v = btn.getAttribute('data-setlimit-mode') || 'periods';
+        setModeUI(v);
+        syncSummary();
+      });
+    });
+
+    document.querySelector('[data-plan-detail-amount-input]')?.addEventListener('input', () => {
+      if (buysSheet.classList.contains('is-open')) syncSummary();
+    });
+
+    setModeUI('periods');
     scheduleSheetApi.refreshEndConditionSubtitles?.();
   };
 
