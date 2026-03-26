@@ -3006,6 +3006,10 @@ html[data-active-tab="finance"] {
   font-size: 14px !important;
 }
 
+.currency-sheet__item.is-selected .currency-sheet__item-desc--highlight {
+  color: #8FB8FF;
+}
+
 .currency-sheet__item-radio {
   width: 22px;
   height: 22px;
@@ -3146,8 +3150,8 @@ div.currency-sheet__item-icon {
   line-height: 22px;
 }
 
-// Set a limit: summary lives in inline stepper (Figma 8520:8386); row subtitle span unused
-[data-schedule-sheet] [data-schedule-endlimit-desc] {
+// Set a limit: subtitle under row title — hidden until it has text (Confirm on nested sheet or reopen from plan)
+[data-schedule-sheet] [data-schedule-endlimit-desc]:empty {
   display: none;
 }
 
@@ -3265,6 +3269,20 @@ div.currency-sheet__item-icon {
 .schedule-setlimit-inline--open .schedule-setlimit-inline__inner {
   opacity: 1;
   transform: translateY(0);
+}
+
+// Stepper lives in nested [data-schedule-buys-sheet]; skip collapsed max-height / fade-in
+.schedule-setlimit-inline--in-sheet {
+  max-height: none;
+  overflow: visible;
+  transition: none;
+  pointer-events: auto;
+
+  .schedule-setlimit-inline__inner {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5051,6 +5069,7 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   line-height: normal;
   text-align: right;
+  display: none;
 
   &.plan-detail-panel__coverage-hint--neutral {
     color: #8fb8ff;

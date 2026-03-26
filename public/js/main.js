@@ -1301,6 +1301,15 @@
       setEndUI(end);
       scheduleSheetApi.refreshEndConditionSubtitles?.();
 
+      const endSel = sheet.querySelector('[data-schedule-end].is-selected')?.getAttribute('data-schedule-end');
+      if (endSel === 'enddate') {
+        const descEl = sheet.querySelector('[data-schedule-endlimit-desc]');
+        const line = scheduleSheetApi.planDetailRepeatsEndLimitText?.trim();
+        if (descEl && line && !descEl.textContent.trim()) {
+          descEl.textContent = line;
+        }
+      }
+
       resetScheduleNestedScrimHard();
       sheet.hidden = false;
       requestAnimationFrame(() => sheet.classList.add('is-open'));
@@ -1365,7 +1374,7 @@
           endEl.textContent = 'Continuous';
           scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         } else if (end === 'enddate') {
-          const limitDesc = sheet.querySelector('[data-schedule-setlimit-end-date]')?.textContent?.trim();
+          const limitDesc = document.querySelector('[data-schedule-setlimit-end-date]')?.textContent?.trim();
           endEl.textContent =
             scheduleSheetApi.planDetailRepeatsEndLimitText
             || limitDesc
@@ -1399,6 +1408,7 @@
         if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
         if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
         scheduleSheetApi.applyScheduleSetLimitYearDefault?.();
+        scheduleSheetApi.refreshEndConditionSubtitles?.();
       });
     });
 
@@ -1407,7 +1417,7 @@
         const end = btn.getAttribute('data-schedule-end') || 'continuous';
         setEndUI(end);
         scheduleSheetApi.refreshEndConditionSubtitles?.();
-        if (end === 'buys') scheduleSheetApi.onEndOptionSelect?.(end);
+        if (end === 'enddate') scheduleSheetApi.onEndOptionSelect?.(end);
       });
     });
 
@@ -1417,8 +1427,9 @@
    * “Set a limit” inline stepper — Figma DCA1.0_modal_schedule (8520:8386).
    * @returns {{ syncDom: () => void, getSummary: () => { count: number, endsApprox: string }, applyYearDefaultForActiveFreq: () => void } | null}
    */
-  const initScheduleSetLimitStepper = (scheduleSheet) => {
-    const host = scheduleSheet.querySelector('[data-schedule-setlimit-inline]');
+  const initScheduleSetLimitStepper = (scheduleSheet, limitHostRoot) => {
+    const root = limitHostRoot || scheduleSheet;
+    const host = root.querySelector('[data-schedule-setlimit-inline]');
     const valueEl = host?.querySelector('[data-schedule-setlimit-value]');
     const suffixEl = host?.querySelector('[data-schedule-setlimit-suffix]');
     const dateEl = host?.querySelector('[data-schedule-setlimit-end-date]');
@@ -1512,7 +1523,7 @@
     return { syncDom, getSummary, applyYearDefaultForActiveFreq };
   };
 
-  /** Schedule sheet: nested follow-up (number of buys only; set-limit is inline on main sheet). */
+  /** Schedule sheet: nested follow-up for “Set a limit” stepper (same backdrop handoff as time picker). */
   const initScheduleEndFollowupSheets = () => {
     const scheduleSheet = document.querySelector('[data-schedule-sheet]');
     const buysSheet = document.querySelector('[data-schedule-buys-sheet]');
@@ -1522,24 +1533,25 @@
     const handoff = scheduleSheetApi.closeAnimatedForChild;
     const reopen = scheduleSheetApi.reopenFromChild;
 
-    const setLimitStepper = initScheduleSetLimitStepper(scheduleSheet);
+    const setLimitStepper = initScheduleSetLimitStepper(scheduleSheet, buysSheet);
 
     const refreshEndConditionSubtitles = () => {
-      const inlineEl = scheduleSheet.querySelector('[data-schedule-setlimit-inline]');
       const selected = scheduleSheet.querySelector('[data-schedule-end].is-selected');
       const end = selected?.getAttribute('data-schedule-end') || 'continuous';
+      const descEl = scheduleSheet.querySelector('[data-schedule-endlimit-desc]');
       scheduleSheet.classList.toggle('schedule-sheet--end-limit-selected', end === 'enddate');
       if (end === 'enddate' && setLimitStepper) {
         setLimitStepper.syncDom();
         const { count, endsApprox } = setLimitStepper.getSummary();
         const buyWord = count === 1 ? 'buy' : 'buys';
-        scheduleSheetApi.planDetailRepeatsEndLimitText = `${count} ${buyWord} ~ Ends ${endsApprox}`;
-        inlineEl?.classList.add('schedule-setlimit-inline--open');
-        inlineEl?.setAttribute('aria-hidden', 'false');
+        const line = `${count} ${buyWord} ~ Ends ${endsApprox}`;
+        scheduleSheetApi.planDetailRepeatsEndLimitText = line;
+        if (descEl?.textContent.trim()) {
+          descEl.textContent = line;
+        }
       } else {
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
-        inlineEl?.classList.remove('schedule-setlimit-inline--open');
-        inlineEl?.setAttribute('aria-hidden', 'true');
+        if (descEl) descEl.textContent = '';
       }
     };
 
@@ -1566,14 +1578,15 @@
       );
     };
 
-    const openBuys = () => {
+    const openSetLimitFollowup = () => {
+      setLimitStepper?.syncDom();
       const run = () => revealSheet(buysSheet);
       if (typeof handoff === 'function') handoff(run);
       else run();
     };
 
     scheduleSheetApi.onEndOptionSelect = (end) => {
-      if (end === 'buys') openBuys();
+      if (end === 'enddate') openSetLimitFollowup();
     };
 
     const wireClose = (root, closeAttr) => {
@@ -1588,7 +1601,16 @@
     buysSheet.querySelector('[data-schedule-buys-sheet-cancel]')
       ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel));
     buysSheet.querySelector('[data-schedule-buys-sheet-confirm]')
-      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel));
+      ?.addEventListener('click', () => {
+        const descEl = scheduleSheet.querySelector('[data-schedule-endlimit-desc]');
+        if (setLimitStepper && descEl) {
+          setLimitStepper.syncDom();
+          const { count, endsApprox } = setLimitStepper.getSummary();
+          const buyWord = count === 1 ? 'buy' : 'buys';
+          descEl.textContent = `${count} ${buyWord} ~ Ends ${endsApprox}`;
+        }
+        closeFollowupThenReopenSchedule(buysSheet, buysPanel);
+      });
 
     scheduleSheetApi.refreshEndConditionSubtitles?.();
   };
