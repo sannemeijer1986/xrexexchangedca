@@ -4313,7 +4313,22 @@
         return guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
+      const getReserveBuyBounds = () => {
+        if (!isSetLimit) return { min: 0, max: Number.POSITIVE_INFINITY };
+        const maxBuys = Number.isFinite(coversTotalBuys) && coversTotalBuys > 0 ? coversTotalBuys : 1;
+        return { min: 1, max: maxBuys };
+      };
+
+      const clampReserveAmount = (rawAmount) => {
+        if (perBuy <= 0) return 0;
+        const { min, max } = getReserveBuyBounds();
+        const rawBuys = Math.floor(Math.max(0, rawAmount) / perBuy);
+        const clampedBuys = Math.min(max, Math.max(min, rawBuys));
+        return clampedBuys * perBuy;
+      };
+
       const render = () => {
+        reserveAmount = clampReserveAmount(reserveAmount);
         const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
@@ -4337,8 +4352,12 @@
           coversFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
         }
 
-        if (dec10Btn) dec10Btn.disabled = reserveAmount <= 0;
-        if (decBtn) decBtn.disabled = reserveAmount <= 0;
+        const coversNowForButtons = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;
+        const { min: minBuys, max: maxBuys } = getReserveBuyBounds();
+        if (dec10Btn) dec10Btn.disabled = coversNowForButtons <= minBuys;
+        if (decBtn) decBtn.disabled = coversNowForButtons <= minBuys;
+        if (incBtn) incBtn.disabled = coversNowForButtons >= maxBuys;
+        if (inc10Btn) inc10Btn.disabled = coversNowForButtons >= maxBuys;
       };
 
       const syncFromPlanDetail = () => {
@@ -4353,8 +4372,8 @@
         const n = m ? parseInt(m[1], 10) : NaN;
         coversTotalBuys = Number.isFinite(n) && n > 0 ? n : 40;
 
-        // Default reserve amount: 10 buys worth (matches Figma example 10 / 40)
-        reserveAmount = perBuy > 0 ? perBuy * 10 : 0;
+        // Default reserve amount: 10 buys worth, clamped to valid bounds for set-limit plans.
+        reserveAmount = perBuy > 0 ? clampReserveAmount(perBuy * 10) : 0;
 
         setMethodUI('flexible');
         render();
@@ -4362,8 +4381,7 @@
 
       const bumpReserve = (deltaBuys) => {
         if (perBuy <= 0) return;
-        const next = Math.max(0, reserveAmount + deltaBuys * perBuy);
-        reserveAmount = next;
+        reserveAmount = clampReserveAmount(reserveAmount + deltaBuys * perBuy);
         render();
       };
 
