@@ -1277,98 +1277,116 @@
 
         <!-- Set a buffer (slides in from right over plan detail) -->
         <section class="plan-buffer-panel" data-plan-buffer-panel hidden aria-label="Set a buffer">
-            <header class="plan-buffer-panel__header">
+            <header class="plan-buffer-panel__header plan-buffer-panel__header--funding">
                 <button class="plan-buffer-panel__icon-btn" type="button" data-plan-buffer-back aria-label="Back">
                     <img src="assets/icon_back.svg" alt="" width="24" height="24" />
                 </button>
-                <h1 class="plan-buffer-panel__title">Set a buffer</h1>
+                <h1 class="plan-buffer-panel__title">Funding your plan</h1>
                 <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
             </header>
             <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
 
             <div class="plan-buffer-panel__scroller">
-                <div class="plan-buffer-panel__body">
-                    <p class="plan-buffer-panel__subtitle" data-plan-buffer-subtitle>
-                        A buffer ensures every buy goes through
-                    </p>
+                <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
+                    <h2 class="plan-buffer-panel__heading">Choose how buys are covered</h2>
 
-                    <button class="plan-buffer-panel__banner" type="button" data-plan-buffer-banner-edit aria-label="Edit buffer plan">
-                        <div class="plan-buffer-panel__banner-icon" aria-hidden="true" data-plan-buffer-banner-icon></div>
-                        <div class="plan-buffer-panel__banner-meta">
-                            <div class="plan-buffer-panel__banner-main" data-plan-buffer-banner-main>—</div>
-                            <div class="plan-buffer-panel__banner-sub" data-plan-buffer-banner-sub>—</div>
+                    <div class="plan-buffer-panel__method-card" role="group" aria-label="Funding method">
+                        <button class="plan-buffer-panel__method-row currency-sheet__item is-selected" type="button" data-plan-buffer-method="flexible" aria-pressed="true">
+                            <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--flex" aria-hidden="true">
+                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_1_on.svg" alt="" />
+                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_1_off.svg" alt="" />
+                            </div>
+                            <div class="plan-buffer-panel__method-content">
+                                <div class="plan-buffer-panel__method-title">Flexible</div>
+                                <div class="plan-buffer-panel__method-desc">Each buy is deducted on day of purchase, just have enough funds ready.</div>
+                            </div>
+                            <div class="currency-sheet__item-radio" aria-hidden="true">
+                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                            </div>
+                        </button>
+                        <div class="plan-buffer-panel__method-divider" aria-hidden="true"></div>
+                        <button class="plan-buffer-panel__method-row currency-sheet__item" type="button" data-plan-buffer-method="reserved" aria-pressed="false">
+                            <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--reserve" aria-hidden="true">
+                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_2_on.svg" alt="" />
+                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_2_off.svg" alt="" />
+                            </div>
+                            <div class="plan-buffer-panel__method-content">
+                                <div class="plan-buffer-panel__method-title">Reserved funds</div>
+                                <div class="plan-buffer-panel__method-desc">Pre-fund a bigger sum, this sum refills when used up.</div>
+                            </div>
+                            <div class="currency-sheet__item-radio" aria-hidden="true">
+                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Flexible details -->
+                    <div class="plan-buffer-panel__details" data-plan-buffer-details="flexible">
+                        <div class="plan-buffer-panel__kv">
+                            <div class="plan-buffer-panel__kv-label">Per buy</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy>—</div>
                         </div>
-                        <img class="plan-buffer-panel__banner-edit" src="assets/icon_edit_white.svg" width="24" height="24" alt="" aria-hidden="true" />
-                    </button>
-
-                    <div class="plan-buffer-panel__cover-heading">Cover upcoming buys</div>
-
-                    <div class="plan-buffer-panel__card" data-plan-buffer-card>
-                    <div class="plan-buffer-panel__progress" data-plan-buffer-progress hidden aria-label="Buys coverage progress">
-                        <div class="plan-buffer-panel__progress-label-row" aria-hidden="true">
-                            <p class="plan-buffer-panel__progress-label" data-plan-buffer-progress-left>0 buys</p>
-                            <p class="plan-buffer-panel__progress-label plan-buffer-panel__progress-label--right" data-plan-buffer-progress-right>— buys</p>
+                        <div class="plan-buffer-panel__kv">
+                            <div class="plan-buffer-panel__kv-label">Next buy</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-nextbuy>—</div>
                         </div>
-                        <div class="plan-buffer-panel__progress-track" aria-hidden="true">
-                            <div class="plan-buffer-panel__progress-fill" data-plan-buffer-progress-fill></div>
+                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--strong">
+                            <div class="plan-buffer-panel__kv-label">Deducted from</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-source>Wallet</div>
                         </div>
                     </div>
 
-                        <div class="plan-buffer-panel__stepper-pill" aria-hidden="false">
-                            <div class="plan-buffer-panel__stepper-row">
-                                <div class="plan-buffer-panel__step-cluster">
-                                    <button class="plan-buffer-panel__step-btn plan-buffer-panel__step-btn--jump" type="button" aria-label="Decrease by 10" data-plan-buffer-dec-10>-10</button>
-                                    <button class="plan-buffer-panel__step-btn" type="button" aria-label="Decrease by 1" data-plan-buffer-dec>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                    </button>
-                                </div>
+                    <!-- Reserved details -->
+                    <div class="plan-buffer-panel__details" data-plan-buffer-details="reserved" hidden>
+                        <div class="plan-buffer-panel__reserve-head">
+                            <div class="plan-buffer-panel__reserve-title">Amount to reserve</div>
+                            <div class="plan-buffer-panel__reserve-steps" data-plan-buffer-steps>Steps of —</div>
+                        </div>
 
-                                <div class="plan-buffer-panel__step-value" aria-live="polite">
-                                    <span class="plan-buffer-panel__step-value-text" data-plan-buffer-value>0</span>
-                                    <span class="plan-buffer-panel__step-value-suffix" data-plan-buffer-value-suffix>buys</span>
-                                </div>
+                        <div class="plan-buffer-panel__reserve-stepper">
+                            <button class="plan-buffer-panel__reserve-btn plan-buffer-panel__reserve-btn--jump" type="button" data-plan-buffer-reserve-dec-10 aria-label="Decrease by 10">-10</button>
+                            <button class="plan-buffer-panel__reserve-btn" type="button" data-plan-buffer-reserve-dec aria-label="Decrease by 1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                            <div class="plan-buffer-panel__reserve-center" aria-live="polite">
+                                <div class="plan-buffer-panel__reserve-cur" data-plan-buffer-reserve-cur>USDT</div>
+                                <div class="plan-buffer-panel__reserve-amt" data-plan-buffer-reserve-amt>—</div>
+                            </div>
+                            <button class="plan-buffer-panel__reserve-btn" type="button" data-plan-buffer-reserve-inc aria-label="Increase by 1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                            <button class="plan-buffer-panel__reserve-btn plan-buffer-panel__reserve-btn--jump" type="button" data-plan-buffer-reserve-inc-10 aria-label="Increase by 10">+10</button>
+                        </div>
 
-                                <div class="plan-buffer-panel__step-cluster plan-buffer-panel__step-cluster--right">
-                                    <button class="plan-buffer-panel__step-btn" type="button" aria-label="Increase by 1" data-plan-buffer-inc>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                    </button>
-                                    <button class="plan-buffer-panel__step-btn plan-buffer-panel__step-btn--jump" type="button" aria-label="Increase by 10" data-plan-buffer-inc-10>+10</button>
-                                </div>
+                        <div class="plan-buffer-panel__kv">
+                            <div class="plan-buffer-panel__kv-label">Per buy</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2>—</div>
+                        </div>
+                        <div class="plan-buffer-panel__kv">
+                            <div class="plan-buffer-panel__kv-label">Reserved from</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-source-2>Wallet</div>
+                        </div>
+                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--reserve-covers">
+                            <div class="plan-buffer-panel__kv-label">Reserve covers</div>
+                            <div class="plan-buffer-panel__kv-value">
+                                <span class="plan-buffer-panel__reserve-covers-now" data-plan-buffer-covers-now>—</span>
+                                <span> / </span>
+                                <span data-plan-buffer-covers-total>—</span>
+                                <span> buys</span>
                             </div>
                         </div>
-
-                        <div class="plan-buffer-panel__avail-block">
-                            <p class="plan-buffer-panel__avail-line" data-plan-buffer-avail>Avail. —</p>
-                            <p class="plan-buffer-panel__max-line" data-plan-buffer-max>Max —</p>
-                        </div>
-                        <div class="plan-buffer-panel__divider" aria-hidden="true"></div>
-
-                        <div class="plan-buffer-panel__row plan-buffer-panel__row--set-aside">
-                            <p class="plan-buffer-panel__row-label">You’ll set aside</p>
-                            <p class="plan-buffer-panel__row-value plan-buffer-panel__row-value--green" data-plan-buffer-set-aside>—</p>
-                        </div>
-
-                        <div class="plan-buffer-panel__row plan-buffer-panel__row--covers">
-                            <p class="plan-buffer-panel__row-label">Covers</p>
-                            <div class="plan-buffer-panel__covers-values">
-                                <div class="plan-buffer-panel__covers-main">
-                                    <span class="plan-buffer-panel__row-value--green" data-plan-buffer-covers-count>—</span>
-                                    <span data-plan-buffer-covers-planned-part> / — buys</span>
-                                </div>
-                                <p class="plan-buffer-panel__covers-sub" data-plan-buffer-covers-sub hidden>—</p>
-                            </div>
+                        <div class="plan-buffer-panel__reserve-track" aria-hidden="true">
+                            <div class="plan-buffer-panel__reserve-fill" data-plan-buffer-covers-fill></div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <div class="plan-buffer-panel__footer">
-                <button class="plan-buffer-panel__btn plan-buffer-panel__btn--secondary" type="button" data-plan-buffer-back-bottom>Back</button>
+            <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
                 <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-confirm>Continue</button>
             </div>
         </section>

@@ -4291,148 +4291,116 @@
       if (!bufferPanel) return { open: () => {}, close: () => {} };
 
       const bufferScroller = bufferPanel.querySelector('.plan-buffer-panel__scroller');
-      const subtitleEl = bufferPanel.querySelector('[data-plan-buffer-subtitle]');
-      const bannerMainEl = bufferPanel.querySelector('[data-plan-buffer-banner-main]');
-      const bannerSubEl = bufferPanel.querySelector('[data-plan-buffer-banner-sub]');
-      const bannerIconWrap = bufferPanel.querySelector('[data-plan-buffer-banner-icon]');
+      const methodBtns = Array.from(bufferPanel.querySelectorAll('[data-plan-buffer-method]'));
+      const flexibleDetails = bufferPanel.querySelector('[data-plan-buffer-details="flexible"]');
+      const reservedDetails = bufferPanel.querySelector('[data-plan-buffer-details="reserved"]');
+      const perBuyEl = bufferPanel.querySelector('[data-plan-buffer-perbuy]');
+      const perBuyEl2 = bufferPanel.querySelector('[data-plan-buffer-perbuy-2]');
+      const nextBuyEl = bufferPanel.querySelector('[data-plan-buffer-nextbuy]');
+      const sourceEl = bufferPanel.querySelector('[data-plan-buffer-source]');
+      const sourceEl2 = bufferPanel.querySelector('[data-plan-buffer-source-2]');
 
-      const progressWrapEl = bufferPanel.querySelector('[data-plan-buffer-progress]');
-      const progressLeftEl = bufferPanel.querySelector('[data-plan-buffer-progress-left]');
-      const progressRightEl = bufferPanel.querySelector('[data-plan-buffer-progress-right]');
-      const progressFillEl = bufferPanel.querySelector('[data-plan-buffer-progress-fill]');
+      const stepsEl = bufferPanel.querySelector('[data-plan-buffer-steps]');
+      const reserveCurEl = bufferPanel.querySelector('[data-plan-buffer-reserve-cur]');
+      const reserveAmtEl = bufferPanel.querySelector('[data-plan-buffer-reserve-amt]');
+      const coversNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-now]');
+      const coversTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-total]');
+      const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
+      const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
 
-      const availEl = bufferPanel.querySelector('[data-plan-buffer-avail]');
-      const maxEl = bufferPanel.querySelector('[data-plan-buffer-max]');
+      const dec10Btn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec-10]');
+      const decBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec]');
+      const incBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-inc]');
+      const inc10Btn = bufferPanel.querySelector('[data-plan-buffer-reserve-inc-10]');
 
-      const valueTextEl = bufferPanel.querySelector('[data-plan-buffer-value]');
-      const valueSuffixEl = bufferPanel.querySelector('[data-plan-buffer-value-suffix]');
+      const ctaBtn = bufferPanel.querySelector('[data-plan-buffer-confirm]');
 
-      const dec10Btn = bufferPanel.querySelector('[data-plan-buffer-dec-10]');
-      const decBtn = bufferPanel.querySelector('[data-plan-buffer-dec]');
-      const incBtn = bufferPanel.querySelector('[data-plan-buffer-inc]');
-      const inc10Btn = bufferPanel.querySelector('[data-plan-buffer-inc-10]');
-
-      const setAsideEl = bufferPanel.querySelector('[data-plan-buffer-set-aside]');
-
-      const coversRowEl = bufferPanel.querySelector('.plan-buffer-panel__row--covers');
-      const coversCountEl = bufferPanel.querySelector('[data-plan-buffer-covers-count]');
-      const coversPlannedPartEl = bufferPanel.querySelector('[data-plan-buffer-covers-planned-part]');
-      const coversSubEl = bufferPanel.querySelector('[data-plan-buffer-covers-sub]');
-
-      let bufferBuys = 0;
-      let bufferMaxBuys = 0;
+      let method = 'flexible'; // 'flexible' | 'reserved'
+      let perBuy = 0;
+      let cur = currencyState.plan || 'USDT';
+      let reserveAmount = 0;
+      let coversTotalBuys = 40;
       let isSetLimit = false;
-      let plannedBuys = NaN;
-      let limitInvestTotal = 0;
-      let amountPerBuy = 0;
-      let cur = currencyState.plan || 'TWD';
-      let maxBuysFromBalance = 0;
 
-      const parseLimitBuysFromRepeatsEnd = (endT) => {
-        const m = String(endT || '').match(/^(\d+)/);
-        const n = m ? parseInt(m[1], 10) : NaN;
-        return Number.isFinite(n) && n >= 1 ? n : NaN;
+      const setMethodUI = (next) => {
+        method = next === 'reserved' ? 'reserved' : 'flexible';
+        methodBtns.forEach((btn) => {
+          const on = btn.getAttribute('data-plan-buffer-method') === method;
+          btn.classList.toggle('is-selected', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (flexibleDetails) flexibleDetails.hidden = method !== 'flexible';
+        if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
+        if (ctaBtn) ctaBtn.textContent = method === 'reserved' ? 'Reserve & Continue' : 'Continue';
       };
 
-      const freqKey = () => (document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly');
-      const freqLabel = (k) => (k === 'daily' ? 'Daily' : k === 'weekly' ? 'Weekly' : 'Monthly');
+      const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
+
+      const computeNextBuyDate = () => {
+        const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        // Try to reuse existing compact formatter; then expand to include year.
+        const compact = formatFinanceNextBuyCompact(schedText);
+        const monthDay = compact.split('·')[0]?.trim();
+        if (!monthDay) return '—';
+        const t = new Date();
+        const guess = new Date(`${monthDay} ${t.getFullYear()}`);
+        if (Number.isNaN(guess.getTime())) return monthDay;
+        // If the guess is in the past (e.g. Jan 10 when today is Mar), roll to next year.
+        if (guess.getTime() < Date.now() - 24 * 60 * 60 * 1000) guess.setFullYear(guess.getFullYear() + 1);
+        return guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      };
 
       const render = () => {
-        if (valueTextEl) valueTextEl.textContent = String(bufferBuys);
-        if (valueSuffixEl) valueSuffixEl.textContent = bufferBuys === 1 ? 'buy' : 'buys';
+        const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
+        if (perBuyEl) perBuyEl.textContent = perBuyStr;
+        if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
+        if (nextBuyEl) nextBuyEl.textContent = computeNextBuyDate();
+        if (sourceEl) sourceEl.textContent = 'Wallet';
+        if (sourceEl2) sourceEl2.textContent = 'Wallet';
 
-        if (dec10Btn) dec10Btn.disabled = bufferBuys <= 0;
-        if (decBtn) decBtn.disabled = bufferBuys <= 0;
-        if (inc10Btn) inc10Btn.disabled = bufferBuys >= bufferMaxBuys;
-        if (incBtn) incBtn.disabled = bufferBuys >= bufferMaxBuys;
+        if (stepsEl) stepsEl.textContent = perBuy > 0 ? `Steps of ${fmt(perBuy)} ${cur}` : 'Steps of —';
+        if (reserveCurEl) reserveCurEl.textContent = cur;
+        if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
 
-        const setAside = bufferBuys * amountPerBuy;
-        if (setAsideEl) setAsideEl.textContent = `${setAside.toLocaleString('en-US')} ${cur}`;
-
-        // Progress + "Covers" are only for "Set a limit" plans.
-        const showSetLimit = isSetLimit && Number.isFinite(plannedBuys);
-
-        // Progress bar: visible only for set-limit plans.
-        if (progressWrapEl) {
-          progressWrapEl.hidden = !showSetLimit;
-          if (showSetLimit) {
-            if (progressLeftEl) progressLeftEl.textContent = `${bufferBuys} buys`;
-            if (progressRightEl) progressRightEl.textContent = `${plannedBuys} buys`;
-            if (progressFillEl) {
-              const pct = plannedBuys > 0 ? (bufferBuys / plannedBuys) * 100 : 0;
-              progressFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
-            }
-          } else if (progressFillEl) {
-            // Reset so there's no stale bar width if the element becomes visible again.
-            progressFillEl.style.width = '0%';
-          }
+        const coversNow = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;
+        if (coversNowEl) coversNowEl.textContent = String(coversNow);
+        if (coversTotalEl) {
+          coversTotalEl.textContent = String(coversTotalBuys);
+          coversTotalEl.hidden = !isSetLimit;
+        }
+        if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
+        if (coversFillEl) {
+          const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
+          coversFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
         }
 
-        // Covers row: hidden for continuous plans.
-        if (coversRowEl) coversRowEl.hidden = !showSetLimit;
-
-        if (coversCountEl) coversCountEl.textContent = String(bufferBuys);
-        if (coversPlannedPartEl) coversPlannedPartEl.textContent = showSetLimit ? ` / ${plannedBuys} buys` : ` / — buys`;
-
-        if (coversSubEl) {
-          coversSubEl.hidden = !showSetLimit;
-          if (showSetLimit) {
-            coversSubEl.textContent = `${setAside.toLocaleString('en-US')} of ${limitInvestTotal.toLocaleString('en-US')} ${cur} total`;
-          }
-        }
+        if (dec10Btn) dec10Btn.disabled = reserveAmount <= 0;
+        if (decBtn) decBtn.disabled = reserveAmount <= 0;
       };
 
       const syncFromPlanDetail = () => {
         const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
-        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || 'Continuous';
-        cur = currencyState.plan || 'TWD';
-        amountPerBuy = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+        cur = currencyState.plan || String(panel.querySelector('[data-plan-detail-currency]')?.textContent || 'USDT').trim();
+        perBuy = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
 
-        // Plan type: continuous vs "X buys ~ Ends ..."
+        // Use plan limit buys if available; else keep the Figma example default.
+        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
         isSetLimit = isPlanDetailSetLimitEnd(endRaw);
-        plannedBuys = isSetLimit ? parseLimitBuysFromRepeatsEnd(endRaw) : NaN;
+        const m = endRaw.match(/^(\d+)\s+buys?\b/i);
+        const n = m ? parseInt(m[1], 10) : NaN;
+        coversTotalBuys = Number.isFinite(n) && n > 0 ? n : 40;
 
-        const bal = BALANCES[cur] ?? BALANCES.TWD;
-        maxBuysFromBalance = amountPerBuy > 0 ? Math.floor(bal / amountPerBuy) : 0;
-        bufferMaxBuys = isSetLimit && Number.isFinite(plannedBuys) ? Math.min(plannedBuys, maxBuysFromBalance) : maxBuysFromBalance;
+        // Default reserve amount: 10 buys worth (matches Figma example 10 / 40)
+        reserveAmount = perBuy > 0 ? perBuy * 10 : 0;
 
-        limitInvestTotal = isSetLimit && Number.isFinite(plannedBuys) ? plannedBuys * amountPerBuy : 0;
-
-        // Copy + banner
-        if (subtitleEl) {
-          subtitleEl.textContent = isSetLimit
-            ? 'A buffer ensures every buy goes through'
-            : 'A buffer ensures your continious plan keeps running';
-        }
-
-        if (bannerMainEl) {
-          const fkey = freqKey();
-          const mainAmt = amountPerBuy > 0 ? amountPerBuy.toLocaleString('en-US') : '—';
-          bannerMainEl.textContent = `${mainAmt} ${cur} · ${freqLabel(fkey)}`;
-        }
-
-        if (bannerSubEl) {
-          bannerSubEl.textContent = isSetLimit ? endRaw : 'Continuous';
-        }
-
-        // Icon: keep it simple (use existing plan header icon) — avoids brittle DOM parsing.
-        if (bannerIconWrap) {
-          const iconSrc = document.querySelector('[data-plan-detail-header-icon-wrap] img')?.getAttribute('src');
-          bannerIconWrap.innerHTML = iconSrc ? `<img src="${iconSrc}" alt="" style="width:40px;height:40px;display:block;" />` : '';
-        }
-
-        if (availEl) availEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${cur}`;
-        if (maxEl) {
-          maxEl.textContent = `Max ${bufferMaxBuys} buys`;
-        }
-
-        // Default selection
-        const DEFAULT_COVER_BUYS = 5;
-        bufferBuys = Math.max(0, Math.min(bufferMaxBuys, DEFAULT_COVER_BUYS));
+        setMethodUI('flexible');
+        render();
       };
 
-      const bump = (delta) => {
-        bufferBuys = Math.max(0, Math.min(bufferMaxBuys, bufferBuys + delta));
+      const bumpReserve = (deltaBuys) => {
+        if (perBuy <= 0) return;
+        const next = Math.max(0, reserveAmount + deltaBuys * perBuy);
+        reserveAmount = next;
         render();
       };
 
@@ -4442,7 +4410,6 @@
         planSuccessApi.forceClose();
 
         syncFromPlanDetail();
-        render();
 
         if (bufferScroller) bufferScroller.scrollTop = 0;
         bufferPanel.hidden = false;
@@ -4472,13 +4439,19 @@
       };
 
       bufferPanel.querySelector('[data-plan-buffer-back]')?.addEventListener('click', () => close());
-      bufferPanel.querySelector('[data-plan-buffer-back-bottom]')?.addEventListener('click', () => close());
-      bufferPanel.querySelector('[data-plan-buffer-banner-edit]')?.addEventListener('click', () => close({ instant: true }));
 
-      incBtn?.addEventListener('click', () => bump(1));
-      inc10Btn?.addEventListener('click', () => bump(10));
-      decBtn?.addEventListener('click', () => bump(-1));
-      dec10Btn?.addEventListener('click', () => bump(-10));
+      methodBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const v = btn.getAttribute('data-plan-buffer-method') || 'flexible';
+          setMethodUI(v);
+          render();
+        });
+      });
+
+      incBtn?.addEventListener('click', () => bumpReserve(1));
+      inc10Btn?.addEventListener('click', () => bumpReserve(10));
+      decBtn?.addEventListener('click', () => bumpReserve(-1));
+      dec10Btn?.addEventListener('click', () => bumpReserve(-10));
 
       bufferPanel.querySelector('[data-plan-buffer-confirm]')?.addEventListener('click', () => {
         // Keep buffer open underneath overview so "Back" returns to buffer.
