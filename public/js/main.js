@@ -3297,6 +3297,10 @@
       panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
 
       const curatedProductKeyForDesc = (() => {
+        // Manual/new plans should never show curated subtitles.
+        if (ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins' || title === 'Your plan') {
+          return null;
+        }
         if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.key) {
           return String(detailAllocOverride.key).toLowerCase();
         }
