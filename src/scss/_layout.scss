@@ -3337,6 +3337,8 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   color: #9b9c9c;
   line-height: normal;
+  width: 100%;
+  text-align: center;
 }
 
 .schedule-setlimit-inline__value-amt {
@@ -3344,6 +3346,8 @@ div.currency-sheet__item-icon {
   font-weight: 700;
   color: #ffffff;
   line-height: normal;
+  width: 100%;
+  text-align: center;
 }
 
 .schedule-setlimit-inline__step-cluster {
@@ -3402,9 +3406,13 @@ div.currency-sheet__item-icon {
   padding: 0 12px;
 }
 
+.schedule-setlimit-inline__value-cell[hidden] {
+  display: none !important;
+}
+
 .schedule-setlimit-inline__value-text {
   font-family: inherit;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.1;
   color: #ffffff;
@@ -3428,7 +3436,7 @@ div.currency-sheet__item-icon {
   font-size: 14px;
   font-weight: 600;
   line-height: normal;
-  color: #ffffff;
+  color: #8FB8FF;
   text-align: center;
 }
 
@@ -5209,6 +5217,7 @@ div.currency-sheet__item-icon {
   line-height: normal;
   text-align: right;
   display: none;
+  opacity: 0;
 
   &.plan-detail-panel__coverage-hint--neutral {
     color: #8fb8ff;

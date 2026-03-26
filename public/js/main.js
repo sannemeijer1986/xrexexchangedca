@@ -1407,7 +1407,6 @@
         setFreqUI(freq);
         if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
         if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
-        scheduleSheetApi.applyScheduleSetLimitYearDefault?.();
         scheduleSheetApi.refreshEndConditionSubtitles?.();
       });
     });
@@ -1447,14 +1446,11 @@
       return (btn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
     };
 
-    const yearDefaultBuysForFreq = (freq) => {
-      const f = (freq || 'monthly').toLowerCase();
-      if (f === 'daily') return 92;
-      if (f === 'weekly') return 26;
-      return 12;
-    };
+    /** Always 12 for fresh state; freq changes do not override user-adjusted count. */
+    const DEFAULT_LIMIT_BUYS = 12;
 
-    let count = Math.max(MIN, Math.min(MAX, yearDefaultBuysForFreq(getActiveFreq())));
+    let count = Math.max(MIN, Math.min(MAX, DEFAULT_LIMIT_BUYS));
+    let countUserCustomized = false;
 
     /** 1–31 from strings like "15th at 12:00"; null if not monthly-style. */
     const parseMonthlyBuyDayFromTiming = (text) => {
@@ -1503,6 +1499,7 @@
     };
 
     const bump = (delta) => {
+      countUserCustomized = true;
       count = Math.max(MIN, Math.min(MAX, count + delta));
       syncDom();
       scheduleSheetApi.refreshEndConditionSubtitles?.();
@@ -1514,7 +1511,8 @@
     inc10Btn.addEventListener('click', () => bump(10));
 
     const applyYearDefaultForActiveFreq = () => {
-      count = Math.max(MIN, Math.min(MAX, yearDefaultBuysForFreq(getActiveFreq())));
+      if (countUserCustomized) return;
+      count = Math.max(MIN, Math.min(MAX, DEFAULT_LIMIT_BUYS));
       syncDom();
       scheduleSheetApi.refreshEndConditionSubtitles?.();
     };
@@ -1567,6 +1565,8 @@
     const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : SETLIMIT_VALUE_PLACEHOLDER);
 
     let mode = 'periods'; // 'periods' | 'amount'
+    /** Remember Total amount tab for next open (only applied when auto-invest amount is set). */
+    let setLimitFollowupPreferredMode = 'periods';
 
     const setModeUI = (nextMode) => {
       mode = nextMode === 'amount' ? 'amount' : 'periods';
@@ -1671,7 +1671,9 @@
     };
 
     const openSetLimitFollowup = () => {
-      setModeUI('periods');
+      const perBuyOk = getPerBuyAmount() != null;
+      const nextMode = perBuyOk && setLimitFollowupPreferredMode === 'amount' ? 'amount' : 'periods';
+      setModeUI(nextMode);
       setLimitStepper?.syncDom();
       syncSummary();
       const run = () => revealSheet(buysSheet);
@@ -1703,6 +1705,9 @@
           const buyWord = count === 1 ? 'buy' : 'buys';
           descEl.textContent = `${count} ${buyWord} ~ Ends ${endsApprox}`;
         }
+        if (getPerBuyAmount() != null) {
+          setLimitFollowupPreferredMode = mode === 'amount' ? 'amount' : 'periods';
+        }
         closeFollowupThenReopenSchedule(buysSheet, buysPanel);
       });
 
@@ -1710,6 +1715,9 @@
       btn.addEventListener('click', () => {
         const v = btn.getAttribute('data-setlimit-mode') || 'periods';
         setModeUI(v);
+        if (getPerBuyAmount() != null) {
+          setLimitFollowupPreferredMode = v === 'amount' ? 'amount' : 'periods';
+        }
         syncSummary();
       });
     });
