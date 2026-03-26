@@ -4793,6 +4793,16 @@ div.currency-sheet__item-icon {
   display: block;
 }
 
+// Curated portfolio tagline (same copy/tokens as Finance Auto-invest .curated-portfolios__desc; no card left-padding)
+.phone-container .plan-detail-panel__product-info .plan-detail-panel__product-desc.curated-portfolios__desc {
+  padding-left: 0;
+  margin-top: 4px;
+}
+
+.phone-container .plan-detail-panel__product-desc[hidden] {
+  display: none !important;
+}
+
 .plan-detail-panel__product-icon-wrap {
   width: 56px;
   height: 56px;

@@ -3296,6 +3296,30 @@
       panel.querySelector('[data-plan-detail-header-name]').textContent = title;
       panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
 
+      const curatedProductKeyForDesc = (() => {
+        if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.key) {
+          return String(detailAllocOverride.key).toLowerCase();
+        }
+        if (ctx.source === 'curated' && ctx.curatedKey) {
+          return String(ctx.curatedKey).toLowerCase();
+        }
+        const k = String(planKey || '').toLowerCase();
+        return pickerCurated.some((p) => p.key === k) ? k : null;
+      })();
+      const productDescEl = panel.querySelector('[data-plan-detail-product-desc]');
+      if (productDescEl) {
+        const meta = curatedProductKeyForDesc
+          ? pickerCurated.find((p) => p.key === curatedProductKeyForDesc)
+          : null;
+        if (meta?.desc) {
+          productDescEl.textContent = meta.desc;
+          productDescEl.hidden = false;
+        } else {
+          productDescEl.textContent = '';
+          productDescEl.hidden = true;
+        }
+      }
+
       panel.querySelector('[data-plan-detail-currency]').textContent = cur;
       panel.querySelector('[data-plan-detail-amount-icon]').src =
         cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
