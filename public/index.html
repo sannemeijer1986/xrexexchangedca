@@ -1182,42 +1182,6 @@
                     </div>
                     </div>
 
-                    <div class="plan-overview-panel__reserve" role="group" aria-label="Reserve option">
-                        <div class="plan-overview-panel__reserve-head">
-                            <span class="plan-overview-panel__reserve-headline">Guaranteed buys... (TBD)</span>
-                            <button class="plan-overview-panel__reserve-learn" type="button" data-plan-overview-reserve-learn>Learn more</button>
-                        </div>
-                        <div class="plan-overview-panel__reserve-card">
-                            <button class="plan-overview-panel__reserve-item is-selected" type="button" aria-pressed="true">
-                                <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
-                                    <img src="assets/icon_gauranteed_gray.svg" alt="" width="20" height="20" />
-                                </div>
-                                <div class="plan-overview-panel__reserve-item-copy">
-                                    <span class="plan-overview-panel__reserve-item-title">
-                                        Guaranteed
-                                        <span class="plan-overview-panel__reserve-item-tag">Recommended</span>
-                                    </span>
-                                    <span class="plan-overview-panel__reserve-item-sub">Funds reserved one period early: Ensures buy execution</span>
-                                </div>
-                                <div class="currency-sheet__item-radio" aria-hidden="true">
-                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
-                                </div>
-                            </button>
-                            <div class="plan-overview-panel__reserve-divider" aria-hidden="true"></div>
-                            <button class="plan-overview-panel__reserve-item" type="button" aria-pressed="false">
-                                <div class="currency-sheet__item-icon currency-sheet__item-icon--ec" aria-hidden="true">
-                                    <img src="assets/icon_flexible_gray.svg" alt="" width="20" height="20" />
-                                </div>
-                                <div class="plan-overview-panel__reserve-item-copy">
-                                    <span class="plan-overview-panel__reserve-item-title">Flexible</span>
-                                    <span class="plan-overview-panel__reserve-item-sub">Charged at execution: May skip buy if insufficient</span>
-                                </div>
-                                <div class="currency-sheet__item-radio" aria-hidden="true">
-                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
-                                </div>
-                            </button>
-                        </div>
-                    </div>
                 </div>
                 <div class="plan-overview-panel__footer">
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm plan</button>
@@ -1225,54 +1189,6 @@
                 </div>
             </div>
 
-            <section class="plan-overview-reserve-info-panel" data-plan-overview-reserve-info-panel hidden aria-label="Reserve option details">
-                <header class="plan-overview-reserve-info-panel__header">
-                    <button class="plan-overview-reserve-info-panel__icon-btn" type="button" data-plan-overview-reserve-info-close aria-label="Close">
-                        <img src="assets/icon_close.svg" alt="" width="24" height="24" />
-                    </button>
-                    <h2 class="plan-overview-reserve-info-panel__title"></h2>
-                    <div class="plan-overview-reserve-info-panel__header-spacer" aria-hidden="true"></div>
-                </header>
-                <div class="plan-overview-reserve-info-panel__body">
-                    <div class="plan-overview-reserve-info-panel__content">
-                        <h3 class="plan-overview-reserve-info-panel__hero-title">What’s the difference between Guaranteed and Flexible?</h3>
-                        <p class="plan-overview-reserve-info-panel__hero-desc">Choose how your funds are prepared before each scheduled buy. This is a rough draft design!</p>
-
-                        <section class="plan-overview-reserve-info-panel__section" aria-label="Guaranteed">
-                            <h4 class="plan-overview-reserve-info-panel__section-title">Guaranteed</h4>
-                            <div class="plan-overview-reserve-info-panel__graphic">
-                                <div class="plan-overview-reserve-info-panel__window plan-overview-reserve-info-panel__window--guaranteed"></div>
-                                <div class="plan-overview-reserve-info-panel__hint">System reserves funds one period ahead of upcoming buy</div>
-                                <div class="plan-overview-reserve-info-panel__timeline"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--left"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--buy"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--right"></div>
-                                <div class="plan-overview-reserve-info-panel__label plan-overview-reserve-info-panel__label--left">Apr 1</div>
-                                <div class="plan-overview-reserve-info-panel__label plan-overview-reserve-info-panel__label--right">May 1</div>
-                                <div class="plan-overview-reserve-info-panel__buy-tag">Buy<br />date/time</div>
-                            </div>
-                        </section>
-
-                        <section class="plan-overview-reserve-info-panel__section" aria-label="Flexible">
-                            <h4 class="plan-overview-reserve-info-panel__section-title">Flexible</h4>
-                            <div class="plan-overview-reserve-info-panel__graphic">
-                                <div class="plan-overview-reserve-info-panel__window plan-overview-reserve-info-panel__window--flexible"></div>
-                                <div class="plan-overview-reserve-info-panel__hint plan-overview-reserve-info-panel__hint--flexible">System deducts near buy time</div>
-                                <div class="plan-overview-reserve-info-panel__timeline"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--left"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--buy"></div>
-                                <div class="plan-overview-reserve-info-panel__marker plan-overview-reserve-info-panel__marker--right"></div>
-                                <div class="plan-overview-reserve-info-panel__label plan-overview-reserve-info-panel__label--left">Apr 1</div>
-                                <div class="plan-overview-reserve-info-panel__label plan-overview-reserve-info-panel__label--right">May 1</div>
-                                <div class="plan-overview-reserve-info-panel__buy-tag">Buy<br />date/time</div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-                <div class="plan-overview-reserve-info-panel__footer">
-                    <button class="plan-overview-reserve-info-panel__close-cta" type="button" data-plan-overview-reserve-info-close>Close</button>
-                </div>
-            </section>
         </section>
 
         <!-- Set a buffer (slides in from right over plan detail) -->
