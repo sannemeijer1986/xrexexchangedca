@@ -3269,6 +3269,7 @@ div.currency-sheet__item-icon::before {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
+  height: 52px;
   padding: 8px;
   border: 1px solid #3C4248;
   border-radius: 20px;
@@ -3295,6 +3296,7 @@ div.currency-sheet__item-icon::before {
 .schedule-setlimit-inline__value-cur {
   font-size: 12px;
   font-weight: 600;
+  margin-bottom: -2px;
   color: #9b9c9c;
   line-height: normal;
   width: 100%;
@@ -3365,6 +3367,10 @@ div.currency-sheet__item-icon::before {
   padding: 0 12px;
 }
 
+.schedule-setlimit-inline__value-cell--amount.schedule-setlimit-inline__value-cell {
+  gap: 0;
+}
+
 .schedule-setlimit-inline__value-cell[hidden] {
   display: none !important;
 }
@@ -3381,7 +3387,7 @@ div.currency-sheet__item-icon::before {
 
 .schedule-setlimit-inline__value-suffix {
   flex: 0 0 auto;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.1;
   color: #ffffff;
