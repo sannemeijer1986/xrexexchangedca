@@ -1580,7 +1580,7 @@
       if (periodsValueCell) periodsValueCell.hidden = mode !== 'periods';
       if (amountValueCell) amountValueCell.hidden = mode !== 'amount';
 
-      if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount limit' : 'Set total buys limit';
+      if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount' : 'Set total buys';
       if (captionEl) captionEl.hidden = mode !== 'amount';
     };
 
