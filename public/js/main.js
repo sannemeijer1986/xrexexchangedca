@@ -4268,6 +4268,7 @@
       const reserveAmtEl = bufferPanel.querySelector('[data-plan-buffer-reserve-amt]');
       const coversNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-now]');
       const coversTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-total]');
+      const coversSlashEl = bufferPanel.querySelector('[data-plan-buffer-covers-slash]');
       const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
       const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
 
@@ -4346,6 +4347,7 @@
           coversTotalEl.textContent = String(coversTotalBuys);
           coversTotalEl.hidden = !isSetLimit;
         }
+        if (coversSlashEl) coversSlashEl.hidden = !isSetLimit;
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
         if (coversFillEl) {
           const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
@@ -4368,6 +4370,7 @@
         // Use plan limit buys if available; else keep the Figma example default.
         const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
         isSetLimit = isPlanDetailSetLimitEnd(endRaw);
+        bufferPanel.classList.toggle('plan-buffer-panel--continuous', !isSetLimit);
         const m = endRaw.match(/^(\d+)\s+buys?\b/i);
         const n = m ? parseInt(m[1], 10) : NaN;
         coversTotalBuys = Number.isFinite(n) && n > 0 ? n : 40;

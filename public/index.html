@@ -1204,9 +1204,10 @@
 
             <div class="plan-buffer-panel__scroller">
                 <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
-                    <h2 class="plan-buffer-panel__heading">Choose how buys are covered</h2>
+                    <div class="plan-buffer-panel__method-block">
+                        <h2 class="plan-buffer-panel__heading">Choose how buys are covered</h2>
 
-                    <div class="plan-buffer-panel__method-card" role="group" aria-label="Funding method">
+                        <div class="plan-buffer-panel__method-card" role="group" aria-label="Funding method">
                         <button class="plan-buffer-panel__method-row currency-sheet__item is-selected" type="button" data-plan-buffer-method="flexible" aria-pressed="true">
                             <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--flex" aria-hidden="true">
                                 <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_1_on.svg" alt="" />
@@ -1234,6 +1235,7 @@
                                 <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
                             </div>
                         </button>
+                        </div>
                     </div>
 
                     <!-- Flexible details -->
@@ -1290,9 +1292,9 @@
                             <div class="plan-buffer-panel__kv-label">Reserve covers</div>
                             <div class="plan-buffer-panel__kv-value">
                                 <span class="plan-buffer-panel__reserve-covers-now" data-plan-buffer-covers-now>—</span>
-                                <span> / </span>
+                                <span class="plan-buffer-panel__reserve-covers-slash" data-plan-buffer-covers-slash> / </span>
                                 <span data-plan-buffer-covers-total>—</span>
-                                <span> buys</span>
+                                <span class="plan-buffer-panel__reserve-covers-buys" data-plan-buffer-covers-buys> buys</span>
                             </div>
                         </div>
                         <div class="plan-buffer-panel__reserve-track" aria-hidden="true">

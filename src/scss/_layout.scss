@@ -3310,8 +3310,7 @@ div.currency-sheet__item-icon {
   max-width: 100%;
   margin: 0 auto;
   height: 52px;
-  padding: 8px;
-  border: 1px solid #3C4248;
+  padding: 10px;
   border-radius: 20px;
   box-sizing: border-box;
   background: rgba(71, 73, 74, 0.35);
@@ -5301,7 +5300,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__coverage-value.plan-detail-panel__coverage-value--placeholder {
-  // color: #58595a;
+  color: #58595a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -6788,7 +6787,13 @@ div.currency-sheet__item-icon {
 // Funding method (Figma 8593:8069 / 8593:7934)
 .plan-buffer-panel__body--funding {
   padding: 16px;
-  gap: 24px;
+  gap: 16px;
+}
+
+.plan-buffer-panel__method-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .plan-buffer-panel__heading {
@@ -6796,6 +6801,7 @@ div.currency-sheet__item-icon {
   padding: 0;
   font-size: 20px;
   font-weight: 700;
+  margin-top: 12px;
   color: #ffffff;
 }
 
@@ -6971,9 +6977,8 @@ div.currency-sheet__item-icon {
   width: 100%;
   height: 52px;
   border-radius: 20px;
-  border: 1px solid #3C4248;
   background: rgba(71, 73, 74, 0.35);
-  padding: 8px;
+  padding: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -7011,13 +7016,14 @@ div.currency-sheet__item-icon {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding-bottom: 2px;
 }
 
 .plan-buffer-panel__reserve-cur {
   font-size: 12px;
   font-weight: 600;
   color: #9b9c9c;
+  margin-top: 1px;
+  margin-bottom: -4px;
 }
 
 .plan-buffer-panel__reserve-amt {
@@ -7029,6 +7035,16 @@ div.currency-sheet__item-icon {
 .plan-buffer-panel__reserve-covers-now {
   color: #8adca5;
   font-weight: 700;
+}
+
+.plan-buffer-panel--continuous {
+  .plan-buffer-panel__reserve-covers-now {
+    color: #ffffff;
+  }
+
+  .plan-buffer-panel__reserve-covers-buys {
+    color: #ffffff;
+  }
 }
 
 .plan-buffer-panel__reserve-track {
@@ -7275,7 +7291,7 @@ div.currency-sheet__item-icon {
 .plan-buffer-panel__divider {
   height: 1px;
   width: 100%;
-  background: #3c4248;
+  background: #252627;
 }
 
 .plan-buffer-panel__row {
