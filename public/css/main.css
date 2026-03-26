@@ -3516,6 +3516,11 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
 }
 
+.setlimit-sheet__summary-value.setlimit-sheet__summary-value--buys {
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .currency-sheet__body--schedule-time {
   align-items: stretch;
   width: 100%;
