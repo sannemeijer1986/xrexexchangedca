@@ -5168,10 +5168,6 @@ div.currency-sheet__item-icon::before {
   text-align: right;
 }
 
-.plan-detail-panel__coverage-value.plan-detail-panel__coverage-value--placeholder {
-  color: #58595a;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .plan-detail-panel__details-body {
     transition-duration: 0.01ms;
