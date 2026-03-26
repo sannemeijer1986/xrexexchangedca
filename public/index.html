@@ -955,38 +955,40 @@
                                 <img src="assets/icon_edit_white.svg" width="24" height="24" alt="" />
                             </button>
                         </div>
-                        <div class="plan-detail-panel__repeats-divider"></div>
-                        <!-- Figma 8527:4738 / 8527:4757 — collapsible schedule details -->
-                        <div class="plan-detail-panel__details-collapse" data-plan-detail-details-collapse>
-                            <button class="plan-detail-panel__details-toggle" type="button"
-                                data-plan-detail-details-toggle
-                                aria-expanded="false"
-                                aria-controls="plan-detail-repeats-details-body"
-                                id="plan-detail-repeats-details-toggle">
-                                <span class="plan-detail-panel__details-toggle-label">Details</span>
-                                <img class="plan-detail-panel__details-chevron" data-plan-detail-details-chevron
-                                    src="assets/icon_chevron_down_white.svg" width="24" height="24" alt="" />
-                            </button>
-                            <div class="plan-detail-panel__details-body" id="plan-detail-repeats-details-body" role="region"
-                                aria-labelledby="plan-detail-repeats-details-toggle">
-                                <div class="plan-detail-panel__details-body-inner">
-                                    <!-- Figma 8527:4820 (Continuous) / 8527:4835 (Set a limit) -->
-                                    <div class="plan-detail-panel__coverage-rows">
-                                        <div class="plan-detail-panel__coverage-row" data-plan-detail-total-planned-row hidden>
-                                            <span class="plan-detail-panel__coverage-label">Total planned investment</span>
-                                            <span class="plan-detail-panel__coverage-value" data-plan-detail-total-planned>—</span>
-                                        </div>
+                    </div>
+                </div>
+
+                <!-- Figma 8527:4738 / 8527:4757 — collapsible schedule details (below Repeats) -->
+                <div class="plan-detail-panel__details-section">
+                    <div class="plan-detail-panel__details-collapse" data-plan-detail-details-collapse>
+                        <button class="plan-detail-panel__details-toggle" type="button"
+                            data-plan-detail-details-toggle
+                            aria-expanded="false"
+                            aria-controls="plan-detail-repeats-details-body"
+                            id="plan-detail-repeats-details-toggle">
+                            <span class="plan-detail-panel__details-toggle-label">Details</span>
+                            <img class="plan-detail-panel__details-chevron" data-plan-detail-details-chevron
+                                src="assets/icon_chevron_down_white.svg" width="24" height="24" alt="" />
+                        </button>
+                        <div class="plan-detail-panel__details-body" id="plan-detail-repeats-details-body" role="region"
+                            aria-labelledby="plan-detail-repeats-details-toggle">
+                            <div class="plan-detail-panel__details-body-inner">
+                                <!-- Figma 8527:4820 (Continuous) / 8527:4835 (Set a limit) -->
+                                <div class="plan-detail-panel__coverage-rows">
+                                    <div class="plan-detail-panel__coverage-row" data-plan-detail-total-planned-row hidden>
+                                        <span class="plan-detail-panel__coverage-label">Total planned investment</span>
+                                        <span class="plan-detail-panel__coverage-value" data-plan-detail-total-planned>—</span>
+                                    </div>
+                                    <div class="plan-detail-panel__coverage-row">
+                                        <span class="plan-detail-panel__coverage-label">Current balance</span>
+                                        <span class="plan-detail-panel__coverage-value" data-plan-detail-current-balance>75,000 TWD</span>
+                                    </div>
+                                    <div class="plan-detail-panel__coverage-stack">
                                         <div class="plan-detail-panel__coverage-row">
-                                            <span class="plan-detail-panel__coverage-label">Current balance</span>
-                                            <span class="plan-detail-panel__coverage-value" data-plan-detail-current-balance>75,000 TWD</span>
+                                            <span class="plan-detail-panel__coverage-label">Balance can cover ≈</span>
+                                            <span class="plan-detail-panel__coverage-value" data-plan-detail-coverage-value>~7 buys</span>
                                         </div>
-                                        <div class="plan-detail-panel__coverage-stack">
-                                            <div class="plan-detail-panel__coverage-row">
-                                                <span class="plan-detail-panel__coverage-label">Balance can cover ≈</span>
-                                                <span class="plan-detail-panel__coverage-value" data-plan-detail-coverage-value>~7 buys</span>
-                                            </div>
-                                            <p class="plan-detail-panel__coverage-hint plan-detail-panel__coverage-hint--neutral" data-plan-detail-coverage-hint>You only need enough for 1 buy before each run</p>
-                                        </div>
+                                        <p class="plan-detail-panel__coverage-hint plan-detail-panel__coverage-hint--neutral" data-plan-detail-coverage-hint>You only need enough for 1 buy before each run</p>
                                     </div>
                                 </div>
                             </div>

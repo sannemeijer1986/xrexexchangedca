@@ -4949,6 +4949,11 @@ div.currency-sheet__item-icon {
   background: #3c4248;
 }
 
+// Details block sits below Repeats in .plan-detail-panel__content (same column gap as siblings).
+.plan-detail-panel__details-section {
+  width: 100%;
+}
+
 // Figma 8527:4738 (collapsed) / 8527:4757 (expanded) — Details disclosure + coverage rows
 .plan-detail-panel__details-collapse {
   display: flex;
@@ -4985,8 +4990,8 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__details-toggle-label {
   flex: 0 1 auto;
   min-width: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   line-height: normal;
   color: #ffffff;
   text-align: left;
