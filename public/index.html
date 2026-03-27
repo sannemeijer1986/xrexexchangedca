@@ -667,7 +667,7 @@
                                         </div>
 
                                         <div class="plan-strategy__controls">
-                                            <div class="plan-strategy__section-title">Amount per period</div>
+                                            <div class="plan-strategy__section-title">Amount per buy</div>
 
                                             <div class="plan-strategy__amount-row">
                                                 <div class="plan-strategy__amount">
@@ -920,7 +920,7 @@
                 <!-- Auto-invest amount -->
                 <div class="plan-detail-panel__amount-section">
                     <div class="plan-detail-panel__amount-header">
-                        <span class="plan-detail-panel__section-label">Amount per period</span>
+                        <span class="plan-detail-panel__section-label">Amount per buy</span>
                         <div class="plan-detail-panel__avail-row">
                             <span class="plan-detail-panel__avail-text">Avail. 15,000 <span data-plan-detail-coverage-currency>TWD</span></span>
                             <button class="plan-detail-panel__topup-btn" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
@@ -1145,7 +1145,7 @@
 
                     <div class="plan-overview-panel__summary">
                     <div class="plan-overview-panel__row">
-                        <span class="plan-overview-panel__row-label">Amount per period</span>
+                        <span class="plan-overview-panel__row-label">Amount per buy</span>
                         <span class="plan-overview-panel__row-value" data-plan-overview-invest>—</span>
                     </div>
                     <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
@@ -1197,7 +1197,7 @@
                 <button class="plan-buffer-panel__icon-btn" type="button" data-plan-buffer-back aria-label="Back">
                     <img src="assets/icon_back.svg" alt="" width="24" height="24" />
                 </button>
-                <h1 class="plan-buffer-panel__title">Funding your plan</h1>
+                <h1 class="plan-buffer-panel__title">Funding</h1>
                 <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
             </header>
             <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
@@ -1205,7 +1205,7 @@
             <div class="plan-buffer-panel__scroller">
                 <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
                     <div class="plan-buffer-panel__method-block">
-                        <h2 class="plan-buffer-panel__heading">Choose how buys are covered</h2>
+                        <h2 class="plan-buffer-panel__heading">Choose how to pay for your plan</h2>
 
                         <div class="plan-buffer-panel__method-card" role="group" aria-label="Funding method">
                         <button class="plan-buffer-panel__method-row currency-sheet__item is-selected" type="button" data-plan-buffer-method="flexible" aria-pressed="true">
@@ -1214,8 +1214,8 @@
                                 <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_1_off.svg" alt="" />
                             </div>
                             <div class="plan-buffer-panel__method-content">
-                                <div class="plan-buffer-panel__method-title">Flexible</div>
-                                <div class="plan-buffer-panel__method-desc">Each buy is deducted on day of purchase, just have enough funds ready.</div>
+                                <div class="plan-buffer-panel__method-title">Pay per buy</div>
+                                <div class="plan-buffer-panel__method-desc">Deducted from wallet per buy. Ensure sufficient balance.</div>
                             </div>
                             <div class="currency-sheet__item-radio" aria-hidden="true">
                                 <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
@@ -1228,8 +1228,8 @@
                                 <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_2_off.svg" alt="" />
                             </div>
                             <div class="plan-buffer-panel__method-content">
-                                <div class="plan-buffer-panel__method-title">Reserved funds</div>
-                                <div class="plan-buffer-panel__method-desc">Pre-fund a bigger sum, this sum refills when used up.</div>
+                                <div class="plan-buffer-panel__method-title">Pre-fund</div>
+                                <div class="plan-buffer-panel__method-desc">Set funds aside. Buys run automatically over time.</div>
                             </div>
                             <div class="currency-sheet__item-radio" aria-hidden="true">
                                 <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
@@ -1240,9 +1240,9 @@
 
                     <!-- Flexible details -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="flexible">
-                        <div class="plan-buffer-panel__reserve-title">Flexible</div>
+                        <div class="plan-buffer-panel__reserve-title">Pay per buy</div>
                         <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Per buy</div>
+                            <div class="plan-buffer-panel__kv-label">Amount per buy</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy>—</div>
                         </div>
                         <div class="plan-buffer-panel__kv">
@@ -1250,7 +1250,7 @@
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-nextbuy>—</div>
                         </div>
                         <div class="plan-buffer-panel__kv plan-buffer-panel__kv--strong">
-                            <div class="plan-buffer-panel__kv-label">Deducted from</div>
+                            <div class="plan-buffer-panel__kv-label">Paid from</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-source>Wallet</div>
                         </div>
                     </div>
@@ -1258,7 +1258,7 @@
                     <!-- Reserved details -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="reserved" hidden>
                         <div class="plan-buffer-panel__reserve-head">
-                            <div class="plan-buffer-panel__reserve-title">Amount to reserve</div>
+                            <div class="plan-buffer-panel__reserve-title">Amount to pre-fund</div>
                             <div class="plan-buffer-panel__reserve-steps" data-plan-buffer-steps>Steps of —</div>
                         </div>
 
@@ -1282,15 +1282,15 @@
                         </div>
 
                         <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Per buy</div>
+                            <div class="plan-buffer-panel__kv-label">Amount per buy</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2>—</div>
                         </div>
                         <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Reserved from</div>
+                            <div class="plan-buffer-panel__kv-label">Pre-funded from</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-source-2>Wallet</div>
                         </div>
                         <div class="plan-buffer-panel__kv plan-buffer-panel__kv--reserve-covers">
-                            <div class="plan-buffer-panel__kv-label">Reserve covers</div>
+                            <div class="plan-buffer-panel__kv-label">Covers</div>
                             <div class="plan-buffer-panel__kv-value">
                                 <span class="plan-buffer-panel__reserve-covers-now" data-plan-buffer-covers-now>—</span>
                                 <span class="plan-buffer-panel__reserve-covers-slash" data-plan-buffer-covers-slash> / </span>

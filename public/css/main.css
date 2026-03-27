@@ -6614,21 +6614,25 @@ div.currency-sheet__item-icon::before {
 .plan-buffer-panel__method-card {
   width: 100%;
   border-radius: 16px;
-  background: #1b1d1d;
   overflow: hidden;
 }
 
 .plan-buffer-panel__method-row {
   width: 100%;
   display: flex;
+  background: #1b1d1d;
+  border-radius: 16px;
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: transparent;
   border: 0;
   text-align: left;
   cursor: pointer;
   box-sizing: border-box;
+}
+
+.plan-buffer-panel__method-row:first-child {
+  margin-bottom: 8px;
 }
 
 .plan-buffer-panel__method-divider {
