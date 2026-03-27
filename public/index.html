@@ -1279,7 +1279,7 @@
                     <!-- Flexible details -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="flexible">
                         <div class="plan-buffer-panel__reserve-title">Pay per buy</div>
-                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--avail-balance">
+                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--avail-balance" data-plan-buffer-hide-on-flexible>
                             <div class="plan-buffer-panel__kv-label">Avail. balance</div>
                             <div class="plan-buffer-panel__kv-value-wrap">
                                 <span class="plan-buffer-panel__kv-value" data-plan-buffer-avail-balance>—</span>
@@ -1307,8 +1307,16 @@
                         <div class="plan-buffer-panel__reserve-head">
                             <div class="plan-buffer-panel__reserve-title-wrap">
                                 <div class="plan-buffer-panel__reserve-title">Amount to pre-fund</div>
-                                <div class="plan-buffer-panel__reserve-track-note" data-plan-buffer-reserve-track-note hidden>
-                                    Per buy: <span data-plan-buffer-reserve-track-perbuy>—</span>
+                                <div class="plan-buffer-panel__reserve-meta" data-plan-buffer-reserve-track-note hidden>
+                                    <div class="plan-buffer-panel__reserve-track-note">
+                                        <span data-plan-buffer-reserve-track-perbuy>—</span> per buy
+                                    </div>
+                                    <div class="plan-buffer-panel__reserve-avail">
+                                        <span class="plan-buffer-panel__kv-value plan-buffer-panel__reserve-avail-value" data-plan-buffer-avail-balance-2>—</span>
+                                        <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
+                                            <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="plan-buffer-panel__reserve-steps" data-plan-buffer-steps>Steps of —</div>
@@ -1334,15 +1342,6 @@
                         </div>
                         <p class="plan-buffer-panel__reserve-error" data-plan-buffer-balance-error hidden>Not enough balance</p>
 
-                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--avail-balance">
-                            <div class="plan-buffer-panel__kv-label">Avail. balance</div>
-                            <div class="plan-buffer-panel__kv-value-wrap">
-                                <span class="plan-buffer-panel__kv-value" data-plan-buffer-avail-balance-2>—</span>
-                                <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
-                                    <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
-                                </button>
-                            </div>
-                        </div>
                         <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
                             <div class="plan-buffer-panel__kv-label">Amount per buy</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2>—</div>
@@ -1367,10 +1366,12 @@
                                 <span class="plan-buffer-panel__reserve-covers-amount-now" data-plan-buffer-covers-amount-now>—</span>
                                 <span data-plan-buffer-covers-amount-total> / — USDT</span>
                             </div>
+                            
                         </div>
                         <div class="plan-buffer-panel__reserve-track" aria-hidden="true">
                             <div class="plan-buffer-panel__reserve-fill" data-plan-buffer-covers-fill></div>
                         </div>
+                        <div class="plan-buffer-panel__reserve-covers-duration" data-plan-buffer-covers-duration hidden>~ — months</div>
                     </div>
                 </div>
             </div>

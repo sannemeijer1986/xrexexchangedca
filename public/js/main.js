@@ -4397,12 +4397,14 @@
       const coversAmountRowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount]');
       const coversAmountNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-now]');
       const coversAmountTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total]');
+      const coversDurationEl = bufferPanel.querySelector('[data-plan-buffer-covers-duration]');
       const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
       const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
       const reserveTrackNoteEl = bufferPanel.querySelector('[data-plan-buffer-reserve-track-note]');
       const reserveTrackPerBuyEl = bufferPanel.querySelector('[data-plan-buffer-reserve-track-perbuy]');
       const recurringPrefundEl = bufferPanel.querySelector('[data-plan-buffer-recurring-prefund]');
       const hideOnReservedRows = Array.from(bufferPanel.querySelectorAll('[data-plan-buffer-hide-on-reserved]'));
+      const hideOnFlexibleRows = Array.from(bufferPanel.querySelectorAll('[data-plan-buffer-hide-on-flexible]'));
 
       const dec10Btn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec-10]');
       const decBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec]');
@@ -4431,6 +4433,11 @@
         if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
         hideOnReservedRows.forEach((row) => {
           const show = method !== 'reserved';
+          row.hidden = !show;
+          row.style.display = show ? '' : 'none';
+        });
+        hideOnFlexibleRows.forEach((row) => {
+          const show = method !== 'flexible';
           row.hidden = !show;
           row.style.display = show ? '' : 'none';
         });
@@ -4506,6 +4513,15 @@
           const totalAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : null;
           const totalText = totalAmount != null ? fmt(totalAmount) : '—';
           coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
+        }
+        if (coversDurationEl) {
+          const freqKey = (
+            document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+          ).toLowerCase();
+          const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+          const count = Math.max(0, coversNow);
+          coversDurationEl.textContent = `~ ${count} ${unit}${count === 1 ? '' : 's'}`;
+          coversDurationEl.hidden = !isReservedActive;
         }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
         if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isReservedActive;
