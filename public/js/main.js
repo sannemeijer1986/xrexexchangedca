@@ -4454,7 +4454,8 @@
       };
 
       const getReserveBuyBounds = () => {
-        if (!isSetLimit) return { min: 0, max: Number.POSITIVE_INFINITY };
+        // Prototype rule: pre-fund stepper never goes below 1 buy.
+        if (!isSetLimit) return { min: 1, max: Number.POSITIVE_INFINITY };
         const maxBuys = Number.isFinite(coversTotalBuys) && coversTotalBuys > 0 ? coversTotalBuys : 1;
         return { min: 1, max: maxBuys };
       };
@@ -4507,7 +4508,7 @@
           coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
         }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
-        if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isSetLimit;
+        if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isReservedActive;
         if (reserveTrackPerBuyEl) {
           reserveTrackPerBuyEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         }
@@ -4538,8 +4539,11 @@
         const n = m ? parseInt(m[1], 10) : NaN;
         coversTotalBuys = Number.isFinite(n) && n > 0 ? n : 40;
 
-        // Default reserve amount: 10 buys worth, clamped to valid bounds for set-limit plans.
-        reserveAmount = perBuy > 0 ? clampReserveAmount(perBuy * 10) : 0;
+        // Reset to prototype default on each Funding open:
+        // half of available balance, rounded down to whole-buy steps (never below 1 buy).
+        const balance = BALANCES[cur] ?? BALANCES.TWD;
+        const halfBalance = Math.floor(Math.max(0, balance) / 2);
+        reserveAmount = perBuy > 0 ? clampReserveAmount(halfBalance) : 0;
 
         setMethodUI('flexible');
         render();
@@ -4813,9 +4817,21 @@
         ).toLowerCase();
         const freqWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
         const titleEl = successEl?.querySelector('[data-plan-success-title]');
+        const prefundEl = successEl?.querySelector('[data-plan-success-prefund]');
         const subEl = successEl?.querySelector('[data-plan-success-sub]');
         if (titleEl) {
           titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
+        }
+        const selectedMethodBtn =
+          panel.querySelector('[data-plan-buffer-method].is-selected') ||
+          panel.querySelector('[data-plan-buffer-method][aria-pressed="true"]');
+        const isReservedMethod = selectedMethodBtn?.getAttribute('data-plan-buffer-method') === 'reserved';
+        if (prefundEl) {
+          const reserveAmount = panel.querySelector('[data-plan-buffer-reserve-amt]')?.textContent?.trim() || '—';
+          const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'USDT').trim();
+          prefundEl.textContent = reserveAmount === '—' ? `Pre-funded — ${cur}` : `Pre-funded ${reserveAmount} ${cur}`;
+          prefundEl.hidden = !isReservedMethod;
+          prefundEl.style.display = isReservedMethod ? '' : 'none';
         }
         if (subEl) subEl.textContent = buildFirstBuyLine();
       };

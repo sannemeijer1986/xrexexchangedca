@@ -7378,7 +7378,7 @@ div.currency-sheet__item-icon {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
-  color: #9b9c9c;
+  color: #8FB8FF;
 }
 
 .plan-buffer-panel__footer--single {
@@ -8138,12 +8138,26 @@ div.currency-sheet__item-icon {
   line-height: 1.25;
 }
 
-.phone-container p.plan-success-panel__sub {
+.phone-container p.plan-success-panel__prefund {
   margin: 0;
   width: 100%;
   font-size: 16px;
   font-weight: 600;
+  color: #8ADCA5;
+  text-align: center;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phone-container p.plan-success-panel__sub {
+  margin: 0;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
   color: #9b9c9c;
+  margin-top: 12px;
   text-align: center;
   line-height: 1.25;
   white-space: nowrap;
