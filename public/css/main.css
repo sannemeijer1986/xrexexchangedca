@@ -1768,8 +1768,8 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance-intro {
-  padding-top: 8px;
-  margin-bottom: 24px;
+  padding-top: 12px;
+  margin-bottom: 12px;
 }
 
 .finance-intro__inner {
@@ -6999,10 +6999,13 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container p.plan-buffer-panel__reserve-error {
-  margin: -2px 0 0;
-  font-size: 12px;
+  margin: -8px 0 0 0;
+  font-size: 14px;
   font-weight: 600;
   color: #eb5347;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .plan-buffer-panel__reserve-covers-now {

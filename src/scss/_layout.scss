@@ -7193,10 +7193,13 @@ div.currency-sheet__item-icon {
 }
 
 .phone-container p.plan-buffer-panel__reserve-error {
-  margin: -2px 0 0;
-  font-size: 12px;
+  margin: -8px 0 0 0;
+  font-size: 14px;
   font-weight: 600;
   color: #eb5347;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .plan-buffer-panel__reserve-covers-now {
