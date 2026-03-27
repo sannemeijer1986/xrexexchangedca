@@ -1250,7 +1250,7 @@
                             </div>
                         </button>
                         </div>
-                        <span class="plan-buffer-panel__learn-more" aria-label="Learn how these payment methods work">Learn how these payment methods work</span>
+                        <button class="plan-buffer-panel__learn-more" type="button" data-plan-buffer-learn-more-open aria-label="Learn how these payment methods work">Learn how these payment methods work</button>
                     </div>
 
                     <!-- Flexible details -->
@@ -1346,6 +1346,16 @@
             <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
                 <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-confirm>Continue</button>
             </div>
+
+            <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Payment methods info">
+                <div class="plan-buffer-learn-more-panel__header">
+                    <div class="plan-buffer-learn-more-panel__spacer" aria-hidden="true"></div>
+                    <button class="plan-buffer-learn-more-panel__close" type="button" data-plan-buffer-learn-more-close aria-label="Close">
+                        <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+                    </button>
+                </div>
+                <div class="plan-buffer-learn-more-panel__body"></div>
+            </section>
         </section>
 
         <!-- Submit loader (centered overlay while confirming) -->

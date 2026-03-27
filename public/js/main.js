@@ -4321,6 +4321,8 @@
       const inc10Btn = bufferPanel.querySelector('[data-plan-buffer-reserve-inc-10]');
 
       const ctaBtn = bufferPanel.querySelector('[data-plan-buffer-confirm]');
+      const learnMoreTrigger = bufferPanel.querySelector('[data-plan-buffer-learn-more-open]');
+      const learnMorePanel = bufferPanel.querySelector('[data-plan-buffer-learn-more-panel]');
 
       let method = 'flexible'; // 'flexible' | 'reserved'
       let perBuy = 0;
@@ -4454,6 +4456,10 @@
         planBreakdownApi.close();
         planOverviewApi.close({ instant: true });
         planSuccessApi.forceClose();
+        if (learnMorePanel) {
+          learnMorePanel.classList.remove('is-open');
+          learnMorePanel.hidden = true;
+        }
 
         syncFromPlanDetail();
 
@@ -4463,6 +4469,10 @@
       };
 
       const close = (opts = {}) => {
+        if (learnMorePanel) {
+          learnMorePanel.classList.remove('is-open');
+          learnMorePanel.hidden = true;
+        }
         if (opts.instant) {
           // Leaving buffer should always leave the stack clean.
           planOverviewApi.close({ instant: true });
@@ -4503,6 +4513,32 @@
         // Keep buffer open underneath overview so "Back" returns to buffer.
         planOverviewApi.open({ fromBuffer: true });
       });
+
+      const openLearnMore = () => {
+        if (!learnMorePanel) return;
+        learnMorePanel.hidden = false;
+        requestAnimationFrame(() => learnMorePanel.classList.add('is-open'));
+      };
+
+      const closeLearnMore = (opts = {}) => {
+        if (!learnMorePanel) return;
+        if (opts.instant) {
+          learnMorePanel.classList.remove('is-open');
+          learnMorePanel.hidden = true;
+          return;
+        }
+        learnMorePanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!learnMorePanel.classList.contains('is-open')) learnMorePanel.hidden = true;
+          learnMorePanel.removeEventListener('transitionend', onEnd);
+        };
+        learnMorePanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      learnMoreTrigger?.addEventListener('click', openLearnMore);
+      learnMorePanel?.querySelectorAll('[data-plan-buffer-learn-more-close]')
+        .forEach((btn) => btn.addEventListener('click', () => closeLearnMore()));
 
       return { open, close, sync: syncFromPlanDetail };
     };
