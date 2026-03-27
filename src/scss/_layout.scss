@@ -6949,7 +6949,11 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-panel__kv.plan-buffer-panel__kv--reserve-covers {
-  font-size: 16px;
+  height: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
 }
 
 .plan-buffer-panel__kv--strong .plan-buffer-panel__kv-label {
@@ -6963,6 +6967,26 @@ div.currency-sheet__item-icon {
 
 .plan-buffer-panel__kv--reserve-covers .plan-buffer-panel__kv-value {
   font-size: 16px;
+  justify-self: end;
+}
+
+.plan-buffer-panel__reserve-covers-amount {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.plan-buffer-panel__reserve-covers-amount[hidden] {
+  display: none !important;
+}
+
+.plan-buffer-panel__reserve-covers-amount-now {
+  color: #8adca5;
 }
 
 .plan-buffer-panel__reserve-head {

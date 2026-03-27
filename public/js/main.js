@@ -4269,6 +4269,9 @@
       const coversNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-now]');
       const coversTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-total]');
       const coversSlashEl = bufferPanel.querySelector('[data-plan-buffer-covers-slash]');
+      const coversAmountRowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount]');
+      const coversAmountNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-now]');
+      const coversAmountTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total]');
       const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
       const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
 
@@ -4348,6 +4351,15 @@
           coversTotalEl.hidden = !isSetLimit;
         }
         if (coversSlashEl) coversSlashEl.hidden = !isSetLimit;
+        if (coversAmountRowEl) coversAmountRowEl.hidden = !isSetLimit;
+        if (coversAmountNowEl) {
+          coversAmountNowEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
+        }
+        if (coversAmountTotalEl) {
+          const totalAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : null;
+          const totalText = totalAmount != null ? fmt(totalAmount) : '—';
+          coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
+        }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
         if (coversFillEl) {
           const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
