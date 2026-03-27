@@ -5366,6 +5366,38 @@
 
   initHeaderScrollSwap();
 
+  const initFinanceIntroLearnMorePanel = () => {
+    const trigger = document.querySelector('.finance-intro__link');
+    const panelEl = document.querySelector('[data-finance-intro-learn-more-panel]');
+    if (!trigger || !panelEl) return;
+
+    const open = () => {
+      panelEl.hidden = false;
+      requestAnimationFrame(() => panelEl.classList.add('is-open'));
+    };
+
+    const close = (opts = {}) => {
+      if (opts.instant) {
+        panelEl.classList.remove('is-open');
+        panelEl.hidden = true;
+        return;
+      }
+      panelEl.classList.remove('is-open');
+      const onEnd = () => {
+        if (!panelEl.classList.contains('is-open')) panelEl.hidden = true;
+        panelEl.removeEventListener('transitionend', onEnd);
+      };
+      panelEl.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    trigger.addEventListener('click', open);
+    panelEl.querySelectorAll('[data-finance-intro-learn-more-close]')
+      .forEach((btn) => btn.addEventListener('click', () => close()));
+  };
+
+  initFinanceIntroLearnMorePanel();
+
   const initSideMenu = () => {
     const container = document.querySelector('.phone-container');
     const trigger = document.querySelector('[data-menu-trigger]');
