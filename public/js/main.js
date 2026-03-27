@@ -2386,7 +2386,11 @@
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
     const isPlanDetailSetLimitEnd = (text) => {
       const t = String(text || '').trim();
-      if (!t || t === 'Continuous' || t.startsWith('After')) return false;
+      const tl = t.toLowerCase();
+      if (!t) return false;
+      // Guard continuous variants (including legacy typo "Continious").
+      if (tl.includes('continuous') || tl.includes('continious')) return false;
+      if (tl.startsWith('after')) return false;
       if (t === 'End on date') return true;
       if (!/\b(buy|buys)\b/i.test(t)) return false;
       return t.includes('~ Ends') || t.includes('Ends ~') || /\bEnds\s+[\w\s,.]+\s*~\s*$/i.test(t);
@@ -4107,15 +4111,22 @@
       const syncFromPlanDetail = () => {
         const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
         const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
-        const investEl = overviewPanel.querySelector('[data-plan-overview-invest]');
-        const freqEl = overviewPanel.querySelector('[data-plan-overview-frequency]');
-        const timingLabelEl = overviewPanel.querySelector('[data-plan-overview-timing-label]');
-        const timingValEl = overviewPanel.querySelector('[data-plan-overview-timing-value]');
+        const planAmountEl = overviewPanel.querySelector('[data-plan-overview-plan-amount]');
+        const planMetaEl = overviewPanel.querySelector('[data-plan-overview-plan-meta]');
+        const planIconWrap = overviewPanel.querySelector('[data-plan-overview-plan-icon-wrap]');
         const endMainEl = overviewPanel.querySelector('[data-plan-overview-end-main]');
         const endSubEl = overviewPanel.querySelector('[data-plan-overview-end-sub]');
         const totalPlannedRowEl = overviewPanel.querySelector('[data-plan-overview-total-planned-row]');
+        const totalPlannedAfterDividerEl = overviewPanel.querySelector('[data-plan-overview-total-planned-after-divider]');
         const totalPlannedValEl = overviewPanel.querySelector('[data-plan-overview-total-planned]');
-        const paySubEl = overviewPanel.querySelector('[data-plan-overview-payment-sub]');
+        const paymentMethodEl = overviewPanel.querySelector('[data-plan-overview-payment-method]');
+        const paymentMethodSubEl = overviewPanel.querySelector('[data-plan-overview-payment-method-sub]');
+        const prefundDividerEl = overviewPanel.querySelector('[data-plan-overview-prefund-divider]');
+        const prefundRowEl = overviewPanel.querySelector('[data-plan-overview-prefund-row]');
+        const prefundAfterDividerEl = overviewPanel.querySelector('[data-plan-overview-prefund-after-divider]');
+        const prefundAmountEl = overviewPanel.querySelector('[data-plan-overview-prefund-amount]');
+        const firstBuyEl = overviewPanel.querySelector('[data-plan-overview-first-buy]');
+        const deductSubEl = overviewPanel.querySelector('[data-plan-overview-deduct-sub]');
 
         const multiItems = panel.querySelectorAll('.alloc-multi__item');
         const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
@@ -4171,19 +4182,40 @@
 
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
-        if (investEl) investEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
+        if (planAmountEl) planAmountEl.textContent = `${amount.toLocaleString('en-US')} ${cur} per buy`;
 
         const freqKey = (
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
         const freqBtn = document.querySelector('[data-plan-freq-item].is-active');
-        if (freqEl) freqEl.textContent = freqBtn?.textContent?.trim() || 'Monthly';
+        const freqText = freqBtn?.textContent?.trim() || 'Monthly';
 
         const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : schedParts[0] || '—';
-        if (timingLabelEl) timingLabelEl.textContent = overviewTimingLabels[freqKey] || overviewTimingLabels.monthly;
-        if (timingValEl) timingValEl.textContent = timingDetail;
+        if (planMetaEl) {
+          planMetaEl.textContent = timingDetail === '—'
+            ? `Repeats ${freqText}`
+            : `Repeats ${freqText} · ${timingDetail}`;
+        }
+
+        const fallbackPlanIcon =
+          panel.querySelector('.alloc-multi__icon')?.getAttribute('src') ||
+          panel.querySelector('.plan-detail-panel__alloc-icon')?.getAttribute('src') ||
+          'assets/icon_currency_btc.svg';
+        const selectedPlanAssets = getCurrentPlanDisplayAssets(fallbackPlanIcon);
+        if (planIconWrap) {
+          renderPlanDetailProductIcons(
+            planIconWrap,
+            planIconWrap,
+            fallbackPlanIcon,
+            selectedPlanAssets,
+            {
+              singleProductClass: 'plan-detail-panel__product-icon',
+              singleHeaderClass: 'plan-detail-panel__product-icon',
+            },
+          );
+        }
 
         const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '—';
         let endMain = endRaw;
@@ -4208,17 +4240,70 @@
           endSubEl.textContent = endSub;
           endSubEl.hidden = !endSub;
         }
-        const isSetLimitEnd = isPlanDetailSetLimitEnd(endRaw);
-        if (totalPlannedRowEl) totalPlannedRowEl.hidden = !isSetLimitEnd;
+        const isContinuousEnd = /\bcontinuous\b|\bcontinious\b/i.test(endRaw);
+        const showTotalPlanned = isPlanDetailSetLimitEnd(endRaw) && !isContinuousEnd;
+        if (totalPlannedRowEl) {
+          totalPlannedRowEl.hidden = !showTotalPlanned;
+          totalPlannedRowEl.style.display = showTotalPlanned ? '' : 'none';
+        }
+        if (totalPlannedAfterDividerEl) {
+          totalPlannedAfterDividerEl.hidden = !showTotalPlanned;
+          totalPlannedAfterDividerEl.style.display = showTotalPlanned ? '' : 'none';
+        }
         if (totalPlannedValEl) {
           const detailTotalPlanned =
             panel.querySelector('[data-plan-detail-total-planned]')?.textContent?.trim() || '- -';
-          totalPlannedValEl.textContent = isSetLimitEnd ? detailTotalPlanned : '- -';
+          totalPlannedValEl.textContent = showTotalPlanned ? detailTotalPlanned : '- -';
         }
+
+        const selectedMethodBtn =
+          panel.querySelector('[data-plan-buffer-method].is-selected') ||
+          panel.querySelector('[data-plan-buffer-method][aria-pressed="true"]');
+        const selectedMethod = selectedMethodBtn?.getAttribute('data-plan-buffer-method') === 'reserved'
+          ? 'reserved'
+          : 'flexible';
+        if (paymentMethodEl) {
+          paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Pre-fund (auto-refills)' : 'Pay per buy';
+        }
+        if (paymentMethodSubEl) {
+          const showPaymentMethodSub = selectedMethod === 'reserved';
+          paymentMethodSubEl.hidden = !showPaymentMethodSub;
+          paymentMethodSubEl.style.display = showPaymentMethodSub ? '' : 'none';
+        }
+        const showPrefund = selectedMethod === 'reserved';
+        if (prefundRowEl) {
+          prefundRowEl.hidden = !showPrefund;
+          prefundRowEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (prefundDividerEl) {
+          prefundDividerEl.hidden = !showPrefund;
+          prefundDividerEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (prefundAfterDividerEl) {
+          prefundAfterDividerEl.hidden = !showPrefund;
+          prefundAfterDividerEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (prefundAmountEl) {
+          const reserveAmount = panel.querySelector('[data-plan-buffer-reserve-amt]')?.textContent?.trim() || '—';
+          prefundAmountEl.textContent = reserveAmount === '—' ? '—' : `${reserveAmount} ${cur}`;
+        }
+
+        const compactNextBuy = formatFinanceNextBuyCompact(sched);
+        const firstBuyMonthDay = compactNextBuy.split('·')[0]?.trim();
+        let firstBuyText = firstBuyMonthDay || '—';
+        if (firstBuyMonthDay) {
+          const now = new Date();
+          const guess = new Date(`${firstBuyMonthDay} ${now.getFullYear()}`);
+          if (!Number.isNaN(guess.getTime())) {
+            if (guess.getTime() < Date.now() - 24 * 60 * 60 * 1000) guess.setFullYear(guess.getFullYear() + 1);
+            firstBuyText = guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          }
+        }
+        if (firstBuyEl) firstBuyEl.textContent = firstBuyText;
 
         const balCur = currencyState.plan || 'TWD';
         const bal = BALANCES[balCur] ?? BALANCES.TWD;
-        if (paySubEl) paySubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
+        if (deductSubEl) deductSubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
       };
 
       const open = (openOpts = {}) => {
@@ -4314,6 +4399,10 @@
       const coversAmountTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total]');
       const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
       const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
+      const reserveTrackNoteEl = bufferPanel.querySelector('[data-plan-buffer-reserve-track-note]');
+      const reserveTrackPerBuyEl = bufferPanel.querySelector('[data-plan-buffer-reserve-track-perbuy]');
+      const recurringPrefundEl = bufferPanel.querySelector('[data-plan-buffer-recurring-prefund]');
+      const hideOnReservedRows = Array.from(bufferPanel.querySelectorAll('[data-plan-buffer-hide-on-reserved]'));
 
       const dec10Btn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec-10]');
       const decBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-dec]');
@@ -4340,6 +4429,11 @@
         });
         if (flexibleDetails) flexibleDetails.hidden = method !== 'flexible';
         if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
+        hideOnReservedRows.forEach((row) => {
+          const show = method !== 'reserved';
+          row.hidden = !show;
+          row.style.display = show ? '' : 'none';
+        });
         if (ctaBtn) ctaBtn.textContent = method === 'reserved' ? 'Continue' : 'Continue';
       };
 
@@ -4382,6 +4476,7 @@
         if (availBalanceEl2) availBalanceEl2.textContent = availBalanceStr;
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
+        if (recurringPrefundEl) recurringPrefundEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
         if (nextBuyEl) nextBuyEl.textContent = computeNextBuyDate();
         if (sourceEl) sourceEl.textContent = 'Wallet';
         if (sourceEl2) sourceEl2.textContent = 'Wallet';
@@ -4412,6 +4507,10 @@
           coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
         }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
+        if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isSetLimit;
+        if (reserveTrackPerBuyEl) {
+          reserveTrackPerBuyEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
+        }
         if (coversFillEl) {
           const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
           coversFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;

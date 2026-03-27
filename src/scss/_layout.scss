@@ -6425,10 +6425,6 @@ div.currency-sheet__item-icon {
   width: 100%;
   background: #252627;
 
-  &--header {
-    background: rgba(255, 255, 255, 0.04);
-  }
-
   &--light {
     background: #3c4248;
   }
@@ -6461,17 +6457,25 @@ div.currency-sheet__item-icon {
 
 .plan-overview-panel__body {
   flex: 1;
-  padding: 32px 16px 16px;
+  padding: 20px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
+.plan-overview-panel__plan-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  background: transparent;
+}
+
 .plan-overview-panel__alloc-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 0;
+  gap: 10px;
+  padding: 16px 0 24px 0;
 }
 
 // Figma 8538:77120 — 8px between chips block and Invest row; 8px between each row + divider stack
@@ -6479,12 +6483,81 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
+}
+
+.plan-overview-panel__plan-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: linear-gradient(180deg, #0d0e0f 0%, #15161a 100%);
+}
+
+.plan-overview-panel__plan-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plan-overview-panel__plan-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-overview-panel__plan-amount {
+  display: block;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.plan-overview-panel__plan-meta {
+  display: block;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.plan-overview-panel__plan-icon-wrap {
+  width: 44px;
+  height: 44px;
+}
+
+.plan-overview-panel__plan-icon-wrap .plan-detail-panel__product-icon {
+  width: 44px;
+  height: 44px;
+}
+
+.plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--top {
+  top: 0.89%;
+  right: 48.18%;
+  bottom: 48.18%;
+  left: 0.89%;
+}
+
+.plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--bl {
+  top: 41.82%;
+  right: 48.18%;
+  bottom: 7.26%;
+  left: 0.89%;
+}
+
+.plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--br {
+  top: 24.54%;
+  right: 0.89%;
+  bottom: 24.53%;
+  left: 48.18%;
 }
 
 .plan-overview-panel__section-label {
   display: block;
-  margin-bottom: 4px;
   font-size: 16px;
   font-weight: 600;
   color: #9b9c9c;
@@ -6501,15 +6574,15 @@ div.currency-sheet__item-icon {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 10px 4px 5px;
+  padding: 3px 8px 3px 4px;
   border-radius: 33px;
   border: 1px solid #3c4248;
   max-width: 100%;
 }
 
 .plan-overview-panel__chip-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   border-radius: 50%;
   object-fit: cover;
@@ -6551,11 +6624,6 @@ div.currency-sheet__item-icon {
   &--stack {
     align-items: center;
   }
-}
-
-.plan-overview-panel__row[data-plan-overview-total-planned-row] {
-  border-top: 1px solid #252627;
-  padding-top: 8px;
 }
 
 .plan-overview-panel__row-label {
@@ -6601,6 +6669,10 @@ div.currency-sheet__item-icon {
   text-align: right;
   max-width: 100%;
 }
+
+// .phone-container span.plan-overview-panel__row-sub[data-plan-overview-end-sub] {
+//   color: #8fb8ff;
+// }
 
 .plan-overview-panel__reserve {
   margin-top: 40px;
@@ -6978,7 +7050,6 @@ div.currency-sheet__item-icon {
 .plan-buffer-panel__learn-more {
   display: block;
   width: 100%;
-  margin-top: 6px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -7059,7 +7130,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-panel__details {
-  margin-top: 24px;
+  margin-top: 20px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -7131,7 +7202,7 @@ div.currency-sheet__item-icon {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 4px;
+  gap: 0px;
 }
 
 .plan-buffer-panel__kv--strong .plan-buffer-panel__kv-label {
@@ -7175,6 +7246,13 @@ div.currency-sheet__item-icon {
   margin-bottom: 4px;
 }
 
+.plan-buffer-panel__reserve-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
 .plan-buffer-panel__reserve-title {
   font-size: 18px;
   font-weight: 700;
@@ -7185,6 +7263,7 @@ div.currency-sheet__item-icon {
   font-size: 12px;
   font-weight: 600;
   color: #58595a;
+  display: none;
   white-space: nowrap;
 }
 
@@ -7290,6 +7369,16 @@ div.currency-sheet__item-icon {
   width: 0%;
   background: #8adca5;
   border-radius: 5px;
+}
+
+.plan-buffer-panel__reserve-track-note {
+  margin-top: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #9b9c9c;
 }
 
 .plan-buffer-panel__footer--single {

@@ -991,7 +991,7 @@
                                 <!-- Figma 8527:4820 (Continuous) / 8527:4835 (Set a limit) -->
                                 <div class="plan-detail-panel__coverage-rows">
                                     <div class="plan-detail-panel__coverage-row" data-plan-detail-total-planned-row hidden>
-                                        <span class="plan-detail-panel__coverage-label">Total planned investment</span>
+                                        <span class="plan-detail-panel__coverage-label">Total amount</span>
                                         <span class="plan-detail-panel__coverage-value" data-plan-detail-total-planned>—</span>
                                     </div>
                                     <div class="plan-detail-panel__coverage-row">
@@ -1149,29 +1149,30 @@
                 </button>
                 <h1 class="plan-overview-panel__title">Plan overview</h1>
             </header>
-            <div class="plan-overview-panel__divider plan-overview-panel__divider--header" aria-hidden="true"></div>
+        
             <div class="plan-overview-panel__scroller">
+                <div class="plan-overview-panel__plan-sticky">
+                    <div class="plan-overview-panel__plan-block">
+                        <!-- <span class="plan-overview-panel__section-label">Plan</span> -->
+                        <div class="plan-overview-panel__plan-summary">
+                            <div class="plan-detail-panel__product-icon-wrap plan-overview-panel__plan-icon-wrap" data-plan-overview-plan-icon-wrap aria-hidden="true"></div>
+                            <div class="plan-overview-panel__plan-copy">
+                                <span class="plan-overview-panel__plan-amount" data-plan-overview-plan-amount>—</span>
+                                <span class="plan-overview-panel__plan-meta" data-plan-overview-plan-meta>—</span>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                </div>
                 <div class="plan-overview-panel__body">
                     <div class="plan-overview-panel__alloc-block">
                         <span class="plan-overview-panel__section-label" data-plan-overview-alloc-heading>Allocation (0)</span>
                         <div class="plan-overview-panel__chips" data-plan-overview-chips></div>
                     </div>
+                    
 
                     <div class="plan-overview-panel__summary">
-                    <div class="plan-overview-panel__row">
-                        <span class="plan-overview-panel__row-label">Amount per buy</span>
-                        <span class="plan-overview-panel__row-value" data-plan-overview-invest>—</span>
-                    </div>
-                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
-                    <div class="plan-overview-panel__row">
-                        <span class="plan-overview-panel__row-label">Frequency</span>
-                        <span class="plan-overview-panel__row-value" data-plan-overview-frequency>—</span>
-                    </div>
-                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
-                    <div class="plan-overview-panel__row">
-                        <span class="plan-overview-panel__row-label" data-plan-overview-timing-label>Every month on</span>
-                        <span class="plan-overview-panel__row-value" data-plan-overview-timing-value>—</span>
-                    </div>
                     <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack">
                         <span class="plan-overview-panel__row-label">End condition</span>
@@ -1180,19 +1181,41 @@
                             <span class="plan-overview-panel__row-sub" data-plan-overview-end-sub></span>
                         </div>
                     </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack" data-plan-overview-total-planned-row hidden>
                         <span class="plan-overview-panel__row-label">Total amount</span>
                         <div class="plan-overview-panel__row-value-col">
                             <span class="plan-overview-panel__row-value" data-plan-overview-total-planned>- -</span>
                         </div>
                     </div>
-                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" data-plan-overview-total-planned-after-divider aria-hidden="true" hidden></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack">
-                        <span class="plan-overview-panel__row-label">Payment</span>
+                        <span class="plan-overview-panel__row-label">Payment method</span>
                         <div class="plan-overview-panel__row-value-col">
-                            <span class="plan-overview-panel__row-value">Spot wallet</span>
-                            <span class="plan-overview-panel__row-sub" data-plan-overview-payment-sub>—</span>
+                            <span class="plan-overview-panel__row-value" data-plan-overview-payment-method>—</span>
+                            <span class="plan-overview-panel__row-sub" data-plan-overview-payment-method-sub hidden>Reserved on plan confirmation</span>
                         </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack" data-plan-overview-prefund-row hidden>
+                        <span class="plan-overview-panel__row-label">Pre-fund amount</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value" data-plan-overview-prefund-amount>—</span>
+                            <span class="plan-overview-panel__row-sub">Auto-refills when depleted</span>
+                        </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" data-plan-overview-prefund-after-divider aria-hidden="true" hidden></div>
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">Deduct from</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value">Wallet</span>
+                            <!-- <span class="plan-overview-panel__row-sub" data-plan-overview-deduct-sub>—</span> -->
+                        </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row">
+                        <span class="plan-overview-panel__row-label">First buy</span>
+                        <span class="plan-overview-panel__row-value" data-plan-overview-first-buy>—</span>
                     </div>
                     </div>
 
@@ -1282,7 +1305,12 @@
                     <!-- Reserved details -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="reserved" hidden>
                         <div class="plan-buffer-panel__reserve-head">
-                            <div class="plan-buffer-panel__reserve-title">Amount to pre-fund</div>
+                            <div class="plan-buffer-panel__reserve-title-wrap">
+                                <div class="plan-buffer-panel__reserve-title">Amount to pre-fund</div>
+                                <div class="plan-buffer-panel__reserve-track-note" data-plan-buffer-reserve-track-note hidden>
+                                    Amount per buy: <span data-plan-buffer-reserve-track-perbuy>—</span>
+                                </div>
+                            </div>
                             <div class="plan-buffer-panel__reserve-steps" data-plan-buffer-steps>Steps of —</div>
                         </div>
 
@@ -1315,16 +1343,20 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="plan-buffer-panel__kv">
+                        <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
                             <div class="plan-buffer-panel__kv-label">Amount per buy</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2>—</div>
+                        </div>
+                        <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
+                            <div class="plan-buffer-panel__kv-label">Recurring pre-fund</div>
+                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-recurring-prefund>—</div>
                         </div>
                         <div class="plan-buffer-panel__kv">
                             <div class="plan-buffer-panel__kv-label">Deducted from</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-source-2>Wallet</div>
                         </div>
                         <div class="plan-buffer-panel__kv plan-buffer-panel__kv--reserve-covers">
-                            <div class="plan-buffer-panel__kv-label">Covers</div>
+                            <div class="plan-buffer-panel__kv-label">Pre-fund covers</div>
                             <div class="plan-buffer-panel__kv-value">
                                 <span class="plan-buffer-panel__reserve-covers-now" data-plan-buffer-covers-now>—</span>
                                 <span class="plan-buffer-panel__reserve-covers-slash" data-plan-buffer-covers-slash> / </span>
@@ -1386,7 +1418,7 @@
                 <div class="plan-success-panel__body">
                     <div class="plan-success-panel__hero">
                         <img class="plan-success-panel__icon-wrap" src="assets/icon_success_screen.svg" alt="" width="60" height="60" aria-hidden="true" />
-                        <div class="plan-success-panel__headline" data-plan-success-title>Your monthly<br />auto-invest plan is set</div>
+                        <div class="plan-success-panel__headline" data-plan-success-title>Plan created succesfully</div>
                         <p class="plan-success-panel__sub" data-plan-success-sub>First buy on Mar 15 at 12:00</p>
                     </div>
                 </div>
