@@ -1,26 +1,17 @@
 // Phone container layout
-// Outer shell: shadow + radius only (no overflow), so clipping is not flattened with
-// composited descendants during tab transitions. Inner .phone-container__chrome owns the mask.
 .phone-container {
   width: $phone-width;
   height: $phone-height;
-  background: transparent;
+  background: $bg-container;
   border-radius: 40px 40px 32px 32px;
   box-shadow: $shadow-lg;
   position: relative;
   display: flex;
   flex-direction: column;
   font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-.phone-container__chrome {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border-radius: inherit;
-  background: $bg-container;
+  // Tab switches + opacity on descendants can break border-radius + overflow clipping in
+  // Chromium/WebKit until a repaint. isolation + clip re-assert the rounded mask without
+  // transform (transform would change the containing block for position:fixed tabbar).
   isolation: isolate;
   overflow: hidden; // fallback
   overflow: clip;
@@ -148,10 +139,6 @@
     height: 100vh;
     border-radius: 0;
     box-shadow: none;
-  }
-
-  .phone-container__chrome {
-    border-radius: 0;
   }
 
   html,
