@@ -4458,6 +4458,12 @@
       const ctaBtn = bufferPanel.querySelector('[data-plan-buffer-confirm]');
       const learnMoreTrigger = bufferPanel.querySelector('[data-plan-buffer-learn-more-open]');
       const learnMorePanel = bufferPanel.querySelector('[data-plan-buffer-learn-more-panel]');
+      const learnMoreTabButtons = Array.from(
+        bufferPanel.querySelectorAll('[data-plan-buffer-learn-more-tab]'),
+      );
+      const learnMoreViews = Array.from(
+        bufferPanel.querySelectorAll('[data-plan-buffer-learn-more-view]'),
+      );
 
       let method = 'flexible'; // 'flexible' | 'reserved'
       let perBuy = 0;
@@ -4691,6 +4697,19 @@
 
       const openLearnMore = () => {
         if (!learnMorePanel) return;
+        const setLearnMoreTab = (tabKey) => {
+          const activeTab = tabKey === 'reserved' ? 'reserved' : 'flexible';
+          learnMoreTabButtons.forEach((btn) => {
+            const on = (btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible') === activeTab;
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          learnMoreViews.forEach((view) => {
+            const on = (view.getAttribute('data-plan-buffer-learn-more-view') || 'flexible') === activeTab;
+            view.hidden = !on;
+          });
+        };
+        setLearnMoreTab(method);
         learnMorePanel.hidden = false;
         requestAnimationFrame(() => learnMorePanel.classList.add('is-open'));
       };
@@ -4712,6 +4731,21 @@
       };
 
       learnMoreTrigger?.addEventListener('click', openLearnMore);
+      learnMoreTabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible';
+          const activeTab = key === 'reserved' ? 'reserved' : 'flexible';
+          learnMoreTabButtons.forEach((item) => {
+            const on = (item.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible') === activeTab;
+            item.classList.toggle('is-active', on);
+            item.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          learnMoreViews.forEach((view) => {
+            const on = (view.getAttribute('data-plan-buffer-learn-more-view') || 'flexible') === activeTab;
+            view.hidden = !on;
+          });
+        });
+      });
       learnMorePanel?.querySelectorAll('[data-plan-buffer-learn-more-close]')
         .forEach((btn) => btn.addEventListener('click', () => closeLearnMore()));
 

@@ -1005,7 +1005,7 @@
                                         <span class="plan-detail-panel__coverage-value" data-plan-detail-total-planned>—</span>
                                     </div>
                                     <div class="plan-detail-panel__coverage-row">
-                                        <span class="plan-detail-panel__coverage-label">Current balance</span>
+                                        <span class="plan-detail-panel__coverage-label">Available balance</span>
                                         <span class="plan-detail-panel__coverage-value" data-plan-detail-current-balance>75,000 TWD</span>
                                     </div>
                                     <div class="plan-detail-panel__coverage-stack">
@@ -1392,12 +1392,44 @@
 
             <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Payment methods info">
                 <div class="plan-buffer-learn-more-panel__header">
-                    <div class="plan-buffer-learn-more-panel__spacer" aria-hidden="true"></div>
                     <button class="plan-buffer-learn-more-panel__close" type="button" data-plan-buffer-learn-more-close aria-label="Close">
                         <img src="assets/icon_close.svg" alt="" width="24" height="24" />
                     </button>
+                    <h2 class="plan-buffer-learn-more-panel__title">Payment methods explained</h2>
+                    <div class="plan-buffer-learn-more-panel__spacer" aria-hidden="true"></div>
                 </div>
-                <div class="plan-buffer-learn-more-panel__body"></div>
+                <div class="plan-buffer-learn-more-panel__body">
+                    <div class="plan-buffer-learn-more-panel__content">
+                        <div class="finance__section-nav-wrap plan-buffer-learn-more-panel__tabs-wrap">
+                            <div class="finance__section-nav plan-buffer-learn-more-panel__tabs" data-plan-buffer-learn-more-tabs role="tablist" aria-label="Payment method type">
+                                <button
+                                    class="finance__section-nav-item is-active"
+                                    type="button"
+                                    role="tab"
+                                    aria-selected="true"
+                                    data-plan-buffer-learn-more-tab="flexible"
+                                >Pay per buy</button>
+                                <button
+                                    class="finance__section-nav-item"
+                                    type="button"
+                                    role="tab"
+                                    aria-selected="false"
+                                    data-plan-buffer-learn-more-tab="reserved"
+                                >Pre-fund</button>
+                            </div>
+                        </div>
+                        <div class="plan-buffer-learn-more-panel__views">
+                            <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="flexible">
+                                <h3 class="plan-buffer-learn-more-panel__view-title">Pay per buy</h3>
+                                <p class="plan-buffer-learn-more-panel__view-text">Each buy is deducted from your wallet balance when that buy runs.</p>
+                            </div>
+                            <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="reserved" hidden>
+                                <h3 class="plan-buffer-learn-more-panel__view-title">Pre-fund (auto-refills)</h3>
+                                <p class="plan-buffer-learn-more-panel__view-text">Funds are reserved in advance and auto-refilled to keep upcoming buys covered.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </section>
 
