@@ -1461,7 +1461,13 @@
 
   /**
    * “Set a limit” inline stepper — Figma DCA1.0_modal_schedule (8520:8386).
-   * @returns {{ syncDom: () => void, getSummary: () => { count: number, endsApprox: string }, applyYearDefaultForActiveFreq: () => void } | null}
+   * @returns {{
+   *   syncDom: () => void,
+   *   getSummary: () => { count: number, endsApprox: string },
+   *   getCount: () => number,
+   *   setCount: (nextCount: number) => void,
+   *   applyYearDefaultForActiveFreq: () => void
+   * } | null}
    */
   const initScheduleSetLimitStepper = (scheduleSheet, limitHostRoot) => {
     const root = limitHostRoot || scheduleSheet;
@@ -1525,6 +1531,15 @@
       endsApprox: formatProjection(projectEndDate(count)),
     });
 
+    const getCount = () => count;
+
+    const setCount = (nextCount) => {
+      const n = Number(nextCount);
+      count = Number.isFinite(n) ? Math.max(MIN, Math.min(MAX, Math.round(n))) : count;
+      syncDom();
+      scheduleSheetApi.refreshEndConditionSubtitles?.();
+    };
+
     const syncDom = () => {
       valueEl.textContent = String(count);
       suffixEl.textContent = count === 1 ? 'buy' : 'buys';
@@ -1555,7 +1570,7 @@
     };
 
     syncDom();
-    return { syncDom, getSummary, applyYearDefaultForActiveFreq };
+    return { syncDom, getSummary, getCount, setCount, applyYearDefaultForActiveFreq };
   };
 
   /** Schedule sheet: nested follow-up for “Set a limit” stepper (same backdrop handoff as time picker). */
@@ -1694,20 +1709,30 @@
       sheetOpenWithInstantBackdrop(el);
     };
 
-    const closeFollowupThenReopenSchedule = (el, elPanel) => {
+    const closeFollowupThenReopenSchedule = (el, elPanel, opts = {}) => {
       const suppressNestedScrim = getSuppressNestedScrimForScheduleChildClose();
       sheetCloseWithBackdropHandoff(
         el,
         elPanel,
         () => {
           reopen?.();
+          if (opts.restoreDraft && setLimitStepper) {
+            // Delay rollback until after close/reopen transition so values don't "jump"
+            // while the follow-up sheet is still visible.
+            setTimeout(() => {
+              setLimitStepper.setCount(setLimitCommittedCount);
+            }, 120);
+          }
           requestAnimationFrame(() => scheduleSheetApi.refreshEndConditionSubtitles?.());
         },
         { suppressNestedScrim },
       );
     };
 
+    let setLimitCommittedCount = setLimitStepper?.getCount?.() ?? 12;
+
     const openSetLimitFollowup = () => {
+      setLimitCommittedCount = setLimitStepper?.getCount?.() ?? setLimitCommittedCount;
       const perBuyOk = getPerBuyAmount() != null;
       const nextMode = perBuyOk ? setLimitFollowupPreferredMode : 'amount';
       setModeUI(nextMode);
@@ -1725,14 +1750,14 @@
     const wireClose = (root, closeAttr) => {
       root.querySelectorAll(`[${closeAttr}]`).forEach((btn) => {
         btn.addEventListener('click', () => {
-          closeFollowupThenReopenSchedule(buysSheet, buysPanel);
+          closeFollowupThenReopenSchedule(buysSheet, buysPanel, { restoreDraft: true });
         });
       });
     };
 
     wireClose(buysSheet, 'data-schedule-buys-sheet-close');
     buysSheet.querySelector('[data-schedule-buys-sheet-cancel]')
-      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel));
+      ?.addEventListener('click', () => closeFollowupThenReopenSchedule(buysSheet, buysPanel, { restoreDraft: true }));
     buysSheet.querySelector('[data-schedule-buys-sheet-confirm]')
       ?.addEventListener('click', () => {
         const descEl = scheduleSheet.querySelector('[data-schedule-endlimit-desc]');
@@ -1741,6 +1766,7 @@
           const { count, endsApprox } = setLimitStepper.getSummary();
           const buyWord = count === 1 ? 'buy' : 'buys';
           descEl.textContent = `${count} ${buyWord} ~ Ends ${endsApprox}`;
+          setLimitCommittedCount = count;
         }
         if (getPerBuyAmount() != null) {
           setLimitFollowupPreferredMode = mode === 'amount' ? 'amount' : 'periods';
