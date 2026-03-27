@@ -4480,8 +4480,9 @@
         const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         const balance = BALANCES[cur] ?? BALANCES.TWD;
         const availBalanceStr = `${fmt(balance)} ${cur}`;
+        const reserveAvailBalanceStr = `Avail. ${availBalanceStr}`;
         if (availBalanceEl) availBalanceEl.textContent = availBalanceStr;
-        if (availBalanceEl2) availBalanceEl2.textContent = availBalanceStr;
+        if (availBalanceEl2) availBalanceEl2.textContent = reserveAvailBalanceStr;
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
         if (recurringPrefundEl) recurringPrefundEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
