@@ -1584,7 +1584,12 @@
                 <div class="currency-sheet__handle"></div>
             </div>
             <div class="currency-sheet__body">
-                <h2 class="currency-sheet__title" data-currency-sheet-title>Currency</h2>
+                <div class="currency-sheet__heading-block">
+                    <h2 class="currency-sheet__title" data-currency-sheet-title>Currency</h2>
+                    <p class="currency-sheet__desc" data-currency-sheet-desc hidden>
+                        Select a currency for showing the estimated value
+                    </p>
+                </div>
                 <div class="currency-sheet__list">
                     <button class="currency-sheet__item" type="button" data-currency-sheet-option="TWD">
                         <img class="currency-sheet__item-icon" src="assets/icon_currency_TWD.svg" alt="" />
@@ -1597,8 +1602,8 @@
                         </div>
                     </button>
                     <div class="currency-sheet__divider"></div>
-                    <button class="currency-sheet__item" type="button" data-currency-sheet-option="USDT">
-                        <img class="currency-sheet__item-icon" src="assets/icon_currency_usdt.svg" alt="" />
+                    <button class="currency-sheet__item" type="button" data-currency-sheet-option="USDT" data-currency-sheet-alt-row>
+                        <img class="currency-sheet__item-icon" data-currency-sheet-alt-icon src="assets/icon_currency_usdt.svg" alt="" />
                         <div class="currency-sheet__item-content">
                             <span class="currency-sheet__item-name">USDT</span>
                             <span class="currency-sheet__item-desc">USD Tether</span>

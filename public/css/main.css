@@ -2940,6 +2940,26 @@ html[data-active-tab=finance] .app-header__tabs {
   width: 100%;
 }
 
+.currency-sheet__heading-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.phone-container p.currency-sheet__desc {
+  margin: 0;
+  padding: 0 8px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-weight: 500;
+  color: #9b9c9c;
+  text-align: center;
+  line-height: 1.35;
+}
+
 .phone-container p.currency-sheet__subtitle {
   margin: -8px 0 0;
   padding: 0 8px;

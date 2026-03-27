@@ -675,6 +675,7 @@
 
   // ─── Currency + range state ───────────────────────────────────────────────────
   const currencyState = { summary: 'TWD', plan: 'TWD' };
+  if (currencyState.summary === 'USDT') currencyState.summary = 'USD';
   const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y', widgetBreakdown: '5Y' };
 
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 · 11:00';
@@ -841,7 +842,35 @@
 
     const panel = sheet.querySelector('.currency-sheet__panel');
     const titleEl = sheet.querySelector('[data-currency-sheet-title]');
-    const options = sheet.querySelectorAll('[data-currency-sheet-option]');
+    const descEl = sheet.querySelector('[data-currency-sheet-desc]');
+    const altRow = sheet.querySelector('[data-currency-sheet-alt-row]');
+    const altIcon = altRow?.querySelector('[data-currency-sheet-alt-icon]');
+    const altName = altRow?.querySelector('.currency-sheet__item-name');
+    const altDesc = altRow?.querySelector('.currency-sheet__item-desc');
+
+    const PLAN_SECOND_ROW = {
+      value: 'USDT',
+      icon: 'assets/icon_currency_usdt.svg',
+      name: 'USDT',
+      desc: 'USD Tether',
+    };
+    const SUMMARY_SECOND_ROW = {
+      value: 'USD',
+      icon: 'assets/icon_currency_USD.svg',
+      name: 'USD',
+      desc: 'US Dollar',
+    };
+
+    const applySecondCurrencyRow = (cfg) => {
+      if (!altRow) return;
+      altRow.setAttribute('data-currency-sheet-option', cfg.value);
+      if (altIcon) altIcon.setAttribute('src', cfg.icon);
+      if (altName) altName.textContent = cfg.name;
+      if (altDesc) altDesc.textContent = cfg.desc;
+    };
+
+    let options = sheet.querySelectorAll('[data-currency-sheet-option]');
+
     let currentContext = null;
     /** Investment currency opened from plan detail pill → clear detail Auto-invest only. */
     let planCurrencyOpenedFromDetailPanel = false;
@@ -856,6 +885,14 @@
       currentContext = context;
       const isSummary = context === 'summary';
       if (titleEl) titleEl.textContent = isSummary ? 'Display currency' : 'Investment currency';
+      if (descEl) descEl.hidden = !isSummary;
+      if (isSummary) {
+        applySecondCurrencyRow(SUMMARY_SECOND_ROW);
+        if (currencyState.summary === 'USDT') currencyState.summary = 'USD';
+      } else {
+        applySecondCurrencyRow(PLAN_SECOND_ROW);
+      }
+      options = sheet.querySelectorAll('[data-currency-sheet-option]');
       setSelected(currencyState[context]);
       sheet.hidden = false;
       requestAnimationFrame(() => {
