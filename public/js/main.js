@@ -4259,6 +4259,8 @@
       const reservedDetails = bufferPanel.querySelector('[data-plan-buffer-details="reserved"]');
       const perBuyEl = bufferPanel.querySelector('[data-plan-buffer-perbuy]');
       const perBuyEl2 = bufferPanel.querySelector('[data-plan-buffer-perbuy-2]');
+      const availBalanceEl = bufferPanel.querySelector('[data-plan-buffer-avail-balance]');
+      const availBalanceEl2 = bufferPanel.querySelector('[data-plan-buffer-avail-balance-2]');
       const nextBuyEl = bufferPanel.querySelector('[data-plan-buffer-nextbuy]');
       const sourceEl = bufferPanel.querySelector('[data-plan-buffer-source]');
       const sourceEl2 = bufferPanel.querySelector('[data-plan-buffer-source-2]');
@@ -4298,7 +4300,7 @@
         });
         if (flexibleDetails) flexibleDetails.hidden = method !== 'flexible';
         if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
-        if (ctaBtn) ctaBtn.textContent = method === 'reserved' ? 'Reserve & Continue' : 'Continue';
+        if (ctaBtn) ctaBtn.textContent = method === 'reserved' ? 'Continue' : 'Continue';
       };
 
       const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
@@ -4334,6 +4336,10 @@
       const render = () => {
         reserveAmount = clampReserveAmount(reserveAmount);
         const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
+        const balance = BALANCES[cur] ?? BALANCES.TWD;
+        const availBalanceStr = `${fmt(balance)} ${cur}`;
+        if (availBalanceEl) availBalanceEl.textContent = availBalanceStr;
+        if (availBalanceEl2) availBalanceEl2.textContent = availBalanceStr;
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
         if (nextBuyEl) nextBuyEl.textContent = computeNextBuyDate();

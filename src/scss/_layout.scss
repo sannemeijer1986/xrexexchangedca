@@ -6948,6 +6948,34 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
+.plan-buffer-panel__kv-value-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  min-width: 0;
+}
+
+.plan-buffer-panel__avail-plus {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.plan-buffer-panel__avail-plus img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .plan-buffer-panel__kv.plan-buffer-panel__kv--reserve-covers {
   height: auto;
   display: grid;
