@@ -7006,6 +7006,10 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
 }
 
+.plan-buffer-panel__kv-label--large {
+  font-size: 16px;
+}
+
 .plan-buffer-panel__kv-value {
   color: #ffffff;
   overflow: hidden;
@@ -7051,6 +7055,7 @@ div.currency-sheet__item-icon::before {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1px;
+  margin-bottom: -8px;
 }
 
 .plan-buffer-panel__kv--strong .plan-buffer-panel__kv-label {
@@ -7225,6 +7230,7 @@ div.currency-sheet__item-icon::before {
   border-radius: 5px;
   background: #2a2e34;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 .plan-buffer-panel__reserve-fill {

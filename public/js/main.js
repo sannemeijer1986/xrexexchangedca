@@ -4468,6 +4468,13 @@
 
       const setMethodUI = (next) => {
         method = next === 'reserved' ? 'reserved' : 'flexible';
+
+        // Default for pre-fund (auto-refills): 1 buy.
+        // (Previously the buffer open default was half-balance; keep that for initial state,
+        // but when the user explicitly picks pre-fund, start from 1 buy.)
+        if (method === 'reserved' && perBuy > 0) {
+          reserveAmount = clampReserveAmount(perBuy);
+        }
         methodBtns.forEach((btn) => {
           const on = btn.getAttribute('data-plan-buffer-method') === method;
           btn.classList.toggle('is-selected', on);
