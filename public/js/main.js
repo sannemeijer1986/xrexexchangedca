@@ -4350,7 +4350,8 @@
         if (stepsEl) stepsEl.textContent = perBuy > 0 ? `Steps of ${fmt(perBuy)} ${cur}` : 'Steps of —';
         if (reserveCurEl) reserveCurEl.textContent = cur;
         if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
-        const hasReserveBalanceError = method === 'reserved' && reserveAmount > balance;
+        const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
+        const hasReserveBalanceError = isReservedActive && reserveAmount > balance;
         if (reserveAmtEl) reserveAmtEl.classList.toggle('plan-buffer-panel__reserve-amt--error', hasReserveBalanceError);
         if (availBalanceEl2) availBalanceEl2.classList.toggle('plan-buffer-panel__kv-value--error', hasReserveBalanceError);
         if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !hasReserveBalanceError;

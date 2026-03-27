@@ -6913,7 +6913,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-panel__details {
-  margin-top: 16px;
+  margin-top: 24px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -6946,6 +6946,10 @@ div.currency-sheet__item-icon {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.plan-buffer-panel__kv-value.plan-buffer-panel__kv-value--error {
+  color: #eb5347 !important;
 }
 
 .plan-buffer-panel__kv-value-wrap {
@@ -7096,6 +7100,17 @@ div.currency-sheet__item-icon {
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
+}
+
+.plan-buffer-panel__reserve-amt.plan-buffer-panel__reserve-amt--error {
+  color: #eb5347 !important;
+}
+
+.phone-container p.plan-buffer-panel__reserve-error {
+  margin: -2px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #eb5347;
 }
 
 .plan-buffer-panel__reserve-covers-now {
