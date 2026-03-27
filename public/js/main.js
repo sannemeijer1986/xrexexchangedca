@@ -4473,7 +4473,11 @@
           btn.classList.toggle('is-selected', on);
           btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        if (flexibleDetails) flexibleDetails.hidden = method !== 'flexible';
+        // Temporary product decision: keep flexible detail panel hidden.
+        if (flexibleDetails) {
+          flexibleDetails.hidden = true;
+          flexibleDetails.style.display = 'none';
+        }
         if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
         hideOnReservedRows.forEach((row) => {
           const show = method !== 'reserved';
