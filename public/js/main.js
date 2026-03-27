@@ -682,14 +682,14 @@
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
 
-  /** Compact "Mar 15 · 12:00" / "Mon · 12:00" from plan-detail schedule line */
+  /** Compact "Mar 15 · ~12:00" / "Mon · ~12:00" from plan-detail schedule line */
   const formatFinanceNextBuyCompact = (schedText) => {
     const sched = String(schedText || '').trim();
     if (!sched) return '';
     const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
     const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
-    const timeMatch = tail.match(/at\s+([\d:]+)/i);
-    const timeStr = timeMatch ? timeMatch[1] : '12:00';
+    const timeMatch = tail.match(/at\s+~?\s*(\d{1,2}:\d{2})/i);
+    const timeStr = timeMatch ? `~${timeMatch[1]}` : '~12:00';
     const dayMatch = tail.match(/(\d{1,2})(?:st|nd|rd|th)/i);
     if (!dayMatch && tail) {
       return tail.replace(/\s+at\s+/i, ' · ').replace(/\s+/g, ' ').trim();
@@ -1259,9 +1259,9 @@
       monthly: 'Every month on',
     };
     const defaultTimingDetail = {
-      daily: '12:00',
-      weekly: 'Mon at 12:00',
-      monthly: '15th at 12:00',
+      daily: '~12:00',
+      weekly: 'Mon at ~12:00',
+      monthly: '15th at ~12:00',
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
 
@@ -1289,22 +1289,23 @@
     };
 
     const parseTimingFromScheduleText = (text, freq) => {
+      const withTildeTime = (v) => String(v || '').replace(/~?\s*(\d{1,2}:\d{2})/g, '~$1');
       const parts = (text || '').split('·').map((s) => s.trim());
       if (parts.length >= 2) {
         const detail = parts.slice(1).join(' · ');
         if (freq === 'daily') {
-          const m = detail.match(/(\d{1,2}:\d{2})/);
+          const m = detail.match(/~?\s*(\d{1,2}:\d{2})/);
           if (m) {
             const [hh, mm] = m[1].split(':').map((x) => parseInt(x, 10));
             if (Number.isFinite(hh) && Number.isFinite(mm)) {
-              return `${String(Math.max(0, Math.min(23, hh))).padStart(2, '0')}:${String(Math.max(0, Math.min(59, mm))).padStart(2, '0')}`;
+              return `~${String(Math.max(0, Math.min(23, hh))).padStart(2, '0')}:${String(Math.max(0, Math.min(59, mm))).padStart(2, '0')}`;
             }
           }
           return defaultTimingDetail.daily;
         }
-        return detail;
+        return withTildeTime(detail);
       }
-      return defaultTimingDetail[freq];
+      return withTildeTime(defaultTimingDetail[freq]);
     };
 
     const open = () => {
@@ -1319,9 +1320,9 @@
       setFreqUI(freq);
       if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
       if (timingValueEl) {
-        timingValueEl.textContent = scheduleText
+        timingValueEl.textContent = (scheduleText
           ? parseTimingFromScheduleText(scheduleText, freq)
-          : defaultTimingDetail[freq];
+          : defaultTimingDetail[freq]).replace(/~?\s*(\d{1,2}:\d{2})/g, '~$1');
       }
 
       let end = 'continuous';
@@ -1495,11 +1496,11 @@
     let count = Math.max(MIN, Math.min(MAX, DEFAULT_LIMIT_BUYS));
     let countUserCustomized = false;
 
-    /** 1–31 from strings like "15th at 12:00"; null if not monthly-style. */
+    /** 1–28 from strings like "15th at ~12:00"; null if not monthly-style. */
     const parseMonthlyBuyDayFromTiming = (text) => {
       const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)/i);
       if (!m) return null;
-      return Math.max(1, Math.min(31, parseInt(m[1], 10)));
+      return Math.max(1, Math.min(28, parseInt(m[1], 10)));
     };
 
     const projectEndDate = (buys) => {
@@ -1666,12 +1667,12 @@
 
       if (endsEl) {
         if (blockAmountStepper) {
-          endsEl.textContent = 'Set auto-invest amount first';
+          endsEl.textContent = 'Set “Amount per buy” first';
           endsEl.classList.add('schedule-setlimit-inline__ends--error');
         } else {
           endsEl.classList.remove('schedule-setlimit-inline__ends--error');
           // If we previously replaced the end date with an error, restore it.
-          if (String(endsEl.textContent || '').trim() === 'Set auto-invest amount first') {
+          if (String(endsEl.textContent || '').trim() === 'Set “Amount per buy” first') {
             setLimitStepper?.syncDom();
           }
         }
@@ -1826,7 +1827,10 @@
       { short: 'Sun', label: 'Sunday' },
     ];
 
-    const timeLabels = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`);
+    const timeLabels = Array.from(
+      { length: 24 },
+      (_, h) => `~${String(h).padStart(2, '0')}:00`,
+    );
 
     /** @param {number} n 1–31 */
     const ordinalSuffix = (n) => {
@@ -1840,7 +1844,7 @@
     };
 
     const parseHourIndex = (text) => {
-      const m = String(text || '').match(/(\d{1,2}):(\d{2})/);
+      const m = String(text || '').match(/~?\s*(\d{1,2}):(\d{2})/);
       if (!m) return 12;
       let hh = parseInt(m[1], 10);
       if (!Number.isFinite(hh)) return 12;
@@ -1851,7 +1855,7 @@
     const parseMonthlyDayIndex = (text) => {
       const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)/i);
       if (!m) return 14;
-      const d = Math.max(1, Math.min(31, parseInt(m[1], 10)));
+      const d = Math.max(1, Math.min(28, parseInt(m[1], 10)));
       return d - 1;
     };
 
@@ -1951,15 +1955,15 @@
         bindColumnOptionClicks(timeCol, 24);
       } else {
         primaryCol.hidden = false;
-        const dayLabels = Array.from({ length: 31 }, (_, i) => ordinalSuffix(i + 1));
+        const dayLabels = Array.from({ length: 28 }, (_, i) => ordinalSuffix(i + 1));
         const dayIdx = parseMonthlyDayIndex(tv);
         primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
         timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
-        scrollToIndex(primaryCol, dayIdx, 30);
+        scrollToIndex(primaryCol, dayIdx, 27);
         scrollToIndex(timeCol, timeIdx, 23);
-        bindColumnScroll(primaryCol, 31);
+        bindColumnScroll(primaryCol, 28);
         bindColumnScroll(timeCol, 24);
-        bindColumnOptionClicks(primaryCol, 31);
+        bindColumnOptionClicks(primaryCol, 28);
         bindColumnOptionClicks(timeCol, 24);
       }
 
@@ -1993,7 +1997,7 @@
         const pi = Math.max(0, Math.min(6, Math.round(primaryCol.scrollTop / ITEM_H)));
         next = `${WEEKDAYS[pi].short} at ${tlab}`;
       } else {
-        const pi = Math.max(0, Math.min(30, Math.round(primaryCol.scrollTop / ITEM_H)));
+        const pi = Math.max(0, Math.min(27, Math.round(primaryCol.scrollTop / ITEM_H)));
         next = `${ordinalSuffix(pi + 1)} at ${tlab}`;
       }
       if (timingValueEl) timingValueEl.textContent = next;
@@ -3398,7 +3402,11 @@
       updateCoverageUI();
 
       // Repeats schedule
-      const freqLabels = { daily: 'Daily · 12:00', weekly: 'Weekly · Mon at 12:00', monthly: 'Monthly · 15th at 12:00' };
+      const freqLabels = {
+        daily: 'Daily · ~12:00',
+        weekly: 'Weekly · Mon at ~12:00',
+        monthly: 'Monthly · 15th at ~12:00',
+      };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
         if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
@@ -4315,15 +4323,25 @@
         }
 
         const compactNextBuy = formatFinanceNextBuyCompact(sched);
-        const firstBuyMonthDay = compactNextBuy.split('·')[0]?.trim();
-        let firstBuyText = firstBuyMonthDay || '—';
-        if (firstBuyMonthDay) {
-          const now = new Date();
-          const guess = new Date(`${firstBuyMonthDay} ${now.getFullYear()}`);
-          if (!Number.isNaN(guess.getTime())) {
-            if (guess.getTime() < Date.now() - 24 * 60 * 60 * 1000) guess.setFullYear(guess.getFullYear() + 1);
-            firstBuyText = guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          }
+        let firstBuyText = compactNextBuy || '—';
+        const firstBuyMatch = compactNextBuy.match(/^([A-Za-z]{3,9})\s+(\d{1,2})\s*·\s*(~?\d{1,2}:\d{2})$/);
+        if (firstBuyMatch) {
+          const toOrdinal = (n) => {
+            const j = n % 10;
+            const k = n % 100;
+            if (k >= 11 && k <= 13) return `${n}th`;
+            if (j === 1) return `${n}st`;
+            if (j === 2) return `${n}nd`;
+            if (j === 3) return `${n}rd`;
+            return `${n}th`;
+          };
+          const month = firstBuyMatch[1];
+          const dayNum = parseInt(firstBuyMatch[2], 10);
+          const time = firstBuyMatch[3].startsWith('~') ? firstBuyMatch[3] : `~${firstBuyMatch[3]}`;
+          const dayOrdinal = toOrdinal(dayNum);
+          firstBuyText = `${month} ${dayOrdinal} at ${time}`;
+        } else if (compactNextBuy) {
+          firstBuyText = compactNextBuy.replace(/\s*·\s*/, ' at ');
         }
         if (firstBuyEl) firstBuyEl.textContent = firstBuyText;
 
@@ -4840,8 +4858,8 @@
         const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
         const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
-        const timeMatch = tail.match(/at\s+([\d:]+)/i);
-        const timeStr = timeMatch ? timeMatch[1] : '12:00';
+        const timeMatch = tail.match(/at\s+~?\s*(\d{1,2}:\d{2})/i);
+        const timeStr = timeMatch ? `~${timeMatch[1]}` : '~12:00';
         const dayMatch = tail.match(/(\d{1,2})(?:st|nd|rd|th)/i);
         if (!dayMatch && tail) {
           return `First buy on ${tail}`;
