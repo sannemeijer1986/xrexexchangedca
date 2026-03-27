@@ -6952,7 +6952,7 @@ div.currency-sheet__item-icon {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -7471,6 +7471,11 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   cursor: pointer;
   color: #ffffff;
+}
+
+.plan-buffer-panel__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .plan-buffer-panel__btn--primary {

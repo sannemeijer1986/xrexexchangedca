@@ -937,17 +937,17 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
-        el.textContent = `${range} historical return ≈`;
+        el.textContent = `${range} historical performance ≈`;
       });
     }
     if (context === 'breakdown') {
       document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `${range} historical return ≈`;
+        el.textContent = `${range} historical performance ≈`;
       });
     }
     if (context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `${range} historical return ≈`;
+        el.textContent = `${range} historical performance ≈`;
       });
     }
   };
@@ -3988,7 +3988,7 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (kickerEl) kickerEl.textContent = `${range} historical return ≈`;
+        if (kickerEl) kickerEl.textContent = `${range} historical performance ≈`;
         if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
@@ -4268,6 +4268,7 @@
       const stepsEl = bufferPanel.querySelector('[data-plan-buffer-steps]');
       const reserveCurEl = bufferPanel.querySelector('[data-plan-buffer-reserve-cur]');
       const reserveAmtEl = bufferPanel.querySelector('[data-plan-buffer-reserve-amt]');
+      const reserveBalanceErrorEl = bufferPanel.querySelector('[data-plan-buffer-balance-error]');
       const coversNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-now]');
       const coversTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-total]');
       const coversSlashEl = bufferPanel.querySelector('[data-plan-buffer-covers-slash]');
@@ -4349,6 +4350,10 @@
         if (stepsEl) stepsEl.textContent = perBuy > 0 ? `Steps of ${fmt(perBuy)} ${cur}` : 'Steps of —';
         if (reserveCurEl) reserveCurEl.textContent = cur;
         if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
+        const hasReserveBalanceError = method === 'reserved' && reserveAmount > balance;
+        if (reserveAmtEl) reserveAmtEl.classList.toggle('plan-buffer-panel__reserve-amt--error', hasReserveBalanceError);
+        if (availBalanceEl2) availBalanceEl2.classList.toggle('plan-buffer-panel__kv-value--error', hasReserveBalanceError);
+        if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !hasReserveBalanceError;
 
         const coversNow = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;
         if (coversNowEl) coversNowEl.textContent = String(coversNow);
@@ -4378,6 +4383,7 @@
         if (decBtn) decBtn.disabled = coversNowForButtons <= minBuys;
         if (incBtn) incBtn.disabled = coversNowForButtons >= maxBuys;
         if (inc10Btn) inc10Btn.disabled = coversNowForButtons >= maxBuys;
+        if (ctaBtn) ctaBtn.disabled = hasReserveBalanceError;
       };
 
       const syncFromPlanDetail = () => {
