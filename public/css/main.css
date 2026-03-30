@@ -2564,7 +2564,7 @@ html[data-active-tab=finance] .app-header__tabs {
   font-weight: var(--prm-pct-inline-fw, 700);
   color: var(--prm-accent, #5ac47d);
   flex-shrink: 0;
-  transform: translateY(2px);
+  transform: translateY(3px);
 }
 
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
