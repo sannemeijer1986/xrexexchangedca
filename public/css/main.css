@@ -3911,6 +3911,10 @@ div.currency-sheet__item-icon::before {
   font-weight: 600;
 }
 
+.setlimit-sheet__summary-row[hidden] {
+  display: none !important;
+}
+
 .setlimit-sheet__summary-row--perbuy {
   display: none;
 }
@@ -7772,8 +7776,9 @@ div.currency-sheet__item-icon::before {
 
 .plan-buffer-panel__reserve-track-note {
   margin-top: 0;
+  margin-left: auto;
   min-width: 0;
-  text-align: left;
+  text-align: right;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
