@@ -5086,6 +5086,7 @@
       const coversPctEl = bufferPanel.querySelector('[data-plan-buffer-covers-pct]');
       const coversPctWrapEl = bufferPanel.querySelector('[data-plan-buffer-covers-pct-wrap]');
       const coversBarEl = bufferPanel.querySelector('[data-plan-buffer-covers-bar]');
+      const coversBarDividersEl = bufferPanel.querySelector('[data-plan-buffer-covers-bar-dividers]');
       const coversBuyTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-buy-total-suffix]');
       const coversPeriodNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-period-now]');
       const coversPeriodTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-period-total-suffix]');
@@ -5249,6 +5250,29 @@
         if (coversFillEl) {
           const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
           coversFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+        }
+
+        // Divider ticks at multiples of current fill step.
+        // If fill is 10%, ticks at 10/20/…/90. If fill is 25%, ticks at 25/50/75.
+        if (coversBarDividersEl) {
+          coversBarDividersEl.innerHTML = '';
+          const stepBuys = isSetLimit ? Math.max(0, Math.floor(coversNow)) : 0;
+          const totalBuys = isSetLimit ? Math.max(0, Math.floor(coversTotalBuys)) : 0;
+          const maxTicks = 18;
+          if (stepBuys > 0 && totalBuys > 0 && stepBuys < totalBuys) {
+            const tickCount = Math.floor((totalBuys - 1) / stepBuys);
+            if (tickCount > 0 && tickCount <= maxTicks) {
+              for (let k = 1; k <= tickCount; k += 1) {
+                const buysAtTick = k * stepBuys;
+                if (buysAtTick >= totalBuys) break;
+                const leftPct = (buysAtTick / totalBuys) * 100;
+                const tick = document.createElement('span');
+                tick.className = 'plan-buffer-panel__covers-bar-divider';
+                tick.style.left = `${leftPct}%`;
+                coversBarDividersEl.appendChild(tick);
+              }
+            }
+          }
         }
 
         const coversNowForButtons = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;

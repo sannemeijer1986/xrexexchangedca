@@ -7612,23 +7612,14 @@ div.currency-sheet__item-icon::before {
   width: 2px;
   background: #0d0e0f;
   opacity: 1;
-  display: none;
   pointer-events: none;
-}
-
-.plan-buffer-panel__covers-bar-divider--25 {
-  left: 25%;
   transform: translateX(-1px);
 }
 
-.plan-buffer-panel__covers-bar-divider--50 {
-  left: 50%;
-  transform: translateX(-1px);
-}
-
-.plan-buffer-panel__covers-bar-divider--75 {
-  left: 75%;
-  transform: translateX(-1px);
+.plan-buffer-panel__covers-bar-dividers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .plan-buffer-panel__covers-rows {
