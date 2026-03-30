@@ -275,7 +275,16 @@
     aave: [{ name: 'Aave', ticker: 'AAVE', icon: 'assets/icon_currency_btc.svg' }],
   });
 
-  const HISTORIC_RETURN_SUBTITLE = 'Past performance';
+  /** Historic column caption: one asset → "BTC performance"; 2+ → "Comb. performance". */
+  const buildHistoricPerformanceCaption = (assets) => {
+    const tickers = (assets || [])
+      .map((it) => String(it?.ticker || '').trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    if (!tickers.length) return 'Performance';
+    if (tickers.length === 1) return `${tickers[0]} performance`;
+    return 'Combined performance';
+  };
 
   const escReturnMetricAttr = (v) =>
     String(v ?? '')
@@ -514,7 +523,7 @@
         : (PLAN_DISPLAY_ASSETS_BY_KEY[activePlan]
           || PLAN_DISPLAY_ASSETS_BY_KEY[activeAnchorPlan]
           || PLAN_DISPLAY_ASSETS_BY_KEY.bitcoin);
-    const historicCaption = HISTORIC_RETURN_SUBTITLE;
+    const historicCaption = buildHistoricPerformanceCaption(displayAssets);
     const iconsHtml = buildReturnMetricProductIconWrapHtml(displayAssets, 'assets/icon_currency_btc.svg');
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
@@ -4193,7 +4202,7 @@
         if (profitAssetIconsEl) {
           profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
         }
-        if (profitHistCapEl) profitHistCapEl.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
         if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
@@ -4315,7 +4324,7 @@
         if (profitAssetIconsEl) {
           profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
         }
-        if (profitHistCapEl) profitHistCapEl.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
         if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
@@ -5379,7 +5388,7 @@
         }
         if (histPctEl) histPctEl.textContent = '0.0%';
         if (histIcons) histIcons.innerHTML = '';
-        if (histCap) histCap.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (histCap) histCap.textContent = 'Performance';
         if (stratCap) stratCap.textContent = 'Simulated return';
         if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;

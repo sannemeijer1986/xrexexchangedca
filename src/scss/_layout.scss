@@ -2408,7 +2408,7 @@ html[data-active-tab="finance"] {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 10px;
+  gap: 4px;
   width: 100%;
 }
 
@@ -2422,8 +2422,8 @@ html[data-active-tab="finance"] {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
+  gap: 1px;
   flex-direction: column;
-  gap: 2px;
 }
 
 .plan-strategy__return-metrics-values-row,
@@ -2434,7 +2434,7 @@ html[data-active-tab="finance"] {
 .plan-breakdown-panel__profit-metrics-captions-row {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
   width: 100%;
@@ -2474,11 +2474,7 @@ html[data-active-tab="finance"] {
   align-items: center;
   justify-content: center;
   align-self: center;
-}
-
-.plan-strategy__return-historic-icon-slot .plan-return-metric__product-icon-wrap,
-.plan-detail-panel__return-historic-icon-slot .plan-return-metric__product-icon-wrap,
-.plan-breakdown-panel__profit-historic-icon-slot .plan-return-metric__product-icon-wrap {
+  margin-top: 9px;
   width: 24px;
   height: 24px;
 }
@@ -2496,6 +2492,10 @@ html[data-active-tab="finance"] {
   transform: translateY(2px);
 }
 
+.plan-strategy__return-pct-line--historic {
+  margin-bottom: 2px;
+}
+
 .plan-strategy__return-metrics .plan-strategy__return-metric-caption,
 .plan-detail-panel__return-metrics .plan-detail-panel__return-metric-caption,
 .plan-breakdown-panel__profit-metrics .plan-breakdown-panel__profit-metric-caption {
@@ -2507,7 +2507,7 @@ html[data-active-tab="finance"] {
 .plan-breakdown-panel__profit-metric-caption {
   font-size: 12px;
   font-weight: 600;
-  color: #58595a;
+  color: #9B9C9C;
   line-height: 1.2;
   margin-top: 2px;
 }
@@ -2533,8 +2533,8 @@ html[data-active-tab="finance"] {
 .plan-breakdown-panel__profit-pct-line {
   display: flex;
   align-items: center;
-  gap: var(--prm-pct-inline-gap, 3px);
-  margin-left: 6px;
+  gap: 1px;
+  margin-left: 5px;
   font-size: 12px;
   font-weight: var(--prm-pct-inline-fw, 700);
   color: var(--prm-accent, #5ac47d);
@@ -2567,7 +2567,7 @@ html[data-active-tab="finance"] {
 .plan-strategy__return-abs,
 .plan-detail-panel__return-abs,
 .plan-breakdown-panel__profit-abs {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -2589,10 +2589,10 @@ html[data-active-tab="finance"] {
   white-space: nowrap;
 }
 
-// Default compact icon wrap where historic slot does not override (e.g. some inline uses)
+// Return-metric asset stack (JS: buildReturnMetricProductIconWrapHtml) — single size for widget, detail, breakdown
 .plan-detail-panel__product-icon-wrap.plan-return-metric__product-icon-wrap {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
@@ -2641,10 +2641,11 @@ html[data-active-tab="finance"] {
   background: transparent;
   align-self: flex-start;
   color: #3f78ff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  padding: 6px 0px 0px 0px;
 }
 
 .plan-strategy__view-breakdown-link {
