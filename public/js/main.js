@@ -316,10 +316,24 @@
     return `<div class="plan-detail-panel__product-icon-wrap plan-return-metric__product-icon-wrap" aria-hidden="true">${inner}</div>`;
   };
 
+  const RETURN_METRIC_ARROW_HIST_POS = 'assets/icon_dark_positivearrow.svg';
+  const RETURN_METRIC_ARROW_HIST_NEG = 'assets/icon_dark_negativearrow.svg';
+
   const setReturnMetricTone = (root, value) => {
     if (!root) return;
     const pos = Number(value) >= 0;
     root.classList.toggle('plan-return-metric__group--loss', !pos);
+    const histArrow = root.querySelector('.plan-return-metric__arrow--historic');
+    if (histArrow) {
+      histArrow.src = pos ? RETURN_METRIC_ARROW_HIST_POS : RETURN_METRIC_ARROW_HIST_NEG;
+      histArrow.classList.remove('plan-return-metric__arrow--down');
+      return;
+    }
+    const simArrow = root.querySelector('.plan-return-metric__arrow--simulated');
+    if (simArrow) {
+      simArrow.classList.toggle('plan-return-metric__arrow--down', !pos);
+      return;
+    }
     const arrow = root.querySelector('.plan-return-metric__arrow');
     if (arrow) arrow.classList.toggle('plan-return-metric__arrow--down', !pos);
   };
@@ -2814,15 +2828,27 @@
       if (dStrat && wStrat) {
         dStrat.classList.toggle('plan-return-metric__group--loss', wStrat.classList.contains('plan-return-metric__group--loss'));
         dStrat.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
-          const src = wStrat.querySelectorAll('.plan-return-metric__arrow')[i];
-          if (src) img.classList.toggle('plan-return-metric__arrow--down', src.classList.contains('plan-return-metric__arrow--down'));
+          const wImg = wStrat.querySelectorAll('.plan-return-metric__arrow')[i];
+          if (!wImg) return;
+          if (wImg.classList.contains('plan-return-metric__arrow--historic')) {
+            img.src = wImg.src;
+            img.classList.remove('plan-return-metric__arrow--down');
+          } else {
+            img.classList.toggle('plan-return-metric__arrow--down', wImg.classList.contains('plan-return-metric__arrow--down'));
+          }
         });
       }
       if (dHist && wHist) {
         dHist.classList.toggle('plan-return-metric__group--loss', wHist.classList.contains('plan-return-metric__group--loss'));
         dHist.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
-          const src = wHist.querySelectorAll('.plan-return-metric__arrow')[i];
-          if (src) img.classList.toggle('plan-return-metric__arrow--down', src.classList.contains('plan-return-metric__arrow--down'));
+          const wImg = wHist.querySelectorAll('.plan-return-metric__arrow')[i];
+          if (!wImg) return;
+          if (wImg.classList.contains('plan-return-metric__arrow--historic')) {
+            img.src = wImg.src;
+            img.classList.remove('plan-return-metric__arrow--down');
+          } else {
+            img.classList.toggle('plan-return-metric__arrow--down', wImg.classList.contains('plan-return-metric__arrow--down'));
+          }
         });
       }
     };
@@ -5395,7 +5421,12 @@
         if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
         panel.querySelectorAll('.plan-detail-panel__return-metrics-col.plan-return-metric__group').forEach((g) => {
           g.classList.remove('plan-return-metric__group--loss');
-          g.querySelectorAll('.plan-return-metric__arrow').forEach((a) => a.classList.remove('plan-return-metric__arrow--down'));
+          g.querySelectorAll('.plan-return-metric__arrow').forEach((a) => {
+            a.classList.remove('plan-return-metric__arrow--down');
+            if (a.classList.contains('plan-return-metric__arrow--historic')) {
+              a.src = RETURN_METRIC_ARROW_HIST_POS;
+            }
+          });
         });
         return;
       }

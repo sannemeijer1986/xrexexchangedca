@@ -2506,6 +2506,9 @@ html[data-active-tab=finance] .app-header__tabs {
   flex-shrink: 0;
   flex-wrap: nowrap;
   transform: translateY(2px);
+  font-size: 12px;
+  font-weight: var(--prm-pct-inline-fw, 700);
+  color: #2f9752;
 }
 
 .plan-strategy__return-pct-line--historic {
@@ -2532,6 +2535,7 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-detail-panel__return-metric-caption--right,
 .plan-breakdown-panel__profit-metric-caption--right {
   text-align: right;
+  color: #58595A;
 }
 
 .plan-strategy__return-abs-line,
@@ -2544,9 +2548,9 @@ html[data-active-tab=finance] .app-header__tabs {
   font-weight: 700;
 }
 
-.plan-strategy__return-pct-line,
-.plan-detail-panel__return-pct-inline,
-.plan-breakdown-panel__profit-pct-line {
+.plan-strategy__return-pct-line:not(.plan-return-metric__pct-line--historic),
+.plan-detail-panel__return-pct-inline:not(.plan-return-metric__pct-line--historic),
+.plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) {
   display: flex;
   align-items: center;
   gap: 1px;
@@ -2558,8 +2562,14 @@ html[data-active-tab=finance] .app-header__tabs {
   transform: translateY(2px);
 }
 
-.plan-breakdown-panel__profit-pct-line span {
+.plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
   color: var(--prm-accent, #56c488);
+}
+
+.plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
+.plan-return-metric__pct-line--historic.plan-detail-panel__return-pct-inline .plan-detail-panel__return-pct,
+.plan-return-metric__pct-line--historic .plan-strategy__return-pct {
+  color: #2f9752;
 }
 
 .plan-strategy__return-arrow,
@@ -2599,9 +2609,13 @@ html[data-active-tab=finance] .app-header__tabs {
   margin-left: var(--prm-currency-ml, 4px);
 }
 
-.plan-strategy__return-pct,
-.plan-detail-panel__return-pct {
+.plan-strategy__return-pct.plan-return-metric__pct--simulated,
+.plan-detail-panel__return-pct.plan-return-metric__pct--simulated {
   color: var(--prm-accent, #5ac47d);
+  white-space: nowrap;
+}
+
+.plan-return-metric__pct--historic {
   white-space: nowrap;
 }
 
@@ -2629,25 +2643,34 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 .plan-return-metric__group--loss .plan-strategy__return-abs,
 .plan-return-metric__group--loss .plan-strategy__return-currency,
-.plan-return-metric__group--loss .plan-strategy__return-pct,
-.plan-return-metric__group--loss .plan-strategy__return-pct-line {
+.plan-return-metric__group--loss .plan-strategy__return-pct.plan-return-metric__pct--simulated,
+.plan-return-metric__group--loss .plan-strategy__return-pct-line:not(.plan-return-metric__pct-line--historic) {
   color: #ff6b6b;
 }
 .plan-return-metric__group--loss .plan-detail-panel__return-abs,
 .plan-return-metric__group--loss .plan-detail-panel__return-currency,
-.plan-return-metric__group--loss .plan-detail-panel__return-pct,
-.plan-return-metric__group--loss .plan-detail-panel__return-pct-inline {
+.plan-return-metric__group--loss .plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
+.plan-return-metric__group--loss .plan-detail-panel__return-pct-inline:not(.plan-return-metric__pct-line--historic) {
   color: #ff6b6b;
 }
 .plan-return-metric__group--loss .plan-breakdown-panel__profit-abs,
 .plan-return-metric__group--loss .plan-breakdown-panel__profit-currency,
-.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line,
-.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line span {
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
   color: #ff6b6b;
+}
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-strategy__return-pct,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-detail-panel__return-pct {
+  color: #c44221;
 }
 
 .plan-strategy__view-breakdown-link,
 .plan-detail-panel__view-breakdown-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -2658,6 +2681,14 @@ html[data-active-tab=finance] .app-header__tabs {
   line-height: 1.2;
   cursor: pointer;
   padding: 6px 0px 0px 0px;
+}
+.plan-strategy__view-breakdown-link img,
+.plan-detail-panel__view-breakdown-link img {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
 }
 
 .plan-strategy__view-breakdown-link {
