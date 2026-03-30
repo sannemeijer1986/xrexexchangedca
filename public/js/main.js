@@ -295,11 +295,18 @@
   /**
    * Same pyramid stack as `plan-detail-panel__product-icon-wrap` (single / 2 / 3 assets), compact size via CSS.
    */
-  const buildReturnMetricProductIconWrapHtml = (assets, fallbackIcon) => {
+  /**
+   * Builds historic return icon markup plus a stable signature. Prefer the signature over
+   * `innerHTML` string compare — browsers normalize serialized HTML (attribute order, etc.),
+   * so `el.innerHTML !== template` is almost always true after first paint and caused icon flicker
+   * on every slider tick.
+   */
+  const buildReturnMetricProductIconWrap = (assets, fallbackIcon) => {
     const items = (assets || []).slice(0, 3).filter((a) => a && a.icon);
     const fb = fallbackIcon || 'assets/icon_currency_btc.svg';
     const singleClass = 'plan-detail-panel__product-icon plan-return-metric__product-icon';
     let inner;
+    let sig;
     if (items.length >= 2) {
       const twoOnly = items.length === 2;
       const mod = twoOnly ? ' plan-detail-panel__icon-stack--two' : '';
@@ -309,11 +316,31 @@
         ? `<img src="${escReturnMetricAttr(c.icon)}" alt="" />`
         : '<span class="plan-detail-panel__icon-stack-placeholder" aria-hidden="true"></span>';
       inner = `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escReturnMetricAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escReturnMetricAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+      sig = `m${items.length}:${items.map((it) => it.icon).join(':')}`;
     } else {
       const src = items.length === 1 ? items[0].icon : fb;
       inner = `<img class="${singleClass}" src="${escReturnMetricAttr(src)}" alt="" />`;
+      sig = `s:${src}`;
     }
-    return `<div class="plan-detail-panel__product-icon-wrap plan-return-metric__product-icon-wrap" aria-hidden="true">${inner}</div>`;
+    const html = `<div class="plan-detail-panel__product-icon-wrap plan-return-metric__product-icon-wrap" aria-hidden="true">${inner}</div>`;
+    return { html, sig };
+  };
+
+  const buildReturnMetricProductIconWrapHtml = (assets, fallbackIcon) =>
+    buildReturnMetricProductIconWrap(assets, fallbackIcon).html;
+
+  /** Avoid replacing markup when layout is unchanged (prevents icon flicker on slider/input updates). */
+  const setReturnMetricIconWrapHtml = (el, html, opts = {}) => {
+    if (!el) return;
+    const { layoutSig } = opts;
+    if (layoutSig !== undefined) {
+      if (el.dataset.returnMetricIconSig === layoutSig) return;
+      if (layoutSig === '') delete el.dataset.returnMetricIconSig;
+      else el.dataset.returnMetricIconSig = layoutSig;
+      if (el.innerHTML !== html) el.innerHTML = html;
+      return;
+    }
+    if (el.innerHTML !== html) el.innerHTML = html;
   };
 
   const RETURN_METRIC_ARROW_HIST_POS = 'assets/icon_dark_positivearrow.svg';
@@ -538,7 +565,10 @@
           || PLAN_DISPLAY_ASSETS_BY_KEY[activeAnchorPlan]
           || PLAN_DISPLAY_ASSETS_BY_KEY.bitcoin);
     const historicCaption = buildHistoricPerformanceCaption(displayAssets);
-    const iconsHtml = buildReturnMetricProductIconWrapHtml(displayAssets, 'assets/icon_currency_btc.svg');
+    const { html: iconsHtml, sig: iconsSig } = buildReturnMetricProductIconWrap(
+      displayAssets,
+      'assets/icon_currency_btc.svg',
+    );
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
     pctEl.textContent = formatPct(returnPct);
@@ -566,7 +596,7 @@
       const capHist = document.querySelector('[data-plan-detail-return-historic-caption]');
       const capStrat = document.querySelector('[data-plan-detail-return-strategy-caption]');
       if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
-      if (iconWrap) iconWrap.innerHTML = iconsHtml;
+      setReturnMetricIconWrapHtml(iconWrap, iconsHtml, { layoutSig: iconsSig });
       if (capHist) capHist.textContent = historicCaption;
       if (capStrat) capStrat.textContent = 'Simulated return';
     } else {
@@ -575,7 +605,7 @@
       const capHist = document.querySelector('[data-plan-return-historic-caption]');
       const capStrat = document.querySelector('[data-plan-return-strategy-caption]');
       if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
-      if (iconWrap) iconWrap.innerHTML = iconsHtml;
+      setReturnMetricIconWrapHtml(iconWrap, iconsHtml, { layoutSig: iconsSig });
       if (capHist) capHist.textContent = historicCaption;
       if (capStrat) capStrat.textContent = 'Simulated return';
     }
@@ -2805,7 +2835,9 @@
       }
       if (histIcons) {
         const w = document.querySelector('[data-plan-return-asset-icons]');
-        if (w?.innerHTML) histIcons.innerHTML = w.innerHTML;
+        setReturnMetricIconWrapHtml(histIcons, w?.innerHTML ?? '', {
+          layoutSig: w?.dataset?.returnMetricIconSig,
+        });
       }
       if (histCap) {
         histCap.textContent = document.querySelector('[data-plan-return-historic-caption]')?.textContent || histCap.textContent;
@@ -4225,9 +4257,8 @@
         if (profitHistPctEl) {
           profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
-        if (profitAssetIconsEl) {
-          profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
-        }
+        const profitIcons = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
+        setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIcons.html, { layoutSig: profitIcons.sig });
         if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
         if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
@@ -4347,9 +4378,8 @@
         if (profitHistPctEl) {
           profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
-        if (profitAssetIconsEl) {
-          profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
-        }
+        const profitIconsW = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
+        setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIconsW.html, { layoutSig: profitIconsW.sig });
         if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
         if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
@@ -5413,7 +5443,7 @@
           pctEl.removeAttribute('data-alloc-base-pct');
         }
         if (histPctEl) histPctEl.textContent = '0.0%';
-        if (histIcons) histIcons.innerHTML = '';
+        setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
         if (histCap) histCap.textContent = 'Performance';
         if (stratCap) stratCap.textContent = 'Simulated return';
         if (absEl) absEl.removeAttribute('data-alloc-base-abs');

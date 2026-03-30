@@ -2110,7 +2110,7 @@ html[data-active-tab=finance] .app-header__tabs {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .plan-strategy__return-header .plan-strategy__return-title {
@@ -2438,7 +2438,7 @@ html[data-active-tab=finance] .app-header__tabs {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
-  gap: 1px;
+  gap: 2px;
   flex-direction: column;
 }
 
