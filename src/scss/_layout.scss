@@ -3286,6 +3286,20 @@ div.currency-sheet__item-icon {
   display: none;
 }
 
+[data-schedule-sheet] [data-schedule-endlimit-desc].schedule-end-limit-desc--needs-amount {
+  display: block;
+  color: #ff6d47;
+}
+
+[data-schedule-sheet] [data-schedule-end='enddate'].schedule-end-limit-row--disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+[data-schedule-sheet] [data-schedule-end='enddate'].schedule-end-limit-row--disabled .currency-sheet__item-radio {
+  opacity: 0.5;
+}
+
 .schedule-sheet__freq {
   width: 100%;
   box-sizing: border-box;

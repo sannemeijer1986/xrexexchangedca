@@ -1281,6 +1281,45 @@
       });
     };
 
+    const endLimitRowBtn = sheet.querySelector('[data-schedule-end="enddate"]');
+    const endLimitTitleEl = endLimitRowBtn?.querySelector('[data-schedule-endlimit-title]');
+
+    const hasSchedulePerBuyAmount = () => {
+      const raw = document.querySelector('[data-plan-detail-amount-input]')?.value ?? '';
+      const n = parseInt(String(raw).replace(/,/g, '').trim(), 10);
+      return Number.isFinite(n) && n > 0;
+    };
+
+    const syncEndLimitRowAvailability = () => {
+      if (!endLimitRowBtn || !endLimitTitleEl) return;
+      const descEl = sheet.querySelector('[data-schedule-endlimit-desc]');
+      const ok = hasSchedulePerBuyAmount();
+      if (!ok) {
+        endLimitRowBtn.classList.add('schedule-end-limit-row--disabled');
+        endLimitRowBtn.setAttribute('aria-disabled', 'true');
+        endLimitRowBtn.tabIndex = -1;
+        endLimitTitleEl.textContent = 'Set a limit (disabled)';
+        if (descEl) {
+          descEl.textContent = 'Enter an amount to enable limits';
+          descEl.classList.add('schedule-end-limit-desc--needs-amount');
+        }
+        return;
+      }
+      endLimitRowBtn.classList.remove('schedule-end-limit-row--disabled');
+      endLimitRowBtn.removeAttribute('aria-disabled');
+      endLimitRowBtn.tabIndex = 0;
+      endLimitTitleEl.textContent = 'Set a limit';
+      if (descEl) {
+        descEl.classList.remove('schedule-end-limit-desc--needs-amount');
+        const end = sheet.querySelector('[data-schedule-end].is-selected')?.getAttribute('data-schedule-end');
+        if (end !== 'enddate') descEl.textContent = '';
+      }
+    };
+
+    scheduleSheetApi.setEndConditionUI = setEndUI;
+    scheduleSheetApi.hasSchedulePerBuyAmount = hasSchedulePerBuyAmount;
+    scheduleSheetApi.syncEndLimitRowAvailability = syncEndLimitRowAvailability;
+
     const parseFreqFromScheduleText = (text) => {
       const head = (text || '').split('·')[0]?.trim().toLowerCase() || '';
       if (head.startsWith('daily')) return 'daily';
@@ -1452,12 +1491,16 @@
     endButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const end = btn.getAttribute('data-schedule-end') || 'continuous';
+        if (end === 'enddate' && btn.classList.contains('schedule-end-limit-row--disabled')) return;
         setEndUI(end);
         scheduleSheetApi.refreshEndConditionSubtitles?.();
         if (end === 'enddate') scheduleSheetApi.onEndOptionSelect?.(end);
       });
     });
 
+    document.querySelector('[data-plan-detail-amount-input]')?.addEventListener('input', () => {
+      scheduleSheetApi.refreshEndConditionSubtitles?.();
+    });
   };
 
   /**
@@ -1680,6 +1723,14 @@
     };
 
     const refreshEndConditionSubtitles = () => {
+      if (!scheduleSheetApi.hasSchedulePerBuyAmount?.()) {
+        const sel = scheduleSheet.querySelector('[data-schedule-end].is-selected');
+        if (sel?.getAttribute('data-schedule-end') === 'enddate') {
+          scheduleSheetApi.setEndConditionUI?.('continuous');
+          scheduleSheetApi.planDetailRepeatsEndLimitText = '';
+          scheduleSheet.classList.remove('schedule-sheet--end-limit-selected');
+        }
+      }
       const selected = scheduleSheet.querySelector('[data-schedule-end].is-selected');
       const end = selected?.getAttribute('data-schedule-end') || 'continuous';
       const descEl = scheduleSheet.querySelector('[data-schedule-endlimit-desc]');
@@ -1698,6 +1749,7 @@
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         if (descEl) descEl.textContent = '';
       }
+      scheduleSheetApi.syncEndLimitRowAvailability?.();
     };
 
     scheduleSheetApi.refreshEndConditionSubtitles = refreshEndConditionSubtitles;
