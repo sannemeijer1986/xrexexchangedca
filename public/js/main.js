@@ -3792,15 +3792,23 @@
         if (curatedMeta?.icon) iconSrc = curatedMeta.icon;
       }
 
-      const isCustomPlan = ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins';
+      const isCustomNoAssetsYet =
+        (ctx.source === 'newplan' && !detailAllocOverride?.items?.length)
+        || (detailAllocOverride?.kind === 'coins' && !detailAllocOverride.items?.length);
       const effectiveTitle =
-        isCustomPlan && customPlanTitle.trim()
+        customPlanTitle.trim()
           ? customPlanTitle.trim()
           : title;
 
       // Product hero
       panel.querySelector('[data-plan-detail-name]').textContent = effectiveTitle;
-      panel.querySelector('[data-plan-detail-ticker]').textContent = ticker;
+      {
+        const t = panel.querySelector('[data-plan-detail-ticker]');
+        if (t) {
+          t.textContent = ticker;
+          t.hidden = !!isCustomNoAssetsYet;
+        }
+      }
       const productIconWrap = panel.querySelector('[data-plan-detail-icon-wrap]');
       const headerIconWrap = panel.querySelector('[data-plan-detail-header-icon-wrap]');
       const coinPickItems =
@@ -3812,17 +3820,18 @@
 
       // Collapsed header state
       panel.querySelector('[data-plan-detail-header-name]').textContent = effectiveTitle;
-      panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
-
-      if (nameEditIcon) nameEditIcon.hidden = !isCustomPlan;
-      if (nameEditBtn) {
-        nameEditBtn.disabled = !isCustomPlan;
-        nameEditBtn.style.cursor = isCustomPlan ? 'pointer' : 'default';
+      {
+        const ht = panel.querySelector('[data-plan-detail-header-ticker]');
+        if (ht) {
+          ht.textContent = ticker;
+          ht.hidden = !!isCustomNoAssetsYet;
+        }
       }
-      if (!isCustomPlan) {
-        customPlanTitle = '';
-        if (nameInput) nameInput.hidden = true;
-        if (nameSpan) nameSpan.hidden = false;
+
+      if (nameEditIcon) nameEditIcon.hidden = false;
+      if (nameEditBtn) {
+        nameEditBtn.disabled = false;
+        nameEditBtn.style.cursor = 'pointer';
       }
 
       const curatedProductKeyForDesc = (() => {
@@ -3841,10 +3850,11 @@
       })();
       const productDescEl = panel.querySelector('[data-plan-detail-product-desc]');
       if (productDescEl) {
+        const isUserEditedTitle = !!customPlanTitle.trim();
         const meta = curatedProductKeyForDesc
           ? pickerCurated.find((p) => p.key === curatedProductKeyForDesc)
           : null;
-        if (meta?.desc) {
+        if (!isUserEditedTitle && meta?.desc) {
           productDescEl.textContent = meta.desc;
           productDescEl.hidden = false;
         } else {
@@ -4054,14 +4064,12 @@
       customPlanTitle = next;
       nameInput.hidden = true;
       if (nameSpan) nameSpan.hidden = false;
-      if (nameEditIcon) nameEditIcon.hidden = !(panelOpenContext?.source === 'newplan' || detailAllocOverride?.kind === 'coins');
+      if (nameEditIcon) nameEditIcon.hidden = false;
       populatePanel({ preserveAmount: true });
     };
 
     const enterTitleEditMode = () => {
-      const ctx = panelOpenContext;
-      const isCustomPlan = ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins';
-      if (!isCustomPlan || !nameInput || !nameEditBtn) return;
+      if (!nameInput || !nameEditBtn) return;
       const current = panel.querySelector('[data-plan-detail-name]')?.textContent || 'Your plan';
       nameInput.value = String(current).trim();
       if (nameSpan) nameSpan.hidden = true;
@@ -4090,9 +4098,7 @@
         e.preventDefault();
         if (nameInput) nameInput.hidden = true;
         if (nameSpan) nameSpan.hidden = false;
-        const ctx = panelOpenContext;
-        const isCustomPlan = ctx?.source === 'newplan' || detailAllocOverride?.kind === 'coins';
-        if (nameEditIcon) nameEditIcon.hidden = !isCustomPlan;
+        if (nameEditIcon) nameEditIcon.hidden = false;
       }
     });
     nameInput?.addEventListener('click', (e) => e.stopPropagation());
@@ -5415,6 +5421,11 @@
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
+        // Entering plan detail from Finance → Auto-invest should always start
+        // from the original plan name (discard any previously edited title).
+        customPlanTitle = '';
+        if (nameInput) nameInput.hidden = true;
+        if (nameSpan) nameSpan.hidden = false;
         planBreakdownApi.close();
         planOverviewApi.close();
         planSuccessApi.forceClose();

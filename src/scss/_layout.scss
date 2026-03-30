@@ -5277,6 +5277,10 @@ div.currency-sheet__item-icon {
   display: block;
 }
 
+.plan-detail-panel__product-ticker[hidden] {
+  display: none !important;
+}
+
 // Curated portfolio tagline (same copy/tokens as Finance Auto-invest .curated-portfolios__desc; no card left-padding)
 .phone-container .plan-detail-panel__product-info .plan-detail-panel__product-desc.curated-portfolios__desc {
   padding-left: 0;
@@ -5361,9 +5365,14 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__icon-stack-placeholder {
+  // Slot is ~22.41px in the 44px overview icon wrap; placeholder should be ~18.67px.
+  // 18.67 / 22.41 ≈ 0.8333 → 83.33%.
+  position: absolute;
+  inset: 0;
+  margin: auto;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 84.33%;
+  height: 84.33%;
   border-radius: 50%;
   background: #47494a;
 }
@@ -6919,9 +6928,9 @@ div.currency-sheet__item-icon {
 
 .plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--top {
   top: 0.89%;
-  right: 48.18%;
+  right: 24.53%;
   bottom: 48.18%;
-  left: 0.89%;
+  left: 24.54%;
 }
 
 .plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--bl {
@@ -6932,9 +6941,9 @@ div.currency-sheet__item-icon {
 }
 
 .plan-overview-panel__plan-icon-wrap .plan-detail-panel__icon-stack--two .plan-detail-panel__icon-slot--br {
-  top: 24.54%;
+  top: 41.36%;
   right: 0.89%;
-  bottom: 24.53%;
+  bottom: 7.71%;
   left: 48.18%;
 }
 
@@ -7831,6 +7840,7 @@ div.currency-sheet__item-icon {
   width: 2px;
   background: #0d0e0f;
   opacity: 1;
+  display: none;
   pointer-events: none;
 }
 
@@ -7860,7 +7870,7 @@ div.currency-sheet__item-icon {
 
 .plan-buffer-panel__covers-label {
   flex: 1 1 auto;
-  color: #58595a;
+  color: #9b9c9c;
 }
 
 .plan-buffer-panel__covers-value {
