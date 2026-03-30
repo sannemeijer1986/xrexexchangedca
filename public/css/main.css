@@ -5112,6 +5112,8 @@ div.currency-sheet__item-icon::before {
   gap: 4px;
   justify-content: center;
   padding-top: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .plan-detail-panel__product-name-wrap {
@@ -5124,6 +5126,7 @@ div.currency-sheet__item-icon::before {
   color: inherit;
   cursor: default;
   text-align: left;
+  max-width: 100%;
 }
 
 .plan-detail-panel__product-name-wrap:disabled {
@@ -5139,7 +5142,10 @@ div.currency-sheet__item-icon::before {
 }
 
 .plan-detail-panel__product-name-input {
-  width: min(260px, 70vw);
+  width: 100%;
+  max-width: min(320px, 70vw);
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 22px;
   font-weight: 700;
   font-family: "Manrope", sans-serif;
@@ -5156,6 +5162,10 @@ div.currency-sheet__item-icon::before {
   font-weight: 700;
   color: #ffffff;
   display: block;
+}
+
+.plan-detail-panel__product-name[hidden] {
+  display: none !important;
 }
 
 .plan-detail-panel__product-ticker {
@@ -6651,7 +6661,7 @@ div.currency-sheet__item-icon::before {
 .plan-overview-panel__plan-block {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   padding: 16px;
   background: linear-gradient(180deg, #0d0e0f 0%, #15161a 100%);
 }
@@ -6792,6 +6802,7 @@ div.currency-sheet__item-icon::before {
   flex: 1;
   min-width: 0;
   color: #9b9c9c;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

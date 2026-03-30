@@ -4065,7 +4065,7 @@
       const current = panel.querySelector('[data-plan-detail-name]')?.textContent || 'Your plan';
       nameInput.value = String(current).trim();
       if (nameSpan) nameSpan.hidden = true;
-      if (nameEditIcon) nameEditIcon.hidden = true;
+      // Keep the edit icon + product icon visible; only swap title text → input.
       nameInput.hidden = false;
       requestAnimationFrame(() => {
         nameInput.focus();
@@ -4075,9 +4075,14 @@
 
     nameEditBtn?.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
+      // If already editing, ignore (prevents space/enter bubbling reopening edit mode).
+      if (nameInput && !nameInput.hidden) return;
       enterTitleEditMode();
     });
     nameInput?.addEventListener('keydown', (e) => {
+      // Prevent bubbling to the wrapper button (spacebar can "activate" the button).
+      e.stopPropagation();
       if (e.key === 'Enter') {
         e.preventDefault();
         commitCustomPlanTitle();
@@ -4090,6 +4095,7 @@
         if (nameEditIcon) nameEditIcon.hidden = !isCustomPlan;
       }
     });
+    nameInput?.addEventListener('click', (e) => e.stopPropagation());
     nameInput?.addEventListener('blur', () => commitCustomPlanTitle());
 
     // ── Scroll-driven collapse behaviour ──────────────────────────────────────
@@ -4745,6 +4751,7 @@
       const syncFromPlanDetail = () => {
         const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
         const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
+        const planNameEl = overviewPanel.querySelector('[data-plan-overview-plan-name]');
         const planAmountEl = overviewPanel.querySelector('[data-plan-overview-plan-amount]');
         const planMetaEl = overviewPanel.querySelector('[data-plan-overview-plan-meta]');
         const planIconWrap = overviewPanel.querySelector('[data-plan-overview-plan-icon-wrap]');
@@ -4813,6 +4820,11 @@
         if (chipsEl) chipsEl.innerHTML = chips.join('');
         const n = chips.length;
         if (headingEl) headingEl.textContent = `Allocation (${n})`;
+
+        if (planNameEl) {
+          const name = panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || '—';
+          planNameEl.textContent = name;
+        }
 
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
@@ -5653,6 +5665,8 @@
     if (openBtn) openBtn.addEventListener('click', () => setOpen(true));
     if (newPlanBtn) {
       newPlanBtn.addEventListener('click', () => {
+        // Always reset custom title when starting a fresh New plan flow.
+        customPlanTitle = '';
         setOpen(true, { source: 'newplan' });
         setTimeout(() => {
           const inp = panel.querySelector('[data-plan-detail-amount-input]');
