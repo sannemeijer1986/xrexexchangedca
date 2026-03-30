@@ -293,6 +293,101 @@
       .replace(/</g, '&lt;');
 
   /**
+   * Expand [monthIndex, usd] knots into 60 monthly USD levels (~Jan 2020 → month 59 ≈ late 2024).
+   * Piecewise linear; rough crypto / gold shapes for the plan DCA prototype (not live or exact data).
+   */
+  const expandPrototypeHistoricKnotsToMonthly60 = (knots) => {
+    const sorted = [...knots].sort((a, b) => a[0] - b[0]);
+    const last = sorted.length - 1;
+    const out = new Array(60);
+    for (let m = 0; m < 60; m += 1) {
+      if (m <= sorted[0][0]) {
+        out[m] = sorted[0][1];
+        continue;
+      }
+      if (m >= sorted[last][0]) {
+        out[m] = sorted[last][1];
+        continue;
+      }
+      let i = 0;
+      while (i < last && m > sorted[i + 1][0]) i += 1;
+      const [m0, p0] = sorted[i];
+      const [m1, p1] = sorted[i + 1];
+      const t = (m - m0) / (m1 - m0);
+      out[m] = p0 + t * (p1 - p0);
+    }
+    return out;
+  };
+
+  /** Monthly USD reference series for `updatePlanStrategyHistoricalReturn` (indices 0…59). */
+  const PROTOTYPE_HISTORIC_MONTHLY_USD = {
+    bitcoin: expandPrototypeHistoricKnotsToMonthly60([
+      [0, 8300],
+      [2, 5200],
+      [5, 9800],
+      [10, 13200],
+      [14, 29500],
+      [18, 58000],
+      [22, 33500],
+      [26, 47500],
+      [28, 59000],
+      [32, 36500],
+      [36, 16800],
+      [40, 23200],
+      [44, 30500],
+      [48, 42800],
+      [52, 53500],
+      [56, 62800],
+      [59, 69800],
+    ]),
+    ethereum: expandPrototypeHistoricKnotsToMonthly60([
+      [0, 145],
+      [2, 88],
+      [6, 245],
+      [12, 390],
+      [16, 1850],
+      [20, 4150],
+      [24, 2250],
+      [28, 3050],
+      [32, 1080],
+      [36, 1180],
+      [40, 1580],
+      [44, 1880],
+      [48, 2380],
+      [52, 2520],
+      [56, 2620],
+      [59, 2720],
+    ]),
+    solana: expandPrototypeHistoricKnotsToMonthly60([
+      [0, 1.12],
+      [4, 1.55],
+      [8, 4.5],
+      [12, 18],
+      [16, 155],
+      [20, 218],
+      [24, 34],
+      [28, 12],
+      [32, 8.5],
+      [36, 12.5],
+      [40, 24],
+      [44, 62],
+      [48, 108],
+      [52, 142],
+      [56, 175],
+      [59, 198],
+    ]),
+    digitalgold: expandPrototypeHistoricKnotsToMonthly60([
+      [0, 1540],
+      [10, 1690],
+      [20, 1840],
+      [30, 1920],
+      [40, 1990],
+      [50, 2320],
+      [59, 2650],
+    ]),
+  };
+
+  /**
    * Same pyramid stack as `plan-detail-panel__product-icon-wrap` (single / 2 / 3 assets), compact size via CSS.
    */
   /**
@@ -424,7 +519,7 @@
       return map[activePlan] || activePlan;
     })();
 
-    // Rough offline DCA estimate over 5Y anchor data (Jan 2020 → Dec 2024).
+    // Rough offline DCA estimate: 60 monthly USD levels (prototype historic shapes, Jan 2020 → late 2024).
     // Shorter ranges (3Y / 1Y) start later into the same dataset.
     const fxTwdPerUsd = 32; // intentionally fixed/rough
     const totalDataMonths = 60; // full anchor dataset length
@@ -451,77 +546,47 @@
       return `${round1(abs / 1000000)}M`;
     };
 
-    // Rough anchor curves (USD) used for offline, directional simulations.
-    const anchorsByPlan = {
-      bitcoin: [
-        { m: 0, usd: 9000 },
-        { m: 11, usd: 29000 },
-        { m: 23, usd: 47000 },
-        { m: 35, usd: 16500 },
-        { m: 47, usd: 42000 },
-        { m: 59, usd: 52000 },
-      ],
-      ethereum: [
-        { m: 0, usd: 180 },
-        { m: 11, usd: 740 },
-        { m: 23, usd: 3700 },
-        { m: 35, usd: 1200 },
-        { m: 47, usd: 2300 },
-        { m: 59, usd: 2800 },
-      ],
-      solana: [
-        { m: 0, usd: 1.6 },
-        { m: 11, usd: 2.0 },
-        { m: 23, usd: 170 },
-        { m: 35, usd: 10 },
-        { m: 47, usd: 95 },
-        { m: 59, usd: 110 },
-      ],
-      digitalgold: [
-        { m: 0, usd: 1550 },
-        { m: 11, usd: 1900 },
-        { m: 23, usd: 1800 },
-        { m: 35, usd: 1950 },
-        { m: 47, usd: 2050 },
-        { m: 59, usd: 2150 },
-      ],
-    };
-
-    const interpolateUsd = (anchors, m) => {
-      const month = clamp(m, 0, months - 1);
-      let i = 0;
-      while (i < anchors.length - 1 && month > anchors[i + 1].m) i += 1;
-      const a = anchors[i];
-      const b = anchors[Math.min(i + 1, anchors.length - 1)];
-      if (!a || !b) return anchors[anchors.length - 1].usd;
-      if (a.m === b.m) return a.usd;
-      const t = (month - a.m) / (b.m - a.m);
-      return a.usd + t * (b.usd - a.usd);
+    const monthIdx = (m) => clamp(m, 0, months - 1);
+    const usdAt = (series, m) => {
+      const arr = PROTOTYPE_HISTORIC_MONTHLY_USD[series] || PROTOTYPE_HISTORIC_MONTHLY_USD.bitcoin;
+      return arr[monthIdx(m)];
     };
 
     const priceUsdAtMonth = (planKey, m) => {
       if (planKey === 'bigthree') {
-        const btc = interpolateUsd(anchorsByPlan.bitcoin, m);
-        const eth = interpolateUsd(anchorsByPlan.ethereum, m);
-        const sol = interpolateUsd(anchorsByPlan.solana, m);
-        const btc0 = interpolateUsd(anchorsByPlan.bitcoin, 0);
-        const eth0 = interpolateUsd(anchorsByPlan.ethereum, 0);
-        const sol0 = interpolateUsd(anchorsByPlan.solana, 0);
+        const btc = usdAt('bitcoin', m);
+        const eth = usdAt('ethereum', m);
+        const sol = usdAt('solana', m);
+        const btc0 = usdAt('bitcoin', 0);
+        const eth0 = usdAt('ethereum', 0);
+        const sol0 = usdAt('solana', 0);
         // Weighted normalized basket index (BTC 45% / ETH 35% / SOL 20%).
         return 100 * ((btc / btc0) * 0.45 + (eth / eth0) * 0.35 + (sol / sol0) * 0.2);
       }
       if (planKey === 'aiessentials') {
-        // Prototype: RENDER / NEAR / SOL style basket → SOL-heavy + ETH + BTC blend
-        const btc = interpolateUsd(anchorsByPlan.bitcoin, m);
-        const eth = interpolateUsd(anchorsByPlan.ethereum, m);
-        const sol = interpolateUsd(anchorsByPlan.solana, m);
-        const btc0 = interpolateUsd(anchorsByPlan.bitcoin, 0);
-        const eth0 = interpolateUsd(anchorsByPlan.ethereum, 0);
-        const sol0 = interpolateUsd(anchorsByPlan.solana, 0);
+        const btc = usdAt('bitcoin', m);
+        const eth = usdAt('ethereum', m);
+        const sol = usdAt('solana', m);
+        const btc0 = usdAt('bitcoin', 0);
+        const eth0 = usdAt('ethereum', 0);
+        const sol0 = usdAt('solana', 0);
         return 100 * ((btc / btc0) * 0.2 + (eth / eth0) * 0.3 + (sol / sol0) * 0.5);
       }
-      const anchors = anchorsByPlan[planKey] || anchorsByPlan.bitcoin;
-      return interpolateUsd(anchors, m);
+      const seriesKey = PROTOTYPE_HISTORIC_MONTHLY_USD[planKey] ? planKey : 'bitcoin';
+      return usdAt(seriesKey, m);
+    };
+
+    /** Linear interp between monthly closes so weekly/daily buys hit distinct prices within a month. */
+    const priceUsdAtFractionalMonth = (planKey, t) => {
+      const tt = clamp(t, 0, months - 1);
+      const m0 = Math.floor(tt);
+      const u = tt - m0;
+      if (m0 >= months - 1) {
+        return priceUsdAtMonth(planKey, months - 1);
+      }
+      const p0 = priceUsdAtMonth(planKey, m0);
+      const p1 = priceUsdAtMonth(planKey, m0 + 1);
+      return p0 + u * (p1 - p0);
     };
 
     const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
@@ -533,15 +598,28 @@
       return 1.0; // monthly
     })();
 
-    const investPerMonth = amount * occurrencesPerMonth;
-    const totalInvested = investPerMonth * periodMonths;
-
-    // DCA per PM: Q_i = investment per period / price_i; total cost = amount × #periods (here: monthly buckets).
+    // Return % is independent of `amount` when the set of buy-weights × (1/P) scales together; it is not
+    // independent of frequency once buys fall on different prices. Weekly/daily: `amount` per buy, many
+    // timestamps across the window. Monthly: one buy per month at month-end closes (integer months).
     let assetAccum = 0;
-    for (let m = startMonth; m < months; m += 1) {
-      const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
-      if (priceLocal <= 0) continue;
-      assetAccum += investPerMonth / priceLocal;
+    let totalInvested = 0;
+    if (freq === 'monthly') {
+      for (let m = startMonth; m < months; m += 1) {
+        const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
+        if (priceLocal <= 0) continue;
+        assetAccum += amount / priceLocal;
+        totalInvested += amount;
+      }
+    } else {
+      const numBuys = Math.max(1, Math.round(periodMonths * occurrencesPerMonth));
+      const span = months - 1 - startMonth;
+      for (let k = 0; k < numBuys; k += 1) {
+        const t = numBuys === 1 ? startMonth : startMonth + (k / (numBuys - 1)) * span;
+        const priceLocal = priceUsdAtFractionalMonth(activeAnchorPlan, t) * fxMultiplier;
+        if (priceLocal <= 0) continue;
+        assetAccum += amount / priceLocal;
+        totalInvested += amount;
+      }
     }
 
     const endPriceLocal = priceUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
@@ -1142,21 +1220,25 @@
     sheet.querySelector('[data-promo-intro-sheet-primary]')?.addEventListener('click', close);
   };
 
+  /** Range keys like "5Y" → "5" for prose ("Past 5 years"). Labels keep the raw `range` token. */
+  const formatRangeYearsForCopy = (range) => String(range).replace(/y$/i, '');
+
   const updateRangeUI = (context, range) => {
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
+    const rangeYears = formatRangeYearsForCopy(range);
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
-        el.textContent = `Past ${range} return ≈`;
+        el.textContent = `Past ${rangeYears} years ≈`;
       });
     }
     if (context === 'breakdown') {
       document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `Past ${range} return ≈`;
+        el.textContent = `Past ${rangeYears} years ≈`;
       });
     }
     if (context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `Past ${range} return ≈`;
+        el.textContent = `Past ${rangeYears} years ≈`;
       });
     }
   };
@@ -4205,6 +4287,7 @@
           .slice(0, 3);
         const prettyTickers = tickers.join(', ') || 'BTC';
         const range = rangeState.breakdown || '5Y';
+        const rangeYears = formatRangeYearsForCopy(range);
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
         const freq = (
@@ -4246,7 +4329,7 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
+        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${rangeYears} years ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
@@ -4366,9 +4449,9 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (kickerEl) kickerEl.textContent = `Past ${range} return ≈`;
-        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
-        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (kickerEl) kickerEl.textContent = `Past ${rangeYears} years ≈`;
+        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${rangeYears} years ≈`;
+       if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
@@ -5444,7 +5527,7 @@
         }
         if (histPctEl) histPctEl.textContent = '0.0%';
         setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
-        if (histCap) histCap.textContent = 'Performance';
+        if (histCap) histCap.textContent = 'Price change';
         if (stratCap) stratCap.textContent = 'Simulated return';
         if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
