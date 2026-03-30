@@ -1224,7 +1224,7 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
       el.textContent = range;
     });
-    const startedAgo = `If you'd started ${range} ago`;
+    const startedAgo = `If you'd started ${range} ago ≈`;
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
         el.textContent = startedAgo;
