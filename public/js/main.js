@@ -1803,7 +1803,8 @@
     const host = root.querySelector('[data-schedule-setlimit-inline]');
     const valueEl = host?.querySelector('[data-schedule-setlimit-value]');
     const suffixEl = host?.querySelector('[data-schedule-setlimit-suffix]');
-    const dateEl = host?.querySelector('[data-schedule-setlimit-end-date]');
+    // End date label lives outside the stepper pill in some layouts (e.g. summary row).
+    const dateEl = root.querySelector('[data-schedule-setlimit-end-date]');
     const decBtn = host?.querySelector('[data-schedule-setlimit-dec]');
     const incBtn = host?.querySelector('[data-schedule-setlimit-inc]');
     const dec10Btn = host?.querySelector('[data-schedule-setlimit-dec-10]');
@@ -1926,6 +1927,9 @@
     const pillEl = buysSheet.querySelector('.schedule-setlimit-inline__pill');
     const endsEl = buysSheet.querySelector('[data-schedule-setlimit-end-date]');
     const buysConfirmBtn = buysSheet.querySelector('[data-schedule-buys-sheet-confirm]');
+    const summaryRowBuyCount = buysSheet.querySelector('.setlimit-sheet__summary-row--buycount');
+    const summaryRowTotalAmount = buysSheet.querySelector('.setlimit-sheet__summary-row--totalamount');
+    const periodEl = buysSheet.querySelector('[data-setlimit-period]');
 
     const SETLIMIT_VALUE_PLACEHOLDER = '- -';
 
@@ -1949,6 +1953,14 @@
     /** Remember Total amount tab for next open (only applied when auto-invest amount is set). */
     let setLimitFollowupPreferredMode = 'amount';
 
+    const getFreqUnitPlural = (count) => {
+      const freqKey = (
+        document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+      ).toLowerCase();
+      const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+      return `${unit}${count === 1 ? '' : 's'}`;
+    };
+
     const setModeUI = (nextMode) => {
       mode = nextMode === 'amount' ? 'amount' : 'periods';
       modeBtns.forEach((btn) => {
@@ -1962,7 +1974,11 @@
       if (amountValueCell) amountValueCell.hidden = mode !== 'amount';
 
       if (labelEl) labelEl.textContent = mode === 'amount' ? 'Set total amount' : 'Set total buys';
-      if (captionEl) captionEl.hidden = mode !== 'amount';
+      // if (captionEl) captionEl.hidden = mode !== 'amount';
+
+      // Summary rows: amount-mode shows Buy count; buys-mode shows Total amount.
+      if (summaryRowBuyCount) summaryRowBuyCount.hidden = mode !== 'amount';
+      if (summaryRowTotalAmount) summaryRowTotalAmount.hidden = mode !== 'periods';
     };
 
     const syncSummary = () => {
@@ -1981,8 +1997,12 @@
         totalAmountEl.textContent = hasPerBuy ? `${fmt(total)} ${cur}` : SETLIMIT_VALUE_PLACEHOLDER;
       }
 
+      if (periodEl) {
+        periodEl.textContent = `${count} ${getFreqUnitPlural(count)}`;
+      }
+
       if (captionEl) {
-        captionEl.textContent = hasPerBuy ? `Steps of ${fmt(perBuy)} ${cur}` : `Steps of ${SETLIMIT_VALUE_PLACEHOLDER}`;
+        captionEl.textContent = hasPerBuy ? `${fmt(perBuy)} ${cur} per buy` : `${SETLIMIT_VALUE_PLACEHOLDER} per buy`;
       }
       if (amountCurEl) amountCurEl.textContent = hasPerBuy ? cur : '';
       if (amountAmtEl) {
@@ -1999,10 +2019,8 @@
           endsEl.classList.add('schedule-setlimit-inline__ends--error');
         } else {
           endsEl.classList.remove('schedule-setlimit-inline__ends--error');
-          // If we previously replaced the end date with an error, restore it.
-          if (String(endsEl.textContent || '').trim() === 'Set “Amount per buy” first') {
-            setLimitStepper?.syncDom();
-          }
+          const { endsApprox } = setLimitStepper.getSummary();
+          endsEl.textContent = `~ Ends ${endsApprox}`;
         }
       }
     };
@@ -2612,6 +2630,7 @@
 
     /** @type {{ source: 'plan' | 'curated' | 'spotlight' | 'newplan', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
+    let customPlanTitle = '';
 
     const openBtn = document.querySelector('.plan-strategy__cta');
     const newPlanBtn = document.querySelector('.finance-summary__btn--primary');
@@ -2628,6 +2647,10 @@
     const productArea = panel.querySelector('[data-plan-detail-product-area]');
     const header = panel.querySelector('[data-plan-detail-header]');
     const pageTitle = panel.querySelector('[data-plan-detail-page-title]');
+    const nameEditBtn = panel.querySelector('[data-plan-detail-name-edit-btn]');
+    const nameEditIcon = panel.querySelector('[data-plan-detail-name-edit-icon]');
+    const nameInput = panel.querySelector('[data-plan-detail-name-input]');
+    const nameSpan = panel.querySelector('[data-plan-detail-name]');
     let snackbarTimer = null;
     let snackbarEl = null;
 
@@ -3769,8 +3792,14 @@
         if (curatedMeta?.icon) iconSrc = curatedMeta.icon;
       }
 
+      const isCustomPlan = ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins';
+      const effectiveTitle =
+        isCustomPlan && customPlanTitle.trim()
+          ? customPlanTitle.trim()
+          : title;
+
       // Product hero
-      panel.querySelector('[data-plan-detail-name]').textContent = title;
+      panel.querySelector('[data-plan-detail-name]').textContent = effectiveTitle;
       panel.querySelector('[data-plan-detail-ticker]').textContent = ticker;
       const productIconWrap = panel.querySelector('[data-plan-detail-icon-wrap]');
       const headerIconWrap = panel.querySelector('[data-plan-detail-header-icon-wrap]');
@@ -3782,8 +3811,19 @@
       planBreakdownApi.sync({ iconSrc });
 
       // Collapsed header state
-      panel.querySelector('[data-plan-detail-header-name]').textContent = title;
+      panel.querySelector('[data-plan-detail-header-name]').textContent = effectiveTitle;
       panel.querySelector('[data-plan-detail-header-ticker]').textContent = ticker;
+
+      if (nameEditIcon) nameEditIcon.hidden = !isCustomPlan;
+      if (nameEditBtn) {
+        nameEditBtn.disabled = !isCustomPlan;
+        nameEditBtn.style.cursor = isCustomPlan ? 'pointer' : 'default';
+      }
+      if (!isCustomPlan) {
+        customPlanTitle = '';
+        if (nameInput) nameInput.hidden = true;
+        if (nameSpan) nameSpan.hidden = false;
+      }
 
       const curatedProductKeyForDesc = (() => {
         // Manual/new plans should never show curated subtitles.
@@ -4007,6 +4047,50 @@
         planOverviewApi.sync();
       }
     };
+
+    const commitCustomPlanTitle = () => {
+      if (!nameInput) return;
+      const next = String(nameInput.value || '').trim().slice(0, 40);
+      customPlanTitle = next;
+      nameInput.hidden = true;
+      if (nameSpan) nameSpan.hidden = false;
+      if (nameEditIcon) nameEditIcon.hidden = !(panelOpenContext?.source === 'newplan' || detailAllocOverride?.kind === 'coins');
+      populatePanel({ preserveAmount: true });
+    };
+
+    const enterTitleEditMode = () => {
+      const ctx = panelOpenContext;
+      const isCustomPlan = ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins';
+      if (!isCustomPlan || !nameInput || !nameEditBtn) return;
+      const current = panel.querySelector('[data-plan-detail-name]')?.textContent || 'Your plan';
+      nameInput.value = String(current).trim();
+      if (nameSpan) nameSpan.hidden = true;
+      if (nameEditIcon) nameEditIcon.hidden = true;
+      nameInput.hidden = false;
+      requestAnimationFrame(() => {
+        nameInput.focus();
+        nameInput.select();
+      });
+    };
+
+    nameEditBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      enterTitleEditMode();
+    });
+    nameInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitCustomPlanTitle();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (nameInput) nameInput.hidden = true;
+        if (nameSpan) nameSpan.hidden = false;
+        const ctx = panelOpenContext;
+        const isCustomPlan = ctx?.source === 'newplan' || detailAllocOverride?.kind === 'coins';
+        if (nameEditIcon) nameEditIcon.hidden = !isCustomPlan;
+      }
+    });
+    nameInput?.addEventListener('blur', () => commitCustomPlanTitle());
 
     // ── Scroll-driven collapse behaviour ──────────────────────────────────────
     const resetScrollState = () => {
@@ -5075,9 +5159,9 @@
         if (sourceEl) sourceEl.textContent = 'Wallet';
         if (sourceEl2) sourceEl2.textContent = 'Wallet';
 
-        if (stepsEl) stepsEl.textContent = perBuy > 0 ? `Steps of ${fmt(perBuy)} ${cur}` : 'Steps of —';
+        if (stepsEl) stepsEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur} per buy` : '- - per buy';
         if (reserveCurEl) reserveCurEl.textContent = cur;
-        if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
+        if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '- -';
         const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
         const hasReserveBalanceError = isReservedActive && reserveAmount > balance;
         if (reserveAmtEl) reserveAmtEl.classList.toggle('plan-buffer-panel__reserve-amt--error', hasReserveBalanceError);

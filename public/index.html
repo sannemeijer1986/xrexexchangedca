@@ -955,7 +955,11 @@
             <!-- Product hero — parallax + fade on scroll, behind content -->
             <div class="plan-detail-panel__product" data-plan-detail-product-area>
                 <div class="plan-detail-panel__product-info">
-                    <span class="plan-detail-panel__product-name" data-plan-detail-name>Bitcoin</span>
+                    <button class="plan-detail-panel__product-name-wrap" type="button" data-plan-detail-name-edit-btn aria-label="Edit plan title">
+                        <span class="plan-detail-panel__product-name" data-plan-detail-name>Bitcoin</span>
+                        <input class="plan-detail-panel__product-name-input" data-plan-detail-name-input inputmode="text" autocomplete="off" hidden aria-label="Plan title" />
+                        <img class="plan-detail-panel__product-name-edit-icon" src="assets/icon_edit_white.svg" width="20" height="20" alt="" aria-hidden="true" data-plan-detail-name-edit-icon hidden />
+                    </button>
                     <span class="plan-detail-panel__product-ticker" data-plan-detail-ticker>BTC</span>
                     <p class="plan-detail-panel__product-desc curated-portfolios__desc" data-plan-detail-product-desc hidden></p>
                 </div>
@@ -1138,7 +1142,7 @@
             </div>
             <!-- Buttons -->
             <div class="plan-detail-panel__footer-btns">
-                <button class="plan-detail-panel__continue" type="button">Continue</button>
+                <button class="plan-detail-panel__continue" type="button">Continue with this plan</button>
             </div>
         </div>
 
@@ -1402,14 +1406,14 @@
                             <div class="plan-buffer-panel__reserve-title-wrap">
                                 <div class="plan-buffer-panel__reserve-title">Pre-fund amount</div>
                                 <div class="plan-buffer-panel__reserve-meta" data-plan-buffer-reserve-track-note hidden>
-                                    <div class="plan-buffer-panel__reserve-track-note">
-                                        <span data-plan-buffer-reserve-track-perbuy>—</span> per buy
-                                    </div>
                                     <div class="plan-buffer-panel__reserve-avail">
                                         <span class="plan-buffer-panel__kv-value plan-buffer-panel__reserve-avail-value" data-plan-buffer-avail-balance-2>—</span>
                                         <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
                                             <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
                                         </button>
+                                    </div>
+                                    <div class="plan-buffer-panel__reserve-track-note">
+                                        <span data-plan-buffer-reserve-track-perbuy>—</span> per buy
                                     </div>
                                 </div>
                             </div>
@@ -2094,7 +2098,7 @@
                     <div class="setlimit-sheet__block">
                         <div class="setlimit-sheet__label-row">
                             <div class="setlimit-sheet__label" data-setlimit-label>Set buy periods</div>
-                            <div class="setlimit-sheet__caption" data-setlimit-caption hidden>Steps of 500 USDT</div>
+                            <div class="setlimit-sheet__caption" data-setlimit-caption>Steps of 500 USDT</div>
                         </div>
 
                         <!-- Figma 8520:8386 — buy counter visual, reused for both modes -->
@@ -2133,7 +2137,6 @@
                                             aria-label="Increase by 10" data-schedule-setlimit-inc-10>+10</button>
                                     </div>
                                 </div>
-                                <p class="schedule-setlimit-inline__ends" data-schedule-setlimit-end-date>~ Ends Jun 18, 2026</p>
                             </div>
                         </div>
                     </div>
@@ -2141,17 +2144,21 @@
                     <div class="setlimit-sheet__divider" aria-hidden="true"></div>
 
                     <div class="setlimit-sheet__summary">
-                        <div class="setlimit-sheet__summary-row">
-                            <span class="setlimit-sheet__summary-label">Per buy</span>
-                            <span class="setlimit-sheet__summary-value" data-setlimit-perbuy>500 USDT</span>
+                        <div class="setlimit-sheet__summary-row setlimit-sheet__summary-row--buycount">
+                            <span class="setlimit-sheet__summary-label">Buy count</span>
+                            <span class="setlimit-sheet__summary-value" data-setlimit-totalbuys>10 buys</span>
                         </div>
-                        <div class="setlimit-sheet__summary-row">
+                        <div class="setlimit-sheet__summary-row setlimit-sheet__summary-row--totalamount">
                             <span class="setlimit-sheet__summary-label">Total amount</span>
                             <span class="setlimit-sheet__summary-value" data-setlimit-totalamount>10,000 USDT</span>
                         </div>
-                        <div class="setlimit-sheet__summary-row">
-                            <span class="setlimit-sheet__summary-label">Total buys</span>
-                            <span class="setlimit-sheet__summary-value setlimit-sheet__summary-value--buys" data-setlimit-totalbuys>10</span>
+                        <div class="setlimit-sheet__summary-row setlimit-sheet__summary-row--period">
+                            <span class="setlimit-sheet__summary-label">Period</span>
+                            <span class="setlimit-sheet__summary-value" data-setlimit-period>40 months</span>
+                        </div>
+                        <div class="setlimit-sheet__summary-row setlimit-sheet__summary-row--ends">
+                            <span class="setlimit-sheet__summary-label" aria-hidden="true"></span>
+                            <span class="setlimit-sheet__summary-value setlimit-sheet__summary-value--ends" data-schedule-setlimit-end-date>~ Ends Jun 18, 2026</span>
                         </div>
                     </div>
                 </div>

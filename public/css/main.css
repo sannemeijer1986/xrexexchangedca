@@ -3675,6 +3675,7 @@ div.currency-sheet__item-icon::before {
   height: 52px;
   padding: 10px;
   border-radius: 20px;
+  margin-bottom: 16px;
   box-sizing: border-box;
   background: rgba(71, 73, 74, 0.35);
 }
@@ -3807,7 +3808,12 @@ div.currency-sheet__item-icon::before {
   text-align: center;
 }
 
-.phone-container p.schedule-setlimit-inline__ends.schedule-setlimit-inline__ends--error {
+.phone-container .setlimit-sheet__summary-value--ends {
+  color: #8FB8FF;
+  text-align: right;
+}
+
+.phone-container .setlimit-sheet__summary-value--ends.schedule-setlimit-inline__ends--error {
   color: #eb5347;
 }
 
@@ -3867,7 +3873,7 @@ div.currency-sheet__item-icon::before {
 
 .setlimit-sheet__label {
   flex: 1;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -3876,7 +3882,7 @@ div.currency-sheet__item-icon::before {
   flex-shrink: 0;
   font-size: 12px;
   font-weight: 600;
-  color: #58595a;
+  color: #9b9c9c;
   white-space: nowrap;
 }
 
@@ -3885,6 +3891,7 @@ div.currency-sheet__item-icon::before {
   height: 1px;
   margin: 16px 0;
   background: #3C4248;
+  display: none;
 }
 
 .setlimit-sheet__summary {
@@ -3900,8 +3907,17 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
+}
+
+.setlimit-sheet__summary-row--perbuy {
+  display: none;
+}
+
+.setlimit-sheet__summary-row--ends {
+  margin-top: -10px;
+  font-size: 14px;
 }
 
 .setlimit-sheet__summary-label {
@@ -5092,6 +5108,43 @@ div.currency-sheet__item-icon::before {
   gap: 4px;
   justify-content: center;
   padding-top: 4px;
+}
+
+.plan-detail-panel__product-name-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  text-align: left;
+}
+
+.plan-detail-panel__product-name-wrap:disabled {
+  cursor: default;
+}
+
+.plan-detail-panel__product-name-edit-icon[hidden] {
+  display: none !important;
+}
+
+.plan-detail-panel__product-name-input[hidden] {
+  display: none !important;
+}
+
+.plan-detail-panel__product-name-input {
+  width: min(260px, 70vw);
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "Manrope", sans-serif;
+  color: #ffffff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 6px 10px;
+  outline: none;
 }
 
 .plan-detail-panel__product-name {
