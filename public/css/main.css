@@ -2110,7 +2110,7 @@ html[data-active-tab=finance] .app-header__tabs {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .plan-strategy__return-header .plan-strategy__return-title {
@@ -2438,7 +2438,7 @@ html[data-active-tab=finance] .app-header__tabs {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
-  gap: 2px;
+  gap: 0px;
   flex-direction: column;
 }
 
@@ -2454,6 +2454,12 @@ html[data-active-tab=finance] .app-header__tabs {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+}
+
+.plan-strategy__return-metrics-captions-row,
+.plan-detail-panel__return-metrics-captions-row,
+.plan-breakdown-panel__profit-metrics-captions-row {
+  display: none;
 }
 
 .plan-strategy__return-metrics-col--strategy,
@@ -2486,7 +2492,7 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-detail-panel__return-historic-icon-slot,
 .plan-breakdown-panel__profit-historic-icon-slot {
   flex: 0 0 auto;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   align-self: center;
@@ -2535,7 +2541,7 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-detail-panel__return-metric-caption--right,
 .plan-breakdown-panel__profit-metric-caption--right {
   text-align: right;
-  color: #58595A;
+  color: #9B9C9C;
 }
 
 .plan-strategy__return-abs-line,
@@ -2554,7 +2560,7 @@ html[data-active-tab=finance] .app-header__tabs {
   display: flex;
   align-items: center;
   gap: 1px;
-  margin-left: 5px;
+  margin-left: 4px;
   font-size: 12px;
   font-weight: var(--prm-pct-inline-fw, 700);
   color: var(--prm-accent, #5ac47d);
@@ -2569,7 +2575,11 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
 .plan-return-metric__pct-line--historic.plan-detail-panel__return-pct-inline .plan-detail-panel__return-pct,
 .plan-return-metric__pct-line--historic .plan-strategy__return-pct {
-  color: #2f9752;
+  color: #56c488;
+}
+
+.plan-return-metric__pct-line--historic {
+  display: none;
 }
 
 .plan-strategy__return-arrow,
@@ -2593,7 +2603,7 @@ html[data-active-tab=finance] .app-header__tabs {
 .plan-strategy__return-abs,
 .plan-detail-panel__return-abs,
 .plan-breakdown-panel__profit-abs {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;

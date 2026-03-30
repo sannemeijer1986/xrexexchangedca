@@ -281,9 +281,9 @@
       .map((it) => String(it?.ticker || '').trim())
       .filter(Boolean)
       .slice(0, 3);
-    if (!tickers.length) return 'Performance';
-    if (tickers.length === 1) return `${tickers[0]} performance`;
-    return 'Combined performance';
+    if (!tickers.length) return 'Price change';
+    if (tickers.length === 1) return `Price change`;
+    return 'Price change';
   };
 
   const escReturnMetricAttr = (v) =>
@@ -438,7 +438,7 @@
     if (el.innerHTML !== html) el.innerHTML = html;
   };
 
-  const RETURN_METRIC_ARROW_HIST_POS = 'assets/icon_dark_positivearrow.svg';
+  const RETURN_METRIC_ARROW_HIST_POS = 'assets/icon_northeast_arrow.svg';
   const RETURN_METRIC_ARROW_HIST_NEG = 'assets/icon_dark_negativearrow.svg';
 
   const setReturnMetricTone = (root, value) => {
@@ -676,7 +676,7 @@
       if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
       setReturnMetricIconWrapHtml(iconWrap, iconsHtml, { layoutSig: iconsSig });
       if (capHist) capHist.textContent = historicCaption;
-      if (capStrat) capStrat.textContent = 'Simulated return';
+      if (capStrat) capStrat.textContent = 'Return';
     } else {
       const histPctEl = document.querySelector('[data-plan-return-historic-pct]');
       const iconWrap = document.querySelector('[data-plan-return-asset-icons]');
@@ -685,7 +685,7 @@
       if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
       setReturnMetricIconWrapHtml(iconWrap, iconsHtml, { layoutSig: iconsSig });
       if (capHist) capHist.textContent = historicCaption;
-      if (capStrat) capStrat.textContent = 'Simulated return';
+      if (capStrat) capStrat.textContent = 'Return';
     }
   };
 
@@ -1220,25 +1220,30 @@
     sheet.querySelector('[data-promo-intro-sheet-primary]')?.addEventListener('click', close);
   };
 
-  /** Range keys like "5Y" → "5" for prose ("Past 5 years"). Labels keep the raw `range` token. */
-  const formatRangeYearsForCopy = (range) => String(range).replace(/y$/i, '');
-
   const updateRangeUI = (context, range) => {
-    document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
-    const rangeYears = formatRangeYearsForCopy(range);
+    document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
+      el.textContent = range;
+    });
+    const startedAgo = `If you'd started ${range} ago`;
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
-        el.textContent = `Past ${rangeYears} years ≈`;
+        el.textContent = startedAgo;
       });
     }
     if (context === 'breakdown') {
       document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `Past ${rangeYears} years ≈`;
+        el.textContent = startedAgo;
+      });
+      document.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
+        el.textContent = startedAgo;
       });
     }
     if (context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `Past ${rangeYears} years ≈`;
+        el.textContent = startedAgo;
+      });
+      document.querySelectorAll('[data-plan-widget-breakdown-profit-range-label]').forEach((el) => {
+        el.textContent = startedAgo;
       });
     }
   };
@@ -4287,7 +4292,6 @@
           .slice(0, 3);
         const prettyTickers = tickers.join(', ') || 'BTC';
         const range = rangeState.breakdown || '5Y';
-        const rangeYears = formatRangeYearsForCopy(range);
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
         const freq = (
@@ -4329,7 +4333,12 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${rangeYears} years ≈`;
+        if (headlineEl) {
+          headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
+        }
+        breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
+          el.textContent = `If you'd started ${range} ago`;
+        });
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
@@ -4343,7 +4352,7 @@
         const profitIcons = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
         setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIcons.html, { layoutSig: profitIcons.sig });
         if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
-        if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
+        if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
 
@@ -4449,9 +4458,13 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (kickerEl) kickerEl.textContent = `Past ${rangeYears} years ≈`;
-        if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${rangeYears} years ≈`;
-       if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        const startedAgo = `If you'd started ${range} ago`;
+        if (kickerEl) kickerEl.textContent = startedAgo;
+        if (headlineEl) headlineEl.textContent = `${startedAgo} and invested in ${prettyTickers}`;
+        widgetBreakdownPanel.querySelectorAll('[data-plan-widget-breakdown-profit-range-label]').forEach((el) => {
+          el.textContent = startedAgo;
+        });
+        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
@@ -4464,7 +4477,7 @@
         const profitIconsW = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
         setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIconsW.html, { layoutSig: profitIconsW.sig });
         if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
-        if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
+        if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
 
@@ -5528,7 +5541,7 @@
         if (histPctEl) histPctEl.textContent = '0.0%';
         setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
         if (histCap) histCap.textContent = 'Price change';
-        if (stratCap) stratCap.textContent = 'Simulated return';
+        if (stratCap) stratCap.textContent = 'Return';
         if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
