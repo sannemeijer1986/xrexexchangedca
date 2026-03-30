@@ -742,7 +742,7 @@
                                                                         <span class="plan-strategy__return-abs">+58,723.23</span><span class="plan-strategy__return-currency" data-plan-return-currency> TWD</span>
                                                                         <div class="plan-strategy__return-pct-line plan-return-metric__pct-line--simulated">
                                                                             <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-strategy__return-arrow plan-return-metric__arrow plan-return-metric__arrow--simulated" />
-                                                                            <span class="plan-strategy__return-pct plan-return-metric__pct--simulated">50.0%</span>
+                                                                            <span class="plan-strategy__return-pct plan-return-metric__pct--simulated">50.0% return</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1057,6 +1057,7 @@
                             </div>
                             <p class="plan-detail-panel__alloc-subtitle" data-plan-detail-alloc-subtitle hidden>Total 100%</p>
                         </div>
+                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y performance</span>
                         <div class="alloc-mode-toggle is-hidden" data-alloc-mode-toggle>
                             <button class="alloc-mode-toggle__btn" type="button" data-alloc-mode-btn="amount">Amount</button>
                             <button class="alloc-mode-toggle__btn is-active" type="button" data-alloc-mode-btn="pct">
@@ -1075,6 +1076,16 @@
                         </div>
                     </div>
                     <div class="plan-detail-panel__allocation-list" data-plan-detail-allocation></div>
+                    <!-- Historic performance row (Figma: 5Y historical performance); tone wrapper moves into single alloc-item when one asset -->
+                    <div class="plan-detail-panel__historic-performance-row">
+                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y performance</span>
+                        <div data-plan-detail-historic-performance-tone>
+                            <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
+                                <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
+                                <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-return-historic-pct>0.0%</span>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Shown when plan has assets (empty state uses the wrap inside alloc-empty) -->
                     <div class="plan-detail-panel__add-assets-wrap plan-detail-panel__add-assets-wrap--below-list">
                         <button class="plan-detail-panel__add-assets" type="button">Add assets</button>
@@ -1103,9 +1114,6 @@
                                 <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--strategy plan-detail-panel__return-metrics-col--caption">
                                     <div class="plan-detail-panel__return-metric-caption" data-plan-detail-return-strategy-caption>Return</div>
                                 </div>
-                                <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--historic plan-detail-panel__return-metrics-col--caption">
-                                    <div class="plan-detail-panel__return-metric-caption plan-detail-panel__return-metric-caption--right" data-plan-detail-return-historic-caption>BTC price change</div>
-                                </div>
                             </div>
                             <div class="plan-detail-panel__return-metrics-values-row">
                                 <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--strategy plan-detail-panel__return-metrics-col--values plan-return-metric__group">
@@ -1114,14 +1122,8 @@
                                         <span class="plan-detail-panel__return-currency" data-plan-detail-return-currency> TWD</span>
                                         <div class="plan-detail-panel__return-pct-inline plan-return-metric__pct-line--simulated">
                                             <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--simulated" />
-                                            <span class="plan-detail-panel__return-pct plan-return-metric__pct--simulated" data-plan-detail-return-pct>50.0%</span>
+                                            <span class="plan-detail-panel__return-pct plan-return-metric__pct--simulated" data-plan-detail-return-pct>50.0% return</span>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--historic plan-detail-panel__return-metrics-col--values plan-return-metric__group">
-                                    <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
-                                        <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
-                                        <span class="plan-detail-panel__return-pct plan-return-metric__pct--historic" data-plan-detail-return-historic-pct>50.0%</span>
                                     </div>
                                 </div>
                             </div>
@@ -1206,7 +1208,7 @@
                                                     <span class="plan-breakdown-panel__profit-currency" data-plan-breakdown-profit-currency>TWD</span>
                                                     <span class="plan-breakdown-panel__profit-pct-line plan-return-metric__pct-line--simulated">
                                                         <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-return-metric__arrow plan-return-metric__arrow--simulated" />
-                                                        <span class="plan-return-metric__pct--simulated" data-plan-breakdown-profit-pct>50.0%</span>
+                                                        <span class="plan-return-metric__pct--simulated" data-plan-breakdown-profit-pct>50.0% return</span>
                                                     </span>
                                                 </div>
                                             </div>
@@ -1621,7 +1623,7 @@
                                                 <span class="plan-breakdown-panel__profit-currency" data-plan-widget-breakdown-profit-currency>TWD</span>
                                                 <span class="plan-breakdown-panel__profit-pct-line plan-return-metric__pct-line--simulated">
                                                     <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-return-metric__arrow plan-return-metric__arrow--simulated" />
-                                                    <span class="plan-return-metric__pct--simulated" data-plan-widget-breakdown-profit-pct>50.0%</span>
+                                                    <span class="plan-return-metric__pct--simulated" data-plan-widget-breakdown-profit-pct>50.0% return</span>
                                                 </span>
                                             </div>
                                         </div>

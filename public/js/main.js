@@ -649,7 +649,7 @@
     );
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
-    pctEl.textContent = formatPct(returnPct);
+    pctEl.textContent = `${formatPct(returnPct)} return`;
 
     const strategyGroup = detailPanel
       ? document.querySelector(
@@ -659,9 +659,7 @@
           '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values',
         );
     const historicGroup = detailPanel
-      ? document.querySelector(
-          '.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--values',
-        )
+      ? document.querySelector('[data-plan-detail-historic-performance-tone]')
       : document.querySelector(
           '.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--values',
         );
@@ -1228,6 +1226,9 @@
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
         el.textContent = startedAgo;
+      });
+      document.querySelectorAll('[data-plan-detail-historic-performance-label]').forEach((el) => {
+        el.textContent = `Past ${range} performance`;
       });
     }
     if (context === 'breakdown') {
@@ -2531,6 +2532,7 @@
     const snapshotFooterAllocBases = () => {
       const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
       const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
       if (pctEl) {
         const raw = parseFloat(String(pctEl.textContent).replace(/[^0-9.\-]/g, ''));
         if (isFinite(raw)) pctEl.dataset.allocBasePct = String(raw);
@@ -2539,18 +2541,24 @@
         const profit = parseDetailFooterAbsText(absEl.textContent);
         if (isFinite(profit)) absEl.dataset.allocBaseAbs = String(profit);
       }
+      if (histPctEl) {
+        const rawH = parseFloat(String(histPctEl.textContent).replace(/[^0-9.\-]/g, ''));
+        if (isFinite(rawH)) histPctEl.dataset.allocBaseHistPct = String(rawH);
+      }
     };
 
     const applyFooterAllocSliderTweak = () => {
       const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
       const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+      const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
       if (!pctEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
       const base = parseFloat(pctEl.dataset.allocBasePct || '');
       if (!isFinite(base)) return;
       const tw = detailPanelAllocPctTweakFn();
       if (!isFinite(tw)) return;
       const nextPct = base + tw;
-      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
 
       if (absEl) {
         const baseAbs = parseFloat(absEl.dataset.allocBaseAbs || '');
@@ -2558,6 +2566,16 @@
           const nextAbs = baseAbs * (nextPct / base);
           const sign = nextAbs >= 0 ? '+' : '-';
           absEl.textContent = `${sign}${formatDetailFooterProfit(Math.abs(nextAbs))}`;
+        }
+      }
+
+      // Same synthetic allocation nudge as simulated % (prototype): historic lump-sum % tracks the same delta.
+      if (histPctEl) {
+        const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
+        if (isFinite(baseHist)) {
+          const nextHist = baseHist + tw;
+          histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+          if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
         }
       }
     };
@@ -2913,9 +2931,13 @@
       if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
       if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
       if (pctEl) {
-        pctEl.textContent = document.querySelector(
+        const wSim = document.querySelector(
           '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values .plan-strategy__return-pct',
-        )?.textContent || pctEl.textContent;
+        )?.textContent;
+        if (wSim) {
+          const core = String(wSim).replace(/\s+return\s*$/i, '').trim();
+          pctEl.textContent = `${core} return`;
+        }
       }
       if (histPctEl) {
         histPctEl.textContent = document.querySelector('[data-plan-return-historic-pct]')?.textContent || histPctEl.textContent;
@@ -2935,9 +2957,7 @@
       const dStrat = panel.querySelector(
         '.plan-detail-panel__return-metrics-col--strategy.plan-detail-panel__return-metrics-col--values',
       );
-      const dHist = panel.querySelector(
-        '.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--values',
-      );
+      const dHist = panel.querySelector('[data-plan-detail-historic-performance-tone]');
       const wStrat = document.querySelector(
         '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values',
       );
@@ -3810,7 +3830,25 @@
         // Empty state: no assets selected yet
         if (allocCountEl) allocCountEl.textContent = '0';
         allocList.innerHTML = '';
-        if (allocSection) allocSection.classList.add('is-empty');
+        const emptyHistoricRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
+        const emptyHistoricTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+        const emptyBelowLabel = emptyHistoricRow?.querySelector('.plan-detail-panel__historic-performance-label--below');
+        if (emptyHistoricRow && emptyHistoricTone && !emptyHistoricRow.contains(emptyHistoricTone)) {
+          if (emptyBelowLabel) emptyHistoricRow.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+          else emptyHistoricRow.appendChild(emptyHistoricTone);
+        } else if (
+          emptyHistoricRow &&
+          emptyHistoricTone &&
+          emptyBelowLabel &&
+          emptyHistoricTone.previousElementSibling !== emptyBelowLabel
+        ) {
+          emptyHistoricRow.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+        }
+        if (allocSection) {
+          allocSection.classList.remove('is-single-asset');
+          allocSection.classList.remove('is-multi-asset');
+          allocSection.classList.add('is-empty');
+        }
         const allocModeToggleNewplan = panel.querySelector('[data-alloc-mode-toggle]');
         if (allocModeToggleNewplan) allocModeToggleNewplan.classList.add('is-hidden');
         panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
@@ -3849,6 +3887,19 @@
       const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');
       if (allocModeToggle) allocModeToggle.classList.toggle('is-hidden', allocItems.length < 2);
       if (allocSubtitleEl) allocSubtitleEl.hidden = allocItems.length < 2;
+
+      // Historic % node may sit inside a single alloc-item; move it back before replacing list HTML.
+      const historicRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
+      const historicTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+      const historicBelowLabel = historicRow?.querySelector('.plan-detail-panel__historic-performance-label--below');
+      if (historicRow && historicTone) {
+        if (!historicRow.contains(historicTone)) {
+          if (historicBelowLabel) historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
+          else historicRow.appendChild(historicTone);
+        } else if (historicBelowLabel && historicTone.previousElementSibling !== historicBelowLabel) {
+          historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
+        }
+      }
 
       if (allocItems.length >= 2) {
         // Multi-asset layout with sliders + optional lock
@@ -3896,6 +3947,26 @@
           </div>`).join('');
         const resetSingle = panel.querySelector('[data-alloc-reset]');
         if (resetSingle) resetSingle.hidden = true;
+      }
+
+      if (allocSection && historicRow && historicTone) {
+        if (allocItems.length === 1) {
+          allocSection.classList.add('is-single-asset');
+          allocSection.classList.remove('is-multi-asset');
+          const firstItem = allocList.querySelector('.plan-detail-panel__alloc-item');
+          if (firstItem && !firstItem.contains(historicTone)) {
+            firstItem.appendChild(historicTone);
+          }
+        } else {
+          allocSection.classList.remove('is-single-asset');
+          allocSection.classList.toggle('is-multi-asset', allocItems.length >= 2);
+          if (!historicRow.contains(historicTone)) {
+            if (historicBelowLabel) historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
+            else historicRow.appendChild(historicTone);
+          } else if (historicBelowLabel && historicTone.previousElementSibling !== historicBelowLabel) {
+            historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
+          }
+        }
       }
 
       if (ctx.source === 'curated' || ctx.source === 'spotlight') {
@@ -4345,7 +4416,9 @@
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
-        if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitPctEl) {
+          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
+        }
         if (profitHistPctEl) {
           profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
@@ -4470,7 +4543,9 @@
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
-        if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitPctEl) {
+          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
+        }
         if (profitHistPctEl) {
           profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
@@ -5535,10 +5610,13 @@
         const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
         if (absEl) absEl.textContent = amount > 0 ? '+0' : '+0';
         if (pctEl) {
-          pctEl.textContent = '0.0%';
+          pctEl.textContent = '0.0% return';
           pctEl.removeAttribute('data-alloc-base-pct');
         }
-        if (histPctEl) histPctEl.textContent = '0.0%';
+        if (histPctEl) {
+          histPctEl.textContent = '0.0%';
+          histPctEl.removeAttribute('data-alloc-base-hist-pct');
+        }
         setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
         if (histCap) histCap.textContent = 'Price change';
         if (stratCap) stratCap.textContent = 'Return';
