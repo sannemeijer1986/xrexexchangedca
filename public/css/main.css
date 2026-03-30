@@ -7455,7 +7455,7 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   box-sizing: border-box;
 }
 
@@ -7478,7 +7478,7 @@ div.currency-sheet__item-icon::before {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin: -8px 0 2px;
+  margin: -8px 0 0px;
 }
 
 .phone-container p.plan-buffer-panel__reserve-error.plan-buffer-panel__reserve-error--inline {
@@ -8500,7 +8500,7 @@ div.currency-sheet__item-icon::before {
   width: 100%;
   font-size: 16px;
   font-weight: 600;
-  color: #8ADCA5;
+  color: #8FB8FF;
   text-align: center;
   line-height: 1.25;
   white-space: nowrap;
