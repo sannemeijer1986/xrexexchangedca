@@ -4931,7 +4931,6 @@
       const coversAmountRowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount]');
       const coversAmountNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-now]');
       const coversAmountTotalEl = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total]');
-      const coversDurationEl = bufferPanel.querySelector('[data-plan-buffer-covers-duration]');
       const coversFillEl = bufferPanel.querySelector('[data-plan-buffer-covers-fill]');
       const coversTrackEl = bufferPanel.querySelector('.plan-buffer-panel__reserve-track');
       const reserveTrackNoteEl = bufferPanel.querySelector('[data-plan-buffer-reserve-track-note]');
@@ -4954,6 +4953,15 @@
       const learnMoreViews = Array.from(
         bufferPanel.querySelectorAll('[data-plan-buffer-learn-more-view]'),
       );
+
+      const useMaxBtn = bufferPanel.querySelector('[data-plan-buffer-use-max]');
+      const coversPctEl = bufferPanel.querySelector('[data-plan-buffer-covers-pct]');
+      const coversPctWrapEl = bufferPanel.querySelector('[data-plan-buffer-covers-pct-wrap]');
+      const coversBarEl = bufferPanel.querySelector('[data-plan-buffer-covers-bar]');
+      const coversBuyTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-buy-total-suffix]');
+      const coversPeriodNowEl = bufferPanel.querySelector('[data-plan-buffer-covers-period-now]');
+      const coversPeriodTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-period-total-suffix]');
+      const coversAmountTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total-suffix]');
 
       let method = 'flexible'; // 'flexible' | 'reserved'
       let perBuy = 0;
@@ -5066,14 +5074,44 @@
           const totalText = totalAmount != null ? fmt(totalAmount) : '—';
           coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
         }
-        if (coversDurationEl) {
-          const freqKey = (
-            document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
-          ).toLowerCase();
-          const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-          const count = Math.max(0, coversNow);
-          coversDurationEl.textContent = `~ ${count} ${unit}${count === 1 ? '' : 's'}`;
-          coversDurationEl.hidden = !isReservedActive;
+        // Covers card rows
+        const freqKey = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        const unitPlural = `${unit}${coversTotalBuys === 1 ? '' : 's'}`;
+
+        // Continuous vs set-limit: bar + title percent only for set-limit.
+        if (coversBarEl) coversBarEl.hidden = !isSetLimit;
+        if (coversPctWrapEl) coversPctWrapEl.hidden = !isSetLimit;
+
+        if (isSetLimit) {
+          if (coversNowEl) coversNowEl.textContent = String(Math.max(0, coversNow));
+          if (coversPeriodNowEl) coversPeriodNowEl.textContent = String(Math.max(0, coversNow));
+          if (coversAmountNowEl) coversAmountNowEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
+        } else {
+          if (coversNowEl) coversNowEl.textContent = `${String(Math.max(0, coversNow))} buys`;
+          if (coversPeriodNowEl) coversPeriodNowEl.textContent = `${String(Math.max(0, coversNow))} ${unitPlural}`;
+          if (coversAmountNowEl) coversAmountNowEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
+        }
+        if (coversBuyTotalSuffix) {
+          coversBuyTotalSuffix.textContent = ` / ${String(coversTotalBuys)} buys`;
+          coversBuyTotalSuffix.hidden = !isSetLimit;
+        }
+        if (coversPeriodTotalSuffix) {
+          coversPeriodTotalSuffix.textContent = ` / ${String(coversTotalBuys)} ${unitPlural}`;
+          coversPeriodTotalSuffix.hidden = !isSetLimit;
+        }
+        if (coversAmountTotalSuffix) {
+          const totalAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : null;
+          const totalText = totalAmount != null ? `${fmt(totalAmount)} ${cur}` : `— ${cur}`;
+          coversAmountTotalSuffix.textContent = ` / ${totalText}`;
+          coversAmountTotalSuffix.hidden = !isSetLimit;
+        }
+        if (coversPctEl) {
+          const denom = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : 0;
+          const pct = denom > 0 ? Math.floor((reserveAmount / denom) * 100) : 0;
+          coversPctEl.textContent = String(Math.max(0, Math.min(100, pct)));
         }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
         if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isReservedActive;
@@ -5179,6 +5217,14 @@
       inc10Btn?.addEventListener('click', () => bumpReserve(10));
       decBtn?.addEventListener('click', () => bumpReserve(-1));
       dec10Btn?.addEventListener('click', () => bumpReserve(-10));
+
+      // "Use Max": take the max whole-buy amount from available balance.
+      useMaxBtn?.addEventListener('click', () => {
+        if (perBuy <= 0) return;
+        const balance = BALANCES[cur] ?? BALANCES.TWD;
+        reserveAmount = clampReserveAmount(balance);
+        render();
+      });
 
       bufferPanel.querySelector('[data-plan-buffer-confirm]')?.addEventListener('click', () => {
         // Keep buffer open underneath overview so "Back" returns to buffer.

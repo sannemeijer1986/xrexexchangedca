@@ -1432,7 +1432,10 @@
                             </button>
                             <button class="plan-buffer-panel__reserve-btn plan-buffer-panel__reserve-btn--jump" type="button" data-plan-buffer-reserve-inc-10 aria-label="Increase by 10">+10</button>
                         </div>
-                        <p class="plan-buffer-panel__reserve-error" data-plan-buffer-balance-error hidden>Not enough balance</p>
+                        <div class="plan-buffer-panel__use-max-row">
+                            <p class="plan-buffer-panel__reserve-error plan-buffer-panel__reserve-error--inline" data-plan-buffer-balance-error hidden>Not enough balance</p>
+                            <button class="plan-buffer-panel__use-max" type="button" data-plan-buffer-use-max>Use Max</button>
+                        </div>
 
                         <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
                             <div class="plan-buffer-panel__kv-label">Amount per buy</div>
@@ -1442,28 +1445,45 @@
                             <div class="plan-buffer-panel__kv-label">Recurring pre-fund</div>
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-recurring-prefund>—</div>
                         </div>
-                        <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Deducted from</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-source-2>Wallet</div>
+                        <div class="plan-buffer-panel__covers-title">
+                            Each pre-funding covers
+                            <span class="plan-buffer-panel__covers-title-pct" data-plan-buffer-covers-pct-wrap>
+                                <span data-plan-buffer-covers-pct>—</span>%
+                            </span>
                         </div>
-                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--reserve-covers">
-                            <div class="plan-buffer-panel__kv-label plan-buffer-panel__kv-label--large">Each pre-funding covers</div>
-                            <div class="plan-buffer-panel__kv-value">
-                                <span class="plan-buffer-panel__reserve-covers-now" data-plan-buffer-covers-now>—</span>
-                                <span class="plan-buffer-panel__reserve-covers-slash" data-plan-buffer-covers-slash> / </span>
-                                <span data-plan-buffer-covers-total>—</span>
-                                <span class="plan-buffer-panel__reserve-covers-buys" data-plan-buffer-covers-buys> buys</span>
+                        <div class="plan-buffer-panel__covers-card">
+                            <div class="plan-buffer-panel__covers-bar" aria-hidden="true" data-plan-buffer-covers-bar>
+                                <div class="plan-buffer-panel__covers-bar-bg"></div>
+                                <div class="plan-buffer-panel__covers-bar-fill" data-plan-buffer-covers-fill></div>
+                                <span class="plan-buffer-panel__covers-bar-divider plan-buffer-panel__covers-bar-divider--25"></span>
+                                <span class="plan-buffer-panel__covers-bar-divider plan-buffer-panel__covers-bar-divider--50"></span>
+                                <span class="plan-buffer-panel__covers-bar-divider plan-buffer-panel__covers-bar-divider--75"></span>
                             </div>
-                            <div class="plan-buffer-panel__reserve-covers-amount" data-plan-buffer-covers-amount hidden>
-                                <span class="plan-buffer-panel__reserve-covers-amount-now" data-plan-buffer-covers-amount-now>—</span>
-                                <span data-plan-buffer-covers-amount-total> / — USDT</span>
+
+                            <div class="plan-buffer-panel__covers-rows">
+                                <div class="plan-buffer-panel__covers-row">
+                                    <span class="plan-buffer-panel__covers-label">Buy count</span>
+                                    <span class="plan-buffer-panel__covers-value">
+                                        <span class="plan-buffer-panel__covers-now" data-plan-buffer-covers-now>—</span>
+                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-buy-total-suffix hidden> / — buys</span>
+                                    </span>
+                                </div>
+                                <div class="plan-buffer-panel__covers-row">
+                                    <span class="plan-buffer-panel__covers-label">Period</span>
+                                    <span class="plan-buffer-panel__covers-value">
+                                        <span class="plan-buffer-panel__covers-period-now" data-plan-buffer-covers-period-now>—</span>
+                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-period-total-suffix hidden> / — months</span>
+                                    </span>
+                                </div>
+                                <div class="plan-buffer-panel__covers-row">
+                                    <span class="plan-buffer-panel__covers-label">Amount</span>
+                                    <span class="plan-buffer-panel__covers-value">
+                                        <span class="plan-buffer-panel__covers-amount-now" data-plan-buffer-covers-amount-now>—</span>
+                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-amount-total-suffix hidden> / —</span>
+                                    </span>
+                                </div>
                             </div>
-                            
                         </div>
-                        <div class="plan-buffer-panel__reserve-track" aria-hidden="true">
-                            <div class="plan-buffer-panel__reserve-fill" data-plan-buffer-covers-fill></div>
-                        </div>
-                        <div class="plan-buffer-panel__reserve-covers-duration" data-plan-buffer-covers-duration hidden>~ — months</div>
                     </div>
                 </div>
             </div>

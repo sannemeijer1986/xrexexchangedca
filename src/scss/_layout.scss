@@ -7298,7 +7298,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-panel__method-row:first-child {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .plan-buffer-panel__method-divider {
@@ -7592,7 +7592,7 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   line-height: 1.2;
   margin-top: 1px;
-  color: #58595A;
+  color: #8ADCA5;
   text-align: right;
 }
 
@@ -7657,6 +7657,130 @@ div.currency-sheet__item-icon {
   gap: 10px;
   margin-bottom: 16px;
   box-sizing: border-box;
+}
+
+.plan-buffer-panel__use-max {
+  width: auto;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #275cfd;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  text-align: right;
+}
+
+.plan-buffer-panel__use-max-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: -8px 0 12px;
+}
+
+.phone-container p.plan-buffer-panel__reserve-error.plan-buffer-panel__reserve-error--inline {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  flex: 0 1 auto;
+  white-space: normal;
+}
+
+.plan-buffer-panel__covers-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+
+.plan-buffer-panel__covers-card {
+  width: 100%;
+  background: #151718;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.plan-buffer-panel__covers-bar {
+  width: 100%;
+  height: 5px;
+  position: relative;
+}
+
+.plan-buffer-panel__covers-bar-bg {
+  position: absolute;
+  inset: 0;
+  background: #2a2e34;
+  border-radius: 5px;
+}
+
+.plan-buffer-panel__covers-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  height: 5px;
+  background: #ffffff;
+  border-radius: 5px;
+}
+
+.plan-buffer-panel__covers-bar-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #0d0e0f;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.plan-buffer-panel__covers-bar-divider--25 { left: 25%; transform: translateX(-1px); }
+.plan-buffer-panel__covers-bar-divider--50 { left: 50%; transform: translateX(-1px); }
+.plan-buffer-panel__covers-bar-divider--75 { left: 75%; transform: translateX(-1px); }
+
+.plan-buffer-panel__covers-rows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.plan-buffer-panel__covers-row {
+  width: 100%;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  line-height: normal;
+  gap: 2px;
+}
+
+.plan-buffer-panel__covers-label {
+  flex: 1 1 auto;
+  color: #58595a;
+}
+
+.plan-buffer-panel__covers-value {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.plan-buffer-panel__covers-total-suffix {
+  color: #9b9c9c;
 }
 
 .plan-buffer-panel__reserve-btn {
