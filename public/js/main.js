@@ -240,6 +240,81 @@
     setSection('explore');
   };
 
+  /** Carousel / widget keys → tickers + icons for “historic performance” column (matches plan detail baskets). */
+  const PLAN_DISPLAY_ASSETS_BY_KEY = {
+    bitcoin: [{ name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg' }],
+    ethereum: [{ name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg' }],
+    solana: [{ name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg' }],
+    bigthree: [
+      { name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg' },
+      { name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg' },
+      { name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg' },
+    ],
+    digitalgold: [
+      { name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg' },
+      { name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg' },
+    ],
+    aiessentials: [
+      { name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg' },
+      { name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg' },
+      { name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg' },
+    ],
+  };
+  Object.assign(PLAN_DISPLAY_ASSETS_BY_KEY, {
+    btc: PLAN_DISPLAY_ASSETS_BY_KEY.bitcoin,
+    eth: PLAN_DISPLAY_ASSETS_BY_KEY.ethereum,
+    sol: PLAN_DISPLAY_ASSETS_BY_KEY.solana,
+    xaut: [{ name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg' }],
+    render: [{ name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg' }],
+    near: [{ name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg' }],
+    link: [{ name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg' }],
+    xrp: [{ name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg' }],
+    ondo: [{ name: 'Ondo', ticker: 'ONDO', icon: 'assets/icon_currency_btc.svg' }],
+    pol: [{ name: 'Polkadot', ticker: 'POL', icon: 'assets/icon_currency_btc.svg' }],
+    ada: [{ name: 'Cardano', ticker: 'ADA', icon: 'assets/icon_currency_btc.svg' }],
+    aave: [{ name: 'Aave', ticker: 'AAVE', icon: 'assets/icon_currency_btc.svg' }],
+  });
+
+  const HISTORIC_RETURN_SUBTITLE = 'Past performance';
+
+  const escReturnMetricAttr = (v) =>
+    String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;');
+
+  /**
+   * Same pyramid stack as `plan-detail-panel__product-icon-wrap` (single / 2 / 3 assets), compact size via CSS.
+   */
+  const buildReturnMetricProductIconWrapHtml = (assets, fallbackIcon) => {
+    const items = (assets || []).slice(0, 3).filter((a) => a && a.icon);
+    const fb = fallbackIcon || 'assets/icon_currency_btc.svg';
+    const singleClass = 'plan-detail-panel__product-icon plan-return-metric__product-icon';
+    let inner;
+    if (items.length >= 2) {
+      const twoOnly = items.length === 2;
+      const mod = twoOnly ? ' plan-detail-panel__icon-stack--two' : '';
+      const baseClass = `plan-detail-panel__icon-stack${mod}`;
+      const [a, b, c] = [items[0], items[1], items[2]];
+      const br = c?.icon
+        ? `<img src="${escReturnMetricAttr(c.icon)}" alt="" />`
+        : '<span class="plan-detail-panel__icon-stack-placeholder" aria-hidden="true"></span>';
+      inner = `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escReturnMetricAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escReturnMetricAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+    } else {
+      const src = items.length === 1 ? items[0].icon : fb;
+      inner = `<img class="${singleClass}" src="${escReturnMetricAttr(src)}" alt="" />`;
+    }
+    return `<div class="plan-detail-panel__product-icon-wrap plan-return-metric__product-icon-wrap" aria-hidden="true">${inner}</div>`;
+  };
+
+  const setReturnMetricTone = (root, value) => {
+    if (!root) return;
+    const pos = Number(value) >= 0;
+    root.classList.toggle('plan-return-metric__group--loss', !pos);
+    const arrow = root.querySelector('.plan-return-metric__arrow');
+    if (arrow) arrow.classList.toggle('plan-return-metric__arrow--down', !pos);
+  };
+
   /**
    * @param {object} [opts]
    * @param {boolean} [opts.detailPanel] — write to plan-detail footer only (do not change main widget)
@@ -247,14 +322,17 @@
    * @param {string} [opts.planKey] — override carousel plan (e.g. curated basket)
    * @param {string} [opts.freq] — 'daily' | 'weekly' | 'monthly' (override active freq chip)
    * @param {'1Y'|'3Y'|'5Y'} [opts.historicalRangeKey] — simulation window (defaults to rangeState.plan)
-   * @param {boolean} [opts.domWrite=true] — when false, only compute and return { returnPct, profit, totalInvested }
+   * @param {{ ticker?: string, icon?: string }[]} [opts.displayAssets] — icons/labels for historic column (plan detail)
+   * @param {boolean} [opts.domWrite=true] — when false, only compute and return { returnPct, historicReturnPct, profit, totalInvested }
    */
   const updatePlanStrategyHistoricalReturn = (opts = {}) => {
     const detailPanel = !!opts.detailPanel;
     const domWrite = opts.domWrite !== false;
     const pctEl = detailPanel
       ? document.querySelector('[data-plan-detail-return-pct]')
-      : document.querySelector('.plan-strategy__return-pct');
+      : document.querySelector(
+          '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values .plan-strategy__return-pct',
+        );
     const absEl = detailPanel
       ? document.querySelector('[data-plan-detail-return-abs]')
       : document.querySelector('.plan-strategy__return-abs');
@@ -408,35 +486,76 @@
     const investPerMonth = amount * occurrencesPerMonth;
     const totalInvested = investPerMonth * periodMonths;
 
-    // Use a unit amount for % calculation so it is independent of the invested
-    // amount — DCA return % is scale-invariant (only timing matters, not size).
-    const unitPerMonth = occurrencesPerMonth;
-
+    // DCA per PM: Q_i = investment per period / price_i; total cost = amount × #periods (here: monthly buckets).
     let assetAccum = 0;
-    let unitAccum = 0;
     for (let m = startMonth; m < months; m += 1) {
       const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
       if (priceLocal <= 0) continue;
       assetAccum += investPerMonth / priceLocal;
-      unitAccum  += unitPerMonth  / priceLocal;
     }
 
     const endPriceLocal = priceUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
+    const startPriceLocal = priceUsdAtMonth(activeAnchorPlan, startMonth) * fxMultiplier;
     const finalValue = assetAccum * endPriceLocal;
     const profit = finalValue - totalInvested;
 
-    const unitTotalInvested = unitPerMonth * periodMonths;
-    const unitFinalValue    = unitAccum * endPriceLocal;
-    const returnPct = unitTotalInvested > 0
-      ? ((unitFinalValue - unitTotalInvested) / unitTotalInvested) * 100
+    const returnPct = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
+    const historicReturnPct = startPriceLocal > 0
+      ? ((endPriceLocal - startPriceLocal) / startPriceLocal) * 100
       : 0;
 
     if (!domWrite) {
-      return { returnPct, profit, totalInvested };
+      return { returnPct, historicReturnPct, profit, totalInvested };
     }
+
+    const displayAssets =
+      Array.isArray(opts.displayAssets) && opts.displayAssets.length
+        ? opts.displayAssets
+        : (PLAN_DISPLAY_ASSETS_BY_KEY[activePlan]
+          || PLAN_DISPLAY_ASSETS_BY_KEY[activeAnchorPlan]
+          || PLAN_DISPLAY_ASSETS_BY_KEY.bitcoin);
+    const historicCaption = HISTORIC_RETURN_SUBTITLE;
+    const iconsHtml = buildReturnMetricProductIconWrapHtml(displayAssets, 'assets/icon_currency_btc.svg');
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
     pctEl.textContent = formatPct(returnPct);
+
+    const strategyGroup = detailPanel
+      ? document.querySelector(
+          '.plan-detail-panel__return-metrics-col--strategy.plan-detail-panel__return-metrics-col--values',
+        )
+      : document.querySelector(
+          '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values',
+        );
+    const historicGroup = detailPanel
+      ? document.querySelector(
+          '.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--values',
+        )
+      : document.querySelector(
+          '.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--values',
+        );
+    setReturnMetricTone(strategyGroup, profit);
+    setReturnMetricTone(historicGroup, historicReturnPct);
+
+    if (detailPanel) {
+      const histPctEl = document.querySelector('[data-plan-detail-return-historic-pct]');
+      const iconWrap = document.querySelector('[data-plan-detail-return-asset-icons]');
+      const capHist = document.querySelector('[data-plan-detail-return-historic-caption]');
+      const capStrat = document.querySelector('[data-plan-detail-return-strategy-caption]');
+      if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
+      if (iconWrap) iconWrap.innerHTML = iconsHtml;
+      if (capHist) capHist.textContent = historicCaption;
+      if (capStrat) capStrat.textContent = 'Simulated return';
+    } else {
+      const histPctEl = document.querySelector('[data-plan-return-historic-pct]');
+      const iconWrap = document.querySelector('[data-plan-return-asset-icons]');
+      const capHist = document.querySelector('[data-plan-return-historic-caption]');
+      const capStrat = document.querySelector('[data-plan-return-strategy-caption]');
+      if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
+      if (iconWrap) iconWrap.innerHTML = iconsHtml;
+      if (capHist) capHist.textContent = historicCaption;
+      if (capStrat) capStrat.textContent = 'Simulated return';
+    }
   };
 
   const initPlanStrategySlider = () => {
@@ -974,17 +1093,17 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => { el.textContent = range; });
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
-        el.textContent = `${range} historical performance ≈`;
+        el.textContent = `Past ${range} return ≈`;
       });
     }
     if (context === 'breakdown') {
       document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `${range} historical performance ≈`;
+        el.textContent = `Past ${range} return ≈`;
       });
     }
     if (context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = `${range} historical performance ≈`;
+        el.textContent = `Past ${range} return ≈`;
       });
     }
   };
@@ -2646,10 +2765,57 @@
       const currEl = panel.querySelector('[data-plan-detail-return-currency]');
       const titleEl = panel.querySelector('[data-plan-detail-return-title]');
       const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+      const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
+      const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
+      const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
       if (absEl) absEl.textContent = document.querySelector('.plan-strategy__return-abs')?.textContent || absEl.textContent;
       if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
       if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
-      if (pctEl) pctEl.textContent = document.querySelector('.plan-strategy__return-pct')?.textContent || pctEl.textContent;
+      if (pctEl) {
+        pctEl.textContent = document.querySelector(
+          '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values .plan-strategy__return-pct',
+        )?.textContent || pctEl.textContent;
+      }
+      if (histPctEl) {
+        histPctEl.textContent = document.querySelector('[data-plan-return-historic-pct]')?.textContent || histPctEl.textContent;
+      }
+      if (histIcons) {
+        const w = document.querySelector('[data-plan-return-asset-icons]');
+        if (w?.innerHTML) histIcons.innerHTML = w.innerHTML;
+      }
+      if (histCap) {
+        histCap.textContent = document.querySelector('[data-plan-return-historic-caption]')?.textContent || histCap.textContent;
+      }
+      if (stratCap) {
+        stratCap.textContent = document.querySelector('[data-plan-return-strategy-caption]')?.textContent || stratCap.textContent;
+      }
+      const dStrat = panel.querySelector(
+        '.plan-detail-panel__return-metrics-col--strategy.plan-detail-panel__return-metrics-col--values',
+      );
+      const dHist = panel.querySelector(
+        '.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--values',
+      );
+      const wStrat = document.querySelector(
+        '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values',
+      );
+      const wHist = document.querySelector(
+        '.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--values',
+      );
+      if (dStrat && wStrat) {
+        dStrat.classList.toggle('plan-return-metric__group--loss', wStrat.classList.contains('plan-return-metric__group--loss'));
+        dStrat.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
+          const src = wStrat.querySelectorAll('.plan-return-metric__arrow')[i];
+          if (src) img.classList.toggle('plan-return-metric__arrow--down', src.classList.contains('plan-return-metric__arrow--down'));
+        });
+      }
+      if (dHist && wHist) {
+        dHist.classList.toggle('plan-return-metric__group--loss', wHist.classList.contains('plan-return-metric__group--loss'));
+        dHist.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
+          const src = wHist.querySelectorAll('.plan-return-metric__arrow')[i];
+          if (src) img.classList.toggle('plan-return-metric__arrow--down', src.classList.contains('plan-return-metric__arrow--down'));
+        });
+      }
     };
 
     // ── Multi-asset allocation sliders ────────────────────────────────────────
@@ -3956,6 +4122,10 @@
       const totalEl = breakdownPanel.querySelector('[data-plan-breakdown-total]');
       const valueEl = breakdownPanel.querySelector('[data-plan-breakdown-value]');
       const profitPctEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-pct]');
+      const profitHistPctEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-historic-pct]');
+      const profitAssetIconsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-asset-icons]');
+      const profitHistCapEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-historic-caption]');
+      const profitStratCapEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-strategy-caption]');
       const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
       const profitCurEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-currency]');
 
@@ -3993,16 +4163,13 @@
           freq,
           historicalRangeKey: range,
           domWrite: false,
+          displayAssets: selectedAssets,
         });
         const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
-
-        const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
-        const periodMonths = rangeMonthsMap[range] || 60;
-        const occurrencesPerMonth =
-          freq === 'daily' ? 365.0 / 12.0 : freq === 'weekly' ? 52.0 / 12.0 : 1.0;
-        const totalInvested = Math.round(amount * occurrencesPerMonth * periodMonths);
-        const value = Math.round(totalInvested * (1 + (pct / 100)));
-        const profit = value - totalInvested;
+        const histPct = Number.isFinite(sim?.historicReturnPct) ? sim.historicReturnPct : 0;
+        const totalInvested = Math.round(Number.isFinite(sim?.totalInvested) ? sim.totalInvested : 0);
+        const profit = Number.isFinite(sim?.profit) ? sim.profit : 0;
+        const value = Math.round(totalInvested + profit);
 
         const stackItems = (selectedAssets || []).slice(0, 3).filter((it) => it && it.icon);
         const isBreakdownIconStack = stackItems.length >= 2;
@@ -4020,8 +4187,25 @@
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
         if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitHistPctEl) {
+          profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        }
+        if (profitAssetIconsEl) {
+          profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
+        }
+        if (profitHistCapEl) profitHistCapEl.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
+
+        const stratG = breakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--strategy.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        const histG = breakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        setReturnMetricTone(stratG, profit);
+        setReturnMetricTone(histG, histPct);
       };
 
       const open = () => {
@@ -4070,6 +4254,10 @@
         const totalEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-total]');
         const valueEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-value]');
         const profitPctEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-pct]');
+        const profitHistPctEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-historic-pct]');
+        const profitAssetIconsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-asset-icons]');
+        const profitHistCapEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-historic-caption]');
+        const profitStratCapEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-strategy-caption]');
         const profitAbsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-abs]');
         const profitCurEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-currency]');
         const kickerEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-title-kicker]');
@@ -4096,16 +4284,13 @@
           freq,
           historicalRangeKey: range,
           domWrite: false,
+          displayAssets: selectedAssets,
         });
         const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
-
-        const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
-        const periodMonths = rangeMonthsMap[range] || 60;
-        const occurrencesPerMonth =
-          freq === 'daily' ? 365.0 / 12.0 : freq === 'weekly' ? 52.0 / 12.0 : 1.0;
-        const totalInvested = Math.round(amount * occurrencesPerMonth * periodMonths);
-        const value = Math.round(totalInvested * (1 + (pct / 100)));
-        const profit = value - totalInvested;
+        const histPct = Number.isFinite(sim?.historicReturnPct) ? sim.historicReturnPct : 0;
+        const totalInvested = Math.round(Number.isFinite(sim?.totalInvested) ? sim.totalInvested : 0);
+        const profit = Number.isFinite(sim?.profit) ? sim.profit : 0;
+        const value = Math.round(totalInvested + profit);
 
         const fallbackIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
         const isBreakdownIconStack = selectedAssets.length >= 2;
@@ -4115,7 +4300,7 @@
           singleProductClass: 'plan-breakdown-panel__asset-icon',
           singleHeaderClass: 'plan-breakdown-panel__asset-icon',
         });
-        if (kickerEl) kickerEl.textContent = `${range} historical performance ≈`;
+        if (kickerEl) kickerEl.textContent = `Past ${range} return ≈`;
         if (headlineEl) headlineEl.textContent = `If you invested in ${prettyTickers} over the past ${String(range).toLowerCase()} ≈`;
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
@@ -4124,8 +4309,25 @@
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
         if (profitPctEl) profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        if (profitHistPctEl) {
+          profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        }
+        if (profitAssetIconsEl) {
+          profitAssetIconsEl.innerHTML = buildReturnMetricProductIconWrapHtml(selectedAssets, fallbackIconSrc);
+        }
+        if (profitHistCapEl) profitHistCapEl.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (profitStratCapEl) profitStratCapEl.textContent = 'Simulated return';
         if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
         if (profitCurEl) profitCurEl.textContent = cur;
+
+        const stratGw = widgetBreakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--strategy.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        const histGw = widgetBreakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        setReturnMetricTone(stratGw, profit);
+        setReturnMetricTone(histGw, histPct);
       };
 
       const close = (closeOpts = {}) => {
@@ -5166,14 +5368,26 @@
         // No allocation yet — show blank return footer
         const absEl = panel.querySelector('[data-plan-detail-return-abs]');
         const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+        const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+        const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
+        const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
+        const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
         if (absEl) absEl.textContent = amount > 0 ? '+0' : '+0';
         if (pctEl) {
           pctEl.textContent = '0.0%';
           pctEl.removeAttribute('data-alloc-base-pct');
         }
+        if (histPctEl) histPctEl.textContent = '0.0%';
+        if (histIcons) histIcons.innerHTML = '';
+        if (histCap) histCap.textContent = HISTORIC_RETURN_SUBTITLE;
+        if (stratCap) stratCap.textContent = 'Simulated return';
         if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
+        panel.querySelectorAll('.plan-detail-panel__return-metrics-col.plan-return-metric__group').forEach((g) => {
+          g.classList.remove('plan-return-metric__group--loss');
+          g.querySelectorAll('.plan-return-metric__arrow').forEach((a) => a.classList.remove('plan-return-metric__arrow--down'));
+        });
         return;
       }
 
@@ -5194,6 +5408,7 @@
           amount,
           planKey: effectiveCuratedKey,
           freq: freqCurated,
+          displayAssets: getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg'),
         });
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
@@ -5216,6 +5431,7 @@
           amount,
           planKey: ctx.spotlightKey,
           freq: freqSpot,
+          displayAssets: getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg'),
         });
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;

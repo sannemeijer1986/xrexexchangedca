@@ -2054,12 +2054,13 @@ html[data-active-tab="finance"] {
   color: #ffffff;
 }
 
-.plan-strategy__range {
+.plan-strategy__range,
+.plan-detail-panel__return-range {
   height: 24px;
   border-radius: 16px;
   padding: 0 10px;
   border: 0;
-  background: #1B1D1D;
+  background: #1b1d1d;
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
@@ -2067,6 +2068,12 @@ html[data-active-tab="finance"] {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+}
+
+.plan-detail-panel__return-range img {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .plan-strategy__range-icon {
@@ -2366,10 +2373,15 @@ html[data-active-tab="finance"] {
   margin-top: 32px;
 }
 
-.plan-strategy__return-title {
+.plan-strategy__return-title,
+.plan-detail-panel__return-label {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
+}
+
+.plan-detail-panel__return-label {
+  white-space: nowrap;
 }
 
 .plan-strategy__return-values {
@@ -2380,9 +2392,250 @@ html[data-active-tab="finance"] {
   color: #5AC47D;
 }
 
-.plan-strategy__view-breakdown-link {
-  margin-top: 3px;
-  margin-bottom: 0px;
+// Return metrics cluster: finance widget, plan detail footer, breakdown profit row (shared layout + tokens)
+.plan-strategy__return-metrics,
+.plan-detail-panel__return-metrics,
+.plan-breakdown-panel__profit-metrics {
+  --prm-accent: #5ac47d;
+  --prm-currency-fs: 14px;
+  --prm-currency-fw: 700;
+  --prm-currency-ml: 4px;
+  --prm-pct-inline-fs: 14px;
+  --prm-pct-inline-fw: 700;
+  --prm-pct-inline-gap: 3px;
+  --prm-arrow-wh: 14px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+.plan-breakdown-panel__profit-metrics {
+  --prm-accent: #56c488;
+}
+
+.plan-strategy__return-metrics-body,
+.plan-detail-panel__return-metrics-body,
+.plan-breakdown-panel__profit-metrics-body {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-strategy__return-metrics-values-row,
+.plan-strategy__return-metrics-captions-row,
+.plan-detail-panel__return-metrics-values-row,
+.plan-detail-panel__return-metrics-captions-row,
+.plan-breakdown-panel__profit-metrics-values-row,
+.plan-breakdown-panel__profit-metrics-captions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.plan-strategy__return-metrics-col--strategy,
+.plan-detail-panel__return-metrics-col--strategy,
+.plan-breakdown-panel__profit-metrics-col--strategy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.plan-strategy__return-metrics-col--historic,
+.plan-detail-panel__return-metrics-col--historic,
+.plan-breakdown-panel__profit-metrics-col--historic {
+  flex: 0 0 auto;
+}
+
+.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--values,
+.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--values,
+.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--caption,
+.plan-detail-panel__return-metrics-col--historic.plan-detail-panel__return-metrics-col--caption,
+.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--caption {
+  text-align: right;
+}
+
+.plan-strategy__return-historic-icon-slot,
+.plan-detail-panel__return-historic-icon-slot,
+.plan-breakdown-panel__profit-historic-icon-slot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+
+.plan-strategy__return-historic-icon-slot .plan-return-metric__product-icon-wrap,
+.plan-detail-panel__return-historic-icon-slot .plan-return-metric__product-icon-wrap,
+.plan-breakdown-panel__profit-historic-icon-slot .plan-return-metric__product-icon-wrap {
+  width: 24px;
+  height: 24px;
+}
+
+.plan-strategy__return-pct-line--historic,
+.plan-detail-panel__return-pct-inline--historic,
+.plan-breakdown-panel__profit-pct-line--historic {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-left: 0;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  transform: translateY(2px);
+}
+
+.plan-strategy__return-metrics .plan-strategy__return-metric-caption,
+.plan-detail-panel__return-metrics .plan-detail-panel__return-metric-caption,
+.plan-breakdown-panel__profit-metrics .plan-breakdown-panel__profit-metric-caption {
+  margin-top: 0;
+}
+
+.plan-strategy__return-metric-caption,
+.plan-detail-panel__return-metric-caption,
+.plan-breakdown-panel__profit-metric-caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: #58595a;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.plan-strategy__return-metric-caption--right,
+.plan-detail-panel__return-metric-caption--right,
+.plan-breakdown-panel__profit-metric-caption--right {
+  text-align: right;
+}
+
+.plan-strategy__return-abs-line,
+.plan-detail-panel__return-primary-line,
+.plan-breakdown-panel__profit-abs-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0;
+  font-weight: 700;
+}
+
+.plan-strategy__return-pct-line,
+.plan-detail-panel__return-pct-inline,
+.plan-breakdown-panel__profit-pct-line {
+  display: flex;
+  align-items: center;
+  gap: var(--prm-pct-inline-gap, 3px);
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: var(--prm-pct-inline-fw, 700);
+  color: var(--prm-accent, #5ac47d);
+  flex-shrink: 0;
+  transform: translateY(2px);
+}
+
+.plan-breakdown-panel__profit-pct-line span {
+  color: var(--prm-accent, #56c488);
+}
+
+.plan-strategy__return-arrow,
+.plan-detail-panel__return-arrow {
+  width: var(--prm-arrow-wh, 14px);
+  height: var(--prm-arrow-wh, 14px);
+  flex-shrink: 0;
+}
+
+.plan-detail-panel__return-arrow {
+  display: block;
+}
+
+.plan-breakdown-panel__profit-pct-line img {
+  width: var(--prm-arrow-wh, 14px);
+  height: var(--prm-arrow-wh, 14px);
+  display: block;
+  flex-shrink: 0;
+}
+
+.plan-strategy__return-abs,
+.plan-detail-panel__return-abs,
+.plan-breakdown-panel__profit-abs {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--prm-accent, #5ac47d);
+}
+
+.plan-strategy__return-currency,
+.plan-detail-panel__return-currency,
+.plan-breakdown-panel__profit-currency {
+  font-size: var(--prm-currency-fs, 14px);
+  font-weight: var(--prm-currency-fw, 700);
+  color: var(--prm-accent, #5ac47d);
+  margin-left: var(--prm-currency-ml, 4px);
+}
+
+.plan-strategy__return-pct,
+.plan-detail-panel__return-pct {
+  color: var(--prm-accent, #5ac47d);
+  white-space: nowrap;
+}
+
+// Default compact icon wrap where historic slot does not override (e.g. some inline uses)
+.plan-detail-panel__product-icon-wrap.plan-return-metric__product-icon-wrap {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.plan-return-metric__product-icon-wrap .plan-detail-panel__product-icon,
+.plan-return-metric__product-icon-wrap .plan-return-metric__product-icon {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+.plan-return-metric__arrow--down {
+  transform: rotate(90deg);
+}
+
+.plan-return-metric__group--loss {
+  color: #ff6b6b;
+
+  .plan-strategy__return-abs,
+  .plan-strategy__return-currency,
+  .plan-strategy__return-pct,
+  .plan-strategy__return-pct-line {
+    color: #ff6b6b;
+  }
+
+  .plan-detail-panel__return-abs,
+  .plan-detail-panel__return-currency,
+  .plan-detail-panel__return-pct,
+  .plan-detail-panel__return-pct-inline {
+    color: #ff6b6b;
+  }
+
+  .plan-breakdown-panel__profit-abs,
+  .plan-breakdown-panel__profit-currency,
+  .plan-breakdown-panel__profit-pct-line,
+  .plan-breakdown-panel__profit-pct-line span {
+    color: #ff6b6b;
+  }
+}
+
+.plan-strategy__view-breakdown-link,
+.plan-detail-panel__view-breakdown-link {
   padding: 0;
   border: 0;
   background: transparent;
@@ -2394,46 +2647,14 @@ html[data-active-tab="finance"] {
   cursor: pointer;
 }
 
-.plan-strategy__return-pct-line {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #5ac47d;
-  flex-shrink: 0;
-  // Baseline-aligned parent ignores margin-top on flex children — nudge with transform
-  transform: translateY(2px);
+.plan-strategy__view-breakdown-link {
+  margin-top: 3px;
+  margin-bottom: 0;
 }
 
-.plan-strategy__return-arrow {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
-.plan-strategy__return-abs-line {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  font-weight: 700;
-}
-
-.plan-strategy__return-abs {
-  font-size: 22px;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.plan-strategy__return-currency {
-  font-size: 14px;
-  font-weight: 700;
-  margin-left: 4px;
-}
-
-.plan-strategy__return-pct {
-  color: #5ac47d;
+.plan-detail-panel__view-breakdown-link {
+  margin-top: 4px;
+  margin-bottom: 6px;
 }
 
 .plan-strategy__cta-wrap {
@@ -5989,89 +6210,11 @@ div.currency-sheet__item-icon {
   gap: 8px;
 }
 
-.plan-detail-panel__return-label {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffffff;
-  white-space: nowrap;
-}
-
-.plan-detail-panel__return-range {
-  background: #1b1d1d;
-  border: 0;
-  border-radius: 16px;
-  height: 24px;
-  padding: 0 6px 0 10px;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-
-  img {
-    width: 16px;
-    height: 16px;
-    display: block;
-  }
-}
-
 .plan-detail-panel__return-value {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
   gap: 0;
-}
-
-.plan-detail-panel__return-abs {
-  font-size: 22px;
-  font-weight: 700;
-  color: #5ac47d;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.plan-detail-panel__return-currency {
-  font-size: 12px;
-  font-weight: 600;
-  color: #5ac47d;
-  margin-left: 2px;
-}
-
-.plan-detail-panel__return-pct-inline {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: 6px;
-  transform: translateY(2px);
-}
-
-.plan-detail-panel__return-arrow {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-  display: block;
-}
-
-.plan-detail-panel__return-pct {
-  font-size: 12px;
-  font-weight: 600;
-  color: #5ac47d;
-  white-space: nowrap;
-}
-
-.plan-detail-panel__view-breakdown-link {
-  margin-top: 4px;
-  margin-bottom: 6px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  align-self: flex-start;
-  font-size: 12px;
-  font-weight: 600;
-  color: #3f78ff;
-  line-height: 1.2;
-  cursor: pointer;
+  width: 100%;
 }
 
 .plan-detail-panel__footer-btns {
@@ -6326,7 +6469,9 @@ div.currency-sheet__item-icon {
 .plan-breakdown-panel__row--profit {
   height: auto;
   flex-direction: column;
-  align-items: flex-start;
+  // Reset base row: space-between on a column pushes blocks apart; last span also inherited text-align: right
+  justify-content: flex-start;
+  align-items: stretch;
   gap: 2px;
 
   > span:first-child {
@@ -6334,57 +6479,19 @@ div.currency-sheet__item-icon {
     font-size: 16px;
     font-weight: 700;
     line-height: 1.2;
+    text-align: left;
+  }
+
+  > span:last-child {
+    text-align: left;
   }
 }
 
 .plan-breakdown-panel__profit-wrap {
-  display: inline-flex;
-  justify-content: flex-start;
-}
-
-.plan-breakdown-panel__profit-abs-line {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  font-weight: 700;
-}
-
-.plan-breakdown-panel__profit-abs {
-  color: #56c488;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.plan-breakdown-panel__profit-currency {
-  color: #56c488;
-  font-size: 14px;
-  font-weight: 700;
-  margin-left: 4px;
-}
-
-.plan-breakdown-panel__profit-pct-line {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #56c488;
-  flex-shrink: 0;
-  transform: translateY(2px);
-
-  span {
-    color: #56c488;
-  }
-
-  img {
-    width: 14px;
-    height: 14px;
-    display: block;
-    flex-shrink: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: stretch;
 }
 
 .plan-breakdown-panel__bottom {
