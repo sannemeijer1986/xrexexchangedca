@@ -1448,7 +1448,7 @@
                             <div class="plan-buffer-panel__kv-value" data-plan-buffer-recurring-prefund>—</div>
                         </div>
                         <div class="plan-buffer-panel__covers-title">
-                            Each pre-funding covers
+                            Covers
                             <span class="plan-buffer-panel__covers-title-pct" data-plan-buffer-covers-pct-wrap>
                                 <span data-plan-buffer-covers-pct>—</span>%
                             </span>
@@ -1484,14 +1484,17 @@
                                         <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-amount-total-suffix hidden> / —</span>
                                     </span>
                                 </div>
+                                <button class="plan-buffer-panel__autofill-info" type="button" data-plan-buffer-autofill-info>
+                                    <span class="plan-buffer-panel__autofill-info-text">Auto-refills when used up</span>
+                                    <img class="plan-buffer-panel__autofill-info-icon" src="assets/icon_info_circle_blue.svg" width="16" height="16" alt="" aria-hidden="true" />
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
-                <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-confirm>Continue</button>
+                <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
+                    <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-confirm>Continue</button>
+                </div>
             </div>
 
             <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Payment methods info">
@@ -1847,6 +1850,24 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-currency-sheet-close>Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funding: auto-refill info bottom sheet -->
+    <div class="currency-sheet" data-plan-buffer-autofill-sheet hidden aria-modal="true" role="dialog" aria-label="Auto-refills information">
+        <button class="currency-sheet__backdrop" type="button" data-plan-buffer-autofill-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Auto-refills</h2>
+                <p class="currency-sheet__desc" style="display:none"></p>
+                <div style="height: 180px;"></div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-plan-buffer-autofill-sheet-close>Close</button>
             </div>
         </div>
     </div>

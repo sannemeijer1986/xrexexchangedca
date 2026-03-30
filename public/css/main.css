@@ -7017,6 +7017,10 @@ div.currency-sheet__item-icon::before {
   height: 0;
 }
 
+.plan-buffer-panel__scroller > .plan-buffer-panel__footer {
+  margin-top: auto;
+}
+
 .plan-buffer-panel__body {
   flex: 1;
   padding: 32px 16px 16px;
@@ -7474,7 +7478,7 @@ div.currency-sheet__item-icon::before {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin: -8px 0 6px;
+  margin: -8px 0 2px;
 }
 
 .phone-container p.plan-buffer-panel__reserve-error.plan-buffer-panel__reserve-error--inline {
@@ -7587,6 +7591,36 @@ div.currency-sheet__item-icon::before {
 
 .plan-buffer-panel__covers-total-suffix {
   color: #9b9c9c;
+}
+
+.plan-buffer-panel__autofill-info {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.plan-buffer-panel__autofill-info-text {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Manrope", sans-serif;
+  line-height: normal;
+  color: #8fb8ff;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-buffer-panel__autofill-info-icon {
+  flex-shrink: 0;
+  display: block;
 }
 
 .plan-buffer-panel__reserve-btn {

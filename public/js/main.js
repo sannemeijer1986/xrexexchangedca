@@ -1305,6 +1305,31 @@
     });
   };
 
+  const initPlanBufferAutofillSheet = () => {
+    const sheet = document.querySelector('[data-plan-buffer-autofill-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const openTriggers = document.querySelectorAll('[data-plan-buffer-autofill-info]');
+
+    const open = () => {
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel?.removeEventListener('transitionend', onEnd);
+      };
+      panel?.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    openTriggers.forEach((btn) => btn.addEventListener('click', open));
+    sheet.querySelectorAll('[data-plan-buffer-autofill-sheet-close]').forEach((btn) => btn.addEventListener('click', close));
+  };
+
   /** Plan detail: top-up sheet (Deposit / Convert) — reuses currency-sheet chrome. */
   const initTopupSheet = () => {
     const sheet = document.querySelector('[data-topup-sheet]');
@@ -2476,6 +2501,7 @@
   applyFinanceSummaryMeta();
   initPromoIntroSheet();
   initRangeSheet();
+  initPlanBufferAutofillSheet();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
