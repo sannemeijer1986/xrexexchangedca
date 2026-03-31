@@ -409,6 +409,272 @@
       [50, 2320],
       [59, 2650],
     ]),
+    /** Prototype S&P-style index (same 60-month grid as crypto) for breakdown chart benchmark line. */
+    sp500: expandPrototypeHistoricKnotsToMonthly60([
+      [0, 100],
+      [8, 103],
+      [16, 106],
+      [24, 110],
+      [32, 114],
+      [40, 118],
+      [48, 123],
+      [56, 128],
+      [59, 132],
+    ]),
+  };
+
+  const HISTORIC_SIM_MONTHS = 60;
+
+  /** USD index price at integer month — shared by `updatePlanStrategyHistoricalReturn` and breakdown chart. */
+  const historicIndexUsdAtMonth = (planKey, m) => {
+    const months = HISTORIC_SIM_MONTHS;
+    const mm = clamp(m, 0, months - 1);
+    const usdAt = (series, idx) => {
+      const arr = PROTOTYPE_HISTORIC_MONTHLY_USD[series] || PROTOTYPE_HISTORIC_MONTHLY_USD.bitcoin;
+      return arr[idx];
+    };
+    const pk = String(planKey || 'bitcoin').toLowerCase();
+    if (pk === 'bigthree') {
+      const btc = usdAt('bitcoin', mm);
+      const eth = usdAt('ethereum', mm);
+      const sol = usdAt('solana', mm);
+      const btc0 = usdAt('bitcoin', 0);
+      const eth0 = usdAt('ethereum', 0);
+      const sol0 = usdAt('solana', 0);
+      return 100 * ((btc / btc0) * 0.45 + (eth / eth0) * 0.35 + (sol / sol0) * 0.2);
+    }
+    if (pk === 'aiessentials') {
+      const btc = usdAt('bitcoin', mm);
+      const eth = usdAt('ethereum', mm);
+      const sol = usdAt('solana', mm);
+      const btc0 = usdAt('bitcoin', 0);
+      const eth0 = usdAt('ethereum', 0);
+      const sol0 = usdAt('solana', 0);
+      return 100 * ((btc / btc0) * 0.2 + (eth / eth0) * 0.3 + (sol / sol0) * 0.5);
+    }
+    if (pk === 'sp500') return usdAt('sp500', mm);
+    const seriesKey = PROTOTYPE_HISTORIC_MONTHLY_USD[pk] ? pk : 'bitcoin';
+    return usdAt(seriesKey, mm);
+  };
+
+  const historicIndexUsdAtFractionalMonth = (planKey, t) => {
+    const months = HISTORIC_SIM_MONTHS;
+    const tt = clamp(t, 0, months - 1);
+    const m0 = Math.floor(tt);
+    const u = tt - m0;
+    if (m0 >= months - 1) {
+      return historicIndexUsdAtMonth(planKey, months - 1);
+    }
+    const p0 = historicIndexUsdAtMonth(planKey, m0);
+    const p1 = historicIndexUsdAtMonth(planKey, m0 + 1);
+    return p0 + u * (p1 - p0);
+  };
+
+  const planHistoricFxMultiplier = () => {
+    const fxTwdPerUsd = 32;
+    const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
+    return isUsdt ? 1 : fxTwdPerUsd;
+  };
+
+  const activeAnchorPlanFromCarouselKey = (activePlan) => {
+    const map = {
+      btc: 'bitcoin',
+      eth: 'ethereum',
+      xaut: 'digitalgold',
+      sol: 'solana',
+      render: 'solana',
+      near: 'solana',
+      link: 'solana',
+      ondo: 'solana',
+      pol: 'solana',
+      xrp: 'solana',
+      aave: 'solana',
+      ada: 'solana',
+    };
+    const key = String(activePlan || 'bitcoin').toLowerCase();
+    return map[key] || key;
+  };
+
+  /**
+   * Month-end DCA series for the breakdown chart: strategy portfolio value, cumulative invested (same as stats row),
+   * and S&P prototype DCA portfolio value — all in plan currency (TWD / USDT after fx).
+   * @returns {{ strategyValue: number[], sp500Value: number[], investedValue: number[], xYears: string[], yTicks: number[], yMax: number }}
+   */
+  const computePlanBreakdownChartSeries = ({
+    amount,
+    planKey,
+    freq,
+    historicalRangeKey,
+  }) => {
+    const months = HISTORIC_SIM_MONTHS;
+    const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
+    const simRangeKey = historicalRangeKey || (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y') || '5Y';
+    const periodMonths = rangeMonthsMap[simRangeKey] || 60;
+    const startMonth = months - periodMonths;
+    const fx = planHistoricFxMultiplier();
+    const pkLower = String(planKey || 'bitcoin').toLowerCase();
+    const activeAnchorPlan = activeAnchorPlanFromCarouselKey(pkLower);
+
+    const occurrencesPerMonth = (() => {
+      if (freq === 'daily') return 365.0 / 12.0;
+      if (freq === 'weekly') return 52.0 / 12.0;
+      return 1.0;
+    })();
+
+    const runDcaMonthSeries = (pricePlanKey) => {
+      let assetAccum = 0;
+      let totalInvested = 0;
+      const out = [];
+      if (freq === 'monthly') {
+        for (let m = startMonth; m < months; m += 1) {
+          const priceLocal = historicIndexUsdAtMonth(pricePlanKey, m) * fx;
+          if (priceLocal > 0) {
+            assetAccum += amount / priceLocal;
+            totalInvested += amount;
+          }
+          const endPrice = historicIndexUsdAtMonth(pricePlanKey, m) * fx;
+          const value = assetAccum * endPrice;
+          out.push({
+            cumInv: totalInvested,
+            value,
+          });
+        }
+        return out;
+      }
+      const numBuys = Math.max(1, Math.round(periodMonths * occurrencesPerMonth));
+      const span = months - 1 - startMonth;
+      const states = [];
+      for (let k = 0; k < numBuys; k += 1) {
+        const tt = numBuys === 1 ? startMonth : startMonth + (k / (numBuys - 1)) * span;
+        const priceLocal = historicIndexUsdAtFractionalMonth(pricePlanKey, tt) * fx;
+        if (priceLocal <= 0) continue;
+        assetAccum += amount / priceLocal;
+        totalInvested += amount;
+        const mark = historicIndexUsdAtFractionalMonth(pricePlanKey, tt) * fx;
+        states.push({ t: tt, cumInv: totalInvested, value: assetAccum * mark });
+      }
+      for (let m = startMonth; m < months; m += 1) {
+        const cutoff = m + 1 - 1e-9;
+        const last =
+          [...states].filter((s) => s.t <= cutoff).pop() || { cumInv: 0, value: 0 };
+        out.push({
+          cumInv: last.cumInv,
+          value: last.value,
+        });
+      }
+      return out;
+    };
+
+    const stratRows = runDcaMonthSeries(activeAnchorPlan);
+    const spRows = runDcaMonthSeries('sp500');
+    const n = stratRows.length;
+    if (!n) {
+      return {
+        strategyValue: [0],
+        sp500Value: [0],
+        investedValue: [0],
+        xYears: [String(2020)],
+        yTicks: [0, 1, 2, 3],
+        yMax: 3,
+      };
+    }
+    const strategyValue = stratRows.map((r) => r.value);
+    const sp500Value = spRows.map((r) => r.value);
+    const investedValue = stratRows.map((r) => r.cumInv);
+
+    const baseYear = 2020;
+    const xYears = stratRows.map((_, i) => String(baseYear + Math.floor((startMonth + i) / 12)));
+
+    const rawPeak = Math.max(
+      1,
+      ...strategyValue,
+      ...sp500Value,
+      ...investedValue,
+    );
+    const padded = rawPeak * 1.06;
+    const exp = Math.floor(Math.log10(Math.max(padded, 1)));
+    const mant = padded / 10 ** exp;
+    const niceM = mant <= 1 ? 1 : mant <= 2 ? 2 : mant <= 5 ? 5 : 10;
+    const yMax = niceM * 10 ** exp;
+    const yTicks = [0, Math.round(yMax / 3), Math.round((2 * yMax) / 3), yMax];
+
+    return { strategyValue, sp500Value, investedValue, xYears, yTicks, yMax };
+  };
+
+  const BREAKDOWN_CHART_VIEW = { w: 299, h: 177, left: 2.5, right: 262, top: 18, bottom: 150 };
+
+  const formatBreakdownChartYTick = (n) => {
+    const abs = Math.abs(n);
+    const round1 = (x) => {
+      const r = Math.round(x * 10) / 10;
+      return Number.isInteger(r) ? r.toString() : r.toString();
+    };
+    if (abs < 1) return '0';
+    if (abs < 10000) return abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    if (abs < 1000000) return `${round1(abs / 1000)}K`;
+    return `${round1(abs / 1000000)}M`;
+  };
+
+  const renderPlanBreakdownChartSvg = (svgEl, series) => {
+    if (!svgEl || !series) return;
+    const { strategyValue, sp500Value, investedValue, xYears, yTicks, yMax } = series;
+    const n = strategyValue.length;
+    const { w, h, left, right, top, bottom } = BREAKDOWN_CHART_VIEW;
+    const xAt = (i) => (n <= 1 ? left : left + (i / (n - 1)) * (right - left));
+    const yScaleMax = yMax > 0 ? yMax : 1;
+    const yAt = (v) => bottom - (clamp(v, 0, yScaleMax) / yScaleMax) * (bottom - top);
+
+    const pathFrom = (arr) => {
+      if (!arr.length) return '';
+      return arr
+        .map((v, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i).toFixed(2)} ${yAt(v).toFixed(2)}`)
+        .join(' ');
+    };
+
+    const yearLabels = [];
+    const seenY = new Set();
+    for (let i = 0; i < n; i += 1) {
+      const y = xYears[i];
+      if (!seenY.has(y)) {
+        seenY.add(y);
+        yearLabels.push({ text: y, x: xAt(i) });
+      }
+    }
+
+    const yLabelX = right + 4;
+    const yLabelsHtml = yTicks
+      .map((tick) => {
+        const yy = yAt(tick);
+        const label = tick <= 0 ? '0' : formatBreakdownChartYTick(tick);
+        return `<text x="${yLabelX}" y="${yy + 4}" fill="#58595A" font-size="10" font-weight="600">${label}</text>`;
+      })
+      .join('');
+
+    const xLabelsHtml = yearLabels
+      .map(
+        ({ text, x }) =>
+          `<text x="${x}" y="${bottom + 14}" fill="#58595A" font-size="11" font-weight="600" text-anchor="middle">${text}</text>`,
+      )
+      .join('');
+
+    const gridHtml = yTicks
+      .map((tick) => {
+        const yy = yAt(tick);
+        return `<path d="M${left} ${yy}H${right}" stroke="#3C4248" />`;
+      })
+      .join('');
+
+    svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svgEl.innerHTML = `
+      <path d="M${left} ${bottom}H${right}" stroke="#3C4248" />
+      <path d="M${right} ${top}V${bottom}" stroke="#3C4248" />
+      ${gridHtml}
+      <path d="${pathFrom(investedValue)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      <path d="${pathFrom(sp500Value)}" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      <path d="${pathFrom(strategyValue)}" stroke="#8FB8FF" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      ${xLabelsHtml}
+      ${yLabelsHtml}
+    `;
   };
 
   /**
@@ -523,40 +789,19 @@
       ? String(opts.planKey).toLowerCase()
       : (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
 
-    // Map spotlight crypto keys → the closest existing anchor curves.
-    // This lets the detail panel reuse the same offline return simulation.
-    const activeAnchorPlan = (() => {
-      const map = {
-        btc: 'bitcoin',
-        eth: 'ethereum',
-        xaut: 'digitalgold',
-        sol: 'solana',
-        render: 'solana',
-        near: 'solana',
-        link: 'solana',
-        ondo: 'solana',
-        pol: 'solana',
-        xrp: 'solana',
-        aave: 'solana',
-        ada: 'solana',
-      };
-      return map[activePlan] || activePlan;
-    })();
+    const activeAnchorPlan = activeAnchorPlanFromCarouselKey(activePlan);
 
     // Rough offline DCA estimate: 60 monthly USD levels (prototype historic shapes, Jan 2020 → late 2024).
     // Shorter ranges (3Y / 1Y) start later into the same dataset.
-    const fxTwdPerUsd = 32; // intentionally fixed/rough
-    const totalDataMonths = 60; // full anchor dataset length
     const rangeMonthsMap = { '5Y': 60, '3Y': 36, '1Y': 12 };
     const simRangeKey =
       opts.historicalRangeKey ||
       (typeof rangeState !== 'undefined' ? rangeState.plan : '5Y') ||
       '5Y';
     const periodMonths = rangeMonthsMap[simRangeKey] || 60;
-    const startMonth = totalDataMonths - periodMonths;
-    const months = totalDataMonths; // used for anchor clamping
+    const startMonth = HISTORIC_SIM_MONTHS - periodMonths;
+    const months = HISTORIC_SIM_MONTHS;
 
-    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
     const formatPct = (n) =>
       `${(isFinite(n) ? n : 0).toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
     const formatTwdNumber = (n) => {
@@ -570,51 +815,7 @@
       return `${round1(abs / 1000000)}M`;
     };
 
-    const monthIdx = (m) => clamp(m, 0, months - 1);
-    const usdAt = (series, m) => {
-      const arr = PROTOTYPE_HISTORIC_MONTHLY_USD[series] || PROTOTYPE_HISTORIC_MONTHLY_USD.bitcoin;
-      return arr[monthIdx(m)];
-    };
-
-    const priceUsdAtMonth = (planKey, m) => {
-      if (planKey === 'bigthree') {
-        const btc = usdAt('bitcoin', m);
-        const eth = usdAt('ethereum', m);
-        const sol = usdAt('solana', m);
-        const btc0 = usdAt('bitcoin', 0);
-        const eth0 = usdAt('ethereum', 0);
-        const sol0 = usdAt('solana', 0);
-        // Weighted normalized basket index (BTC 45% / ETH 35% / SOL 20%).
-        return 100 * ((btc / btc0) * 0.45 + (eth / eth0) * 0.35 + (sol / sol0) * 0.2);
-      }
-      if (planKey === 'aiessentials') {
-        const btc = usdAt('bitcoin', m);
-        const eth = usdAt('ethereum', m);
-        const sol = usdAt('solana', m);
-        const btc0 = usdAt('bitcoin', 0);
-        const eth0 = usdAt('ethereum', 0);
-        const sol0 = usdAt('solana', 0);
-        return 100 * ((btc / btc0) * 0.2 + (eth / eth0) * 0.3 + (sol / sol0) * 0.5);
-      }
-      const seriesKey = PROTOTYPE_HISTORIC_MONTHLY_USD[planKey] ? planKey : 'bitcoin';
-      return usdAt(seriesKey, m);
-    };
-
-    /** Linear interp between monthly closes so weekly/daily buys hit distinct prices within a month. */
-    const priceUsdAtFractionalMonth = (planKey, t) => {
-      const tt = clamp(t, 0, months - 1);
-      const m0 = Math.floor(tt);
-      const u = tt - m0;
-      if (m0 >= months - 1) {
-        return priceUsdAtMonth(planKey, months - 1);
-      }
-      const p0 = priceUsdAtMonth(planKey, m0);
-      const p1 = priceUsdAtMonth(planKey, m0 + 1);
-      return p0 + u * (p1 - p0);
-    };
-
-    const isUsdt = (typeof currencyState !== 'undefined' ? currencyState.plan : 'TWD') === 'USDT';
-    const fxMultiplier = isUsdt ? 1 : fxTwdPerUsd;
+    const fxMultiplier = planHistoricFxMultiplier();
 
     const occurrencesPerMonth = (() => {
       if (freq === 'daily') return 365.0 / 12.0; // ≈ 30.42
@@ -629,7 +830,7 @@
     let totalInvested = 0;
     if (freq === 'monthly') {
       for (let m = startMonth; m < months; m += 1) {
-        const priceLocal = priceUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
+        const priceLocal = historicIndexUsdAtMonth(activeAnchorPlan, m) * fxMultiplier;
         if (priceLocal <= 0) continue;
         assetAccum += amount / priceLocal;
         totalInvested += amount;
@@ -639,15 +840,15 @@
       const span = months - 1 - startMonth;
       for (let k = 0; k < numBuys; k += 1) {
         const t = numBuys === 1 ? startMonth : startMonth + (k / (numBuys - 1)) * span;
-        const priceLocal = priceUsdAtFractionalMonth(activeAnchorPlan, t) * fxMultiplier;
+        const priceLocal = historicIndexUsdAtFractionalMonth(activeAnchorPlan, t) * fxMultiplier;
         if (priceLocal <= 0) continue;
         assetAccum += amount / priceLocal;
         totalInvested += amount;
       }
     }
 
-    const endPriceLocal = priceUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
-    const startPriceLocal = priceUsdAtMonth(activeAnchorPlan, startMonth) * fxMultiplier;
+    const endPriceLocal = historicIndexUsdAtMonth(activeAnchorPlan, months - 1) * fxMultiplier;
+    const startPriceLocal = historicIndexUsdAtMonth(activeAnchorPlan, startMonth) * fxMultiplier;
     const finalValue = assetAccum * endPriceLocal;
     const profit = finalValue - totalInvested;
 
@@ -1295,19 +1496,8 @@
         el.textContent = `Past ${range} performance`;
       });
     }
-    if (context === 'breakdown') {
-      document.querySelectorAll('[data-plan-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = startedAgo;
-      });
+    if (context === 'breakdown' || context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-        el.textContent = startedAgo;
-      });
-    }
-    if (context === 'widgetBreakdown') {
-      document.querySelectorAll('[data-plan-widget-breakdown-title-kicker]').forEach((el) => {
-        el.textContent = startedAgo;
-      });
-      document.querySelectorAll('[data-plan-widget-breakdown-profit-range-label]').forEach((el) => {
         el.textContent = startedAgo;
       });
     }
@@ -3787,7 +3977,7 @@
       return [{ name: ticker, ticker, icon: fallbackIconSrc || 'assets/icon_currency_btc.svg' }];
     };
 
-    let planBreakdownApi = { sync: () => {}, close: () => {} };
+    let planBreakdownApi = { sync: () => {}, syncFromPlanWidget: () => {}, close: () => {} };
     let planOverviewApi = { open: () => {}, close: () => {}, sync: () => {} };
     let planBufferApi = { open: () => {}, close: () => {} };
     let planSuccessApi = { close: () => {}, forceClose: () => {} };
@@ -4521,9 +4711,11 @@
     const allocPickerApi = initPlanAllocPicker();
 
     const initPlanBreakdownPanel = () => {
-      const breakdownPanel = panel.querySelector('[data-plan-breakdown-panel]');
-      if (!breakdownPanel) return { open: () => {}, close: () => {}, sync: () => {} };
-      const widgetBreakdownPanel = document.querySelector('[data-plan-widget-breakdown-panel]');
+      const breakdownPanel = document.querySelector('[data-plan-breakdown-panel]');
+      if (!breakdownPanel) return { open: () => {}, close: () => {}, sync: () => {}, syncFromPlanWidget: () => {} };
+
+      const rangeBtnDetail = breakdownPanel.querySelector('.plan-breakdown-panel__range--detail');
+      const rangeBtnWidget = breakdownPanel.querySelector('.plan-breakdown-panel__range--widget');
 
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
@@ -4541,7 +4733,91 @@
       const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
       const profitCurEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-currency]');
 
-      const sync = (opts = {}) => {
+      /** @type {'detail' | 'widget'} */
+      let breakdownOpenSource = 'detail';
+
+      const setBreakdownRangeButtons = (source) => {
+        if (rangeBtnDetail) rangeBtnDetail.hidden = source !== 'detail';
+        if (rangeBtnWidget) rangeBtnWidget.hidden = source !== 'widget';
+      };
+
+      const applyCommonBreakdownUi = ({
+        selectedAssets,
+        prettyTickers,
+        range,
+        amount,
+        cur,
+        freqLabel,
+        sim,
+        chartPlanKey,
+        freq,
+        fallbackIconSrc,
+      }) => {
+        const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
+        const histPct = Number.isFinite(sim?.historicReturnPct) ? sim.historicReturnPct : 0;
+        const totalInvested = Math.round(Number.isFinite(sim?.totalInvested) ? sim.totalInvested : 0);
+        const profit = Number.isFinite(sim?.profit) ? sim.profit : 0;
+        const value = Math.round(totalInvested + profit);
+
+        const tickers = (selectedAssets || [])
+          .map((it) => String(it?.ticker || '').trim())
+          .filter(Boolean)
+          .slice(0, 3);
+        const stackItems = (selectedAssets || []).slice(0, 3).filter((it) => it && it.icon);
+        const isBreakdownIconStack = stackItems.length >= 2;
+        if (iconWrap) {
+          iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
+          iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
+        }
+        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null, {
+          singleProductClass: 'plan-breakdown-panel__asset-icon',
+          singleHeaderClass: 'plan-breakdown-panel__asset-icon',
+        });
+        if (headlineEl) {
+          headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
+        }
+        breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
+          el.textContent = `If you'd started ${range} ago ≈`;
+        });
+        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
+        if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
+        if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
+        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
+        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
+        if (profitPctEl) {
+          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
+        }
+        if (profitHistPctEl) {
+          profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+        }
+        const profitIcons = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
+        setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIcons.html, { layoutSig: profitIcons.sig });
+        if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
+        if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
+        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
+        if (profitCurEl) profitCurEl.textContent = cur;
+
+        const stratG = breakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--strategy.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        const histG = breakdownPanel.querySelector(
+          '.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values',
+        );
+        setReturnMetricTone(stratG, profit);
+        setReturnMetricTone(histG, histPct);
+
+        const chartSvg = breakdownPanel.querySelector('[data-plan-breakdown-chart-svg]');
+        const chartData = computePlanBreakdownChartSeries({
+          amount,
+          planKey: chartPlanKey,
+          freq,
+          historicalRangeKey: range,
+        });
+        renderPlanBreakdownChartSvg(chartSvg, chartData);
+      };
+
+      const syncFromDetail = (opts = {}) => {
         const fallbackIconSrc = opts.iconSrc || 'assets/icon_currency_btc.svg';
         const selectedAssets = getCurrentPlanDisplayAssets(fallbackIconSrc);
         const tickers = selectedAssets
@@ -4568,6 +4844,10 @@
         if (effectiveCuratedKey) planKeyOpt = effectiveCuratedKey;
         else if (ctx.source === 'spotlight' && ctx.spotlightKey) planKeyOpt = String(ctx.spotlightKey).toLowerCase();
 
+        const chartPlanKey =
+          planKeyOpt ||
+          String(document.querySelector('[data-plan-carousel]')?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+
         const sim = updatePlanStrategyHistoricalReturn({
           detailPanel: true,
           amount,
@@ -4577,109 +4857,22 @@
           domWrite: false,
           displayAssets: selectedAssets,
         });
-        const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
-        const histPct = Number.isFinite(sim?.historicReturnPct) ? sim.historicReturnPct : 0;
-        const totalInvested = Math.round(Number.isFinite(sim?.totalInvested) ? sim.totalInvested : 0);
-        const profit = Number.isFinite(sim?.profit) ? sim.profit : 0;
-        const value = Math.round(totalInvested + profit);
 
-        const stackItems = (selectedAssets || []).slice(0, 3).filter((it) => it && it.icon);
-        const isBreakdownIconStack = stackItems.length >= 2;
-        iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
-        iconWrap.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
-        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null, {
-          singleProductClass: 'plan-breakdown-panel__asset-icon',
-          singleHeaderClass: 'plan-breakdown-panel__asset-icon',
+        applyCommonBreakdownUi({
+          selectedAssets,
+          prettyTickers,
+          range,
+          amount,
+          cur,
+          freqLabel,
+          sim,
+          chartPlanKey,
+          freq,
+          fallbackIconSrc,
         });
-        if (headlineEl) {
-          headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
-        }
-        breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-          el.textContent = `If you'd started ${range} ago`;
-        });
-        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
-        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
-        if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
-        if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
-        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
-        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
-        if (profitPctEl) {
-          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
-        }
-        if (profitHistPctEl) {
-          profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
-        }
-        const profitIcons = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
-        setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIcons.html, { layoutSig: profitIcons.sig });
-        if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
-        if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
-        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
-        if (profitCurEl) profitCurEl.textContent = cur;
-
-        const stratG = breakdownPanel.querySelector(
-          '.plan-breakdown-panel__profit-metrics-col--strategy.plan-breakdown-panel__profit-metrics-col--values',
-        );
-        const histG = breakdownPanel.querySelector(
-          '.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values',
-        );
-        setReturnMetricTone(stratG, profit);
-        setReturnMetricTone(histG, histPct);
       };
 
-      const open = () => {
-        sync();
-        panel.classList.add('is-plan-breakdown-open');
-        breakdownPanel.hidden = false;
-        requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
-      };
-
-      const openFromPlanWidget = () => {
-        if (!widgetBreakdownPanel) return;
-        syncFromPlanWidget();
-        widgetBreakdownPanel.hidden = false;
-        requestAnimationFrame(() => widgetBreakdownPanel.classList.add('is-open'));
-      };
-
-      const closeFromPlanWidget = (closeOpts = {}) => {
-        if (!widgetBreakdownPanel) return;
-        if (closeOpts.instant) {
-          widgetBreakdownPanel.style.transition = 'none';
-          widgetBreakdownPanel.classList.remove('is-open');
-          void widgetBreakdownPanel.offsetHeight;
-          widgetBreakdownPanel.style.transition = '';
-          widgetBreakdownPanel.hidden = true;
-          return;
-        }
-        widgetBreakdownPanel.classList.remove('is-open');
-        const onEnd = () => {
-          if (!widgetBreakdownPanel.classList.contains('is-open')) {
-            widgetBreakdownPanel.hidden = true;
-          }
-          widgetBreakdownPanel.removeEventListener('transitionend', onEnd);
-        };
-        widgetBreakdownPanel.addEventListener('transitionend', onEnd);
-        setTimeout(onEnd, 380);
-      };
-
-      const syncFromPlanWidget = () => {
-        if (!widgetBreakdownPanel) return;
-        const iconWrap = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-icon-wrap]');
-        const headlineEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-headline]');
-        const legendAssetsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-legend-assets]');
-        const periodLabelEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-period-label]');
-        const contributionEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-contribution]');
-        const totalLabelEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-total-label]');
-        const totalEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-total]');
-        const valueEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-value]');
-        const profitPctEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-pct]');
-        const profitHistPctEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-historic-pct]');
-        const profitAssetIconsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-asset-icons]');
-        const profitHistCapEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-historic-caption]');
-        const profitStratCapEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-strategy-caption]');
-        const profitAbsEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-abs]');
-        const profitCurEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-profit-currency]');
-        const kickerEl = widgetBreakdownPanel.querySelector('[data-plan-widget-breakdown-title-kicker]');
-
+      const syncFromWidget = () => {
         const carousel = document.querySelector('[data-plan-carousel]');
         const activePlan = String(carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
         const selectedAssets = (planAllocation[activePlan] || planAllocation.bitcoin || []).slice(0, 3);
@@ -4695,6 +4888,7 @@
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
         const freqLabel = freq === 'daily' ? 'Daily' : freq === 'weekly' ? 'Weekly' : 'Monthly';
+        const fallbackIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
 
         const sim = updatePlanStrategyHistoricalReturn({
           amount,
@@ -4704,70 +4898,63 @@
           domWrite: false,
           displayAssets: selectedAssets,
         });
-        const pct = Number.isFinite(sim?.returnPct) ? sim.returnPct : 0;
-        const histPct = Number.isFinite(sim?.historicReturnPct) ? sim.historicReturnPct : 0;
-        const totalInvested = Math.round(Number.isFinite(sim?.totalInvested) ? sim.totalInvested : 0);
-        const profit = Number.isFinite(sim?.profit) ? sim.profit : 0;
-        const value = Math.round(totalInvested + profit);
 
-        const fallbackIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
-        const isBreakdownIconStack = selectedAssets.length >= 2;
-        iconWrap?.classList.toggle('plan-breakdown-panel__asset-wrap--stack', isBreakdownIconStack);
-        iconWrap?.classList.toggle('plan-breakdown-panel__asset-wrap--single', !isBreakdownIconStack);
-        renderPlanDetailProductIcons(iconWrap, iconWrap, fallbackIconSrc, tickers.length ? selectedAssets : null, {
-          singleProductClass: 'plan-breakdown-panel__asset-icon',
-          singleHeaderClass: 'plan-breakdown-panel__asset-icon',
+        applyCommonBreakdownUi({
+          selectedAssets,
+          prettyTickers,
+          range,
+          amount,
+          cur,
+          freqLabel,
+          sim,
+          chartPlanKey: activePlan,
+          freq,
+          fallbackIconSrc,
         });
-        const startedAgo = `If you'd started ${range} ago`;
-        if (kickerEl) kickerEl.textContent = startedAgo;
-        if (headlineEl) headlineEl.textContent = `${startedAgo} and invested in ${prettyTickers}`;
-        widgetBreakdownPanel.querySelectorAll('[data-plan-widget-breakdown-profit-range-label]').forEach((el) => {
-          el.textContent = startedAgo;
-        });
-        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
-        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
-        if (totalLabelEl) totalLabelEl.textContent = `Total investment`;
-        if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
-        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
-        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
-        if (profitPctEl) {
-          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
-        }
-        if (profitHistPctEl) {
-          profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
-        }
-        const profitIconsW = buildReturnMetricProductIconWrap(selectedAssets, fallbackIconSrc);
-        setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIconsW.html, { layoutSig: profitIconsW.sig });
-        if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
-        if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
-        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
-        if (profitCurEl) profitCurEl.textContent = cur;
+      };
 
-        const stratGw = widgetBreakdownPanel.querySelector(
-          '.plan-breakdown-panel__profit-metrics-col--strategy.plan-breakdown-panel__profit-metrics-col--values',
-        );
-        const histGw = widgetBreakdownPanel.querySelector(
-          '.plan-breakdown-panel__profit-metrics-col--historic.plan-breakdown-panel__profit-metrics-col--values',
-        );
-        setReturnMetricTone(stratGw, profit);
-        setReturnMetricTone(histGw, histPct);
+      const sync = (opts = {}) => {
+        const source =
+          opts.source ||
+          (breakdownPanel.classList.contains('is-open') ? breakdownOpenSource : 'detail');
+        if (source === 'widget') syncFromWidget();
+        else syncFromDetail(opts);
+      };
+
+      const open = () => {
+        breakdownOpenSource = 'detail';
+        setBreakdownRangeButtons('detail');
+        syncFromDetail();
+        panel.classList.add('is-plan-breakdown-open');
+        breakdownPanel.hidden = false;
+        requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
+      };
+
+      const openFromPlanWidget = () => {
+        breakdownOpenSource = 'widget';
+        setBreakdownRangeButtons('widget');
+        syncFromWidget();
+        breakdownPanel.hidden = false;
+        requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
       };
 
       const close = (closeOpts = {}) => {
+        const finishClose = () => {
+          breakdownPanel.hidden = true;
+          panel.classList.remove('is-plan-breakdown-open');
+        };
         if (closeOpts.instant) {
           breakdownPanel.style.transition = 'none';
           breakdownPanel.classList.remove('is-open');
           void breakdownPanel.offsetHeight;
           breakdownPanel.style.transition = '';
-          breakdownPanel.hidden = true;
-          panel.classList.remove('is-plan-breakdown-open');
+          finishClose();
           return;
         }
         breakdownPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!breakdownPanel.classList.contains('is-open')) {
-            breakdownPanel.hidden = true;
-            panel.classList.remove('is-plan-breakdown-open');
+            finishClose();
           }
           breakdownPanel.removeEventListener('transitionend', onEnd);
         };
@@ -4778,23 +4965,26 @@
       panel.querySelector('.plan-detail-panel__view-breakdown-link')?.addEventListener('click', open);
       document.querySelector('.plan-strategy__view-breakdown-link')?.addEventListener('click', openFromPlanWidget);
       breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
-      widgetBreakdownPanel?.querySelectorAll('[data-plan-widget-breakdown-close]')
-        .forEach((btn) => btn.addEventListener('click', () => closeFromPlanWidget()));
 
       document.addEventListener('range-sheet-confirmed', (e) => {
-        if (e?.detail?.context !== 'breakdown') return;
-        if (breakdownPanel.classList.contains('is-open')) sync();
+        if (!breakdownPanel.classList.contains('is-open')) return;
+        const ctx = e?.detail?.context;
+        if (ctx === 'breakdown' && breakdownOpenSource === 'detail') sync({ source: 'detail' });
+        if (ctx === 'widgetBreakdown' && breakdownOpenSource === 'widget') sync({ source: 'widget' });
       });
 
       document.addEventListener('plan-schedule-confirmed', () => {
-        if (breakdownPanel.classList.contains('is-open')) sync();
-      });
-      document.addEventListener('range-sheet-confirmed', (e) => {
-        if (e?.detail?.context !== 'widgetBreakdown') return;
-        if (widgetBreakdownPanel?.classList.contains('is-open')) syncFromPlanWidget();
+        if (breakdownPanel.classList.contains('is-open') && breakdownOpenSource === 'detail') sync({ source: 'detail' });
       });
 
-      return { open, close, sync };
+      return {
+        open,
+        close,
+        sync,
+        syncFromPlanWidget: () => {
+          if (breakdownPanel.classList.contains('is-open') && breakdownOpenSource === 'widget') syncFromWidget();
+        },
+      };
     };
     planBreakdownApi = initPlanBreakdownPanel();
 
@@ -6048,7 +6238,7 @@
         applyLiveFormat();
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
-        const bp = panel.querySelector('[data-plan-breakdown-panel]');
+        const bp = document.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
         const op = panel.querySelector('[data-plan-overview-panel]');
         if (op?.classList.contains('is-open')) planOverviewApi.sync();
@@ -6065,7 +6255,7 @@
         }
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
-        const bp = panel.querySelector('[data-plan-breakdown-panel]');
+        const bp = document.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
         const op = panel.querySelector('[data-plan-overview-panel]');
         if (op?.classList.contains('is-open')) planOverviewApi.sync();
