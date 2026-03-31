@@ -2912,7 +2912,6 @@
     /** @type {{ source: 'plan' | 'curated' | 'spotlight' | 'newplan', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
     let customPlanTitle = '';
-    let allocLockIntroHintSeen = false;
 
     const openBtn = document.querySelector('.plan-strategy__cta');
     const newPlanBtn = document.querySelector('.finance-summary__btn--primary');
@@ -3605,17 +3604,6 @@
         resetAllocLockTooltipAutoHide();
       };
 
-      const showAllocLockIntroTooltip = (anchorEl) => {
-        if (count !== 3 || !anchorEl || !tipEl || !contentEl || !tipTextEl || allocLockIntroHintSeen) return;
-        allocLockIntroHintSeen = true;
-        lastTooltipAnchor = anchorEl;
-        tipTextEl.textContent = 'Lock to keep this allocation fixed while adjusting others';
-        tipEl.classList.add('alloc-multi__lock-tooltip--intro');
-        if (tipCloseBtn) tipCloseBtn.hidden = false;
-        tipEl.classList.add('is-visible');
-        updateAllocLockTooltipPosition();
-      };
-
       // Reposition on scroll (new closure each init — abort prior listener to avoid stacking)
       const scrollAbortKey = '_allocLockTooltipScrollAbort';
       if (scrollRoot) {
@@ -3688,6 +3676,7 @@
 
       /** @returns {{ hitLockedCap: boolean, lockedIdx: number }} */
       const redistribute = (changedIdx, newPct) => {
+        const prevPcts = pcts.slice();
         const others = items
           .map((_, j) => j)
           .filter((j) => j !== changedIdx && !locked[j]);
@@ -3714,6 +3703,23 @@
 
         if (others.length === 1) {
           pcts[others[0]] = toShare;
+        } else if (count === 3 && lockedSum === 0) {
+          // 3-asset UX: keep the higher of the other two as stable as possible,
+          // and let the lowest-allocated asset absorb most of the remaining %
+          const [aIdx, bIdx] = others;
+          const aPrev = prevPcts[aIdx];
+          const bPrev = prevPcts[bIdx];
+          const lowIdx = aPrev <= bPrev ? aIdx : bIdx;
+          const highIdx = aPrev <= bPrev ? bIdx : aIdx;
+          const maxForHigh = Math.max(minSlot, toShare - minSlot);
+          let highTarget = Math.min(maxForHigh, Math.max(minSlot, prevPcts[highIdx]));
+          let lowTarget = toShare - highTarget;
+          if (lowTarget < minSlot) {
+            lowTarget = minSlot;
+            highTarget = toShare - lowTarget;
+          }
+          pcts[highIdx] = highTarget;
+          pcts[lowIdx] = lowTarget;
         } else {
           // Distribute proportionally to current values (feels natural on sliders)
           const othersSum = others.reduce((s, j) => s + pcts[j], 0);
@@ -3939,10 +3945,6 @@
       renderAll();
       refreshPlanDetailAllocTweak();
       syncAllocInputModeClass();
-      if (count === 3) {
-        const firstLockBtn = items[0]?.querySelector('[data-alloc-lock-btn]');
-        if (firstLockBtn) showAllocLockIntroTooltip(firstLockBtn);
-      }
 
       // Mode toggle (Amount / %) — inputs show % or Auto-invest × allocation
       const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
