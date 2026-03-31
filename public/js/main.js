@@ -6225,17 +6225,17 @@
       {
         title: 'Invest automatically: The easiest way to dollar-cost average',
         desc: 'Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.',
-        visual: 'assets/finance_intro_placeholder_1.svg',
+        visual: 'assets/finance_intro_step_1.svg',
       },
       {
         title: 'Pick from coins, curated portfolios, or build your own',
         desc: 'Start quickly with ready-made options, or customize allocations that match your conviction.',
-        visual: 'assets/finance_intro_placeholder_2.svg',
+        visual: 'assets/finance_intro_step_2.svg',
       },
       {
         title: 'Track your plan and adjust anytime',
         desc: 'Review performance, edit funding and schedule settings, and keep your strategy running.',
-        visual: 'assets/finance_intro_placeholder_3.svg',
+        visual: 'assets/finance_intro_step_3.svg',
       },
     ];
     let activeStep = 0;
