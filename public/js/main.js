@@ -412,15 +412,15 @@
     /** Prototype S&P-style index (same 60-month grid as crypto) for breakdown chart benchmark line. */
     sp500: expandPrototypeHistoricKnotsToMonthly60([
       [0, 100],
-      [2, 83],  // early drawdown
-      [10, 126], // recovery + melt-up
-      [18, 147],
-      [24, 158],
-      [31, 122], // 2022-style pullback
-      [38, 136],
-      [45, 162],
-      [52, 181],
-      [59, 196],
+      [2, 78],   // early drawdown
+      [10, 138], // strong recovery + melt-up
+      [18, 172],
+      [24, 186],
+      [31, 132], // 2022-style pullback
+      [38, 158],
+      [45, 195],
+      [52, 223],
+      [59, 246],
     ]),
   };
 
@@ -592,11 +592,15 @@
       ...sp500Value,
       ...investedValue,
     );
-    const padded = rawPeak * 1.06;
+    // Keep top headroom tight while still using readable "nice" axis steps.
+    const padded = rawPeak * 1.02;
     const exp = Math.floor(Math.log10(Math.max(padded, 1)));
-    const mant = padded / 10 ** exp;
-    const niceM = mant <= 1 ? 1 : mant <= 2 ? 2 : mant <= 5 ? 5 : 10;
-    const yMax = niceM * 10 ** exp;
+    const unit = 10 ** exp;
+    const niceSteps = [1, 1.2, 1.5, 1.8, 2, 2.5, 3, 4, 5, 6, 7.5, 8, 10];
+    const yMax =
+      niceSteps
+        .map((s) => s * unit)
+        .find((v) => v >= padded) || (12 * unit);
     const yTicks = [0, Math.round(yMax / 3), Math.round((2 * yMax) / 3), yMax];
 
     return { strategyValue, sp500Value, investedValue, xYears, yTicks, yMax };
@@ -631,6 +635,20 @@
         .map((v, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i).toFixed(2)} ${yAt(v).toFixed(2)}`)
         .join(' ');
     };
+    const circlesFor = (arr, color) => {
+      if (!arr.length) return '';
+      const firstX = xAt(0);
+      const firstY = yAt(arr[0]);
+      if (arr.length === 1) {
+        return `<circle cx="${firstX.toFixed(2)}" cy="${firstY.toFixed(2)}" r="2.5" fill="${color}" />`;
+      }
+      const lastX = xAt(arr.length - 1);
+      const lastY = yAt(arr[arr.length - 1]);
+      return [
+        `<circle cx="${firstX.toFixed(2)}" cy="${firstY.toFixed(2)}" r="2.5" fill="${color}" />`,
+        `<circle cx="${lastX.toFixed(2)}" cy="${lastY.toFixed(2)}" r="2.5" fill="${color}" />`,
+      ].join('');
+    };
 
     const yearLabels = [];
     const seenY = new Set();
@@ -652,11 +670,12 @@
       .join('');
 
     const xLabelsHtml = yearLabels
-      .map(({ text, x }, idx) => {
+      .map(({ text }, idx) => {
+        const nLabels = yearLabels.length;
         const isFirst = idx === 0;
-        const isLast = idx === yearLabels.length - 1;
+        const isLast = idx === nLabels - 1;
         const anchor = isFirst ? 'start' : isLast ? 'end' : 'middle';
-        const xx = isFirst ? left : isLast ? right : x;
+        const xx = nLabels <= 1 ? left : left + (idx / (nLabels - 1)) * (right - left);
         return `<text x="${xx}" y="${bottom + 14}" fill="#58595A" font-size="11" font-weight="600" text-anchor="${anchor}">${text}</text>`;
       })
       .join('');
@@ -676,6 +695,9 @@
       <path d="${pathFrom(investedValue)}" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
       <path d="${pathFrom(sp500Value)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
       <path d="${pathFrom(strategyValue)}" stroke="#8FB8FF" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      ${circlesFor(investedValue, '#ffffff')}
+      ${circlesFor(sp500Value, '#275CFD')}
+      ${circlesFor(strategyValue, '#8FB8FF')}
       ${xLabelsHtml}
       ${yLabelsHtml}
     `;
@@ -1843,7 +1865,7 @@
         endLimitRowBtn.tabIndex = -1;
         endLimitTitleEl.textContent = 'Set a limit (disabled)';
         if (descEl) {
-          descEl.textContent = 'Enter an amount to enable limits';
+          descEl.textContent = 'Enter an amount to buy first';
           descEl.classList.add('schedule-end-limit-desc--needs-amount');
         }
         return;
@@ -4724,6 +4746,7 @@
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
       const legendAssetsEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-assets]');
+      const simTitleEl = breakdownPanel.querySelector('[data-plan-breakdown-sim-title]');
       const periodLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-period-label]');
       const contributionEl = breakdownPanel.querySelector('[data-plan-breakdown-contribution]');
       const totalLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-total-label]');
@@ -4780,6 +4803,7 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
+        if (simTitleEl) simTitleEl.textContent = `${range} simulated value/return`;
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `If you'd started ${range} ago ≈`;
         });
@@ -6056,6 +6080,7 @@
 
     // ── Amount input ──────────────────────────────────────────────────────────
     const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+    const detailBreakdownLinkBtn = panel.querySelector('.plan-detail-panel__view-breakdown-link');
 
     const formatWithCommas = (n) => n.toLocaleString('en-US');
 
@@ -6065,12 +6090,18 @@
     let returnObserver = null;
     const mainReturnAbsEl = document.querySelector('.plan-strategy__return-abs');
     const observerOpts = { childList: true, characterData: true, subtree: true };
+    const syncDetailBreakdownLinkState = () => {
+      if (!detailBreakdownLinkBtn) return;
+      const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
+      detailBreakdownLinkBtn.disabled = !(Number.isFinite(amount) && amount > 0);
+    };
 
     const updateDetailReturn = () => {
       const ctx = panelOpenContext;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
       const titleEl = panel.querySelector('[data-plan-detail-return-title]');
       const currEl = panel.querySelector('[data-plan-detail-return-currency]');
+      syncDetailBreakdownLinkState();
 
       // Always recalculate coverage whenever amount or currency changes
       updateCoverageUI();
@@ -6241,6 +6272,7 @@
       // Set initial formatted value
       const initialRaw = parseInt(amountInput.value.replace(/[^0-9]/g, ''), 10);
       setDisplayValue(initialRaw);
+      syncDetailBreakdownLinkState();
 
       amountInput.addEventListener('focus', () => {
         const labelEl = amountInput
