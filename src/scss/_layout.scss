@@ -6623,16 +6623,16 @@ div.currency-sheet__item-icon {
 
 .alloc-multi__lock-tooltip--intro {
   width: auto;
+  min-width: 300px;
   max-width: 228px;
   border-radius: 8px;
   padding: 10px;
   text-align: left;
-  line-height: 20px;
 }
 
 .alloc-multi__lock-tooltip--intro .alloc-multi__lock-tooltip-text {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 20px;
 }
 
