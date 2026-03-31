@@ -1745,8 +1745,116 @@ html[data-active-tab="finance"] {
 }
 
 .finance-intro {
-  padding-top: 12px;
+
   margin-bottom: 24px;
+}
+
+.finance-intro__state[hidden] {
+  display: none !important;
+}
+
+.finance-intro__first-card {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  background: #1b1d1d;
+  border: 1px solid #2f3438;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+.finance-intro__first-top {
+  padding: 20px 16px 0px 16px;
+  background-image:
+    linear-gradient(0deg, #1b1d1d 0%, rgba(45, 47, 47, 0.75) 100%),
+    linear-gradient(90deg, #1b1d1d 0%, #1b1d1d 100%);
+}
+
+.finance-intro__first-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.finance-intro__first-bottom {
+  background: #1b1d1d;
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.finance-intro__first-close {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: block;
+  cursor: pointer;
+}
+
+.finance-intro__first-close img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  opacity: 0.9;
+}
+
+.finance-intro__first-headline-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.finance-intro__first-headline {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.phone-container p.finance-intro__first-kicker {
+  margin: 0 !important;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: #9b9c9c;
+}
+
+.phone-container p.finance-intro__first-title {
+  margin: 0 !important;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.phone-container p.finance-intro__first-desc {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.finance-intro__first-illu {
+  flex-shrink: 0;
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: block;
+}
+
+.finance-intro__link--first {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f78ff;
 }
 
 .finance-intro__inner {

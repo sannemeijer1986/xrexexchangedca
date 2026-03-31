@@ -367,17 +367,46 @@
                                 <div class="finance__sections">
                                 <div class="finance-summary">
                                     <div class="finance-intro" aria-label="Auto-invest">
-                                        <div class="finance-intro__inner">
-                                            <div class="finance-intro__copy">
-                                                <p class="finance-intro__title">Invest automatically. Grow.</p>
-                                                <button type="button" class="finance-intro__link">
-                                                    <span>How it works</span>
-                                                    <svg class="finance-intro__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
+                                        <div class="finance-intro__state finance-intro__state--first" data-finance-intro-state="1">
+                                            <div class="finance-intro__first-card">
+                                                <div class="finance-intro__first-top">
+                                                    <div class="finance-intro__first-header">
+                                                        <p class="finance-intro__first-kicker">Introduction</p>
+                                                        <button class="finance-intro__first-close" type="button" data-finance-intro-dismiss aria-label="Dismiss intro">
+                                                            <img src="assets/icon_close_gray.svg" alt="" width="20" height="20" />
+                                                        </button>
+                                                    </div>
+                                                    <div class="finance-intro__first-headline-row">
+                                                        <div class="finance-intro__first-headline">
+                                                            <p class="finance-intro__first-title">Invest automatically. Grow.</p>
+                                                        </div>
+                                                        <img class="finance-intro__first-illu" src="assets/intro_illu.svg" alt="" width="40" height="40" />
+                                                    </div>
+                                                    <p class="finance-intro__first-desc">Invest smarter with curated portfolios designed for long-term growth. Set up your auto-invest plan in minutes.</p>
+                                                </div>
+                                                <div class="finance-intro__first-bottom">
+                                                    <button type="button" class="finance-intro__link finance-intro__link--first" data-finance-intro-how-it-works-first>
+                                                        <span>How it works</span>
+                                                        <svg class="finance-intro__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <img class="finance-intro__illu" src="assets/intro_illu.svg" alt="" width="40" height="40" />
+                                        </div>
+                                        <div class="finance-intro__state finance-intro__state--compact" data-finance-intro-state="2" hidden>
+                                            <div class="finance-intro__inner">
+                                                <div class="finance-intro__copy">
+                                                    <p class="finance-intro__title">Invest automatically. Grow.</p>
+                                                    <button type="button" class="finance-intro__link">
+                                                        <span>How it works</span>
+                                                        <svg class="finance-intro__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <img class="finance-intro__illu" src="assets/intro_illu.svg" alt="" width="40" height="40" />
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="finance-summary__top">
@@ -2230,6 +2259,17 @@
                     <span class="build-badge__state-value" data-state-value></span>
                     <button type="button" class="build-badge__state-btn" data-state-action="up"
                         aria-label="Next flow progress state">+</button>
+                    <span class="build-badge__state-name" data-state-name></span>
+                </div>
+            </div>
+            <div class="build-badge__group" data-state-group="financeIntro">
+                <div class="build-badge__group-label">Finance intro</div>
+                <div class="build-badge__state">
+                    <button type="button" class="build-badge__state-btn" data-state-action="down"
+                        aria-label="Previous finance intro state">−</button>
+                    <span class="build-badge__state-value" data-state-value></span>
+                    <button type="button" class="build-badge__state-btn" data-state-action="up"
+                        aria-label="Next finance intro state">+</button>
                     <span class="build-badge__state-name" data-state-name></span>
                 </div>
             </div>

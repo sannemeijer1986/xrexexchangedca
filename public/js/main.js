@@ -11,6 +11,15 @@
         4: 'State 4',
       },
     },
+    financeIntro: {
+      storageKey: 'xrexexchange.financeIntroState.v1',
+      min: 1,
+      max: 2,
+      labels: {
+        1: 'State 1 (first view)',
+        2: 'State 2 (compact)',
+      },
+    },
   };
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -32,6 +41,14 @@
       el.classList.toggle('is-hidden', shouldHide);
       el.hidden = shouldHide;
     });
+  };
+
+  const syncFinanceIntroState = () => {
+    const introState = states.financeIntro ?? 1;
+    const first = document.querySelector('[data-finance-intro-state="1"]');
+    const compact = document.querySelector('[data-finance-intro-state="2"]');
+    if (first) first.hidden = introState !== 1;
+    if (compact) compact.hidden = introState !== 2;
   };
 
   const getLabel = (group, value) => {
@@ -77,8 +94,14 @@
     }
     updateGroupUI(group);
     if (group === 'flow') {
+      if (clamped > 1 && (states.financeIntro ?? 1) !== 2) {
+        setState('financeIntro', 2, { force: true });
+      }
       syncFinanceSummaryVisibility();
       syncMyPlansFlowUi();
+    }
+    if (group === 'financeIntro') {
+      syncFinanceIntroState();
     }
     return clamped;
   };
@@ -100,6 +123,7 @@
       updateGroupUI(group);
     });
     syncFinanceSummaryVisibility();
+    syncFinanceIntroState();
   };
 
   const initBadgeControls = () => {
@@ -6188,9 +6212,9 @@
   initHeaderScrollSwap();
 
   const initFinanceIntroLearnMorePanel = () => {
-    const trigger = document.querySelector('.finance-intro__link');
+    const triggers = Array.from(document.querySelectorAll('.finance-intro__link'));
     const panelEl = document.querySelector('[data-finance-intro-learn-more-panel]');
-    if (!trigger || !panelEl) return;
+    if (!triggers.length || !panelEl) return;
 
     const open = () => {
       panelEl.hidden = false;
@@ -6212,12 +6236,28 @@
       setTimeout(onEnd, 380);
     };
 
-    trigger.addEventListener('click', open);
+    triggers.forEach((trigger) => trigger.addEventListener('click', open));
     panelEl.querySelectorAll('[data-finance-intro-learn-more-close]')
       .forEach((btn) => btn.addEventListener('click', () => close()));
   };
 
   initFinanceIntroLearnMorePanel();
+
+  const initFinanceIntroStateControls = () => {
+    let forceToCompactTimer = null;
+    document.querySelector('[data-finance-intro-dismiss]')?.addEventListener('click', () => {
+      setState('financeIntro', 2, { force: true });
+    });
+    document.querySelector('[data-finance-intro-how-it-works-first]')?.addEventListener('click', () => {
+      if (forceToCompactTimer) clearTimeout(forceToCompactTimer);
+      // Let the tutorial panel open first, then persist intro as compact state.
+      forceToCompactTimer = setTimeout(() => {
+        setState('financeIntro', 2, { force: true });
+      }, 260);
+    });
+  };
+
+  initFinanceIntroStateControls();
 
   const initSideMenu = () => {
     const container = document.querySelector('.phone-container');
