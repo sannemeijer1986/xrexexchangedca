@@ -669,8 +669,8 @@
       <path d="M${left} ${bottom}H${right}" stroke="#3C4248" />
       <path d="M${right} ${top}V${bottom}" stroke="#3C4248" />
       ${gridHtml}
-      <path d="${pathFrom(investedValue)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
-      <path d="${pathFrom(sp500Value)}" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      <path d="${pathFrom(investedValue)}" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      <path d="${pathFrom(sp500Value)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
       <path d="${pathFrom(strategyValue)}" stroke="#8FB8FF" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
       ${xLabelsHtml}
       ${yLabelsHtml}

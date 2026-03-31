@@ -3326,7 +3326,8 @@ html[data-active-tab="finance"] {
 .currency-sheet {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  // Must sit above plan overlays (e.g. breakdown z-index 32)
+  z-index: 40;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -6873,6 +6874,20 @@ div.currency-sheet__item-icon {
   gap: 12px;
 }
 
+.plan-breakdown-panel__plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-breakdown-panel__plan-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .plan-breakdown-panel__asset-wrap {
   width: 64px;
   height: 64px;
@@ -6902,9 +6917,9 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__asset-wrap--stack {
-  align-self: flex-start;
-  transform: scale(0.86);
-  transform-origin: top left;
+  align-self: center;
+  transform: scale(0.78);
+  transform-origin: center right;
 }
 
 .phone-container p.plan-breakdown-panel__headline {
@@ -6963,7 +6978,7 @@ div.currency-sheet__item-icon {
   align-items: center;
   gap: 8px;
   color: #9b9c9c;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -6979,11 +6994,11 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__dot--sp {
-  background: #ffffff;
+  background: #275cfd;
 }
 
 .plan-breakdown-panel__dot--invested {
-  background: #275cfd;
+  background: #ffffff;
 }
 
 .plan-breakdown-panel__chart-figure {
@@ -7030,6 +7045,10 @@ div.currency-sheet__item-icon {
   > span:last-child {
     color: #ffffff;
     text-align: right;
+  }
+
+  > span[data-plan-breakdown-value] {
+    color: #8fb8ff;
   }
 }
 
