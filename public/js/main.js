@@ -412,14 +412,15 @@
     /** Prototype S&P-style index (same 60-month grid as crypto) for breakdown chart benchmark line. */
     sp500: expandPrototypeHistoricKnotsToMonthly60([
       [0, 100],
-      [8, 103],
-      [16, 106],
-      [24, 110],
-      [32, 114],
-      [40, 118],
-      [48, 123],
-      [56, 128],
-      [59, 132],
+      [2, 83],  // early drawdown
+      [10, 126], // recovery + melt-up
+      [18, 147],
+      [24, 158],
+      [31, 122], // 2022-style pullback
+      [38, 136],
+      [45, 162],
+      [52, 181],
+      [59, 196],
     ]),
   };
 
