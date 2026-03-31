@@ -1749,6 +1749,11 @@ html[data-active-tab="finance"] {
   margin-bottom: 24px;
 }
 
+.finance-intro.is-transitioning {
+  overflow: hidden;
+  transition: height 0.26s ease;
+}
+
 .finance-intro__state[hidden] {
   display: none !important;
 }

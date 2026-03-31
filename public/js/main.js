@@ -6245,8 +6245,50 @@
 
   const initFinanceIntroStateControls = () => {
     let forceToCompactTimer = null;
+    let dismissAnimating = false;
+    const introEl = document.querySelector('.finance-intro');
+    const firstStateEl = document.querySelector('[data-finance-intro-state="1"]');
+    const compactStateEl = document.querySelector('[data-finance-intro-state="2"]');
     document.querySelector('[data-finance-intro-dismiss]')?.addEventListener('click', () => {
+      if (dismissAnimating) return;
+      dismissAnimating = true;
+
+      const firstHeight = firstStateEl?.offsetHeight || 0;
+      let compactHeight = firstHeight;
+
+      if (introEl && firstHeight > 0) {
+        introEl.style.height = `${firstHeight}px`;
+        introEl.classList.add('is-transitioning');
+        // Force sync layout so height transition runs on next write.
+        void introEl.offsetHeight;
+      }
+
+      if (compactStateEl) {
+        const wasHidden = compactStateEl.hidden;
+        const prevStyle = compactStateEl.getAttribute('style') || '';
+        compactStateEl.hidden = false;
+        compactStateEl.style.visibility = 'hidden';
+        compactStateEl.style.pointerEvents = 'none';
+        compactHeight = compactStateEl.offsetHeight || firstHeight;
+        if (wasHidden) compactStateEl.hidden = true;
+        if (prevStyle) compactStateEl.setAttribute('style', prevStyle);
+        else compactStateEl.removeAttribute('style');
+      }
+
       setState('financeIntro', 2, { force: true });
+      if (introEl && compactHeight > 0) {
+        requestAnimationFrame(() => {
+          introEl.style.height = `${compactHeight}px`;
+        });
+      }
+
+      setTimeout(() => {
+        if (introEl) {
+          introEl.classList.remove('is-transitioning');
+          introEl.style.height = '';
+        }
+        dismissAnimating = false;
+      }, 300);
     });
     document.querySelector('[data-finance-intro-how-it-works-first]')?.addEventListener('click', () => {
       if (forceToCompactTimer) clearTimeout(forceToCompactTimer);
