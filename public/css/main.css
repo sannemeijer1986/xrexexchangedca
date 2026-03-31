@@ -2182,7 +2182,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .finance-summary__row--split {
   align-items: flex-start;
-  gap: 24px;
+  gap: 0px;
 }
 
 .finance-summary__stat {
@@ -6432,6 +6432,74 @@ div.currency-sheet__item-icon::before {
 .alloc-multi__lock-tooltip.is-visible {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
+}
+
+.alloc-multi__lock-tooltip--intro {
+  width: auto;
+  max-width: 228px;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: left;
+  line-height: 20px;
+}
+
+.alloc-multi__lock-tooltip--intro .alloc-multi__lock-tooltip-text {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.alloc-multi__lock-tooltip--intro .alloc-multi__lock-tooltip-close {
+  margin-top: 2px;
+}
+
+.alloc-multi__lock-tooltip--intro::before {
+  bottom: -6px;
+  border-left-width: 6px;
+  border-right-width: 6px;
+  border-top-width: 6px;
+}
+
+.alloc-multi__lock-tooltip--intro::after {
+  content: none;
+}
+
+.alloc-multi__lock-tooltip-text {
+  display: block;
+}
+
+.alloc-multi__lock-tooltip-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: transparent;
+}
+.alloc-multi__lock-tooltip-close::before, .alloc-multi__lock-tooltip-close::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+.alloc-multi__lock-tooltip-close::before {
+  transform: rotate(45deg);
+}
+.alloc-multi__lock-tooltip-close::after {
+  transform: rotate(-45deg);
+}
+.alloc-multi__lock-tooltip-close[hidden] {
+  display: none;
 }
 
 .plan-detail-panel__allocation-section {
@@ -9583,3 +9651,5 @@ div.currency-sheet__item-icon::before {
   color: #58595a;
   opacity: 1;
 }
+
+/*# sourceMappingURL=main.css.map */

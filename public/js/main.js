@@ -2912,6 +2912,7 @@
     /** @type {{ source: 'plan' | 'curated' | 'spotlight' | 'newplan', curatedKey?: string, spotlightKey?: string, card?: Element }} */
     let panelOpenContext = { source: 'plan' };
     let customPlanTitle = '';
+    let allocLockIntroHintSeen = false;
 
     const openBtn = document.querySelector('.plan-strategy__cta');
     const newPlanBtn = document.querySelector('.finance-summary__btn--primary');
@@ -3517,7 +3518,15 @@
         tipEl.setAttribute('data-alloc-lock-tooltip', '');
         tipEl.setAttribute('role', 'tooltip');
       }
+      if (!tipEl.querySelector('[data-alloc-lock-tooltip-text]')) {
+        tipEl.innerHTML = `
+          <button class="alloc-multi__lock-tooltip-close" type="button" aria-label="Dismiss hint" data-alloc-lock-tooltip-close>&times;</button>
+          <div class="alloc-multi__lock-tooltip-text" data-alloc-lock-tooltip-text></div>
+        `;
+      }
       if (contentEl) contentEl.appendChild(tipEl);
+      const tipTextEl = tipEl.querySelector('[data-alloc-lock-tooltip-text]');
+      const tipCloseBtn = tipEl.querySelector('[data-alloc-lock-tooltip-close]');
 
       let hideTooltipTimer = null;
       /** @type {Element | null} */
@@ -3586,10 +3595,25 @@
         const lockedItem = items[lockedIdx];
         const name = lockedItem?.querySelector('.alloc-multi__name')?.textContent?.trim() || 'Asset';
         const pct = Math.round(pcts[lockedIdx]);
-        tipEl.textContent = `${name} locked at ${pct}%: unlock it to increase this asset's allocation`;
+        if (tipTextEl) {
+          tipTextEl.textContent = `${name} locked at ${pct}%: unlock it to increase this asset's allocation`;
+        }
+        tipEl.classList.remove('alloc-multi__lock-tooltip--intro');
+        if (tipCloseBtn) tipCloseBtn.hidden = true;
         tipEl.classList.add('is-visible');
         updateAllocLockTooltipPosition();
         resetAllocLockTooltipAutoHide();
+      };
+
+      const showAllocLockIntroTooltip = (anchorEl) => {
+        if (count !== 3 || !anchorEl || !tipEl || !contentEl || !tipTextEl || allocLockIntroHintSeen) return;
+        allocLockIntroHintSeen = true;
+        lastTooltipAnchor = anchorEl;
+        tipTextEl.textContent = 'Lock to keep this allocation fixed while adjusting others';
+        tipEl.classList.add('alloc-multi__lock-tooltip--intro');
+        if (tipCloseBtn) tipCloseBtn.hidden = false;
+        tipEl.classList.add('is-visible');
+        updateAllocLockTooltipPosition();
       };
 
       // Reposition on scroll (new closure each init — abort prior listener to avoid stacking)
@@ -3625,6 +3649,24 @@
           { capture: true, signal: acDoc.signal },
         );
       }
+      if (tipCloseBtn) {
+        tipCloseBtn.addEventListener(
+          'click',
+          (e) => {
+            e.stopPropagation();
+            hideAllocLockTooltip();
+          },
+          { signal: panelCtlSignal },
+        );
+      }
+      tipEl.addEventListener(
+        'click',
+        () => {
+          if (!tipEl.classList.contains('is-visible')) return;
+          hideAllocLockTooltip();
+        },
+        { signal: panelCtlSignal },
+      );
 
       // Redistribute: set changedIdx to newPct and spread the remainder
       // proportionally among unlocked others. Never returns early — always
@@ -3897,6 +3939,10 @@
       renderAll();
       refreshPlanDetailAllocTweak();
       syncAllocInputModeClass();
+      if (count === 3) {
+        const firstLockBtn = items[0]?.querySelector('[data-alloc-lock-btn]');
+        if (firstLockBtn) showAllocLockIntroTooltip(firstLockBtn);
+      }
 
       // Mode toggle (Amount / %) — inputs show % or Auto-invest × allocation
       const modeToggle = panelEl.querySelector('[data-alloc-mode-toggle]');
