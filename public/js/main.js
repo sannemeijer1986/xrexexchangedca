@@ -5796,7 +5796,10 @@
         planBreakdownApi.close();
         planOverviewApi.close();
         planSuccessApi.forceClose();
-        if (openCtx && openCtx.source && openCtx.source !== 'plan') {
+        // When entering from the Finance wizard CTA (no openCtx) or from any non-plan
+        // entrypoint (curated/spotlight/newplan), start with the preset allocation
+        // instead of any stale custom override from a previous visit.
+        if (!openCtx || (openCtx && openCtx.source && openCtx.source !== 'plan')) {
           detailAllocOverride = null;
         }
         panelOpenContext =
