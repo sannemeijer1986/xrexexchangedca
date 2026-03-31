@@ -4424,6 +4424,97 @@ div.currency-sheet__item-icon {
   cursor: pointer;
 }
 
+// ── Prototype start overlay ───────────────────────────────────────────────────
+.proto-start {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+.proto-start[hidden] {
+  display: none !important;
+}
+
+.proto-start__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 14, 15, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.proto-start__modal {
+  position: relative;
+  width: min(420px, calc(100vw - 44px));
+  border-radius: 18px;
+  background: #ffffff;
+  color: #0d0e0f;
+  padding: 18px 16px 14px;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.proto-start__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(13, 14, 15, 0.55);
+}
+
+.proto-start__title {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.proto-start__desc {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(13, 14, 15,  0.7);
+}
+
+.proto-start__actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.proto-start__primary {
+  flex: 1 1 auto;
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: #0d0e0f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.proto-start__primary:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 3px;
+}
+
+.proto-start__link {
+  flex: 0 0 auto;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 14, 15, 0.18);
+  background: transparent;
+  color: rgba(13, 14, 15, 0.78);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .build-badge__group {
   display: flex;
   flex-direction: column;

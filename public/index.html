@@ -20,6 +20,19 @@
 </head>
 
 <body>
+    <!-- Prototype start overlay (full page) -->
+    <div class="proto-start" data-proto-start-overlay role="dialog" aria-modal="true" aria-label="Prototype start">
+        <div class="proto-start__backdrop" aria-hidden="true"></div>
+        <div class="proto-start__modal" role="document">
+            <div class="proto-start__kicker">Prototype controls</div>
+            <div class="proto-start__title">New XREX feature</div>
+            <div class="proto-start__actions">
+                <button class="proto-start__primary" type="button" data-proto-start-begin>Start prototype</button>
+                <!-- <button class="proto-start__link" type="button" data-proto-start-reset>Reset states</button> -->
+            </div>
+        </div>
+    </div>
+
     <div class="phone-container">
         <div class="top-chrome">
             <!-- iOS 17 Status bar -->
@@ -1805,8 +1818,8 @@
                 </div>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--split promo-intro-sheet__footer">
-                <!-- <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
-                    data-promo-intro-sheet-close>Not now</button> -->
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-promo-intro-sheet-not-now>Not now</button>
                 <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
                     data-promo-intro-sheet-primary>Let's go</button>
             </div>
@@ -2190,7 +2203,7 @@
 
         <div class="build-badge__body" id="prototypeStatesBody">
             <button class="build-badge__reset" type="button" data-prototype-reset>Reset states</button>
-            <button class="build-badge__promo-trigger" type="button" data-prototype-promo-intro-sheet>Fire promo buttonsheet</button>
+            <button class="build-badge__promo-trigger" type="button" data-prototype-promo-intro-sheet>Fire promo bottomsheet</button>
             <div class="build-badge__section-row">
                 <label class="build-badge__checkbox">
                     <input type="checkbox" data-prototype-bottomsheet-stacking checked

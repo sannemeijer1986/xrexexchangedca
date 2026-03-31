@@ -971,6 +971,40 @@
     });
   };
 
+  const initPrototypeStartOverlay = () => {
+    const overlay = document.querySelector('[data-proto-start-overlay]');
+    if (!overlay) return;
+    const beginBtn = overlay.querySelector('[data-proto-start-begin]');
+    const resetBtn = overlay.querySelector('[data-proto-start-reset]');
+    const promoTrigger = document.querySelector('[data-prototype-promo-intro-sheet]');
+    let didAutoOpenPromo = false;
+
+    const close = () => {
+      overlay.hidden = true;
+      overlay.setAttribute('aria-hidden', 'true');
+
+      if (!didAutoOpenPromo) {
+        didAutoOpenPromo = true;
+        setTimeout(() => {
+          promoTrigger?.click();
+        }, 400);
+      }
+    };
+
+    // Overlay is visible by default (HTML). Allow keyboard users to start immediately.
+    requestAnimationFrame(() => beginBtn?.focus());
+    beginBtn?.addEventListener('click', close);
+
+    resetBtn?.addEventListener('click', () => {
+      // Reuse the existing prototype reset behavior, then keep overlay open.
+      Object.keys(STATE_CONFIGS).forEach((group) => {
+        setState(group, STATE_CONFIGS[group].min, { force: true });
+      });
+      financeSummaryConfirmedNextBuy = '';
+      applyFinanceSummaryMeta();
+    });
+  };
+
   const curatedReturns = {
     bigthree:    { '5Y': '45.23%', '3Y': '28.15%', '1Y': '18.42%' },
     digitalgold: { '5Y': '35.23%', '3Y': '22.10%', '1Y': '12.35%' },
@@ -1189,10 +1223,12 @@
     });
   };
 
-  const initPromoIntroSheet = () => {
+  const initPromoIntroSheet = (opts = {}) => {
     const sheet = document.querySelector('[data-promo-intro-sheet]');
     if (!sheet) return;
     const panel = sheet.querySelector('.currency-sheet__panel');
+    const goFinanceAutoInvest =
+      typeof opts.goFinanceAutoInvest === 'function' ? opts.goFinanceAutoInvest : () => {};
 
     const open = () => {
       sheet.hidden = false;
@@ -1215,7 +1251,11 @@
     sheet.querySelectorAll('[data-promo-intro-sheet-close]').forEach((btn) => {
       btn.addEventListener('click', close);
     });
-    sheet.querySelector('[data-promo-intro-sheet-primary]')?.addEventListener('click', close);
+    sheet.querySelector('[data-promo-intro-sheet-not-now]')?.addEventListener('click', close);
+    sheet.querySelector('[data-promo-intro-sheet-primary]')?.addEventListener('click', () => {
+      close();
+      goFinanceAutoInvest();
+    });
   };
 
   const updateRangeUI = (context, range) => {
@@ -2376,6 +2416,7 @@
   // ─────────────────────────────────────────────────────────────────────────────
 
   initStates();
+  initPrototypeStartOverlay();
   initBadgeControls();
   const tabNavApi = initTabs();
   const financeHeaderApi = initFinanceHeaderTabs();
@@ -2517,7 +2558,7 @@
   initLimitsPanel();
   initCurrencySheet();
   applyFinanceSummaryMeta();
-  initPromoIntroSheet();
+  initPromoIntroSheet({ goFinanceAutoInvest });
   initRangeSheet();
   initPlanBufferAutofillSheet();
   initTopupSheet();
