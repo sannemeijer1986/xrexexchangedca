@@ -6215,8 +6215,41 @@
     const triggers = Array.from(document.querySelectorAll('.finance-intro__link'));
     const panelEl = document.querySelector('[data-finance-intro-learn-more-panel]');
     if (!triggers.length || !panelEl) return;
+    const titleEl = panelEl.querySelector('[data-finance-intro-learn-more-title]');
+    const descEl = panelEl.querySelector('[data-finance-intro-learn-more-desc]');
+    const stepEls = Array.from(panelEl.querySelectorAll('[data-finance-intro-step]'));
+    const backBtn = panelEl.querySelector('[data-finance-intro-learn-more-back]');
+    const nextBtn = panelEl.querySelector('[data-finance-intro-learn-more-next]');
+    const slides = [
+      {
+        title: 'Invest automatically: The easiest way to dollar-cost average',
+        desc: 'Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.',
+      },
+      {
+        title: 'Pick from coins, curated portfolios, or build your own',
+        desc: 'Start quickly with ready-made options, or customize allocations that match your conviction.',
+      },
+      {
+        title: 'Track your plan and adjust anytime',
+        desc: 'Review performance, edit funding and schedule settings, and keep your strategy running.',
+      },
+    ];
+    let activeStep = 0;
+
+    const renderStep = () => {
+      const safe = Math.max(0, Math.min(slides.length - 1, activeStep));
+      activeStep = safe;
+      const slide = slides[safe];
+      if (titleEl) titleEl.textContent = slide.title;
+      if (descEl) descEl.textContent = slide.desc;
+      stepEls.forEach((el, idx) => el.classList.toggle('is-active', idx <= safe));
+      if (backBtn) backBtn.disabled = safe === 0;
+      if (nextBtn) nextBtn.textContent = safe === slides.length - 1 ? 'Done' : 'Next';
+    };
 
     const open = () => {
+      activeStep = 0;
+      renderStep();
       panelEl.hidden = false;
       requestAnimationFrame(() => panelEl.classList.add('is-open'));
     };
@@ -6237,6 +6270,19 @@
     };
 
     triggers.forEach((trigger) => trigger.addEventListener('click', open));
+    backBtn?.addEventListener('click', () => {
+      if (activeStep <= 0) return;
+      activeStep -= 1;
+      renderStep();
+    });
+    nextBtn?.addEventListener('click', () => {
+      if (activeStep >= slides.length - 1) {
+        close();
+        return;
+      }
+      activeStep += 1;
+      renderStep();
+    });
     panelEl.querySelectorAll('[data-finance-intro-learn-more-close]')
       .forEach((btn) => btn.addEventListener('click', () => close()));
   };

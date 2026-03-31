@@ -866,12 +866,39 @@
 
         <section class="finance-intro-learn-more-panel" data-finance-intro-learn-more-panel hidden aria-label="Auto-invest info">
             <div class="finance-intro-learn-more-panel__header">
-                <div class="finance-intro-learn-more-panel__spacer" aria-hidden="true"></div>
                 <button class="finance-intro-learn-more-panel__close" type="button" data-finance-intro-learn-more-close aria-label="Close">
                     <img src="assets/icon_close.svg" alt="" width="24" height="24" />
                 </button>
+                <div class="finance-intro-learn-more-panel__stepper" aria-hidden="true">
+                    <span class="finance-intro-learn-more-panel__step is-active" data-finance-intro-step="1"></span>
+                    <span class="finance-intro-learn-more-panel__step" data-finance-intro-step="2"></span>
+                    <span class="finance-intro-learn-more-panel__step" data-finance-intro-step="3"></span>
+                </div>
+                <button class="finance-intro-learn-more-panel__help" type="button" aria-label="Help">
+                    <img src="assets/icon_support.svg" alt="" width="24" height="24" />
+                </button>
             </div>
-            <div class="finance-intro-learn-more-panel__body"></div>
+            <div class="finance-intro-learn-more-panel__body">
+                <h2 class="finance-intro-learn-more-panel__title" data-finance-intro-learn-more-title></h2>
+                <div class="finance-intro-learn-more-panel__visual" aria-hidden="true">
+                    <div class="finance-intro-learn-more-panel__chart-line"></div>
+                    <span class="finance-intro-learn-more-panel__dot finance-intro-learn-more-panel__dot--1"></span>
+                    <span class="finance-intro-learn-more-panel__dot finance-intro-learn-more-panel__dot--2"></span>
+                    <span class="finance-intro-learn-more-panel__dot finance-intro-learn-more-panel__dot--3"></span>
+                    <span class="finance-intro-learn-more-panel__dot finance-intro-learn-more-panel__dot--4"></span>
+                    <span class="finance-intro-learn-more-panel__pill finance-intro-learn-more-panel__pill--1">Buy</span>
+                    <span class="finance-intro-learn-more-panel__pill finance-intro-learn-more-panel__pill--2">Buy</span>
+                    <span class="finance-intro-learn-more-panel__pill finance-intro-learn-more-panel__pill--3">Buy</span>
+                    <span class="finance-intro-learn-more-panel__pill finance-intro-learn-more-panel__pill--4">Buy</span>
+                </div>
+                <p class="finance-intro-learn-more-panel__desc" data-finance-intro-learn-more-desc></p>
+            </div>
+            <div class="finance-intro-learn-more-panel__footer">
+                <button class="finance-intro-learn-more-panel__btn finance-intro-learn-more-panel__btn--secondary"
+                    type="button" data-finance-intro-learn-more-back>Back</button>
+                <button class="finance-intro-learn-more-panel__btn finance-intro-learn-more-panel__btn--primary"
+                    type="button" data-finance-intro-learn-more-next>Next</button>
+            </div>
         </section>
 
         <nav class="tabbar" aria-label="Bottom">
@@ -1837,13 +1864,13 @@
                             <p class="promo-intro-sheet__row-desc">Auto-invest in assets like Bitcoin, in curated portfolios, or build your own!</p>
                         </div>
                     </div>
-                    <div class="promo-intro-sheet__row">
+                    <!-- <div class="promo-intro-sheet__row">
                         <div class="promo-intro-sheet__icon" aria-hidden="true"></div>
                         <div class="promo-intro-sheet__text">
                             <div class="promo-intro-sheet__row-title">See historical performance</div>
                             <p class="promo-intro-sheet__row-desc">See how your strategy performed in the past with the calculator</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--split promo-intro-sheet__footer">
