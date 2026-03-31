@@ -5761,6 +5761,12 @@
               : openCtx && openCtx.source === 'spotlight' && openCtx.spotlightKey
                 ? { source: 'spotlight', spotlightKey: String(openCtx.spotlightKey).toLowerCase(), card: openCtx.card }
                 : { source: 'plan' };
+        // Entering plan detail from Finance entrypoints should start with a fresh end condition.
+        // Prevent previous "Set a limit" state from leaking across entries.
+        const repeatsEndEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        if (repeatsEndEl) repeatsEndEl.textContent = 'Continuous';
+        scheduleSheetApi.planDetailRepeatsEndLimitText = '';
+        syncPlanDetailSetLimitDetailRowsVisibility();
         populatePanel();
         resetScrollState();
         // Always start with the Repeats "Details" disclosure collapsed (instant, no animation).
