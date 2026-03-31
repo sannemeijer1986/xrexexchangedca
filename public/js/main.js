@@ -6101,7 +6101,12 @@
       ) || 0;
       const hasAmount = Number.isFinite(amount) && amount > 0;
       const hasAssets = allocCount > 0;
-      detailBreakdownLinkBtn.disabled = !(hasAmount && hasAssets);
+      const disabled = !(hasAmount && hasAssets);
+      detailBreakdownLinkBtn.disabled = disabled;
+      const icon = detailBreakdownLinkBtn.querySelector('img');
+      if (icon) {
+        icon.src = disabled ? 'assets/icon_right_graychev.svg' : 'assets/icon_right_bluechev.svg';
+      }
     };
 
     const updateDetailReturn = () => {
