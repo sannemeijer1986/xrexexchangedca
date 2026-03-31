@@ -3053,6 +3053,7 @@
     const syncPlanDetailContinueState = () => {
       const continueBtn = panel.querySelector('.plan-detail-panel__continue');
       if (!continueBtn) return;
+      const breakdownBtn = panel.querySelector('.plan-detail-panel__view-breakdown-link');
 
       const allocCount = parseInt(
         panel.querySelector('[data-plan-detail-alloc-count]')?.textContent?.trim() || '0',
@@ -3070,6 +3071,7 @@
       const exceedsBalance = amount > balance;
 
       continueBtn.disabled = noAssets || noAmount || exceedsBalance;
+      if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount;
     };
 
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
@@ -6093,7 +6095,13 @@
     const syncDetailBreakdownLinkState = () => {
       if (!detailBreakdownLinkBtn) return;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
-      detailBreakdownLinkBtn.disabled = !(Number.isFinite(amount) && amount > 0);
+      const allocCount = parseInt(
+        panel.querySelector('[data-plan-detail-alloc-count]')?.textContent?.trim() || '0',
+        10,
+      ) || 0;
+      const hasAmount = Number.isFinite(amount) && amount > 0;
+      const hasAssets = allocCount > 0;
+      detailBreakdownLinkBtn.disabled = !(hasAmount && hasAssets);
     };
 
     const updateDetailReturn = () => {
