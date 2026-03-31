@@ -651,10 +651,13 @@
       .join('');
 
     const xLabelsHtml = yearLabels
-      .map(
-        ({ text, x }) =>
-          `<text x="${x}" y="${bottom + 14}" fill="#58595A" font-size="11" font-weight="600" text-anchor="middle">${text}</text>`,
-      )
+      .map(({ text, x }, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === yearLabels.length - 1;
+        const anchor = isFirst ? 'start' : isLast ? 'end' : 'middle';
+        const xx = isFirst ? left : isLast ? right : x;
+        return `<text x="${xx}" y="${bottom + 14}" fill="#58595A" font-size="11" font-weight="600" text-anchor="${anchor}">${text}</text>`;
+      })
       .join('');
 
     const gridHtml = yTicks
@@ -4923,6 +4926,9 @@
 
       const open = () => {
         breakdownOpenSource = 'detail';
+        // Opening breakdown from plan-detail footer should inherit the current plan range.
+        rangeState.breakdown = rangeState.plan || rangeState.breakdown || '5Y';
+        updateRangeUI('breakdown', rangeState.breakdown);
         setBreakdownRangeButtons('detail');
         syncFromDetail();
         panel.classList.add('is-plan-breakdown-open');
@@ -4932,6 +4938,9 @@
 
       const openFromPlanWidget = () => {
         breakdownOpenSource = 'widget';
+        // Opening breakdown from Finance quick strategy should inherit its current range.
+        rangeState.widgetBreakdown = rangeState.plan || rangeState.widgetBreakdown || '5Y';
+        updateRangeUI('widgetBreakdown', rangeState.widgetBreakdown);
         setBreakdownRangeButtons('widget');
         syncFromWidget();
         breakdownPanel.hidden = false;
@@ -4969,8 +4978,14 @@
       document.addEventListener('range-sheet-confirmed', (e) => {
         if (!breakdownPanel.classList.contains('is-open')) return;
         const ctx = e?.detail?.context;
-        if (ctx === 'breakdown' && breakdownOpenSource === 'detail') sync({ source: 'detail' });
-        if (ctx === 'widgetBreakdown' && breakdownOpenSource === 'widget') sync({ source: 'widget' });
+        // The breakdown panel is shared by Plan Detail and Finance widget.
+        // Once opened, it must not "switch sources" when range changes — only refresh
+        // if the confirmed range context matches the currently-open source.
+        if (ctx === 'breakdown' && (breakdownOpenSource === 'detail' || rangeBtnDetail?.hidden === false)) {
+          syncFromDetail();
+        } else if (ctx === 'widgetBreakdown' && (breakdownOpenSource === 'widget' || rangeBtnWidget?.hidden === false)) {
+          syncFromWidget();
+        }
       });
 
       document.addEventListener('plan-schedule-confirmed', () => {
