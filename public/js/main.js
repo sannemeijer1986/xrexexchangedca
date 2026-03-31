@@ -6217,6 +6217,7 @@
     if (!triggers.length || !panelEl) return;
     const titleEl = panelEl.querySelector('[data-finance-intro-learn-more-title]');
     const descEl = panelEl.querySelector('[data-finance-intro-learn-more-desc]');
+    const visualEl = panelEl.querySelector('[data-finance-intro-learn-more-visual]');
     const stepEls = Array.from(panelEl.querySelectorAll('[data-finance-intro-step]'));
     const backBtn = panelEl.querySelector('[data-finance-intro-learn-more-back]');
     const nextBtn = panelEl.querySelector('[data-finance-intro-learn-more-next]');
@@ -6224,14 +6225,17 @@
       {
         title: 'Invest automatically: The easiest way to dollar-cost average',
         desc: 'Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.',
+        visual: 'assets/finance_intro_placeholder_1.svg',
       },
       {
         title: 'Pick from coins, curated portfolios, or build your own',
         desc: 'Start quickly with ready-made options, or customize allocations that match your conviction.',
+        visual: 'assets/finance_intro_placeholder_2.svg',
       },
       {
         title: 'Track your plan and adjust anytime',
         desc: 'Review performance, edit funding and schedule settings, and keep your strategy running.',
+        visual: 'assets/finance_intro_placeholder_3.svg',
       },
     ];
     let activeStep = 0;
@@ -6242,8 +6246,11 @@
       const slide = slides[safe];
       if (titleEl) titleEl.textContent = slide.title;
       if (descEl) descEl.textContent = slide.desc;
+      if (visualEl && slide.visual) visualEl.setAttribute('src', slide.visual);
       stepEls.forEach((el, idx) => el.classList.toggle('is-active', idx <= safe));
-      if (backBtn) backBtn.disabled = safe === 0;
+      if (backBtn) backBtn.hidden = safe === 0;
+      if (backBtn) backBtn.disabled = false;
+      if (nextBtn) nextBtn.classList.toggle('finance-intro-learn-more-panel__btn--full', safe === 0);
       if (nextBtn) nextBtn.textContent = safe === slides.length - 1 ? 'Done' : 'Next';
     };
 
@@ -6271,7 +6278,10 @@
 
     triggers.forEach((trigger) => trigger.addEventListener('click', open));
     backBtn?.addEventListener('click', () => {
-      if (activeStep <= 0) return;
+      if (activeStep <= 0) {
+        close();
+        return;
+      }
       activeStep -= 1;
       renderStep();
     });

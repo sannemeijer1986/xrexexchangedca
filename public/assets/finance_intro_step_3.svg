@@ -1,0 +1,13 @@
+<svg width="313" height="221" viewBox="0 0 313 221" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="313" height="221" rx="16" fill="#1B1D1D"/>
+  <rect x="28" y="32" width="257" height="44" rx="12" fill="#232627"/>
+  <text x="44" y="59" fill="#FFFFFF" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Schedule</text>
+  <text x="203" y="59" fill="#8FB8FF" font-size="14" font-family="Manrope, sans-serif" font-weight="700">Monthly · 15th</text>
+  <rect x="28" y="86" width="257" height="44" rx="12" fill="#232627"/>
+  <text x="44" y="113" fill="#FFFFFF" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Funding</text>
+  <text x="213" y="113" fill="#8FB8FF" font-size="14" font-family="Manrope, sans-serif" font-weight="700">Pre-fund</text>
+  <rect x="28" y="140" width="257" height="44" rx="12" fill="#232627"/>
+  <text x="44" y="167" fill="#FFFFFF" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Status</text>
+  <rect x="220" y="152" width="52" height="20" rx="10" fill="#0B6B35"/>
+  <text x="246" y="166" text-anchor="middle" fill="#5AC47D" font-size="12" font-family="Manrope, sans-serif" font-weight="700">Active</text>
+</svg>

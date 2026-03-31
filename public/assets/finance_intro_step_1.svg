@@ -1,0 +1,16 @@
+<svg width="313" height="221" viewBox="0 0 313 221" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="313" height="221" rx="16" fill="#1B1D1D"/>
+  <path d="M8 145C27 142 35 167 52 167C69 167 75 152 91 152C111 152 117 183 136 183C154 183 165 158 184 158C200 158 210 136 228 136C245 136 255 133 274 124C292 115 302 102 305 86" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="53" cy="166" r="5" fill="#62D593"/>
+  <circle cx="112" cy="152" r="5" fill="#62D593"/>
+  <circle cx="172" cy="170" r="5" fill="#62D593"/>
+  <circle cx="232" cy="136" r="5" fill="#62D593"/>
+  <rect x="33" y="129" width="42" height="28" rx="14" fill="#0B6B35"/>
+  <rect x="93" y="117" width="42" height="28" rx="14" fill="#0B6B35"/>
+  <rect x="154" y="132" width="42" height="28" rx="14" fill="#0B6B35"/>
+  <rect x="214" y="99" width="42" height="28" rx="14" fill="#0B6B35"/>
+  <text x="54" y="147" text-anchor="middle" fill="#5AC47D" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Buy</text>
+  <text x="114" y="135" text-anchor="middle" fill="#5AC47D" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Buy</text>
+  <text x="175" y="150" text-anchor="middle" fill="#5AC47D" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Buy</text>
+  <text x="235" y="117" text-anchor="middle" fill="#5AC47D" font-size="14" font-family="Manrope, sans-serif" font-weight="600">Buy</text>
+</svg>

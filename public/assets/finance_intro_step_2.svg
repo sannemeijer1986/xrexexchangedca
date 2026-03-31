@@ -1,0 +1,16 @@
+<svg width="313" height="221" viewBox="0 0 313 221" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="313" height="221" rx="16" fill="#1B1D1D"/>
+  <rect x="24" y="34" width="82" height="58" rx="12" fill="#232627"/>
+  <rect x="115" y="34" width="82" height="58" rx="12" fill="#232627"/>
+  <rect x="206" y="34" width="82" height="58" rx="12" fill="#232627"/>
+  <circle cx="46" cy="58" r="10" fill="#2C61FD"/>
+  <text x="61" y="62" fill="#FFFFFF" font-size="11" font-family="Manrope, sans-serif" font-weight="600">BTC 40%</text>
+  <circle cx="137" cy="58" r="10" fill="#61D592"/>
+  <text x="152" y="62" fill="#FFFFFF" font-size="11" font-family="Manrope, sans-serif" font-weight="600">ETH 35%</text>
+  <circle cx="228" cy="58" r="10" fill="#F8A545"/>
+  <text x="243" y="62" fill="#FFFFFF" font-size="11" font-family="Manrope, sans-serif" font-weight="600">USDT 25%</text>
+  <rect x="24" y="112" width="264" height="74" rx="12" fill="#111315" stroke="#2F3438"/>
+  <text x="40" y="135" fill="#8FB8FF" font-size="12" font-family="Manrope, sans-serif" font-weight="700">Curated Portfolio</text>
+  <text x="40" y="157" fill="#FFFFFF" font-size="16" font-family="Manrope, sans-serif" font-weight="700">Balanced Growth</text>
+  <text x="40" y="176" fill="#9B9C9C" font-size="12" font-family="Manrope, sans-serif" font-weight="600">Diversified. Rebalanced. Auto-invest ready.</text>
+</svg>
