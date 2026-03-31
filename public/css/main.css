@@ -3802,11 +3802,11 @@ div.currency-sheet__item-icon::before {
 }
 
 .currency-sheet--schedule-time {
-  z-index: 35;
+  z-index: 45;
 }
 
 .currency-sheet--schedule-followup {
-  z-index: 36;
+  z-index: 46;
 }
 
 .currency-sheet__body--schedule-followup {

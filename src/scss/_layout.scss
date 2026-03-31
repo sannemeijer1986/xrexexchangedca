@@ -3842,12 +3842,12 @@ div.currency-sheet__item-icon {
 
 // Schedule time wheel (Figma 8514:6906) — stacks above main schedule sheet
 .currency-sheet--schedule-time {
-  z-index: 35;
+  z-index: 45;
 }
 
 // Schedule nested follow-ups (end date, # buys) — above time picker layer
 .currency-sheet--schedule-followup {
-  z-index: 36;
+  z-index: 46;
 }
 
 .currency-sheet__body--schedule-followup {
