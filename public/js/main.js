@@ -3688,6 +3688,7 @@
 
       /** @returns {{ hitLockedCap: boolean, lockedIdx: number }} */
       const redistribute = (changedIdx, newPct) => {
+        const prevPcts = pcts.slice();
         const others = items
           .map((_, j) => j)
           .filter((j) => j !== changedIdx && !locked[j]);
@@ -3714,6 +3715,23 @@
 
         if (others.length === 1) {
           pcts[others[0]] = toShare;
+        } else if (count === 3 && lockedSum === 0) {
+          // 3-asset UX: keep the higher of the other two as stable as possible,
+          // and let the lowest-allocated asset absorb most of the remaining %
+          const [aIdx, bIdx] = others;
+          const aPrev = prevPcts[aIdx];
+          const bPrev = prevPcts[bIdx];
+          const lowIdx = aPrev <= bPrev ? aIdx : bIdx;
+          const highIdx = aPrev <= bPrev ? bIdx : aIdx;
+          const maxForHigh = Math.max(minSlot, toShare - minSlot);
+          let highTarget = Math.min(maxForHigh, Math.max(minSlot, prevPcts[highIdx]));
+          let lowTarget = toShare - highTarget;
+          if (lowTarget < minSlot) {
+            lowTarget = minSlot;
+            highTarget = toShare - lowTarget;
+          }
+          pcts[highIdx] = highTarget;
+          pcts[lowIdx] = lowTarget;
         } else {
           // Distribute proportionally to current values (feels natural on sliders)
           const othersSum = others.reduce((s, j) => s + pcts[j], 0);
