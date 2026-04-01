@@ -6201,6 +6201,7 @@ div.currency-sheet__item-icon {
 
 // Historic performance row (Figma: “5Y historical performance”)
 .plan-detail-panel__historic-performance-row {
+  margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -6250,7 +6251,7 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__alloc-header-historic-inline {
   display: none;
   width: 100%;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
   margin-top: 4px;
@@ -6266,7 +6267,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__historic-performance-label--below {
-  margin: 0;
+  margin: 8px 0px 0px 0px;
   padding: 0;
   flex-shrink: 0;
 }
@@ -6391,27 +6392,74 @@ div.currency-sheet__item-icon {
   min-width: 0;
 }
 
-.phone-container p.plan-detail-panel__alloc-subtitle {
-  margin: 4px 0 0;
-  padding: 0;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: 'Manrope', sans-serif;
-  color: #9B9C9C;
-  line-height: 1.25;
-  text-align: left;
+.plan-detail-panel__alloc-total {
+  width: 100%;
 
   &[hidden] {
     display: none !important;
   }
 }
 
-// Total % / amount — lives in historic row for multi-asset (swapped with --below label)
-.plan-detail-panel__historic-performance-row .plan-detail-panel__alloc-subtitle {
-  margin-top: 0;
-  flex: 1;
+// Total allocation row (Figma 8736:82837)
+.plan-detail-panel__alloc-total-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.plan-detail-panel__alloc-total-label {
+  flex: 1 1 auto;
   min-width: 0;
-  padding: 12px 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: normal;
+  color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.plan-detail-panel__alloc-total-value {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  gap: 4px;
+}
+
+.plan-detail-panel__alloc-total-current {
+  color: #5ac47d;
+
+  &.is-error {
+    color: #eb5347;
+  }
+}
+
+.plan-detail-panel__alloc-total-target {
+  color: #ffffff;
+}
+
+.plan-detail-panel__alloc-total-error {
+  display: block;
+  opacity: 1;
+  width: 100%;
+  text-align: right;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: normal;
+  color: #eb5347;
+
+  &[hidden] {
+    opacity: 0;
+  }
 }
 
 .plan-detail-panel__alloc-reset {

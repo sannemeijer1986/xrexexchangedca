@@ -3479,16 +3479,32 @@
       const updateAllocHeaderSubtitle = () => {
         const el = panelEl.querySelector('[data-plan-detail-alloc-subtitle]');
         if (!el) return;
+        const currentEl = el.querySelector('[data-plan-detail-alloc-total-current]');
+        const targetEl = el.querySelector('[data-plan-detail-alloc-total-target]');
+        const errEl = el.querySelector('[data-plan-detail-alloc-total-error]');
+
         if (inputMode === 'amount') {
+          // Keep legacy behavior in amount mode: show total amount-per-buy; no /100% or allocation error.
           const total = getPlanDetailInvestTotal();
           const cur = getPlanDetailCurrency();
           const numStr = total > 0 ? total.toLocaleString('en-US') : '0';
-          el.textContent = `Total ${numStr} ${cur}`;
-        } else {
-          const sum = pcts.reduce((a, b) => a + b, 0);
-          const r = Math.round(sum * 10) / 10;
-          el.textContent = Number.isInteger(r) ? `Total ${r}%` : `Total ${r.toFixed(1)}%`;
+          if (currentEl) currentEl.textContent = `${numStr} ${cur}`;
+          if (targetEl) targetEl.textContent = '';
+          if (errEl) errEl.hidden = true;
+          if (currentEl) currentEl.classList.remove('is-error');
+          return;
         }
+
+        const sum = pcts.reduce((a, b) => a + b, 0);
+        const r = Math.round(sum * 10) / 10;
+        const display = Number.isInteger(r) ? `${r}%` : `${r.toFixed(1)}%`;
+        const isValid = Math.abs(sum - 100) < 0.45;
+        if (currentEl) {
+          currentEl.textContent = display;
+          currentEl.classList.toggle('is-error', !isValid);
+        }
+        if (targetEl) targetEl.textContent = ' / 100%';
+        if (errEl) errEl.hidden = isValid;
       };
 
       const renderItem = (i) => {
