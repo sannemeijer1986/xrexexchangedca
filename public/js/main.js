@@ -3379,6 +3379,8 @@
       const defaultPcts = count === 2 ? [50, 50] : [34, 33, 33];
       const pcts = [...defaultPcts];
       const locked = new Array(count).fill(false);
+      /** 3-asset only: index last touched via slider/input; crossing to another row auto-locks it */
+      let lastInteractedIdx = -1;
 
       const svgUnlock = `<img src="assets/icon_unlock.svg" width="20" height="20" alt="" />`;
       const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
@@ -3531,6 +3533,19 @@
         updateAllocResetVisibility();
         updateAllocHeaderSubtitle();
         syncAllocAmountWrapDisabled();
+      };
+
+      /** When user engages a different asset than before, lock the previous one (single lock slot). */
+      const applyAllocAutoLockFromInteraction = (nextIdx) => {
+        if (count !== 3) return;
+        hideAllocLockTooltip();
+        if (lastInteractedIdx >= 0 && lastInteractedIdx !== nextIdx) {
+          locked.fill(false);
+          locked[lastInteractedIdx] = true;
+          renderAll();
+          refreshPlanDetailAllocTweak();
+        }
+        lastInteractedIdx = nextIdx;
       };
 
       // Tooltip when a 3-asset lock caps how far another slider can move.
@@ -3811,7 +3826,8 @@
 
           slider.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            hideAllocLockTooltip();
+            if (count === 3) applyAllocAutoLockFromInteraction(i);
+            else hideAllocLockTooltip();
             slider.setPointerCapture(e.pointerId);
             const ret = redistribute(i, getSliderPct(e.clientX));
             if (count === 3 && ret.hitLockedCap) {
@@ -3852,6 +3868,7 @@
         if (input) {
           const ALLOC_NAME_SCROLL_TOP_PAD = 20;
           input.addEventListener('focus', () => {
+            if (count === 3) applyAllocAutoLockFromInteraction(i);
             const nameEl = item.querySelector('.alloc-multi__name');
             //scrollPlanDetailContentTo(nameEl, ALLOC_NAME_SCROLL_TOP_PAD);
           });
@@ -3924,6 +3941,7 @@
             // Unlock all others first
             locked.fill(false);
             locked[i] = willLock;
+            lastInteractedIdx = i;
             renderAll();
             refreshPlanDetailAllocTweak();
           });
@@ -3939,6 +3957,7 @@
               pcts[j] = defaultPcts[j];
             }
             locked.fill(false);
+            lastInteractedIdx = -1;
             hideAllocLockTooltip();
             renderAll();
             refreshPlanDetailAllocTweak();
@@ -3971,6 +3990,7 @@
           const next = mode === 'amount' ? 'amount' : 'pct';
           const ae = document.activeElement;
           if (ae?.matches?.('[data-alloc-pct-input]')) ae.blur();
+          lastInteractedIdx = -1;
           inputMode = next;
           modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
             b.classList.toggle('is-active', b.dataset.allocModeBtn === next);

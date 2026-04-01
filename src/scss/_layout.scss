@@ -6636,6 +6636,7 @@ div.currency-sheet__item-icon {
 // Lock cap hint — lives in .plan-detail-panel__content (scrolls with content)
 .alloc-multi__lock-tooltip {
   position: absolute;
+  display: none;
   z-index: 60;
   left: 0;
   top: 0;

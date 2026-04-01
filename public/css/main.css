@@ -6454,6 +6454,7 @@ div.currency-sheet__item-icon::before {
 
 .alloc-multi__lock-tooltip {
   position: absolute;
+  display: none;
   z-index: 60;
   left: 0;
   top: 0;
