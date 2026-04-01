@@ -5891,7 +5891,9 @@
         const repeatsEndEl = panel.querySelector('[data-plan-detail-repeats-end]');
         if (repeatsEndEl) {
           repeatsEndEl.dataset.endConditionText = 'Continuous';
-          if (!repeatsEndEl.classList.contains('is-visible')) repeatsEndEl.textContent = 'Continuous';
+          const buyNowOn = panel.dataset.scheduleBuyNow === '1';
+          repeatsEndEl.classList.toggle('is-visible', buyNowOn);
+          repeatsEndEl.textContent = buyNowOn ? 'First purchase today' : 'Continuous';
         }
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         syncPlanDetailSetLimitDetailRowsVisibility();
