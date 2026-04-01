@@ -6210,10 +6210,13 @@
         const absEl = panel.querySelector('[data-plan-detail-return-abs]');
         const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
         const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+        const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
         const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
         const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
         const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
-        if (absEl) absEl.textContent = amount > 0 ? '+0' : '+0';
+        if (absEl) absEl.textContent = '- -';
+        if (currEl) currEl.hidden = true;
+        if (simPctInlineEl) simPctInlineEl.hidden = true;
         if (pctEl) {
           pctEl.textContent = '0.0% return';
           pctEl.removeAttribute('data-alloc-base-pct');

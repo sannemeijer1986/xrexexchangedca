@@ -7275,6 +7275,12 @@ div.currency-sheet__item-icon {
   align-items: center;
 }
 
+// `display:flex` / `inline-flex` above can override UA `[hidden]`.
+.plan-breakdown-panel__legend-sp[hidden],
+.plan-breakdown-panel__legend-item[hidden] {
+  display: none !important;
+}
+
 .plan-breakdown-panel__legend-item {
   display: inline-flex;
   align-items: center;
