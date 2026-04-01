@@ -3033,6 +3033,9 @@
           const nextAbs = baseAbs * (nextPct / base);
           const sign = nextAbs >= 0 ? '+' : '-';
           absEl.textContent = `${sign}${formatDetailFooterProfit(Math.abs(nextAbs))}`;
+        } else {
+          // When base return is 0 (common with empty/zero amount), restore from invalid placeholder to default +0.
+          absEl.textContent = '+0';
         }
       }
 
