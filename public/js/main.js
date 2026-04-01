@@ -2910,7 +2910,11 @@
       if (!isFinite(base)) return;
       const tw = detailPanelAllocPctTweakFn();
       if (!isFinite(tw)) return;
-      const nextPct = base + tw;
+      const amountInp = panel.querySelector('[data-plan-detail-amount-input]');
+      const investAmt = Math.max(0, parseInt(amountInp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
+      // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
+      const appliedTw = investAmt > 0 ? tw : 0;
+      const nextPct = base + appliedTw;
       pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
 
       if (absEl) {
@@ -2926,7 +2930,7 @@
       if (histPctEl) {
         const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
         if (isFinite(baseHist)) {
-          const nextHist = baseHist + tw;
+          const nextHist = baseHist + appliedTw;
           histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
           if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
         }
@@ -3535,6 +3539,12 @@
         syncAllocAmountWrapDisabled();
       };
 
+      /** Slider drags update `pcts` but `renderItem` skips the focused input — blur so values stay in sync. */
+      const blurAllocPctInputIfFocused = () => {
+        const ae = document.activeElement;
+        if (ae?.matches?.('[data-alloc-pct-input]') && panelEl.contains(ae)) ae.blur();
+      };
+
       /** When user engages a different asset than before, lock the previous one (single lock slot). */
       const applyAllocAutoLockFromInteraction = (nextIdx) => {
         if (count !== 3) return;
@@ -3546,6 +3556,22 @@
           refreshPlanDetailAllocTweak();
         }
         lastInteractedIdx = nextIdx;
+      };
+
+      /**
+       * User unlocks row `i` (lock button or tapping slider/input on a locked row).
+       * Transfers the single lock to the previously interacted row when it differs from `i`.
+       */
+      const applyAllocUnlockRow = (i) => {
+        if (count !== 3 || !locked[i]) return;
+        hideAllocLockTooltip();
+        locked.fill(false);
+        if (lastInteractedIdx >= 0 && lastInteractedIdx !== i) {
+          locked[lastInteractedIdx] = true;
+        }
+        lastInteractedIdx = i;
+        renderAll();
+        refreshPlanDetailAllocTweak();
       };
 
       // Tooltip when a 3-asset lock caps how far another slider can move.
@@ -3826,8 +3852,11 @@
 
           slider.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            if (count === 3) applyAllocAutoLockFromInteraction(i);
-            else hideAllocLockTooltip();
+            blurAllocPctInputIfFocused();
+            if (count === 3) {
+              if (locked[i]) applyAllocUnlockRow(i);
+              else applyAllocAutoLockFromInteraction(i);
+            } else hideAllocLockTooltip();
             slider.setPointerCapture(e.pointerId);
             const ret = redistribute(i, getSliderPct(e.clientX));
             if (count === 3 && ret.hitLockedCap) {
@@ -3868,7 +3897,10 @@
         if (input) {
           const ALLOC_NAME_SCROLL_TOP_PAD = 20;
           input.addEventListener('focus', () => {
-            if (count === 3) applyAllocAutoLockFromInteraction(i);
+            if (count === 3) {
+              if (locked[i]) applyAllocUnlockRow(i);
+              else applyAllocAutoLockFromInteraction(i);
+            }
             const nameEl = item.querySelector('.alloc-multi__name');
             //scrollPlanDetailContentTo(nameEl, ALLOC_NAME_SCROLL_TOP_PAD);
           });
@@ -3936,14 +3968,17 @@
         // Lock button (3-asset only) — only one asset can be locked at a time
         if (lockBtn) {
           lockBtn.addEventListener('click', () => {
-            hideAllocLockTooltip();
             const willLock = !locked[i];
-            // Unlock all others first
-            locked.fill(false);
-            locked[i] = willLock;
-            lastInteractedIdx = i;
-            renderAll();
-            refreshPlanDetailAllocTweak();
+            if (willLock) {
+              hideAllocLockTooltip();
+              locked.fill(false);
+              locked[i] = true;
+              lastInteractedIdx = i;
+              renderAll();
+              refreshPlanDetailAllocTweak();
+            } else {
+              applyAllocUnlockRow(i);
+            }
           });
         }
       });

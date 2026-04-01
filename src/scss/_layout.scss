@@ -6597,13 +6597,14 @@ div.currency-sheet__item-icon {
 .alloc-multi__item.is-locked {
   .alloc-multi__slider {
     opacity: 0.35;
-    pointer-events: none;
+    // Keep receiving taps so we can unlock + transfer lock (JS) and then drag.
+    pointer-events: auto;
     transition: none;
   }
 
   .alloc-multi__pct-input {
     color: #9b9c9c;
-    pointer-events: none;
+    pointer-events: auto;
     transition: none;
   }
 }
