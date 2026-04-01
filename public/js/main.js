@@ -1200,6 +1200,10 @@
   if (currencyState.summary === 'USDT') currencyState.summary = 'USD';
   const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y', widgetBreakdown: '5Y' };
 
+  // Feature flag: keep the "Set end condition" step implemented but bypass it for this prototype iteration.
+  // Flip to true to restore flow: Plan -> Set end condition -> Funding.
+  const ENABLE_PLAN_END_CONDITION_STEP = false;
+
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 ~ 11:00';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
@@ -3191,7 +3195,11 @@
       const detailAbsEl = panel.querySelector('[data-plan-detail-return-abs]');
       const detailCurEl = panel.querySelector('[data-plan-detail-return-currency]');
       const detailPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
-      if (isPctAllocInvalid) {
+      if (noAssets) {
+        if (detailAbsEl) detailAbsEl.textContent = '- -';
+        if (detailCurEl) detailCurEl.hidden = true;
+        if (detailPctInlineEl) detailPctInlineEl.hidden = true;
+      } else if (isPctAllocInvalid) {
         if (detailAbsEl) detailAbsEl.textContent = '- -';
         if (detailCurEl) detailCurEl.hidden = true;
         if (detailPctInlineEl) detailPctInlineEl.hidden = true;
@@ -5283,7 +5291,8 @@
         const btn = e.currentTarget;
         if (btn.disabled) return;
         e.preventDefault();
-        planEndConditionApi.open();
+        if (ENABLE_PLAN_END_CONDITION_STEP) planEndConditionApi.open();
+        else planBufferApi.open();
       });
 
       return { open, close, sync: syncFromPlanDetail };
