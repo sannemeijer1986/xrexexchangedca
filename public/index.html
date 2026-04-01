@@ -1295,6 +1295,61 @@
 
         </section>
 
+        <!-- Set end condition (Plan → Funding; same slide pattern as Funding) -->
+        <section class="plan-end-condition-panel" data-plan-end-condition-panel hidden aria-label="Set end condition">
+            <header class="plan-buffer-panel__header plan-buffer-panel__header--funding">
+                <button class="plan-buffer-panel__icon-btn" type="button" data-plan-end-condition-back aria-label="Back">
+                    <img src="assets/icon_back.svg" alt="" width="24" height="24" />
+                </button>
+                <h1 class="plan-buffer-panel__title">Set end condition</h1>
+                <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
+            </header>
+            <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
+
+            <div class="plan-buffer-panel__scroller">
+                <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
+                    <div class="plan-buffer-panel__method-block">
+                        <div class="plan-buffer-panel__method-block-head">
+                            <h2 class="plan-buffer-panel__heading">Choose how this plan should end</h2>
+                        </div>
+
+                        <div class="plan-buffer-panel__method-card" role="group" aria-label="End condition">
+                            <button class="plan-buffer-panel__method-row currency-sheet__item is-selected" type="button" data-plan-end-condition="continuous" aria-pressed="true">
+                                <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--flex" aria-hidden="true">
+                                    <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_1_on.svg" alt="" />
+                                    <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_1_off.svg" alt="" />
+                                </div>
+                                <div class="plan-buffer-panel__method-content">
+                                    <div class="plan-buffer-panel__method-title">Continuous</div>
+                                    <div class="plan-buffer-panel__method-desc">Keep investing on your schedule until you pause or cancel.</div>
+                                </div>
+                                <div class="currency-sheet__item-radio" aria-hidden="true">
+                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                                </div>
+                            </button>
+
+                            <button class="plan-buffer-panel__method-row currency-sheet__item" type="button" data-plan-end-condition="limit" aria-pressed="false">
+                                <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--reserve" aria-hidden="true">
+                                    <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_2_on.svg" alt="" />
+                                    <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_2_off.svg" alt="" />
+                                </div>
+                                <div class="plan-buffer-panel__method-content">
+                                    <div class="plan-buffer-panel__method-title">Set a limit</div>
+                                    <div class="plan-buffer-panel__method-desc">Stop after a set number of buys or on an end date (edit details in Repeats anytime).</div>
+                                </div>
+                                <div class="currency-sheet__item-radio" aria-hidden="true">
+                                    <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
+                    <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-end-condition-continue>Continue</button>
+                </div>
+            </div>
+        </section>
+
         <!-- Set a buffer (slides in from right over plan detail) -->
         <section class="plan-buffer-panel" data-plan-buffer-panel hidden aria-label="Set a buffer">
             <header class="plan-buffer-panel__header plan-buffer-panel__header--funding">

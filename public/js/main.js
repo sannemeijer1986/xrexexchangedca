@@ -4121,6 +4121,7 @@
     let planBreakdownApi = { sync: () => {}, syncFromPlanWidget: () => {}, close: () => {} };
     let planOverviewApi = { open: () => {}, close: () => {}, sync: () => {} };
     let planBufferApi = { open: () => {}, close: () => {} };
+    let planEndConditionApi = { open: () => {}, close: () => {} };
     let planSuccessApi = { close: () => {}, forceClose: () => {} };
 
     const populatePanel = (opts = {}) => {
@@ -5436,7 +5437,7 @@
         const btn = e.currentTarget;
         if (btn.disabled) return;
         e.preventDefault();
-        planBufferApi.open();
+        planEndConditionApi.open();
       });
 
       return { open, close, sync: syncFromPlanDetail };
@@ -5852,6 +5853,96 @@
 
     planBufferApi = initPlanBufferPanel();
 
+    const initPlanEndConditionPanel = () => {
+      const endPanel = panel.querySelector('[data-plan-end-condition-panel]');
+      if (!endPanel) return { open: () => {}, close: () => {} };
+
+      const ecScroller = endPanel.querySelector('.plan-buffer-panel__scroller');
+      const ecMethodBtns = Array.from(endPanel.querySelectorAll('[data-plan-end-condition]'));
+      /** @type {'continuous' | 'limit'} */
+      let ecSelection = 'continuous';
+
+      const syncFromPlanDetail = () => {
+        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
+        const useContinuous = !endRaw || /\bcontinuous\b|\bcontinious\b/i.test(endRaw);
+        ecSelection = useContinuous ? 'continuous' : 'limit';
+        ecMethodBtns.forEach((btn) => {
+          const v = btn.getAttribute('data-plan-end-condition') === 'limit' ? 'limit' : 'continuous';
+          const on = v === ecSelection;
+          btn.classList.toggle('is-selected', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      };
+
+      const applySelectionToPlanDetail = () => {
+        const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        if (!endEl) return;
+        if (ecSelection === 'continuous') {
+          endEl.textContent = 'Continuous';
+          scheduleSheetApi.planDetailRepeatsEndLimitText = '';
+        } else {
+          const cur = (endEl.textContent || '').trim();
+          if (/\bcontinuous\b|\bcontinious\b/i.test(cur) || !cur || !isPlanDetailSetLimitEnd(cur)) {
+            endEl.textContent = '40 buys ~ Ends Dec 31, 2026';
+            scheduleSheetApi.planDetailRepeatsEndLimitText = endEl.textContent;
+          }
+        }
+        syncPlanDetailSetLimitDetailRowsVisibility();
+        updateCoverageUI();
+      };
+
+      const open = () => {
+        planBreakdownApi.close();
+        planOverviewApi.close({ instant: true });
+        planSuccessApi.forceClose();
+        syncFromPlanDetail();
+        if (ecScroller) ecScroller.scrollTop = 0;
+        endPanel.hidden = false;
+        requestAnimationFrame(() => endPanel.classList.add('is-open'));
+      };
+
+      const close = (opts = {}) => {
+        if (opts.instant) {
+          endPanel.classList.remove('is-open');
+          endPanel.hidden = true;
+          return;
+        }
+        endPanel.classList.remove('is-open');
+        let done = false;
+        const onEnd = () => {
+          if (done) return;
+          done = true;
+          endPanel.removeEventListener('transitionend', onEnd);
+          if (!endPanel.classList.contains('is-open')) endPanel.hidden = true;
+        };
+        endPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+
+      endPanel.querySelector('[data-plan-end-condition-back]')?.addEventListener('click', () => close());
+
+      ecMethodBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          ecSelection = btn.getAttribute('data-plan-end-condition') === 'limit' ? 'limit' : 'continuous';
+          ecMethodBtns.forEach((b) => {
+            const v = b.getAttribute('data-plan-end-condition') === 'limit' ? 'limit' : 'continuous';
+            const on = v === ecSelection;
+            b.classList.toggle('is-selected', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        });
+      });
+
+      endPanel.querySelector('[data-plan-end-condition-continue]')?.addEventListener('click', () => {
+        applySelectionToPlanDetail();
+        planBufferApi.open();
+      });
+
+      return { open, close, sync: syncFromPlanDetail };
+    };
+
+    planEndConditionApi = initPlanEndConditionPanel();
+
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
@@ -5906,12 +5997,17 @@
           }
         }
 
-        // Ensure the buffer panel never "sticks" open across visits.
+        // Ensure stacked flow panels never "stick" open across visits.
         {
           const bufPanel = panel.querySelector('[data-plan-buffer-panel]');
           if (bufPanel) {
             bufPanel.classList.remove('is-open');
             bufPanel.hidden = true;
+          }
+          const ecPanel = panel.querySelector('[data-plan-end-condition-panel]');
+          if (ecPanel) {
+            ecPanel.classList.remove('is-open');
+            ecPanel.hidden = true;
           }
         }
 
@@ -5935,6 +6031,8 @@
         const instant = !!(openCtx && openCtx.instant);
         if (instant) {
           planBreakdownApi.close({ instant: true });
+          planBufferApi.close({ instant: true });
+          planEndConditionApi.close({ instant: true });
           planOverviewApi.close({ instant: true });
           planSuccessApi.forceClose();
           const submitLoader = panel.querySelector('[data-plan-submit-loader]');
@@ -5955,6 +6053,8 @@
           return;
         }
         planBreakdownApi.close();
+        planBufferApi.close({ instant: true });
+        planEndConditionApi.close({ instant: true });
         planOverviewApi.close();
         planSuccessApi.forceClose();
         const submitLoader = panel.querySelector('[data-plan-submit-loader]');
@@ -6143,6 +6243,16 @@
         const ovp = panel.querySelector('[data-plan-overview-panel]');
         if (ovp?.classList.contains('is-open')) {
           planOverviewApi.close();
+          return;
+        }
+        const bufP = panel.querySelector('[data-plan-buffer-panel]');
+        if (bufP?.classList.contains('is-open')) {
+          planBufferApi.close();
+          return;
+        }
+        const ecP = panel.querySelector('[data-plan-end-condition-panel]');
+        if (ecP?.classList.contains('is-open')) {
+          planEndConditionApi.close();
           return;
         }
         setOpen(false);

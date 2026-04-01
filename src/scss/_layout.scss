@@ -6397,7 +6397,7 @@ div.currency-sheet__item-icon {
 .alloc-mode-toggle {
   background: #1b1d1d;
   border-radius: 12px;
-  display: flex;
+  display: none;
   align-items: center;
   overflow: hidden;
   height: 32px;
@@ -7740,6 +7740,27 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
+}
+
+// ── Set end condition (between Plan and Funding; same motion as buffer) ───
+.plan-end-condition-panel {
+  position: absolute;
+  inset: 0;
+  // Below Funding + overview so those can stack on top.
+  z-index: 29;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+.plan-end-condition-panel.is-open {
+  transform: translateX(0);
 }
 
 // ── Plan buffer (Figma 8527:8567 — “Set a buffer”) ─────────────────────────
