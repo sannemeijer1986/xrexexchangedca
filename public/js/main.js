@@ -1248,7 +1248,7 @@
       });
       const sp500Toggle = document.querySelector('[data-prototype-breakdown-sp500]');
       if (sp500Toggle) {
-        sp500Toggle.checked = true;
+          sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
@@ -1287,7 +1287,7 @@
       });
       const sp500Toggle = document.querySelector('[data-prototype-breakdown-sp500]');
       if (sp500Toggle) {
-        sp500Toggle.checked = true;
+        sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
@@ -4699,6 +4699,7 @@
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
       const legendAssetsEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-assets]');
       const legendSpEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-sp]');
+      const legendSpItemEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-sp-item]');
       const simTitleEl = breakdownPanel.querySelector('[data-plan-breakdown-sim-title]');
       const periodLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-period-label]');
       const contributionEl = breakdownPanel.querySelector('[data-plan-breakdown-contribution]');
@@ -4761,7 +4762,9 @@
           el.textContent = `If you'd started ${range} ago ≈`;
         });
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
-        if (legendSpEl) legendSpEl.hidden = !getPrototypeBreakdownSp500Visible();
+        const showSp500 = getPrototypeBreakdownSp500Visible();
+        if (legendSpEl) legendSpEl.hidden = !showSp500;
+        if (legendSpItemEl) legendSpItemEl.hidden = !showSp500;
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
