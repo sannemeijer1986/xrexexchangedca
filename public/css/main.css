@@ -6179,7 +6179,7 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
-  color: #58595A;
+  color: #9B9C9C;
   white-space: nowrap;
   flex-shrink: 0;
   padding: 0;
@@ -6208,7 +6208,7 @@ div.currency-sheet__item-icon::before {
   margin: 0;
   padding: 0;
   font-size: 12px;
-  color: #58595a;
+  color: #9B9C9C;
   line-height: normal;
   flex-shrink: 0;
 }

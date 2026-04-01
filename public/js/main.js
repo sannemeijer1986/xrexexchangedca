@@ -5881,6 +5881,13 @@
         // instead of any stale custom override from a previous visit.
         if (!openCtx || (openCtx && openCtx.source && openCtx.source !== 'plan')) {
           detailAllocOverride = null;
+          // Entering from Finance entrypoints should start with Buy now OFF.
+          panel.dataset.scheduleBuyNow = '0';
+          const repeatsTypeEl = panel.querySelector('.plan-detail-panel__repeats-type');
+          if (repeatsTypeEl) {
+            repeatsTypeEl.classList.remove('is-visible');
+            repeatsTypeEl.textContent = 'Continuous';
+          }
         }
         panelOpenContext =
           openCtx?.source === 'newplan'
