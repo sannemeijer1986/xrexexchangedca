@@ -6090,7 +6090,7 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
-  color: #9b9c9c;
+  color: #58595A;
   white-space: nowrap;
   flex-shrink: 0;
   padding: 0;
@@ -6099,11 +6099,11 @@ div.currency-sheet__item-icon::before {
 
 .plan-detail-panel__alloc-header-historic-inline {
   display: none;
-  width: 100%;
+  flex-direction: column;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 4px;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -6116,8 +6116,11 @@ div.currency-sheet__item-icon::before {
 }
 
 .plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__historic-performance-label--below {
-  margin: 8px 0px 0px 0px;
+  margin: 0;
   padding: 0;
+  font-size: 12px;
+  color: #58595a;
+  line-height: normal;
   flex-shrink: 0;
 }
 
@@ -6125,6 +6128,17 @@ div.currency-sheet__item-icon::before {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+}
+
+.plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__return-pct-inline--historic {
+  font-size: 14px;
+  line-height: normal;
+}
+
+.plan-detail-panel__alloc-header-historic-inline .plan-return-metric__pct--historic {
+  font-size: 14px;
+  line-height: normal;
 }
 
 .plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__historic-performance-label--header {
@@ -6224,7 +6238,8 @@ div.currency-sheet__item-icon::before {
 
 .plan-detail-panel__alloc-header-title-group {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: 8px;
   width: 100%;
   min-width: 0;

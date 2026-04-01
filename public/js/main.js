@@ -1550,9 +1550,9 @@
         // Multi-asset alloc header uses the --below label for combined historic performance.
         // Single-asset uses --header and the alloc-row tone (so --below is hidden by CSS).
         if (el.classList.contains('plan-detail-panel__historic-performance-label--below')) {
-          el.textContent = `Combined ${range} performance`;
+          el.textContent = `Past ${range}`;
         } else {
-          el.textContent = `Past ${range} performance`;
+          el.textContent = `Past ${range}`;
         }
       });
     }
@@ -4120,8 +4120,8 @@
       );
       if (belowHistLabel) {
         belowHistLabel.textContent = allocItems.length >= 2
-          ? `Combined ${planRange} performance`
-          : `Past ${planRange} performance`;
+          ? `Past ${planRange}`
+          : `Past ${planRange}`;
       }
 
       // Show mode toggle + allocation subtitle for 2+ assets only
