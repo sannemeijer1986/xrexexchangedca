@@ -1120,7 +1120,15 @@
                                 <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
                                 <button type="button" class="plan-detail-panel__alloc-reset" data-alloc-reset hidden>Reset</button>
                             </div>
-                            <p class="plan-detail-panel__alloc-subtitle" data-plan-detail-alloc-subtitle hidden>Total 100%</p>
+                            <div class="plan-detail-panel__alloc-header-historic-inline" data-plan-detail-alloc-header-historic>
+                                <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y performance</span>
+                                <div data-plan-detail-historic-performance-tone>
+                                    <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
+                                        <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
+                                        <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-return-historic-pct>0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y performance</span>
                         <div class="alloc-mode-toggle is-hidden" data-alloc-mode-toggle>
@@ -1143,13 +1151,7 @@
                     <div class="plan-detail-panel__allocation-list" data-plan-detail-allocation></div>
                     <!-- Historic performance row (Figma: 5Y historical performance); tone wrapper moves into single alloc-item when one asset -->
                     <div class="plan-detail-panel__historic-performance-row">
-                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y performance</span>
-                        <div data-plan-detail-historic-performance-tone>
-                            <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
-                                <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
-                                <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-return-historic-pct>0.0%</span>
-                            </div>
-                        </div>
+                        <p class="plan-detail-panel__alloc-subtitle" data-plan-detail-alloc-subtitle hidden>Total 100%</p>
                     </div>
                     <!-- Shown when plan has assets (empty state uses the wrap inside alloc-empty) -->
                     <div class="plan-detail-panel__add-assets-wrap plan-detail-panel__add-assets-wrap--below-list">

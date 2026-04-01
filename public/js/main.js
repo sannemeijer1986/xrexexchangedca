@@ -1547,7 +1547,13 @@
         el.textContent = startedAgo;
       });
       document.querySelectorAll('[data-plan-detail-historic-performance-label]').forEach((el) => {
-        el.textContent = `Past ${range} performance`;
+        // Multi-asset alloc header uses the --below label for combined historic performance.
+        // Single-asset uses --header and the alloc-row tone (so --below is hidden by CSS).
+        if (el.classList.contains('plan-detail-panel__historic-performance-label--below')) {
+          el.textContent = `Combined ${range} performance`;
+        } else {
+          el.textContent = `Past ${range} performance`;
+        }
       });
     }
     if (context === 'breakdown' || context === 'widgetBreakdown') {
@@ -2913,8 +2919,8 @@
       const amountInp = panel.querySelector('[data-plan-detail-amount-input]');
       const investAmt = Math.max(0, parseInt(amountInp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
       // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
-      const appliedTw = investAmt > 0 ? tw : 0;
-      const nextPct = base + appliedTw;
+      const appliedTwSim = investAmt > 0 ? tw : 0;
+      const nextPct = base + appliedTwSim;
       pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
 
       if (absEl) {
@@ -2926,11 +2932,11 @@
         }
       }
 
-      // Same synthetic allocation nudge as simulated % (prototype): historic lump-sum % tracks the same delta.
+      // Historic (combined) performance should respond to allocation even when amount per buy is empty/0.
       if (histPctEl) {
         const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
         if (isFinite(baseHist)) {
-          const nextHist = baseHist + appliedTw;
+          const nextHist = baseHist + tw;
           histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
           if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
         }
@@ -4010,19 +4016,19 @@
         // Empty state: no assets selected yet
         if (allocCountEl) allocCountEl.textContent = '0';
         allocList.innerHTML = '';
-        const emptyHistoricRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
+        const emptyHeaderHistoric = panel.querySelector('[data-plan-detail-alloc-header-historic]');
         const emptyHistoricTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
-        const emptyBelowLabel = emptyHistoricRow?.querySelector('.plan-detail-panel__historic-performance-label--below');
-        if (emptyHistoricRow && emptyHistoricTone && !emptyHistoricRow.contains(emptyHistoricTone)) {
-          if (emptyBelowLabel) emptyHistoricRow.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
-          else emptyHistoricRow.appendChild(emptyHistoricTone);
+        const emptyBelowLabel = emptyHeaderHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
+        if (emptyHeaderHistoric && emptyHistoricTone && !emptyHeaderHistoric.contains(emptyHistoricTone)) {
+          if (emptyBelowLabel) emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+          else emptyHeaderHistoric.appendChild(emptyHistoricTone);
         } else if (
-          emptyHistoricRow &&
+          emptyHeaderHistoric &&
           emptyHistoricTone &&
           emptyBelowLabel &&
           emptyHistoricTone.previousElementSibling !== emptyBelowLabel
         ) {
-          emptyHistoricRow.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+          emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
         }
         if (allocSection) {
           allocSection.classList.remove('is-single-asset');
@@ -4063,22 +4069,39 @@
         btn.textContent = addLabel;
       });
 
+      // Multi-asset allocation header uses "Combined #Y performance" (Figma); single-asset uses "Past #Y performance".
+      // updateRangeUI() handles live range changes; this ensures the initial open has the right label too.
+      const planRange = rangeState?.plan || '5Y';
+      const belowHistLabel = panel.querySelector(
+        '.plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__historic-performance-label--below',
+      );
+      if (belowHistLabel) {
+        belowHistLabel.textContent = allocItems.length >= 2
+          ? `Combined ${planRange} performance`
+          : `Past ${planRange} performance`;
+      }
+
       // Show mode toggle + allocation subtitle for 2+ assets only
       const allocModeToggle = panel.querySelector('[data-alloc-mode-toggle]');
       if (allocModeToggle) allocModeToggle.classList.toggle('is-hidden', allocItems.length < 2);
       if (allocSubtitleEl) allocSubtitleEl.hidden = allocItems.length < 2;
 
-      // Historic % node may sit inside a single alloc-item; move it back before replacing list HTML.
       const historicRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
+      const headerHistoric = panel.querySelector('[data-plan-detail-alloc-header-historic]');
+      const historicBelowInHeader = headerHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
       const historicTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
-      const historicBelowLabel = historicRow?.querySelector('.plan-detail-panel__historic-performance-label--below');
-      if (historicRow && historicTone) {
-        if (!historicRow.contains(historicTone)) {
-          if (historicBelowLabel) historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
-          else historicRow.appendChild(historicTone);
-        } else if (historicBelowLabel && historicTone.previousElementSibling !== historicBelowLabel) {
-          historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
+      const historicAllocSubtitle = historicRow?.querySelector('[data-plan-detail-alloc-subtitle]');
+
+      const placeHistoricToneInAllocHeaderInline = () => {
+        if (!headerHistoric || !historicTone || !historicBelowInHeader) return;
+        if (!headerHistoric.contains(historicTone) || historicTone.previousElementSibling !== historicBelowInHeader) {
+          headerHistoric.insertBefore(historicTone, historicBelowInHeader.nextSibling);
         }
+      };
+
+      // Historic % may sit in a single alloc-item; pull it out before list innerHTML replaces nodes.
+      if (historicTone && allocList.contains(historicTone)) {
+        placeHistoricToneInAllocHeaderInline();
       }
 
       if (allocItems.length >= 2) {
@@ -4138,12 +4161,7 @@
         } else {
           allocSection.classList.remove('is-single-asset');
           allocSection.classList.toggle('is-multi-asset', allocItems.length >= 2);
-          if (!historicRow.contains(historicTone)) {
-            if (historicBelowLabel) historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
-            else historicRow.appendChild(historicTone);
-          } else if (historicBelowLabel && historicTone.previousElementSibling !== historicBelowLabel) {
-            historicRow.insertBefore(historicTone, historicBelowLabel.nextSibling);
-          }
+          placeHistoricToneInAllocHeaderInline();
         }
       }
 
