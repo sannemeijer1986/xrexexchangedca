@@ -4008,6 +4008,11 @@ div.currency-sheet__item-icon {
   z-index: 46;
 }
 
+// Buy-now info should stack above any currently open schedule-related sheet.
+.currency-sheet--schedule-buy-now-info {
+  z-index: 47;
+}
+
 .currency-sheet__body--schedule-followup {
   align-items: stretch;
   width: 100%;
@@ -6077,6 +6082,10 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   color: #8fb8ff;
   display: none;
+}
+
+.plan-detail-panel__repeats-type.is-visible {
+  display: inline-block;
 }
 
 .plan-detail-panel__edit-btn {

@@ -1659,6 +1659,40 @@
     sheet.querySelectorAll('[data-plan-buffer-autofill-sheet-close]').forEach((btn) => btn.addEventListener('click', close));
   };
 
+  const initScheduleBuyNowInfoSheet = () => {
+    const sheet = document.querySelector('[data-schedule-buy-now-info-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+
+    const reveal = () => {
+      sheetOpenWithInstantBackdrop(sheet);
+    };
+
+    const open = () => {
+      const handoff = scheduleSheetApi.closeAnimatedForChild;
+      if (typeof handoff === 'function') {
+        handoff(() => reveal());
+      } else {
+        reveal();
+      }
+    };
+
+    const closeAndReopenSchedule = () => {
+      const reopen = scheduleSheetApi.reopenFromChild;
+      const suppressNestedScrim = getSuppressNestedScrimForScheduleChildClose();
+      sheetCloseWithBackdropHandoff(sheet, panel, () => reopen?.(), { suppressNestedScrim });
+    };
+
+    document.querySelectorAll('.schedule-sheet__buy-now-info').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    });
+    sheet.querySelectorAll('[data-schedule-buy-now-info-sheet-close]').forEach((btn) => btn.addEventListener('click', closeAndReopenSchedule));
+  };
+
   /** Plan detail: top-up sheet (Deposit / Convert) — reuses currency-sheet chrome. */
   const initTopupSheet = () => {
     const sheet = document.querySelector('[data-topup-sheet]');
@@ -1888,6 +1922,7 @@
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
     let buyNowEnabled = false;
+    const repeatsTypeEl = planDetail?.querySelector('.plan-detail-panel__repeats-type');
 
     const setFreqUI = (freq) => {
       freqButtons.forEach((btn) => {
@@ -1981,8 +2016,12 @@
         buyNowToggleEl.setAttribute('aria-checked', buyNowEnabled ? 'true' : 'false');
       }
       if (buyNowStateEl) {
-        buyNowStateEl.textContent = buyNowEnabled ? 'Enabled' : 'Disabled';
+        buyNowStateEl.textContent = buyNowEnabled ? 'On' : 'Off';
         buyNowStateEl.classList.toggle('is-on', buyNowEnabled);
+      }
+      if (repeatsTypeEl) {
+        repeatsTypeEl.textContent = 'First purchase today';
+        repeatsTypeEl.classList.toggle('is-visible', buyNowEnabled);
       }
     };
 
@@ -2858,6 +2897,7 @@
   initPromoIntroSheet({ goFinanceAutoInvest });
   initRangeSheet();
   initPlanBufferAutofillSheet();
+  initScheduleBuyNowInfoSheet();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
@@ -4766,7 +4806,7 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
-        if (simTitleEl) simTitleEl.textContent = `${range} simulated value/return`;
+        if (simTitleEl) simTitleEl.textContent = `Your plan simulated based on past ${range} data`;
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `If you'd started ${range} ago ≈`;
         });
