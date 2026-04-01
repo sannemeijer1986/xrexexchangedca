@@ -3888,6 +3888,12 @@ div.currency-sheet__item-icon {
   text-align: left;
 }
 
+.schedule-sheet__timing-row.schedule-sheet__timing-row--disabled,
+.schedule-sheet__timing-row:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .schedule-sheet__timing-cal {
   width: 32px;
   height: 32px;
@@ -3919,6 +3925,77 @@ div.currency-sheet__item-icon {
 .schedule-sheet__timing-chevron {
   flex-shrink: 0;
   display: block;
+}
+
+.schedule-sheet__buy-now-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.schedule-sheet__buy-now-left {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.schedule-sheet__buy-now-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.schedule-sheet__buy-now-info {
+  flex-shrink: 0;
+  display: block;
+}
+
+.schedule-sheet__buy-now-state {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.schedule-sheet__buy-now-toggle {
+  width: 44px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: #47494a;
+  padding: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: background-color 160ms ease;
+}
+
+.schedule-sheet__buy-now-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 160ms ease;
+}
+
+.schedule-sheet__buy-now-toggle.is-on {
+  background: #275cfd;
+}
+
+.schedule-sheet__buy-now-toggle.is-on .schedule-sheet__buy-now-knob {
+  transform: translateX(20px);
+}
+
+.schedule-sheet__buy-now-state.is-on {
+  color: #8fb8ff;
 }
 
 // Schedule time wheel (Figma 8514:6906) — stacks above main schedule sheet

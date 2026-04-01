@@ -1872,6 +1872,8 @@
     const freqButtons = sheet.querySelectorAll('[data-schedule-freq]');
     const timingLabelEl = sheet.querySelector('[data-schedule-timing-label]');
     const timingValueEl = sheet.querySelector('[data-schedule-timing-value]');
+    const buyNowToggleEl = sheet.querySelector('[data-schedule-buy-now-toggle]');
+    const buyNowStateEl = sheet.querySelector('[data-schedule-buy-now-state]');
     const endButtons = sheet.querySelectorAll('[data-schedule-end]');
 
     const timingSectionLabels = {
@@ -1880,11 +1882,12 @@
       monthly: 'Every month on',
     };
     const defaultTimingDetail = {
-      daily: '~12:00',
-      weekly: 'Mon at ~12:00',
-      monthly: '15th at ~12:00',
+      daily: '- -',
+      weekly: 'Monday',
+      monthly: '15th',
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
+    let buyNowEnabled = false;
 
     const setFreqUI = (freq) => {
       freqButtons.forEach((btn) => {
@@ -1949,23 +1952,38 @@
     };
 
     const parseTimingFromScheduleText = (text, freq) => {
-      const withTildeTime = (v) => String(v || '').replace(/~?\s*(\d{1,2}:\d{2})/g, '~$1');
+      const stripTimeSuffix = (v) => String(v || '').replace(/\s*at\s+~?\s*\d{1,2}:\d{2}/gi, '').trim();
       const parts = (text || '').split('·').map((s) => s.trim());
       if (parts.length >= 2) {
         const detail = parts.slice(1).join(' · ');
         if (freq === 'daily') {
-          const m = detail.match(/~?\s*(\d{1,2}:\d{2})/);
-          if (m) {
-            const [hh, mm] = m[1].split(':').map((x) => parseInt(x, 10));
-            if (Number.isFinite(hh) && Number.isFinite(mm)) {
-              return `~${String(Math.max(0, Math.min(23, hh))).padStart(2, '0')}:${String(Math.max(0, Math.min(59, mm))).padStart(2, '0')}`;
-            }
-          }
           return defaultTimingDetail.daily;
         }
-        return withTildeTime(detail);
+        return stripTimeSuffix(detail) || defaultTimingDetail[freq];
       }
-      return withTildeTime(defaultTimingDetail[freq]);
+      return defaultTimingDetail[freq];
+    };
+
+    const timingRowBtn = sheet.querySelector('.schedule-sheet__timing-row');
+    const syncTimingRowInteractivity = (freq) => {
+      if (!timingRowBtn) return;
+      const disabled = freq === 'daily';
+      timingRowBtn.disabled = disabled;
+      timingRowBtn.classList.toggle('schedule-sheet__timing-row--disabled', disabled);
+      timingRowBtn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      if (disabled && timingValueEl) timingValueEl.textContent = defaultTimingDetail.daily;
+    };
+
+    const setBuyNowUI = (enabled) => {
+      buyNowEnabled = !!enabled;
+      if (buyNowToggleEl) {
+        buyNowToggleEl.classList.toggle('is-on', buyNowEnabled);
+        buyNowToggleEl.setAttribute('aria-checked', buyNowEnabled ? 'true' : 'false');
+      }
+      if (buyNowStateEl) {
+        buyNowStateEl.textContent = buyNowEnabled ? 'Enabled' : 'Disabled';
+        buyNowStateEl.classList.toggle('is-on', buyNowEnabled);
+      }
     };
 
     const open = () => {
@@ -1982,8 +2000,10 @@
       if (timingValueEl) {
         timingValueEl.textContent = (scheduleText
           ? parseTimingFromScheduleText(scheduleText, freq)
-          : defaultTimingDetail[freq]).replace(/~?\s*(\d{1,2}:\d{2})/g, '~$1');
+          : defaultTimingDetail[freq]);
       }
+      syncTimingRowInteractivity(freq);
+      setBuyNowUI(planDetail?.dataset?.scheduleBuyNow === '1');
 
       let end = 'continuous';
       const endText = endEl?.textContent?.trim() || '';
@@ -2066,7 +2086,8 @@
 
       const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
       const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
-      if (scheduleEl) scheduleEl.textContent = `${prefix} · ${timing}`;
+      if (scheduleEl) scheduleEl.textContent = freq === 'daily' ? 'Daily' : `${prefix} · ${timing}`;
+      if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
       if (endEl) {
         if (end === 'continuous') {
           endEl.textContent = 'Continuous';
@@ -2099,12 +2120,17 @@
     const confirmBtn = sheet.querySelector('[data-schedule-sheet-confirm]');
     if (confirmBtn) confirmBtn.addEventListener('click', applyAndClose);
 
+    buyNowToggleEl?.addEventListener('click', () => {
+      setBuyNowUI(!buyNowEnabled);
+    });
+
     freqButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const freq = (btn.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
         setFreqUI(freq);
         if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
         if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
+        syncTimingRowInteractivity(freq);
         scheduleSheetApi.refreshEndConditionSubtitles?.();
       });
     });
@@ -2485,7 +2511,7 @@
     scheduleSheetApi.refreshEndConditionSubtitles?.();
   };
 
-  /** Schedule sheet: day + time wheel (Figma 8514:6906) — monthly / weekly / daily. */
+  /** Schedule sheet: day picker only (monthly day / weekly weekday); daily timing is disabled placeholder. */
   const initScheduleTimePicker = () => {
     const timeSheet = document.querySelector('[data-schedule-time-sheet]');
     const scheduleSheet = document.querySelector('[data-schedule-sheet]');
@@ -2518,11 +2544,6 @@
       { short: 'Sun', label: 'Sunday' },
     ];
 
-    const timeLabels = Array.from(
-      { length: 24 },
-      (_, h) => `~${String(h).padStart(2, '0')}:00`,
-    );
-
     /** @param {number} n 1–31 */
     const ordinalSuffix = (n) => {
       const j = n % 10;
@@ -2532,15 +2553,6 @@
       if (j === 2) return `${n}nd`;
       if (j === 3) return `${n}rd`;
       return `${n}th`;
-    };
-
-    const parseHourIndex = (text) => {
-      const m = String(text || '').match(/~?\s*(\d{1,2}):(\d{2})/);
-      if (!m) return 12;
-      let hh = parseInt(m[1], 10);
-      if (!Number.isFinite(hh)) return 12;
-      hh = Math.max(0, Math.min(23, hh));
-      return hh;
     };
 
     const parseMonthlyDayIndex = (text) => {
@@ -2594,7 +2606,7 @@
       onScroll();
     };
 
-    /** Tap an option to snap the column to that index (weekly/monthly day + time; daily time). */
+    /** Tap an option to snap the column to that index. */
     const bindColumnOptionClicks = (colEl, optionCount) => {
       const maxIdx = optionCount - 1;
       colEl.addEventListener(
@@ -2624,38 +2636,29 @@
       pickerRoot.classList.toggle('schedule-time-picker--daily', freq === 'daily');
 
       const tv = (timingValueEl?.textContent || '').trim();
-      const timeIdx = parseHourIndex(tv);
 
       if (freq === 'daily') {
-        primaryCol.hidden = true;
-        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
-        scrollToIndex(timeCol, timeIdx, 23);
-        bindColumnScroll(timeCol, 24);
-        bindColumnOptionClicks(timeCol, 24);
+        return;
       } else if (freq === 'weekly') {
         primaryCol.hidden = false;
+        timeCol.hidden = true;
+        timeCol.innerHTML = '';
         const dayLabels = WEEKDAYS.map((w) => w.label);
         const dayIdx = parseWeeklyDayIndex(tv);
         primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
-        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
         scrollToIndex(primaryCol, dayIdx, 6);
-        scrollToIndex(timeCol, timeIdx, 23);
         bindColumnScroll(primaryCol, 7);
-        bindColumnScroll(timeCol, 24);
         bindColumnOptionClicks(primaryCol, 7);
-        bindColumnOptionClicks(timeCol, 24);
       } else {
         primaryCol.hidden = false;
+        timeCol.hidden = true;
+        timeCol.innerHTML = '';
         const dayLabels = Array.from({ length: 28 }, (_, i) => ordinalSuffix(i + 1));
         const dayIdx = parseMonthlyDayIndex(tv);
         primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
-        timeCol.innerHTML = buildColumnHtml(timeLabels, timeIdx);
         scrollToIndex(primaryCol, dayIdx, 27);
-        scrollToIndex(timeCol, timeIdx, 23);
         bindColumnScroll(primaryCol, 28);
-        bindColumnScroll(timeCol, 24);
         bindColumnOptionClicks(primaryCol, 28);
-        bindColumnOptionClicks(timeCol, 24);
       }
 
       sheetOpenWithInstantBackdrop(timeSheet);
@@ -2679,17 +2682,15 @@
 
     const confirmTimePicker = () => {
       const freq = getActiveScheduleFreq();
-      const ti = Math.max(0, Math.min(23, Math.round(timeCol.scrollTop / ITEM_H)));
-      const tlab = timeLabels[ti];
       let next = '';
       if (freq === 'daily') {
-        next = tlab;
+        next = '- -';
       } else if (freq === 'weekly') {
         const pi = Math.max(0, Math.min(6, Math.round(primaryCol.scrollTop / ITEM_H)));
-        next = `${WEEKDAYS[pi].short} at ${tlab}`;
+        next = WEEKDAYS[pi].label;
       } else {
         const pi = Math.max(0, Math.min(27, Math.round(primaryCol.scrollTop / ITEM_H)));
-        next = `${ordinalSuffix(pi + 1)} at ${tlab}`;
+        next = `${ordinalSuffix(pi + 1)}`;
       }
       if (timingValueEl) timingValueEl.textContent = next;
       scheduleSheetApi.refreshEndConditionSubtitles?.();
