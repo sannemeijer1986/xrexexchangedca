@@ -3492,12 +3492,27 @@
         const thumb = item.querySelector('[data-alloc-thumb]');
         const input = item.querySelector('[data-alloc-pct-input]');
         const symbolEl = item.querySelector('.alloc-multi__pct-symbol');
+        const amountSubEl = item.querySelector('[data-alloc-pct-amount-sub]');
         const p = pcts[i] / 100;
 
         if (fill) fill.style.width = `${p * 100}%`;
         if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
         if (symbolEl) {
           symbolEl.textContent = inputMode === 'amount' ? getPlanDetailCurrency() : '%';
+        }
+        if (amountSubEl) {
+          if (inputMode === 'amount') {
+            amountSubEl.textContent = '';
+            amountSubEl.hidden = true;
+            amountSubEl.setAttribute('aria-hidden', 'true');
+          } else {
+            amountSubEl.hidden = false;
+            const invest = getPlanDetailInvestTotal();
+            const cur = getPlanDetailCurrency();
+            const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
+            amountSubEl.textContent = `${slice.toLocaleString('en-US')} ${cur}`;
+            amountSubEl.setAttribute('aria-hidden', 'false');
+          }
         }
         if (input && document.activeElement !== input) {
           if (inputMode === 'amount') {
@@ -3695,7 +3710,7 @@
       }
 
       panelEl._planDetailAllocRefreshAmounts = () => {
-        if (inputMode === 'amount') renderAll();
+        renderAll();
       };
 
       // Initial render (starts at default split — Reset hidden)
@@ -4077,11 +4092,14 @@
                   <span class="alloc-multi__name">${item.name}</span>
                   <span class="alloc-multi__ticker">${item.ticker}</span>
                 </div>
-                <div class="alloc-multi__pct-wrap">
-                  <div class="alloc-multi__pct-inner">
-                    <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
-                    <span class="alloc-multi__pct-symbol">%</span>
+                <div class="alloc-multi__pct-col">
+                  <div class="alloc-multi__pct-wrap">
+                    <div class="alloc-multi__pct-inner">
+                      <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
+                      <span class="alloc-multi__pct-symbol">%</span>
+                    </div>
                   </div>
+                  <p class="alloc-multi__pct-amount-sub" data-alloc-pct-amount-sub aria-hidden="true"></p>
                 </div>
               </div>
               <div class="alloc-multi__slider-row">
