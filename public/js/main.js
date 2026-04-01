@@ -4823,7 +4823,7 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
-        if (simTitleEl) simTitleEl.textContent = `Your plan simulated based on past ${range} data`;
+        if (simTitleEl) simTitleEl.textContent = `Your plan simulated, \nbased on past ${range} data`;
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `If you'd started ${range} ago ≈`;
         });

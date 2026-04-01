@@ -7002,6 +7002,22 @@ div.currency-sheet__item-icon::before {
   transform: translateY(-50%);
 }
 
+.plan-breakdown-panel__range-slot .plan-breakdown-panel__range--detail {
+  width: 72px;
+  height: 40px;
+  border-radius: 14px;
+  padding: 0 10px;
+  font-size: 14px;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.plan-breakdown-panel__range-slot .plan-breakdown-panel__range--detail img {
+  width: 20px;
+  height: 20px;
+}
+
+.plan-detail-panel__return-range[hidden],
 .plan-breakdown-panel__range[hidden] {
   display: none !important;
 }
@@ -7018,7 +7034,7 @@ div.currency-sheet__item-icon::before {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 32px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: 32px 16px calc(96px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7055,7 +7071,8 @@ div.currency-sheet__item-icon::before {
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.3;
+  margin: 4px 0 8px 0;
 }
 
 .plan-breakdown-panel__asset-wrap {
@@ -7274,6 +7291,9 @@ div.currency-sheet__item-icon::before {
 .plan-breakdown-panel__close-cta {
   width: 100%;
   height: 48px;
+  position: sticky;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 2;
   border-radius: 16px;
   border: 0;
   background: #2d2f2f;
