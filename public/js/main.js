@@ -1557,6 +1557,7 @@
       el.textContent = range;
     });
     const startedAgo = `If you'd started ${range} ago ≈`;
+    const breakdownOutcome = `${range} simulated outcome ≈`;
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
         el.textContent = startedAgo;
@@ -1573,7 +1574,7 @@
     }
     if (context === 'breakdown' || context === 'widgetBreakdown') {
       document.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-        el.textContent = startedAgo;
+        el.textContent = breakdownOutcome;
       });
     }
   };
@@ -4823,11 +4824,11 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
-        if (simTitleEl) simTitleEl.textContent = `Your plan simulated, \nbased on past ${range} data`;
+        if (simTitleEl) simTitleEl.textContent = `If you'd started ${range} ago ≈`;
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-          el.textContent = `If you'd started ${range} ago ≈`;
+          el.textContent = `${range} simulated outcome ≈`;
         });
-        if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (legendAssetsEl) legendAssetsEl.textContent = `Plan value (${prettyTickers || '—'})`;
         const showSp500 = getPrototypeBreakdownSp500Visible();
         if (legendSpEl) legendSpEl.hidden = !showSp500;
         if (legendSpItemEl) legendSpItemEl.hidden = !showSp500;
