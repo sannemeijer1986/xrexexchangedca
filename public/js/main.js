@@ -3102,7 +3102,30 @@
       const noAmount = !amount || amount <= 0;
       const exceedsBalance = amount > balance;
 
-      continueBtn.disabled = noAssets || noAmount || exceedsBalance;
+      let allocationOutOfBalance = false;
+      const allocRoot = panel.querySelector('.alloc-multi');
+      if (allocRoot && allocCount >= 2) {
+        const rows = panel.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
+        if (rows.length >= 2) {
+          if (allocRoot.classList.contains('alloc-multi--amount-mode')) {
+            let sumAmt = 0;
+            rows.forEach((inp) => {
+              const v = parseInt(String(inp.value || '').replace(/[^0-9]/g, ''), 10);
+              if (!isNaN(v)) sumAmt += v;
+            });
+            allocationOutOfBalance = amount > 0 && sumAmt !== amount;
+          } else {
+            let sumPct = 0;
+            rows.forEach((inp) => {
+              const v = parseInt(String(inp.value || '').replace(/[^0-9]/g, ''), 10);
+              if (!isNaN(v)) sumPct += v;
+            });
+            allocationOutOfBalance = Math.abs(sumPct - 100) > 0.51;
+          }
+        }
+      }
+
+      continueBtn.disabled = noAssets || noAmount || exceedsBalance || allocationOutOfBalance;
       if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount;
     };
 
@@ -3358,7 +3381,7 @@
 
     // ── Multi-asset allocation sliders ────────────────────────────────────────
     // Called after multi-asset HTML is rendered into the allocation list.
-    // Manages per-asset % sliders, % inputs, and the lock feature (3-asset only).
+    // Each row is edited independently; total % or amounts must match before Continue.
     const initAllocSliders = (panelEl, count) => {
       const allocPanelAbortKey = '_allocPanelControlsAbort';
       if (panelEl[allocPanelAbortKey]) panelEl[allocPanelAbortKey].abort();
@@ -3375,19 +3398,10 @@
       panelEl[allocPanelAbortKey] = panelAc;
       const panelCtlSignal = panelAc.signal;
 
-      // Hide stale lock tooltip when switching to a 2-asset plan
-      if (count < 3) {
-        document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
-      }
+      document.querySelector('[data-alloc-lock-tooltip]')?.classList.remove('is-visible');
 
       const defaultPcts = count === 2 ? [50, 50] : [34, 33, 33];
       const pcts = [...defaultPcts];
-      const locked = new Array(count).fill(false);
-      /** 3-asset only: index last touched via slider/input; crossing to another row auto-locks it */
-      let lastInteractedIdx = -1;
-
-      const svgUnlock = `<img src="assets/icon_unlock.svg" width="20" height="20" alt="" />`;
-      const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
 
       const items = Array.from(panelEl.querySelectorAll('.alloc-multi__item'));
       const allocMultiRoot = items[0]?.closest('.alloc-multi');
@@ -3465,7 +3479,9 @@
           const numStr = total > 0 ? total.toLocaleString('en-US') : '0';
           el.textContent = `Total ${numStr} ${cur}`;
         } else {
-          el.textContent = 'Total 100%';
+          const sum = pcts.reduce((a, b) => a + b, 0);
+          const r = Math.round(sum * 10) / 10;
+          el.textContent = Number.isInteger(r) ? `Total ${r}%` : `Total ${r.toFixed(1)}%`;
         }
       };
 
@@ -3475,10 +3491,8 @@
         const fill = item.querySelector('[data-alloc-fill]');
         const thumb = item.querySelector('[data-alloc-thumb]');
         const input = item.querySelector('[data-alloc-pct-input]');
-        const lockBtn = item.querySelector('[data-alloc-lock-btn]');
         const symbolEl = item.querySelector('.alloc-multi__pct-symbol');
         const p = pcts[i] / 100;
-        const isLocked = locked[i];
 
         if (fill) fill.style.width = `${p * 100}%`;
         if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
@@ -3501,25 +3515,6 @@
             input.setAttribute('aria-label', 'Allocation percent');
           }
         }
-
-        // Toggle locked class on the row for CSS-driven visual + pointer blocking
-        item.classList.toggle('is-locked', isLocked);
-
-        // Lock icon: toggle class every frame; swap img src only when needed (no innerHTML — avoids blink)
-        if (lockBtn) {
-          lockBtn.classList.toggle('is-locked', isLocked);
-          const lockSrc = 'assets/icon_lock.svg';
-          const unlockSrc = 'assets/icon_unlock.svg';
-          const img = lockBtn.querySelector('img');
-          if (!img) {
-            lockBtn.innerHTML = isLocked ? svgLock : svgUnlock;
-          } else {
-            const cur = img.getAttribute('src') || '';
-            const wantFile = isLocked ? 'icon_lock.svg' : 'icon_unlock.svg';
-            if (!cur.endsWith(wantFile)) img.setAttribute('src', isLocked ? lockSrc : unlockSrc);
-          }
-          lockBtn.setAttribute('aria-label', isLocked ? 'Unlock allocation' : 'Lock allocation');
-        }
       };
 
       const isAtDefaultAllocation = () =>
@@ -3528,8 +3523,7 @@
       const updateAllocResetVisibility = () => {
         const btn = panelEl.querySelector('[data-alloc-reset]');
         if (!btn) return;
-        const anyLock = locked.some((x) => x);
-        btn.hidden = isAtDefaultAllocation() && !anyLock;
+        btn.hidden = isAtDefaultAllocation();
       };
 
       const renderAll = () => {
@@ -3537,6 +3531,7 @@
         updateAllocResetVisibility();
         updateAllocHeaderSubtitle();
         syncAllocAmountWrapDisabled();
+        syncPlanDetailContinueState();
       };
 
       /** Slider drags update `pcts` but `renderItem` skips the focused input — blur so values stay in sync. */
@@ -3545,193 +3540,9 @@
         if (ae?.matches?.('[data-alloc-pct-input]') && panelEl.contains(ae)) ae.blur();
       };
 
-      /** When user engages a different asset than before, lock the previous one (single lock slot). */
-      const applyAllocAutoLockFromInteraction = (nextIdx) => {
-        if (count !== 3) return;
-        hideAllocLockTooltip();
-        if (lastInteractedIdx >= 0 && lastInteractedIdx !== nextIdx) {
-          locked.fill(false);
-          locked[lastInteractedIdx] = true;
-          renderAll();
-          refreshPlanDetailAllocTweak();
-        }
-        lastInteractedIdx = nextIdx;
-      };
-
-      /**
-       * User unlocks row `i` (lock button or tapping slider/input on a locked row).
-       * Transfers the single lock to the previously interacted row when it differs from `i`.
-       */
-      const applyAllocUnlockRow = (i) => {
-        if (count !== 3 || !locked[i]) return;
-        hideAllocLockTooltip();
-        locked.fill(false);
-        if (lastInteractedIdx >= 0 && lastInteractedIdx !== i) {
-          locked[lastInteractedIdx] = true;
-        }
-        lastInteractedIdx = i;
-        renderAll();
-        refreshPlanDetailAllocTweak();
-      };
-
-      // Tooltip when a 3-asset lock caps how far another slider can move.
-      // Lives inside .plan-detail-panel__content so it scrolls with the page.
-      const contentEl = panelEl.querySelector('.plan-detail-panel__content');
-      const scrollRoot = panelEl.querySelector('[data-plan-detail-scroller]');
-      let tipEl = contentEl?.querySelector('[data-alloc-lock-tooltip]')
-        || document.querySelector('[data-alloc-lock-tooltip]');
-      if (!tipEl) {
-        tipEl = document.createElement('div');
-        tipEl.className = 'alloc-multi__lock-tooltip';
-        tipEl.setAttribute('data-alloc-lock-tooltip', '');
-        tipEl.setAttribute('role', 'tooltip');
-      }
-      if (!tipEl.querySelector('[data-alloc-lock-tooltip-text]')) {
-        tipEl.innerHTML = `
-          <button class="alloc-multi__lock-tooltip-close" type="button" aria-label="Dismiss hint" data-alloc-lock-tooltip-close>&times;</button>
-          <div class="alloc-multi__lock-tooltip-text" data-alloc-lock-tooltip-text></div>
-        `;
-      }
-      if (contentEl) contentEl.appendChild(tipEl);
-      const tipTextEl = tipEl.querySelector('[data-alloc-lock-tooltip-text]');
-      const tipCloseBtn = tipEl.querySelector('[data-alloc-lock-tooltip-close]');
-
-      let hideTooltipTimer = null;
-      /** @type {Element | null} */
-      let lastTooltipAnchor = null;
-
-      const clipBoundsEl =
-        panelEl.closest('.phone-container') || scrollRoot || panelEl;
-
-      /** Position tooltip on the knob, nudge horizontally to stay inside clip bounds, aim arrow at knob. */
-      const updateAllocLockTooltipPosition = () => {
-        if (!lastTooltipAnchor || !tipEl || !contentEl) return;
-        const a = lastTooltipAnchor.getBoundingClientRect();
-        const c = contentEl.getBoundingClientRect();
-        const left = a.left - c.left + a.width / 2;
-        const top = a.top - c.top;
-        tipEl.style.left = `${left}px`;
-        tipEl.style.top = `${top}px`;
-        tipEl.style.setProperty('--alloc-tip-nudge', '0px');
-
-        const bounds = clipBoundsEl.getBoundingClientRect();
-        const margin = 8;
-        const knobCX = a.left + a.width / 2;
-
-        void tipEl.offsetWidth;
-        const W = tipEl.getBoundingClientRect().width;
-        const idealLeft = knobCX - W / 2;
-        const minL = bounds.left + margin;
-        const maxL = bounds.right - margin - W;
-        const clampedLeft = maxL >= minL
-          ? Math.max(minL, Math.min(maxL, idealLeft))
-          : minL;
-        const nudge = clampedLeft - idealLeft;
-        tipEl.style.setProperty('--alloc-tip-nudge', `${nudge}px`);
-
-        void tipEl.offsetWidth;
-        const finalR = tipEl.getBoundingClientRect();
-        let arrowLeft = knobCX - finalR.left;
-        const pad = 18;
-        arrowLeft = Math.max(pad, Math.min(finalR.width - pad, arrowLeft));
-        tipEl.style.setProperty('--alloc-tip-arrow-left', `${arrowLeft}px`);
-      };
-
-      const hideAllocLockTooltip = () => {
-        lastTooltipAnchor = null;
-        if (hideTooltipTimer) {
-          clearTimeout(hideTooltipTimer);
-          hideTooltipTimer = null;
-        }
-        tipEl.classList.remove('is-visible');
-        tipEl.style.removeProperty('--alloc-tip-nudge');
-        tipEl.style.removeProperty('--alloc-tip-arrow-left');
-      };
-
-      const resetAllocLockTooltipAutoHide = () => {
-        if (hideTooltipTimer) clearTimeout(hideTooltipTimer);
-        hideTooltipTimer = setTimeout(() => {
-          tipEl.classList.remove('is-visible');
-          lastTooltipAnchor = null;
-          hideTooltipTimer = null;
-        }, 3800);
-      };
-
-      const showAllocLockTooltip = (anchorEl, lockedIdx) => {
-        if (count !== 3 || lockedIdx < 0 || !anchorEl || !tipEl || !contentEl) return;
-        lastTooltipAnchor = anchorEl;
-        const lockedItem = items[lockedIdx];
-        const name = lockedItem?.querySelector('.alloc-multi__name')?.textContent?.trim() || 'Asset';
-        const pct = Math.round(pcts[lockedIdx]);
-        if (tipTextEl) {
-          tipTextEl.textContent = `${name} locked at ${pct}%: unlock it to increase this asset's allocation`;
-        }
-        tipEl.classList.remove('alloc-multi__lock-tooltip--intro');
-        if (tipCloseBtn) tipCloseBtn.hidden = true;
-        tipEl.classList.add('is-visible');
-        updateAllocLockTooltipPosition();
-        resetAllocLockTooltipAutoHide();
-      };
-
-      // Reposition on scroll (new closure each init — abort prior listener to avoid stacking)
-      const scrollAbortKey = '_allocLockTooltipScrollAbort';
-      if (scrollRoot) {
-        const prevAbort = scrollRoot[scrollAbortKey];
-        if (prevAbort) prevAbort.abort();
-        const ac = new AbortController();
-        scrollRoot[scrollAbortKey] = ac;
-        scrollRoot.addEventListener(
-          'scroll',
-          () => {
-            if (tipEl.classList.contains('is-visible')) updateAllocLockTooltipPosition();
-          },
-          { passive: true, signal: ac.signal },
-        );
-      }
-
-      // Dismiss on any tap outside the tooltip (e.g. after slider release)
-      const docAbortKey = '_allocLockTooltipDocPointerAbort';
-      {
-        const prevDoc = document[docAbortKey];
-        if (prevDoc) prevDoc.abort();
-        const acDoc = new AbortController();
-        document[docAbortKey] = acDoc;
-        document.addEventListener(
-          'pointerdown',
-          (e) => {
-            if (!tipEl?.classList.contains('is-visible')) return;
-            if (tipEl.contains(e.target)) return;
-            hideAllocLockTooltip();
-          },
-          { capture: true, signal: acDoc.signal },
-        );
-      }
-      if (tipCloseBtn) {
-        tipCloseBtn.addEventListener(
-          'click',
-          (e) => {
-            e.stopPropagation();
-            hideAllocLockTooltip();
-          },
-          { signal: panelCtlSignal },
-        );
-      }
-      tipEl.addEventListener(
-        'click',
-        () => {
-          if (!tipEl.classList.contains('is-visible')) return;
-          hideAllocLockTooltip();
-        },
-        { signal: panelCtlSignal },
-      );
-
-      // Redistribute: set changedIdx to newPct and spread the remainder
-      // proportionally among unlocked others. Never returns early — always
-      // clamps to a valid range so fast drags can never freeze the slider.
       /**
        * Amount mode: min % so Math.round(total × pct / 100) ≥ 1 → pct ≥ 50/t (ceil).
-       * (Using 100/t was too loose and still allowed 0 after rounding.)
-       * % mode: legacy 1% minimum per unlocked slot.
+       * % mode: 1% floor per row; rows are independent (total can differ from 100% until user balances).
        */
       const getMinPctPerOpenSlot = () => {
         if (inputMode !== 'amount') return 1;
@@ -3743,84 +3554,23 @@
         return minPct;
       };
 
-      /** @returns {{ hitLockedCap: boolean, lockedIdx: number }} */
-      const redistribute = (changedIdx, newPct) => {
-        const others = items
-          .map((_, j) => j)
-          .filter((j) => j !== changedIdx && !locked[j]);
-
-        if (others.length === 0) return { hitLockedCap: false, lockedIdx: -1 };
-
+      /** Update one row only; no auto-rebalance across assets. */
+      const applyAllocChange = (changedIdx, rawPct) => {
         const minSlot = getMinPctPerOpenSlot();
+        let v = Math.round(rawPct);
+        v = Math.max(minSlot, Math.min(99, v));
+        pcts[changedIdx] = v;
 
-        // Sum of locked assets that can't move
-        const lockedSum = pcts.reduce((s, p, j) => (locked[j] ? s + p : s), 0);
-
-        // Each unlocked other needs at least minSlot%; changed asset also ≥ minSlot.
-        const maxForChanged = 100 - lockedSum - others.length * minSlot;
-        const raw = newPct;
-        const clamped = Math.max(minSlot, Math.min(maxForChanged, newPct));
-        const triedToExceedMax = raw > maxForChanged + 0.08;
-        const lockedIdx = locked.findIndex((l) => l);
-        const hitLockedCap = count === 3 && lockedIdx >= 0 && lockedSum > 0 && triedToExceedMax;
-
-        pcts[changedIdx] = clamped;
-
-        // Amount left to share among unlocked others
-        const toShare = 100 - clamped - lockedSum;
-
-        if (others.length === 1) {
-          pcts[others[0]] = toShare;
-        } else {
-          // Distribute proportionally to current values (feels natural on sliders)
-          const othersSum = others.reduce((s, j) => s + pcts[j], 0);
-          if (othersSum > 0) {
-            others.forEach((j) => {
-              pcts[j] = Math.max(minSlot, (pcts[j] / othersSum) * toShare);
-            });
-          } else {
-            others.forEach((j) => { pcts[j] = toShare / others.length; });
-          }
-
-          // Absorb any floating-point rounding into the first other
-          const pSum = pcts.reduce((a, b) => a + b, 0);
-          pcts[others[0]] += 100 - pSum;
-        }
-
-        // Amount mode: absorb can leave a slot rounding to 0 TWD/USDT — bump then trim donors
         if (inputMode === 'amount') {
           const t = getPlanDetailInvestTotal();
           const minS = getMinPctPerOpenSlot();
-          if (t >= count && t > 0) {
-            let adjusted = false;
-            for (let j = 0; j < count; j += 1) {
-              if (locked[j]) continue;
-              if (Math.round((t * pcts[j]) / 100) < 1) {
-                pcts[j] = minS;
-                adjusted = true;
-              }
-            }
-            if (adjusted) {
-              let sum = pcts.reduce((a, b) => a + b, 0);
-              let over = sum - 100;
-              if (over > 1e-6) {
-                for (let j = count - 1; j >= 0 && over > 1e-6; j -= 1) {
-                  if (locked[j]) continue;
-                  const room = pcts[j] - minS;
-                  if (room > 1e-6) {
-                    const d = Math.min(room, over);
-                    pcts[j] -= d;
-                    over -= d;
-                  }
-                }
-              }
-            }
+          if (t >= count && t > 0 && Math.round((t * pcts[changedIdx]) / 100) < 1) {
+            pcts[changedIdx] = minS;
           }
         }
 
         renderAll();
         refreshPlanDetailAllocTweak();
-        return { hitLockedCap, lockedIdx };
       };
 
       // Tiny synthetic sensitivity vs default split → footer % moves slightly (prototype only)
@@ -3837,7 +3587,6 @@
       items.forEach((item, i) => {
         const slider = item.querySelector('[data-alloc-slider]');
         const input = item.querySelector('[data-alloc-pct-input]');
-        const lockBtn = item.querySelector('[data-alloc-lock-btn]');
 
         // Slider pointer interaction.
         // setPointerCapture keeps events routed to the slider even when the
@@ -3853,28 +3602,14 @@
           slider.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             blurAllocPctInputIfFocused();
-            if (count === 3) {
-              if (locked[i]) applyAllocUnlockRow(i);
-              else applyAllocAutoLockFromInteraction(i);
-            } else hideAllocLockTooltip();
             slider.setPointerCapture(e.pointerId);
-            const ret = redistribute(i, getSliderPct(e.clientX));
-            if (count === 3 && ret.hitLockedCap) {
-              const thumb = items[i].querySelector('[data-alloc-thumb]');
-              showAllocLockTooltip(thumb, ret.lockedIdx);
-            }
+            applyAllocChange(i, getSliderPct(e.clientX));
           });
 
           slider.addEventListener('pointermove', (e) => {
             if (!slider.hasPointerCapture(e.pointerId)) return;
             e.preventDefault();
-            const ret = redistribute(i, getSliderPct(e.clientX));
-            if (count === 3 && ret.hitLockedCap) {
-              const thumb = items[i].querySelector('[data-alloc-thumb]');
-              showAllocLockTooltip(thumb, ret.lockedIdx);
-            } else {
-              hideAllocLockTooltip();
-            }
+            applyAllocChange(i, getSliderPct(e.clientX));
           });
 
           slider.addEventListener('pointerup', (e) => {
@@ -3883,13 +3618,10 @@
             }
           });
 
-          // pointercancel can still fire (e.g. stylus loss-of-contact).
-          // Release capture gracefully without stopping redistribution.
           slider.addEventListener('pointercancel', (e) => {
             if (slider.hasPointerCapture(e.pointerId)) {
               slider.releasePointerCapture(e.pointerId);
             }
-            hideAllocLockTooltip();
           });
         }
 
@@ -3897,10 +3629,6 @@
         if (input) {
           const ALLOC_NAME_SCROLL_TOP_PAD = 20;
           input.addEventListener('focus', () => {
-            if (count === 3) {
-              if (locked[i]) applyAllocUnlockRow(i);
-              else applyAllocAutoLockFromInteraction(i);
-            }
             const nameEl = item.querySelector('.alloc-multi__name');
             //scrollPlanDetailContentTo(nameEl, ALLOC_NAME_SCROLL_TOP_PAD);
           });
@@ -3918,66 +3646,34 @@
               const raw = parseInt(input.value.replace(/[^0-9]/g, ''), 10);
               if (!total || isNaN(raw) || raw < 1) {
                 input.value = total > 0 ? formatAllocAmountDisplay((total * pcts[i]) / 100) : '';
-                hideAllocLockTooltip();
+                syncPlanDetailContinueState();
                 return;
               }
               const newPct = Math.round((raw / total) * 100);
-              const ret = redistribute(i, newPct);
-              if (count === 3 && ret.hitLockedCap) {
-                const anchor = input.closest('.alloc-multi__pct-wrap');
-                showAllocLockTooltip(anchor || input, ret.lockedIdx);
-              } else {
-                hideAllocLockTooltip();
-              }
+              applyAllocChange(i, newPct);
               return;
             }
 
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
-              const ret = redistribute(i, val);
-              if (count === 3 && ret.hitLockedCap) {
-                const anchor = input.closest('.alloc-multi__pct-wrap');
-                showAllocLockTooltip(anchor || input, ret.lockedIdx);
-              } else {
-                hideAllocLockTooltip();
-              }
+              applyAllocChange(i, val);
             } else {
               input.value = String(Math.round(pcts[i]));
-              hideAllocLockTooltip();
+              syncPlanDetailContinueState();
             }
           });
 
           input.addEventListener('input', () => {
             if (inputMode === 'amount') {
               applyAllocInputLiveFormat(input);
+              syncPlanDetailContinueState();
               return;
             }
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
-              const ret = redistribute(i, val);
-              if (count === 3 && ret.hitLockedCap) {
-                const anchor = input.closest('.alloc-multi__pct-wrap');
-                showAllocLockTooltip(anchor || input, ret.lockedIdx);
-              } else {
-                hideAllocLockTooltip();
-              }
-            }
-          });
-        }
-
-        // Lock button (3-asset only) — only one asset can be locked at a time
-        if (lockBtn) {
-          lockBtn.addEventListener('click', () => {
-            const willLock = !locked[i];
-            if (willLock) {
-              hideAllocLockTooltip();
-              locked.fill(false);
-              locked[i] = true;
-              lastInteractedIdx = i;
-              renderAll();
-              refreshPlanDetailAllocTweak();
+              applyAllocChange(i, val);
             } else {
-              applyAllocUnlockRow(i);
+              syncPlanDetailContinueState();
             }
           });
         }
@@ -3991,9 +3687,6 @@
             for (let j = 0; j < count; j += 1) {
               pcts[j] = defaultPcts[j];
             }
-            locked.fill(false);
-            lastInteractedIdx = -1;
-            hideAllocLockTooltip();
             renderAll();
             refreshPlanDetailAllocTweak();
           },
@@ -4025,7 +3718,6 @@
           const next = mode === 'amount' ? 'amount' : 'pct';
           const ae = document.activeElement;
           if (ae?.matches?.('[data-alloc-pct-input]')) ae.blur();
-          lastInteractedIdx = -1;
           inputMode = next;
           modeToggle.querySelectorAll('[data-alloc-mode-btn]').forEach((b) => {
             b.classList.toggle('is-active', b.dataset.allocModeBtn === next);
@@ -4375,11 +4067,7 @@
       }
 
       if (allocItems.length >= 2) {
-        // Multi-asset layout with sliders + optional lock
-        const svgUnlock = `<img src="assets/icon_unlock.svg" width="20" height="20" alt="" />`;
-        const svgLock = `<img src="assets/icon_lock.svg" width="20" height="20" alt="" />`;
-        const showLock = allocItems.length === 3;
-
+        // Multi-asset layout with sliders (per-row %; user balances total to 100% / amounts to per-buy total)
         allocList.innerHTML = `<div class="alloc-multi">${
           allocItems.map((item, i) => `
             <div class="alloc-multi__item" data-alloc-idx="${i}">
@@ -4402,7 +4090,6 @@
                   <div class="alloc-multi__slider-fill" data-alloc-fill></div>
                   <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
                 </div>
-                ${showLock ? `<button class="alloc-multi__lock-btn" type="button" aria-label="Lock allocation" data-alloc-lock-btn>${svgUnlock}</button>` : ''}
               </div>
             </div>`).join('')
         }</div>`;
