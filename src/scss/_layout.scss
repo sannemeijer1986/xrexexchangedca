@@ -2585,7 +2585,6 @@ html[data-active-tab="finance"] {
 }
 
 .plan-strategy__freq {
-  margin-top: 6px;
   background: #1B1D1D;
   border: 1px solid #3C4248;
   border-radius: 15px;
@@ -3873,6 +3872,7 @@ div.currency-sheet__item-icon {
 .schedule-sheet__freq {
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: 8px;
 }
 
 .schedule-sheet__timing-row {
