@@ -2205,13 +2205,18 @@ html[data-active-tab="finance"] {
 }
 
 .finance-summary__actions {
-  background: #1B1D1D;
+  background: #1b1d1d;
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
   padding: 16px;
   display: flex;
   gap: 16px;
   align-items: center;
+}
+
+// Flow state 1: no summary top — actions sit under intro with full 24px rounding on all corners
+.finance-summary__actions--full-radius {
+  border-radius: 24px;
 }
 
 .finance-summary__btn {
@@ -2248,6 +2253,7 @@ html[data-active-tab="finance"] {
 
 .plan-strategy {
   margin: 0;
+  display: none;
 }
 
 .plan-strategy__header {
@@ -2883,8 +2889,7 @@ html[data-active-tab="finance"] {
   }
 }
 
-.plan-strategy__view-breakdown-link,
-.plan-detail-panel__view-breakdown-link {
+.plan-strategy__view-breakdown-link {
   display: inline-flex;
   align-items: center;
   gap: 0px;
@@ -2898,6 +2903,8 @@ html[data-active-tab="finance"] {
   line-height: 1.2;
   cursor: pointer;
   padding: 6px 0px 0px 0px;
+  margin-top: 3px;
+  margin-bottom: 0;
 
   img {
     margin-top: 3px;
@@ -2908,17 +2915,38 @@ html[data-active-tab="finance"] {
   }
 }
 
-.plan-strategy__view-breakdown-link {
-  margin-top: 3px;
-  margin-bottom: 0;
-}
-
+// Plan detail sticky footer: secondary Breakdown (Figma btn-bg-secondary-active #2d2f2f, 48px, 16px radius)
 .plan-detail-panel__view-breakdown-link {
-  margin-top: 4px;
-  margin-bottom: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: #2d2f2f;
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+
+  img {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+
+  span {
+    white-space: nowrap;
+  }
 
   &:disabled {
-    color: #6d6e72;
     cursor: not-allowed;
     opacity: 0.5;
   }
@@ -3760,6 +3788,14 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.schedule-sheet__block--end-condition {
+  display: none;
+}
+
+.plan-detail-panel__repeats-type {
+  display: none;
 }
 
 .schedule-sheet__field-label {
@@ -5918,7 +5954,7 @@ div.currency-sheet__item-icon {
   font-size: 14px;
   font-weight: 600;
   color: #8fb8ff;
-  display: block;
+  display: none;
 }
 
 .plan-detail-panel__edit-btn {
@@ -5941,6 +5977,7 @@ div.currency-sheet__item-icon {
 // Details block sits below Repeats in .plan-detail-panel__content (same column gap as siblings).
 .plan-detail-panel__details-section {
   width: 100%;
+  display: none;
 }
 
 // Figma 8527:4738 (collapsed) / 8527:4757 (expanded) — Details disclosure + coverage rows
@@ -6800,7 +6837,7 @@ div.currency-sheet__item-icon {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
 .plan-detail-panel__return {
@@ -6825,18 +6862,25 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__footer-btns {
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
   gap: 16px;
+  width: 100%;
 }
 
 .plan-detail-panel__continue {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   height: 48px;
   border-radius: 16px;
   border: 0;
   background: #275cfd;
   color: #ffffff;
+  font-family: 'Manrope', sans-serif;
   font-size: 16px;
   font-weight: 600;
+  line-height: 1;
+  padding: 12px 16px;
 }
 
 .plan-detail-panel__continue:disabled {

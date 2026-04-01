@@ -367,7 +367,7 @@
                                 <div class="finance__sections">
                                 <div class="finance-summary">
                                     <div class="finance-intro" aria-label="Auto-invest">
-                                        <div class="finance-intro__state finance-intro__state--first" data-finance-intro-state="1">
+                                        <div class="finance-intro__state finance-intro__state--first" data-finance-intro-state="1" hidden>
                                             <div class="finance-intro__first-card">
                                                 <div class="finance-intro__first-top">
                                                     <div class="finance-intro__first-header">
@@ -394,7 +394,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="finance-intro__state finance-intro__state--compact" data-finance-intro-state="2" hidden>
+                                        <div class="finance-intro__state finance-intro__state--compact" data-finance-intro-state="2">
                                             <div class="finance-intro__inner">
                                                 <div class="finance-intro__copy">
                                                     <p class="finance-intro__title">Invest automatically. Grow.</p>
@@ -409,7 +409,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="finance-summary__top">
+                                    <div class="finance-summary__top" hidden>
                                         <div class="finance-summary__row">
                                             <div class="finance-summary__left">
                                                 <div class="finance-summary__label">
@@ -446,7 +446,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="finance-summary__actions">
+                                    <div class="finance-summary__actions finance-summary__actions--full-radius">
                                         <!-- <button class="finance-summary__btn finance-summary__btn--icon" type="button" aria-label="Guide">
                                             <img src="assets/icon_guide.svg" alt="" class="finance-summary__guide-icon" />
                                         </button> -->
@@ -1196,14 +1196,14 @@
                         <div class="plan-detail-panel__return-historic-icon-slot" data-plan-detail-return-asset-icons aria-hidden="true"></div>
                     </div>
                 </div>
-                <button class="plan-detail-panel__view-breakdown-link" type="button">
-                    View breakdown
-                    <img src="assets/icon_right_bluechev.svg" alt="" width="16" height="16" aria-hidden="true" />
-                </button>
             </div>
-            <!-- Buttons -->
+            <!-- Buttons: secondary Breakdown + primary Continue (Figma 8723:15779) -->
             <div class="plan-detail-panel__footer-btns">
-                <button class="plan-detail-panel__continue" type="button">Continue with this plan</button>
+                <button class="plan-detail-panel__view-breakdown-link" type="button" aria-label="View breakdown">
+                    <img src="assets/icon_breakdown.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    <span>Breakdown</span>
+                </button>
+                <button class="plan-detail-panel__continue" type="button">Continue</button>
             </div>
         </div>
 
@@ -1967,7 +1967,7 @@
                     </button>
                 </div>
 
-                <div class="schedule-sheet__block">
+                <div class="schedule-sheet__block schedule-sheet__block--end-condition">
                     <div class="schedule-sheet__field-label">End condition</div>
                     <div class="currency-sheet__list">
                         <button class="currency-sheet__item currency-sheet__item--schedule-end is-selected" type="button"

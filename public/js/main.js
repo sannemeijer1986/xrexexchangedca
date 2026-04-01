@@ -15,6 +15,8 @@
       storageKey: 'xrexexchange.financeIntroState.v1',
       min: 1,
       max: 2,
+      /** Default on load (build badge can still switch to state 1). */
+      initial: 1,
       labels: {
         1: 'State 1 (first view)',
         2: 'State 2 (compact)',
@@ -41,10 +43,24 @@
       el.classList.toggle('is-hidden', shouldHide);
       el.hidden = shouldHide;
     });
+
+    const isFlowOne = flowState === 1;
+    const topEl = document.querySelector('.finance-summary__top');
+    if (topEl) {
+      topEl.hidden = isFlowOne;
+      topEl.classList.toggle('is-hidden', isFlowOne);
+    }
+    const actionsEl = document.querySelector('.finance-summary__actions');
+    if (actionsEl) {
+      actionsEl.classList.toggle('finance-summary__actions--full-radius', isFlowOne);
+    }
   };
 
   const syncFinanceIntroState = () => {
-    const introState = states.financeIntro ?? 1;
+    const fiCfg = STATE_CONFIGS.financeIntro;
+    const introState =
+      states.financeIntro
+      ?? (typeof fiCfg?.initial === 'number' ? fiCfg.initial : fiCfg.min);
     const first = document.querySelector('[data-finance-intro-state="1"]');
     const compact = document.querySelector('[data-finance-intro-state="2"]');
     if (first) first.hidden = introState !== 1;
@@ -94,7 +110,11 @@
     }
     updateGroupUI(group);
     if (group === 'flow') {
-      if (clamped > 1 && (states.financeIntro ?? 1) !== 2) {
+      const fiCfg = STATE_CONFIGS.financeIntro;
+      const introEffective =
+        states.financeIntro
+        ?? (typeof fiCfg?.initial === 'number' ? fiCfg.initial : fiCfg.min);
+      if (clamped > 1 && introEffective !== 2) {
         setState('financeIntro', 2, { force: true });
       }
       syncFinanceSummaryVisibility();
@@ -111,7 +131,8 @@
   const initStates = () => {
     Object.keys(STATE_CONFIGS).forEach((group) => {
       const config = STATE_CONFIGS[group];
-      const clamped = clamp(config.min, config.min, config.max);
+      const rawInitial = typeof config.initial === 'number' ? config.initial : config.min;
+      const clamped = clamp(rawInitial, config.min, config.max);
       states[group] = clamped;
       try {
         if (window.localStorage) {
@@ -6142,10 +6163,6 @@
       const hasAssets = allocCount > 0;
       const disabled = !(hasAmount && hasAssets);
       detailBreakdownLinkBtn.disabled = disabled;
-      const icon = detailBreakdownLinkBtn.querySelector('img');
-      if (icon) {
-        icon.src = disabled ? 'assets/icon_right_graychev.svg' : 'assets/icon_right_bluechev.svg';
-      }
     };
 
     const updateDetailReturn = () => {
