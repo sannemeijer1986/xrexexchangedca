@@ -54,6 +54,7 @@
     if (actionsEl) {
       actionsEl.classList.toggle('finance-summary__actions--full-radius', isFlowOne);
     }
+
   };
 
   const syncFinanceIntroState = () => {
@@ -1198,7 +1199,7 @@
   if (currencyState.summary === 'USDT') currencyState.summary = 'USD';
   const rangeState = { plan: '5Y', curated: '5Y', spotlight: '5Y', breakdown: '5Y', widgetBreakdown: '5Y' };
 
-  const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 · 11:00';
+  const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 ~ 11:00';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
 
@@ -1223,12 +1224,18 @@
   };
 
   const applyFinanceSummaryMeta = () => {
-    const totalEl = document.querySelector('[data-finance-summary-total-invested]');
-    const nextEl = document.querySelector('[data-finance-summary-next-buy]');
     const suf = currencyState.summary;
-    if (totalEl) totalEl.textContent = `0 ${suf}`;
-    const nb = financeSummaryConfirmedNextBuy.trim();
-    if (nextEl) nextEl.textContent = nb || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+    const amt = `0.00 ${suf}`;
+    document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
+      el.textContent = amt;
+    });
+    document.querySelectorAll('[data-finance-summary-invested]').forEach((el) => {
+      el.textContent = amt;
+    });
+    const nb = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+    document.querySelectorAll('[data-finance-summary-next-buy]').forEach((el) => {
+      el.textContent = nb;
+    });
   };
 
   const initPrototypeReset = () => {

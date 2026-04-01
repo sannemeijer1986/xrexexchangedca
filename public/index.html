@@ -410,38 +410,38 @@
                                         </div>
                                     </div>
                                     <div class="finance-summary__top" hidden>
-                                        <div class="finance-summary__row">
-                                            <div class="finance-summary__left">
-                                                <div class="finance-summary__label">
-                                                    <span>Total invested ≈</span>
-                                                    <img src="assets/icon_visible_grey.svg" alt="" class="finance-summary__eye" />
+                                        <div class="finance-summary__panel finance-summary__panel--flow-2">
+                                            <!-- Figma 8610:7687 — next buy + currency, then reserved / invested -->
+                                            <div class="finance-summary__row finance-summary__row--flow-2-head">
+                                                <div class="finance-summary__left">
+                                                    <div class="finance-summary__label">
+                                                        <span>Next scheduled buy</span>
+                                                    </div>
+                                                    <button class="finance-summary__next finance-summary__next--flow-2-hero" type="button" aria-label="Next buy time">
+                                                        <span data-finance-summary-next-buy>Mar 18 ~ 11:00</span>
+                                                        <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron" />
+                                                    </button>
                                                 </div>
-                                                <div class="finance-summary__value">
-                                                    <span class="finance-summary__value-num">0.00</span>
-                                                    <span class="finance-summary__value-currency" data-summary-currency-label>TWD</span>
-                                                </div>
-                                                <!-- <div class="finance-summary__delta finance-summary__pnl">
-                                                    <img src="assets/icon_northeast_arrow.svg" alt="" class="finance-summary__delta-icon" />
-                                                    <span>00.0% (+0.00 TWD)</span>
-                                                </div> -->
-                                            </div>
-                                            <button class="finance-summary__selector" type="button" aria-label="Currency selector" data-currency-sheet-trigger="summary">
-                                                <span data-summary-selector-label>TWD</span>
-                                                <img src="assets/icon_chevron_down_white.svg" alt="" class="finance-summary__selector-chevron" />
-                                            </button>
-                                        </div>
-
-                                        <div class="finance-summary__row finance-summary__row--split finance-summary__meta-row">
-                                            <div class="finance-summary__stat">
-                                                <div class="finance-summary__stat-label">Total reserved ≈</div>
-                                                <div class="finance-summary__stat-value" data-finance-summary-total-invested>0 TWD</div>
-                                            </div>
-                                            <div class="finance-summary__stat finance-summary__stat--right">
-                                                <div class="finance-summary__stat-label">Next buy</div>
-                                                <button class="finance-summary__next" type="button" aria-label="Next buy time">
-                                                    <span data-finance-summary-next-buy>Mar 18 · 11:00</span>
-                                                    <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron" />
+                                                <button class="finance-summary__selector" type="button" aria-label="Currency selector" data-currency-sheet-trigger="summary">
+                                                    <span data-summary-selector-label>TWD</span>
+                                                    <img src="assets/icon_chevron_down_white.svg" alt="" class="finance-summary__selector-chevron" />
                                                 </button>
+                                            </div>
+                                            <div class="finance-summary__row finance-summary__row--split finance-summary__row--flow-2-stats finance-summary__meta-row">
+                                                <div class="finance-summary__stat">
+                                                    <div class="finance-summary__stat-label finance-summary__stat-label--with-info">
+                                                        <span>Total reserved ≈</span>
+                                                        <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                    </div>
+                                                    <div class="finance-summary__stat-value" data-finance-summary-reserved>0.00 TWD</div>
+                                                </div>
+                                                <div class="finance-summary__stat finance-summary__stat--right">
+                                                    <div class="finance-summary__stat-label finance-summary__stat-label--with-info">
+                                                        <span>Total invested ≈</span>
+                                                        <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                    </div>
+                                                    <div class="finance-summary__stat-value" data-finance-summary-invested>0.00 TWD</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
