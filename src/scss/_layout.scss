@@ -3599,7 +3599,7 @@ html[data-active-tab="finance"] {
 .currency-sheet__body {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   align-items: center;
   padding: 0px 16px 20px 16px;
 }
@@ -3616,7 +3616,7 @@ html[data-active-tab="finance"] {
   font-weight: 700;
   color: #ffffff;
   text-align: center;
-  margin: 0;
+  margin: 8px 0 0 0;
   width: 100%;
 }
 

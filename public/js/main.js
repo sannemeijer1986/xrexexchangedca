@@ -2020,8 +2020,13 @@
         buyNowStateEl.classList.toggle('is-on', buyNowEnabled);
       }
       if (repeatsTypeEl) {
-        repeatsTypeEl.textContent = 'First purchase today';
         repeatsTypeEl.classList.toggle('is-visible', buyNowEnabled);
+        if (buyNowEnabled) {
+          repeatsTypeEl.textContent = 'First purchase today';
+        } else {
+          const storedEnd = String(repeatsTypeEl.dataset.endConditionText || '').trim();
+          repeatsTypeEl.textContent = storedEnd || 'Continuous';
+        }
       }
     };
 
@@ -2128,17 +2133,23 @@
       if (scheduleEl) scheduleEl.textContent = freq === 'daily' ? 'Daily' : `${prefix} · ${timing}`;
       if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
       if (endEl) {
+        const setEndConditionText = (nextText) => {
+          const next = String(nextText || '').trim();
+          endEl.dataset.endConditionText = next;
+          if (!endEl.classList.contains('is-visible')) endEl.textContent = next;
+        };
         if (end === 'continuous') {
-          endEl.textContent = 'Continuous';
+          setEndConditionText('Continuous');
           scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         } else if (end === 'enddate') {
           const limitDesc = document.querySelector('[data-schedule-setlimit-end-date]')?.textContent?.trim();
-          endEl.textContent =
+          setEndConditionText(
             scheduleSheetApi.planDetailRepeatsEndLimitText
             || limitDesc
-            || 'End on date';
+            || 'End on date',
+          );
         } else {
-          endEl.textContent = 'After number of buys';
+          setEndConditionText('After number of buys');
         }
       }
 
@@ -3267,7 +3278,8 @@
     const syncPlanDetailSetLimitDetailRowsVisibility = () => {
       const totalPlannedRow = panel.querySelector('[data-plan-detail-total-planned-row]');
       const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
-      const show = isPlanDetailSetLimitEnd(endEl?.textContent || '');
+      const endText = String(endEl?.dataset?.endConditionText || endEl?.textContent || '');
+      const show = isPlanDetailSetLimitEnd(endText);
       if (totalPlannedRow) totalPlannedRow.hidden = !show;
     };
 
@@ -3311,8 +3323,10 @@
         el.classList.toggle('plan-detail-panel__coverage-value--placeholder', isPlaceholder);
       };
 
-      const getRepeatsEndText = () =>
-        panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
+      const getRepeatsEndText = () => {
+        const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        return String(endEl?.dataset?.endConditionText || endEl?.textContent || '').trim();
+      };
 
       const parseLimitBuysFromRepeatsEnd = (endT) => {
         const lead = String(endT || '').match(/^(\d+)/);
@@ -5175,7 +5189,8 @@
           );
         }
 
-        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '—';
+        const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '—').trim();
         let endMain = endRaw;
         let endSub = '';
         const endLower = endRaw.toLowerCase();
@@ -5597,7 +5612,8 @@
         perBuy = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
 
         // Use plan limit buys if available; else keep the Figma example default.
-        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
+        const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '').trim();
         isSetLimit = isPlanDetailSetLimitEnd(endRaw);
         bufferPanel.classList.toggle('plan-buffer-panel--continuous', !isSetLimit);
         const m = endRaw.match(/^(\d+)\s+buys?\b/i);
@@ -5759,7 +5775,8 @@
       let ecSelection = 'continuous';
 
       const syncFromPlanDetail = () => {
-        const endRaw = panel.querySelector('[data-plan-detail-repeats-end]')?.textContent?.trim() || '';
+        const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
+        const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '').trim();
         const useContinuous = !endRaw || /\bcontinuous\b|\bcontinious\b/i.test(endRaw);
         ecSelection = useContinuous ? 'continuous' : 'limit';
         ecMethodBtns.forEach((btn) => {
@@ -5773,14 +5790,19 @@
       const applySelectionToPlanDetail = () => {
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         if (!endEl) return;
+        const setEndConditionText = (nextText) => {
+          const next = String(nextText || '').trim();
+          endEl.dataset.endConditionText = next;
+          if (!endEl.classList.contains('is-visible')) endEl.textContent = next;
+        };
         if (ecSelection === 'continuous') {
-          endEl.textContent = 'Continuous';
+          setEndConditionText('Continuous');
           scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         } else {
-          const cur = (endEl.textContent || '').trim();
+          const cur = String(endEl.dataset.endConditionText || endEl.textContent || '').trim();
           if (/\bcontinuous\b|\bcontinious\b/i.test(cur) || !cur || !isPlanDetailSetLimitEnd(cur)) {
-            endEl.textContent = '40 buys ~ Ends Dec 31, 2026';
-            scheduleSheetApi.planDetailRepeatsEndLimitText = endEl.textContent;
+            setEndConditionText('40 buys ~ Ends Dec 31, 2026');
+            scheduleSheetApi.planDetailRepeatsEndLimitText = String(endEl.dataset.endConditionText || endEl.textContent || '').trim();
           }
         }
         syncPlanDetailSetLimitDetailRowsVisibility();
@@ -5867,7 +5889,10 @@
         // Entering plan detail from Finance entrypoints should start with a fresh end condition.
         // Prevent previous "Set a limit" state from leaking across entries.
         const repeatsEndEl = panel.querySelector('[data-plan-detail-repeats-end]');
-        if (repeatsEndEl) repeatsEndEl.textContent = 'Continuous';
+        if (repeatsEndEl) {
+          repeatsEndEl.dataset.endConditionText = 'Continuous';
+          if (!repeatsEndEl.classList.contains('is-visible')) repeatsEndEl.textContent = 'Continuous';
+        }
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         syncPlanDetailSetLimitDetailRowsVisibility();
         populatePanel();
