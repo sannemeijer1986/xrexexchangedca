@@ -645,6 +645,7 @@
   const renderPlanBreakdownChartSvg = (svgEl, series) => {
     if (!svgEl || !series) return;
     const { strategyValue, sp500Value, investedValue, xYears, yTicks, yMax } = series;
+    const showSp500 = getPrototypeBreakdownSp500Visible();
     const n = strategyValue.length;
     const { w, h, left, right, top, bottom } = BREAKDOWN_CHART_VIEW;
     const xAt = (i) => (n <= 1 ? left : left + (i / (n - 1)) * (right - left));
@@ -715,10 +716,10 @@
       <path d="M${right} ${top}V${bottom}" stroke="#3C4248" />
       ${gridHtml}
       <path d="${pathFrom(investedValue)}" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
-      <path d="${pathFrom(sp500Value)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+      ${showSp500 ? `<path d="${pathFrom(sp500Value)}" stroke="#275CFD" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />` : ''}
       <path d="${pathFrom(strategyValue)}" stroke="#8FB8FF" stroke-width="2" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" />
       ${circlesFor(investedValue, '#ffffff')}
-      ${circlesFor(sp500Value, '#275CFD')}
+      ${showSp500 ? circlesFor(sp500Value, '#275CFD') : ''}
       ${circlesFor(strategyValue, '#8FB8FF')}
       ${xLabelsHtml}
       ${yLabelsHtml}
@@ -1245,6 +1246,11 @@
       Object.keys(STATE_CONFIGS).forEach((group) => {
         setState(group, STATE_CONFIGS[group].min, { force: true });
       });
+      const sp500Toggle = document.querySelector('[data-prototype-breakdown-sp500]');
+      if (sp500Toggle) {
+        sp500Toggle.checked = true;
+        sp500Toggle.dispatchEvent(new Event('change'));
+      }
       financeSummaryConfirmedNextBuy = '';
       applyFinanceSummaryMeta();
     });
@@ -1279,6 +1285,11 @@
       Object.keys(STATE_CONFIGS).forEach((group) => {
         setState(group, STATE_CONFIGS[group].min, { force: true });
       });
+      const sp500Toggle = document.querySelector('[data-prototype-breakdown-sp500]');
+      if (sp500Toggle) {
+        sp500Toggle.checked = true;
+        sp500Toggle.dispatchEvent(new Event('change'));
+      }
       financeSummaryConfirmedNextBuy = '';
       applyFinanceSummaryMeta();
     });
@@ -1695,6 +1706,13 @@
   /** Prototype: when true, nested schedule sheets open on top without animating the parent closed. */
   const getBottomSheetStacking = () => {
     const input = document.querySelector('[data-prototype-bottomsheet-stacking]');
+    if (!input) return true;
+    return Boolean(input.checked);
+  };
+
+  /** Prototype control: show/hide S&P 500 series + legend inside Breakdown panel. */
+  const getPrototypeBreakdownSp500Visible = () => {
+    const input = document.querySelector('[data-prototype-breakdown-sp500]');
     if (!input) return true;
     return Boolean(input.checked);
   };
@@ -2843,6 +2861,9 @@
   document.querySelector('[data-prototype-bottomsheet-stacking]')?.addEventListener('change', () => {
     resetScheduleNestedScrimHard();
   });
+  document.querySelector('[data-prototype-breakdown-sp500]')?.addEventListener('change', () => {
+    document.dispatchEvent(new CustomEvent('prototype-breakdown-sp500-toggle'));
+  });
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
@@ -2911,11 +2932,38 @@
       const absEl = panel.querySelector('[data-plan-detail-return-abs]');
       const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
       const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+      const curEl = panel.querySelector('[data-plan-detail-return-currency]');
+      const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
       if (!pctEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
       const base = parseFloat(pctEl.dataset.allocBasePct || '');
       if (!isFinite(base)) return;
       const tw = detailPanelAllocPctTweakFn();
       if (!isFinite(tw)) return;
+      const allocRoot = panel.querySelector('.alloc-multi');
+      const isPctAllocInvalid = Boolean(
+        allocRoot
+        && allocRoot.classList.contains('alloc-multi--pct-invalid')
+        && !allocRoot.classList.contains('alloc-multi--amount-mode'),
+      );
+
+      if (isPctAllocInvalid) {
+        if (absEl) absEl.textContent = '- -';
+        if (curEl) curEl.hidden = true;
+        if (simPctInlineEl) simPctInlineEl.hidden = true;
+        // Keep combined historic performance responsive to allocation changes.
+        if (histPctEl) {
+          const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
+          if (isFinite(baseHist)) {
+            const nextHist = baseHist + tw;
+            histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+            if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
+          }
+        }
+        return;
+      }
+
+      if (curEl) curEl.hidden = false;
+      if (simPctInlineEl) simPctInlineEl.hidden = false;
       const amountInp = panel.querySelector('[data-plan-detail-amount-input]');
       const investAmt = Math.max(0, parseInt(amountInp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
       // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
@@ -3132,7 +3180,25 @@
       }
 
       continueBtn.disabled = noAssets || noAmount || exceedsBalance || allocationOutOfBalance;
-      if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount;
+
+      const isPctAllocInvalid =
+        allocRoot
+        && allocCount >= 2
+        && !allocRoot.classList.contains('alloc-multi--amount-mode')
+        && allocationOutOfBalance;
+      if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount || isPctAllocInvalid;
+
+      const detailAbsEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const detailCurEl = panel.querySelector('[data-plan-detail-return-currency]');
+      const detailPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
+      if (isPctAllocInvalid) {
+        if (detailAbsEl) detailAbsEl.textContent = '- -';
+        if (detailCurEl) detailCurEl.hidden = true;
+        if (detailPctInlineEl) detailPctInlineEl.hidden = true;
+      } else {
+        if (detailCurEl) detailCurEl.hidden = false;
+        if (detailPctInlineEl) detailPctInlineEl.hidden = false;
+      }
     };
 
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
@@ -3552,9 +3618,11 @@
               input.value = '';
             }
             input.setAttribute('aria-label', 'Allocation amount');
+            input.removeAttribute('maxlength');
           } else {
             input.value = String(Math.round(pcts[i]));
             input.setAttribute('aria-label', 'Allocation percent');
+            input.setAttribute('maxlength', '2');
           }
         }
       };
@@ -3722,6 +3790,8 @@
               syncPlanDetailContinueState();
               return;
             }
+            const digits = input.value.replace(/[^0-9]/g, '').slice(0, 2);
+            if (input.value !== digits) input.value = digits;
             if (input.value.trim() === '') {
               pcts[i] = 0;
               renderAll();
@@ -4628,6 +4698,7 @@
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
       const legendAssetsEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-assets]');
+      const legendSpEl = breakdownPanel.querySelector('[data-plan-breakdown-legend-sp]');
       const simTitleEl = breakdownPanel.querySelector('[data-plan-breakdown-sim-title]');
       const periodLabelEl = breakdownPanel.querySelector('[data-plan-breakdown-period-label]');
       const contributionEl = breakdownPanel.querySelector('[data-plan-breakdown-contribution]');
@@ -4690,6 +4761,7 @@
           el.textContent = `If you'd started ${range} ago ≈`;
         });
         if (legendAssetsEl) legendAssetsEl.textContent = prettyTickers;
+        if (legendSpEl) legendSpEl.hidden = !getPrototypeBreakdownSp500Visible();
         if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
@@ -4897,6 +4969,11 @@
 
       document.addEventListener('plan-schedule-confirmed', () => {
         if (breakdownPanel.classList.contains('is-open') && breakdownOpenSource === 'detail') sync({ source: 'detail' });
+      });
+      document.addEventListener('prototype-breakdown-sp500-toggle', () => {
+        if (!breakdownPanel.classList.contains('is-open')) return;
+        if (breakdownOpenSource === 'widget') syncFromWidget();
+        else syncFromDetail();
       });
 
       return {
@@ -6099,7 +6176,18 @@
       ) || 0;
       const hasAmount = Number.isFinite(amount) && amount > 0;
       const hasAssets = allocCount > 0;
-      const disabled = !(hasAmount && hasAssets);
+      const allocRoot = panel.querySelector('.alloc-multi');
+      let isPctAllocInvalid = false;
+      if (allocRoot && allocCount >= 2 && !allocRoot.classList.contains('alloc-multi--amount-mode')) {
+        const rows = panel.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
+        let sumPct = 0;
+        rows.forEach((inp) => {
+          const v = parseInt(String(inp.value || '').replace(/[^0-9]/g, ''), 10);
+          if (!isNaN(v)) sumPct += v;
+        });
+        isPctAllocInvalid = Math.abs(sumPct - 100) > 0.51;
+      }
+      const disabled = !(hasAmount && hasAssets) || isPctAllocInvalid;
       detailBreakdownLinkBtn.disabled = disabled;
     };
 

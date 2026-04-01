@@ -2815,6 +2815,11 @@ html[data-active-tab="finance"] {
   transform: translateY(3px);
 }
 
+// `display:flex` above can override UA `[hidden]` when we suppress invalid simulated return.
+.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated[hidden] {
+  display: none !important;
+}
+
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
   color: var(--prm-accent, #56c488);
 }
