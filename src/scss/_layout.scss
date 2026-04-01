@@ -6389,6 +6389,7 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -6447,19 +6448,25 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__alloc-total-error {
   display: block;
-  opacity: 1;
-  width: 100%;
   text-align: right;
   font-family: 'Manrope', sans-serif;
   font-weight: 600;
   font-size: 12px;
-  margin-bottom: 12px;
   line-height: normal;
   color: #eb5347;
 
   &[hidden] {
-    opacity: 0;
+    display: none !important;
   }
+}
+
+.plan-detail-panel__alloc-total-hint-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-height: 18px;
+  margin-bottom: 12px;
 }
 
 .plan-detail-panel__alloc-reset {
@@ -6468,8 +6475,9 @@ div.currency-sheet__item-icon {
   background: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  margin-top: 2px;
   font-family: 'Manrope', sans-serif;
   color: #3f78ff;
   cursor: pointer;
@@ -6584,6 +6592,7 @@ div.currency-sheet__item-icon {
 }
 
 .alloc-multi__pct-wrap {
+  position: relative;
   border: 1px solid #3c4248;
   border-radius: 16px;
   flex-shrink: 0;
@@ -6595,6 +6604,24 @@ div.currency-sheet__item-icon {
   &:focus-within {
     border-color: #ffffff;
   }
+}
+
+// 2+ asset validation state: subtle 8x8 red dot beside each % field.
+.alloc-multi.alloc-multi--pct-invalid .alloc-multi__pct-wrap::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -17px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #eb5347;
+  transform: translateY(-50%);
+}
+
+// While allocation is invalid, tint the slider track until values are fixed.
+.alloc-multi.alloc-multi--pct-invalid .alloc-multi__slider-fill {
+  background: #fbbcbc;
 }
 
 .alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-wrap {
@@ -6701,7 +6728,7 @@ div.currency-sheet__item-icon {
   transform: translateY(-50%);
   left: 0;
   height: 5px;
-  background: #ffffff;
+  background: #A8E8BD;
   border-radius: 4px;
   pointer-events: none;
 }

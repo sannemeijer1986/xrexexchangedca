@@ -1118,7 +1118,6 @@
                         <div class="plan-detail-panel__alloc-header-main">
                             <div class="plan-detail-panel__alloc-header-title-group">
                                 <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
-                                <button type="button" class="plan-detail-panel__alloc-reset" data-alloc-reset hidden>Reset</button>
                             </div>
                         </div>
                         <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y performance</span>
@@ -1159,7 +1158,10 @@
                                     <span class="plan-detail-panel__alloc-total-target" data-plan-detail-alloc-total-target> / 100%</span>
                                 </div>
                             </div>
-                            <div class="plan-detail-panel__alloc-total-error" data-plan-detail-alloc-total-error hidden>Allocation should add up to 100%</div>
+                            <div class="plan-detail-panel__alloc-total-hint-row">
+                                <div class="plan-detail-panel__alloc-total-error" data-plan-detail-alloc-total-error hidden>Allocation should add up to 100%</div>
+                                <button type="button" class="plan-detail-panel__alloc-reset" data-alloc-reset hidden>Set equal</button>
+                            </div>
                         </div>
                     </div>
                     <!-- Shown when plan has assets (empty state uses the wrap inside alloc-empty) -->

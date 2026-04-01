@@ -3459,6 +3459,11 @@
         }
       };
 
+      const isAllocPctTotalValid = () => {
+        const sum = pcts.reduce((a, b) => a + b, 0);
+        return Math.abs(sum - 100) < 0.45;
+      };
+
       /**
        * Amount mode only: dim + block allocation controls when Auto-invest can't assign
        * at least 1 unit per asset (or total is 0). % mode is always fully interactive.
@@ -3498,7 +3503,7 @@
         const sum = pcts.reduce((a, b) => a + b, 0);
         const r = Math.round(sum * 10) / 10;
         const display = Number.isInteger(r) ? `${r}%` : `${r.toFixed(1)}%`;
-        const isValid = Math.abs(sum - 100) < 0.45;
+        const isValid = isAllocPctTotalValid();
         if (currentEl) {
           currentEl.textContent = display;
           currentEl.classList.toggle('is-error', !isValid);
@@ -3560,13 +3565,17 @@
       const updateAllocResetVisibility = () => {
         const btn = panelEl.querySelector('[data-alloc-reset]');
         if (!btn) return;
-        btn.hidden = isAtDefaultAllocation();
+        // For multi-asset plans this action should always be available.
+        btn.hidden = false;
       };
 
       const renderAll = () => {
         items.forEach((_, i) => renderItem(i));
         updateAllocResetVisibility();
         updateAllocHeaderSubtitle();
+        if (allocMultiRoot) {
+          allocMultiRoot.classList.toggle('alloc-multi--pct-invalid', inputMode === 'pct' && !isAllocPctTotalValid());
+        }
         syncAllocAmountWrapDisabled();
         syncPlanDetailContinueState();
       };
@@ -3691,6 +3700,13 @@
               return;
             }
 
+            if (input.value.trim() === '') {
+              pcts[i] = 0;
+              renderAll();
+              refreshPlanDetailAllocTweak();
+              return;
+            }
+
             const val = parseInt(input.value, 10);
             if (!isNaN(val) && val >= 1 && val <= 99) {
               applyAllocChange(i, val);
@@ -3704,6 +3720,12 @@
             if (inputMode === 'amount') {
               applyAllocInputLiveFormat(input);
               syncPlanDetailContinueState();
+              return;
+            }
+            if (input.value.trim() === '') {
+              pcts[i] = 0;
+              renderAll();
+              refreshPlanDetailAllocTweak();
               return;
             }
             const val = parseInt(input.value, 10);
@@ -3735,7 +3757,7 @@
         renderAll();
       };
 
-      // Initial render (starts at default split — Reset hidden)
+      // Initial render
       renderAll();
       refreshPlanDetailAllocTweak();
       syncAllocInputModeClass();
@@ -4084,6 +4106,11 @@
       panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
         btn.textContent = addLabel;
       });
+      const allocResetBtn = panel.querySelector('[data-alloc-reset]');
+      if (allocResetBtn) {
+        allocResetBtn.textContent = 'Set equal';
+        allocResetBtn.hidden = allocItems.length < 2;
+      }
 
       // Multi-asset allocation header uses "Combined #Y performance" (Figma); single-asset uses "Past #Y performance".
       // updateRangeUI() handles live range changes; this ensures the initial open has the right label too.
