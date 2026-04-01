@@ -7252,7 +7252,7 @@ div.currency-sheet__item-icon {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 32px 16px calc(96px + env(safe-area-inset-bottom));
+  padding: 32px 16px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7499,11 +7499,17 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 32px;
+  gap: 12px;
   width: 100%;
+  margin-top: auto;
+  padding: 8px 0 calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(13, 14, 15, 0) 0%, #0d0e0f 24px, #0d0e0f 100%);
 }
 
 .phone-container p.plan-breakdown-panel__footnote {
@@ -7518,9 +7524,6 @@ div.currency-sheet__item-icon {
 .plan-breakdown-panel__close-cta {
   width: 100%;
   height: 48px;
-  position: sticky;
-  bottom: calc(16px + env(safe-area-inset-bottom));
-  z-index: 2;
   border-radius: 16px;
   border: 0;
   background: #2d2f2f;

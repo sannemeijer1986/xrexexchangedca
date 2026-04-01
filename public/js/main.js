@@ -2022,7 +2022,7 @@
       if (repeatsTypeEl) {
         repeatsTypeEl.classList.toggle('is-visible', buyNowEnabled);
         if (buyNowEnabled) {
-          repeatsTypeEl.textContent = 'First purchase today';
+          repeatsTypeEl.textContent = 'First buy today';
         } else {
           const storedEnd = String(repeatsTypeEl.dataset.endConditionText || '').trim();
           repeatsTypeEl.textContent = storedEnd || 'Continuous';
@@ -5896,7 +5896,7 @@
           repeatsEndEl.dataset.endConditionText = 'Continuous';
           const buyNowOn = panel.dataset.scheduleBuyNow === '1';
           repeatsEndEl.classList.toggle('is-visible', buyNowOn);
-          repeatsEndEl.textContent = buyNowOn ? 'First purchase today' : 'Continuous';
+          repeatsEndEl.textContent = buyNowOn ? 'First buy today' : 'Continuous';
         }
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         syncPlanDetailSetLimitDetailRowsVisibility();
