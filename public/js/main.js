@@ -5268,7 +5268,7 @@
           ? 'reserved'
           : 'flexible';
         if (paymentMethodEl) {
-          paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Pre-fund (auto-refills)' : 'Pay per buy';
+          paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Set aside funds' : 'Pay as you go';
         }
         if (paymentMethodSubEl) {
           const showPaymentMethodSub = selectedMethod === 'reserved';
@@ -5446,31 +5446,38 @@
       const coversPeriodTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-period-total-suffix]');
       const coversAmountTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total-suffix]');
 
+      const flexHeroCurEl = bufferPanel.querySelector('[data-plan-buffer-flex-hero-cur]');
+      const resHeroCurEl = bufferPanel.querySelector('[data-plan-buffer-res-hero-cur]');
+      const sumPerbuyEl = bufferPanel.querySelector('[data-plan-buffer-sum-perbuy]');
+      const sumCoversEl = bufferPanel.querySelector('[data-plan-buffer-sum-covers]');
+      const sumUnusedEl = bufferPanel.querySelector('[data-plan-buffer-sum-unused]');
+      const reserveInputEl = bufferPanel.querySelector('[data-plan-buffer-reserve-input]');
+      const reserveRangeEl = bufferPanel.querySelector('[data-plan-buffer-reserve-range]');
+      const reserveInputIconEl = bufferPanel.querySelector('[data-plan-buffer-reserve-input-icon]');
+      const reserveMaxBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-max]');
+      const roundWrapEl = bufferPanel.querySelector('[data-plan-buffer-rounding]');
+      const roundDownBtn = bufferPanel.querySelector('[data-plan-buffer-round-down]');
+      const roundUpBtn = bufferPanel.querySelector('[data-plan-buffer-round-up]');
+
       let method = 'flexible'; // 'flexible' | 'reserved'
       let perBuy = 0;
       let cur = currencyState.plan || 'USDT';
       let reserveAmount = 0;
+      let reserveInputAmount = 0;
       let coversTotalBuys = 40;
       let isSetLimit = false;
 
       const setMethodUI = (next) => {
         method = next === 'reserved' ? 'reserved' : 'flexible';
-
-        // Default for pre-fund (auto-refills): 1 buy.
-        // (Previously the buffer open default was half-balance; keep that for initial state,
-        // but when the user explicitly picks pre-fund, start from 1 buy.)
-        if (method === 'reserved' && perBuy > 0) {
-          reserveAmount = clampReserveAmount(perBuy);
-        }
         methodBtns.forEach((btn) => {
           const on = btn.getAttribute('data-plan-buffer-method') === method;
           btn.classList.toggle('is-selected', on);
           btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        // Temporary product decision: keep flexible detail panel hidden.
         if (flexibleDetails) {
-          flexibleDetails.hidden = true;
-          flexibleDetails.style.display = 'none';
+          const showFlex = method === 'flexible';
+          flexibleDetails.hidden = !showFlex;
+          flexibleDetails.style.display = showFlex ? '' : 'none';
         }
         if (reservedDetails) reservedDetails.hidden = method !== 'reserved';
         hideOnReservedRows.forEach((row) => {
@@ -5487,6 +5494,25 @@
       };
 
       const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
+      const currencyIconSrc = (code) => {
+        const c = String(code || 'USDT').toUpperCase();
+        const map = {
+          USDT: 'assets/icon_currency_usdt.svg',
+          TWD: 'assets/icon_currency_TWD.svg',
+          USD: 'assets/icon_currency_USD.svg',
+          BTC: 'assets/icon_currency_btc.svg',
+          ETH: 'assets/icon_currency_eth.svg',
+          XRP: 'assets/icon_currency_xrp.svg',
+          XAUT: 'assets/icon_currency_xaut.svg',
+          LINK: 'assets/icon_currency_link.svg',
+          NEAR: 'assets/icon_currency_near.svg',
+          MATIC: 'assets/icon_currency_matic.svg',
+          ONDO: 'assets/icon_currency_ondo.svg',
+          AAVE: 'assets/icon_currency_aave.svg',
+          RENDER: 'assets/icon_currency_render.svg',
+        };
+        return map[c] || map.USDT;
+      };
 
       const computeNextBuyDate = () => {
         const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
@@ -5510,38 +5536,63 @@
       };
 
       const clampReserveAmount = (rawAmount) => {
-        if (perBuy <= 0) return 0;
-        const { min, max } = getReserveBuyBounds();
-        const rawBuys = Math.floor(Math.max(0, rawAmount) / perBuy);
-        const clampedBuys = Math.min(max, Math.max(min, rawBuys));
-        return clampedBuys * perBuy;
+        if (!Number.isFinite(rawAmount)) return 0;
+        const n = Math.max(0, Math.floor(rawAmount));
+        if (perBuy <= 0) return n;
+        const { max } = getReserveBuyBounds();
+        if (Number.isFinite(max) && max > 0) {
+          return Math.min(n, max * perBuy);
+        }
+        return n;
+      };
+
+      const getMaxAllowedAmount = () => {
+        const balance = BALANCES[cur] ?? BALANCES.TWD;
+        const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
+        return Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount)));
       };
 
       const render = () => {
-        reserveAmount = clampReserveAmount(reserveAmount);
+        reserveInputAmount = clampReserveAmount(reserveInputAmount);
         const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         const balance = BALANCES[cur] ?? BALANCES.TWD;
-        const availBalanceStr = `${fmt(balance)} ${cur}`;
-        const reserveAvailBalanceStr = `Avail. ${availBalanceStr}`;
-        if (availBalanceEl) availBalanceEl.textContent = availBalanceStr;
-        if (availBalanceEl2) availBalanceEl2.textContent = reserveAvailBalanceStr;
+        const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
+        const maxAllowedAmount = Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount)));
+        const rawAmount = reserveInputAmount;
+        const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
+        const hasReserveBalanceError = isReservedActive && rawAmount > balance;
+        const isOverLimit = isReservedActive && rawAmount > reserveLimitAmount;
+        const isMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
+        const isValidReservedAmount = perBuy > 0 && rawAmount > 0 && isMultiple && !hasReserveBalanceError && !isOverLimit;
+        reserveAmount = isValidReservedAmount ? rawAmount : 0;
+
+        const nearestDown = perBuy > 0 ? Math.floor(rawAmount / perBuy) * perBuy : 0;
+        const nearestUp = perBuy > 0 ? Math.ceil(rawAmount / perBuy) * perBuy : 0;
+        const coversNow = perBuy > 0 ? Math.floor(rawAmount / perBuy) : 0;
+        const unusedRaw = perBuy > 0 ? rawAmount - (coversNow * perBuy) : 0;
+
+        if (availBalanceEl) availBalanceEl.textContent = `${fmt(balance)} ${cur}`;
+        if (availBalanceEl2) availBalanceEl2.textContent = `Avail. ${fmt(balance)} ${cur}`;
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
         if (recurringPrefundEl) recurringPrefundEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
         if (nextBuyEl) nextBuyEl.textContent = computeNextBuyDate();
         if (sourceEl) sourceEl.textContent = 'Wallet';
         if (sourceEl2) sourceEl2.textContent = 'Wallet';
-
-        if (stepsEl) stepsEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur} per buy` : '- - per buy';
         if (reserveCurEl) reserveCurEl.textContent = cur;
         if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '- -';
-        const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
-        const hasReserveBalanceError = isReservedActive && reserveAmount > balance;
-        if (reserveAmtEl) reserveAmtEl.classList.toggle('plan-buffer-panel__reserve-amt--error', hasReserveBalanceError);
-        if (availBalanceEl2) availBalanceEl2.classList.toggle('plan-buffer-panel__kv-value--error', hasReserveBalanceError);
-        if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !hasReserveBalanceError;
+        if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !(hasReserveBalanceError || isOverLimit);
+        if (reserveInputEl && document.activeElement !== reserveInputEl) {
+          reserveInputEl.value = rawAmount > 0 ? String(rawAmount) : '';
+        }
+        if (reserveRangeEl) {
+          const minText = perBuy > 0 ? fmt(perBuy) : '—';
+          const maxText = Number.isFinite(maxAllowedAmount) && maxAllowedAmount > 0 ? fmt(maxAllowedAmount) : '—';
+          reserveRangeEl.textContent = `Min ${minText} / Max ${maxText}`;
+        }
+        if (reserveInputIconEl) reserveInputIconEl.setAttribute('src', currencyIconSrc(cur));
 
-        const coversNow = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;
+        if (stepsEl) stepsEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur} per buy` : '- - per buy';
         if (coversNowEl) coversNowEl.textContent = String(coversNow);
         if (coversTotalEl) {
           coversTotalEl.textContent = String(coversTotalBuys);
@@ -5549,33 +5600,28 @@
         }
         if (coversSlashEl) coversSlashEl.hidden = !isSetLimit;
         if (coversAmountRowEl) coversAmountRowEl.hidden = !isSetLimit;
-        if (coversAmountNowEl) {
-          coversAmountNowEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
-        }
+        if (coversAmountNowEl) coversAmountNowEl.textContent = rawAmount > 0 ? fmt(rawAmount) : '—';
         if (coversAmountTotalEl) {
           const totalAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : null;
           const totalText = totalAmount != null ? fmt(totalAmount) : '—';
           coversAmountTotalEl.textContent = ` / ${totalText} ${cur}`;
         }
-        // Covers card rows
+
         const freqKey = (
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
         const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
         const unitPlural = `${unit}${coversTotalBuys === 1 ? '' : 's'}`;
-
-        // Continuous vs set-limit: bar + title percent only for set-limit.
         if (coversBarEl) coversBarEl.hidden = !isSetLimit;
         if (coversPctWrapEl) coversPctWrapEl.hidden = !isSetLimit;
-
         if (isSetLimit) {
           if (coversNowEl) coversNowEl.textContent = String(Math.max(0, coversNow));
           if (coversPeriodNowEl) coversPeriodNowEl.textContent = String(Math.max(0, coversNow));
-          if (coversAmountNowEl) coversAmountNowEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '—';
+          if (coversAmountNowEl) coversAmountNowEl.textContent = rawAmount > 0 ? fmt(rawAmount) : '—';
         } else {
           if (coversNowEl) coversNowEl.textContent = `${String(Math.max(0, coversNow))} buys`;
           if (coversPeriodNowEl) coversPeriodNowEl.textContent = `${String(Math.max(0, coversNow))} ${unitPlural}`;
-          if (coversAmountNowEl) coversAmountNowEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
+          if (coversAmountNowEl) coversAmountNowEl.textContent = rawAmount > 0 ? `${fmt(rawAmount)} ${cur}` : '—';
         }
         if (coversBuyTotalSuffix) {
           coversBuyTotalSuffix.textContent = ` / ${String(coversTotalBuys)} buys`;
@@ -5593,21 +5639,16 @@
         }
         if (coversPctEl) {
           const denom = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : 0;
-          const pct = denom > 0 ? Math.floor((reserveAmount / denom) * 100) : 0;
+          const pct = denom > 0 ? Math.floor((rawAmount / denom) * 100) : 0;
           coversPctEl.textContent = String(Math.max(0, Math.min(100, pct)));
         }
         if (coversTrackEl) coversTrackEl.hidden = !isSetLimit;
         if (reserveTrackNoteEl) reserveTrackNoteEl.hidden = !isReservedActive;
-        if (reserveTrackPerBuyEl) {
-          reserveTrackPerBuyEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
-        }
+        if (reserveTrackPerBuyEl) reserveTrackPerBuyEl.textContent = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         if (coversFillEl) {
           const pct = isSetLimit && coversTotalBuys > 0 ? (coversNow / coversTotalBuys) * 100 : 0;
           coversFillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
         }
-
-        // Divider ticks at multiples of current fill step.
-        // If fill is 10%, ticks at 10/20/…/90. If fill is 25%, ticks at 25/50/75.
         if (coversBarDividersEl) {
           coversBarDividersEl.innerHTML = '';
           const stepBuys = isSetLimit ? Math.max(0, Math.floor(coversNow)) : 0;
@@ -5629,13 +5670,38 @@
           }
         }
 
-        const coversNowForButtons = perBuy > 0 ? Math.floor(reserveAmount / perBuy) : 0;
+        const coversNowForButtons = perBuy > 0 ? Math.floor(rawAmount / perBuy) : 0;
         const { min: minBuys, max: maxBuys } = getReserveBuyBounds();
         if (dec10Btn) dec10Btn.disabled = coversNowForButtons <= minBuys;
         if (decBtn) decBtn.disabled = coversNowForButtons <= minBuys;
         if (incBtn) incBtn.disabled = coversNowForButtons >= maxBuys;
         if (inc10Btn) inc10Btn.disabled = coversNowForButtons >= maxBuys;
-        if (ctaBtn) ctaBtn.disabled = hasReserveBalanceError;
+
+        if (flexHeroCurEl) flexHeroCurEl.textContent = cur;
+        if (resHeroCurEl) resHeroCurEl.textContent = cur;
+        if (sumPerbuyEl) sumPerbuyEl.textContent = perBuyStr;
+        if (sumCoversEl) sumCoversEl.textContent = perBuy > 0 && rawAmount > 0 ? `${coversNow} ${coversNow === 1 ? 'buy' : 'buys'}` : '- -';
+        if (sumUnusedEl) {
+          const unusedText = perBuy > 0 && rawAmount > 0 ? `${fmt(Math.max(0, unusedRaw))} ${cur}` : '- -';
+          sumUnusedEl.textContent = unusedText;
+          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--negative', rawAmount > 0 && unusedRaw > 0);
+          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--positive', rawAmount > 0 && unusedRaw === 0);
+        }
+
+        const showRounding = perBuy > 0 && rawAmount > 0 && !isMultiple;
+        if (roundWrapEl) roundWrapEl.hidden = !showRounding;
+        if (roundDownBtn) {
+          roundDownBtn.textContent = nearestDown > 0 ? String(nearestDown) : '—';
+          roundDownBtn.disabled = !(nearestDown > 0);
+        }
+        if (roundUpBtn) {
+          roundUpBtn.textContent = nearestUp > 0 ? String(nearestUp) : '—';
+          roundUpBtn.disabled = !(nearestUp > 0 && nearestUp <= maxAllowedAmount);
+        }
+        if (reserveMaxBtn) reserveMaxBtn.disabled = !(maxAllowedAmount > 0);
+
+        const reservedContinueDisabled = method === 'reserved' && !isValidReservedAmount;
+        if (ctaBtn) ctaBtn.disabled = reservedContinueDisabled;
       };
 
       const syncFromPlanDetail = () => {
@@ -5652,19 +5718,17 @@
         const n = m ? parseInt(m[1], 10) : NaN;
         coversTotalBuys = Number.isFinite(n) && n > 0 ? n : 40;
 
-        // Reset to prototype default on each Funding open:
-        // half of available balance, rounded down to whole-buy steps (never below 1 buy).
-        const balance = BALANCES[cur] ?? BALANCES.TWD;
-        const halfBalance = Math.floor(Math.max(0, balance) / 2);
-        reserveAmount = perBuy > 0 ? clampReserveAmount(halfBalance) : 0;
+        // Funding (Set aside) starts empty until user enters a valid amount.
+        reserveInputAmount = 0;
+        reserveAmount = 0;
 
-        setMethodUI('flexible');
+        setMethodUI('reserved');
         render();
       };
 
       const bumpReserve = (deltaBuys) => {
         if (perBuy <= 0) return;
-        reserveAmount = clampReserveAmount(reserveAmount + deltaBuys * perBuy);
+        reserveInputAmount = clampReserveAmount(reserveInputAmount + (deltaBuys * perBuy));
         render();
       };
 
@@ -5710,7 +5774,9 @@
         setTimeout(onEnd, 380);
       };
 
-      bufferPanel.querySelector('[data-plan-buffer-back]')?.addEventListener('click', () => close());
+      const closeBuffer = () => close();
+      bufferPanel.querySelector('[data-plan-buffer-back]')?.addEventListener('click', closeBuffer);
+      bufferPanel.querySelector('[data-plan-buffer-back-bottom]')?.addEventListener('click', closeBuffer);
 
       methodBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -5718,6 +5784,31 @@
           setMethodUI(v);
           render();
         });
+      });
+
+      reserveInputEl?.addEventListener('input', (e) => {
+        const nextRaw = String(e.target?.value || '').replace(/[^0-9]/g, '');
+        reserveInputAmount = nextRaw ? parseInt(nextRaw, 10) : 0;
+        if (!Number.isFinite(reserveInputAmount)) reserveInputAmount = 0;
+        render();
+      });
+
+      reserveMaxBtn?.addEventListener('click', () => {
+        reserveInputAmount = getMaxAllowedAmount();
+        render();
+      });
+
+      roundDownBtn?.addEventListener('click', () => {
+        if (perBuy <= 0) return;
+        reserveInputAmount = Math.floor(reserveInputAmount / perBuy) * perBuy;
+        render();
+      });
+
+      roundUpBtn?.addEventListener('click', () => {
+        if (perBuy <= 0) return;
+        const next = Math.ceil(reserveInputAmount / perBuy) * perBuy;
+        reserveInputAmount = Math.min(next, getMaxAllowedAmount());
+        render();
       });
 
       incBtn?.addEventListener('click', () => bumpReserve(1));
@@ -5728,8 +5819,7 @@
       // "Use Max": take the max whole-buy amount from available balance.
       useMaxBtn?.addEventListener('click', () => {
         if (perBuy <= 0) return;
-        const balance = BALANCES[cur] ?? BALANCES.TWD;
-        reserveAmount = clampReserveAmount(balance);
+        reserveInputAmount = getMaxAllowedAmount();
         render();
       });
 

@@ -8191,6 +8191,333 @@ div.currency-sheet__item-icon {
   gap: 16px;
 }
 
+// Funding segmented control + heroes (Figma 8768:75036 / 8768:75164)
+.phone-container .plan-buffer-panel__header--funding h1.plan-buffer-panel__title {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.plan-buffer-funding-seg {
+  display: flex;
+  width: 100%;
+  height: 32px;
+  padding: 2px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #1b1d1d;
+  gap: 2px;
+}
+
+.plan-buffer-funding-seg__btn {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.plan-buffer-funding-seg__btn.is-selected {
+  background: #ffffff;
+  color: #0d0e0f;
+}
+
+.plan-buffer-funding-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.plan-buffer-funding-hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.plan-buffer-funding-hero__sub {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.plan-buffer-funding-hero__illu {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+
+  svg,
+  .plan-buffer-funding-hero__illu-img {
+    display: block;
+  }
+}
+
+.plan-buffer-panel p.plan-buffer-funding-hero__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+.plan-buffer-funding-hero__learn {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3f78ff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.plan-buffer-funding-hero__learn-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.plan-buffer-funding-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ff6d47;
+}
+
+.plan-buffer-funding-warn__icon {
+  flex-shrink: 0;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.plan-buffer-funding-warn__text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.plan-buffer-funding-input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.plan-buffer-funding-input__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-buffer-funding-input__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.plan-buffer-funding-input__avail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding-input__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 4px;
+}
+
+.plan-buffer-funding-input__left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-buffer-funding-input__icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.plan-buffer-funding-input__field {
+  flex: 0 1 170px;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 0;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  color: #ffffff;
+  font-family: inherit;
+  caret-color: #8fb8ff;
+
+  &::placeholder {
+    color: #58595a;
+  }
+}
+
+.plan-buffer-funding-input__hint {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #58595a;
+  white-space: nowrap;
+}
+
+.plan-buffer-funding-input__cur {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid #252627;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding-input__divider {
+  height: 1px;
+  background: #3c4248;
+}
+
+.plan-buffer-funding-input__max-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.plan-buffer-funding-input__max-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f78ff;
+  cursor: pointer;
+}
+
+.plan-buffer-funding-summary {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #151718;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.plan-buffer-funding-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.plan-buffer-funding-summary__label {
+  flex: 1 1 auto;
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding-summary__value {
+  flex: 0 0 auto;
+  color: #ffffff;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.plan-buffer-funding-summary__value--negative {
+  color: #eb5347;
+}
+
+.plan-buffer-funding-summary__value--positive {
+  color: #5ac47d;
+}
+
+.plan-buffer-funding-round {
+  width: 100%;
+  border-top: 1px solid #252627;
+  margin-top: 6px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-buffer-funding-round__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.plan-buffer-funding-round__sub {
+  margin-top: -4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding-round__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.plan-buffer-funding-round__btn {
+  min-width: 64px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #275cfd;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-buffer-funding-round__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .plan-buffer-panel__method-block {
   display: flex;
   flex-direction: column;

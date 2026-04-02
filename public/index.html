@@ -1383,12 +1383,12 @@
         </section>
 
         <!-- Set a buffer (slides in from right over plan detail) -->
-        <section class="plan-buffer-panel" data-plan-buffer-panel hidden aria-label="Set a buffer">
+        <section class="plan-buffer-panel" data-plan-buffer-panel hidden aria-label="How will you fund your plan?">
             <header class="plan-buffer-panel__header plan-buffer-panel__header--funding">
                 <button class="plan-buffer-panel__icon-btn" type="button" data-plan-buffer-back aria-label="Back">
                     <img src="assets/icon_back.svg" alt="" width="24" height="24" />
                 </button>
-                <h1 class="plan-buffer-panel__title">Funding</h1>
+                <h1 class="plan-buffer-panel__title">How will you fund your plan?</h1>
                 <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
             </header>
             <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
@@ -1396,163 +1396,173 @@
             <div class="plan-buffer-panel__scroller">
                 <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
                     <div class="plan-buffer-panel__method-block">
-                        <div class="plan-buffer-panel__method-block-head">
-                            <h2 class="plan-buffer-panel__heading">Choose how to pay</h2>
-                            <button class="plan-buffer-panel__learn-more plan-buffer-panel__learn-more--inline" type="button" data-plan-buffer-learn-more-open aria-label="Learn how these payment methods work">Learn more</button>
-                        </div>
-
-                        <div class="plan-buffer-panel__method-card" role="group" aria-label="Funding method">
-                        <button class="plan-buffer-panel__method-row currency-sheet__item is-selected" type="button" data-plan-buffer-method="flexible" aria-pressed="true">
-                            <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--flex" aria-hidden="true">
-                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_1_on.svg" alt="" />
-                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_1_off.svg" alt="" />
-                            </div>
-                            <div class="plan-buffer-panel__method-content">
-                                <div class="plan-buffer-panel__method-title">Pay per buy</div>
-                                <div class="plan-buffer-panel__method-desc">Deducted from wallet per buy. Ensure sufficient balance.</div>
-                            </div>
-                            <div class="currency-sheet__item-radio" aria-hidden="true">
-                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
-                            </div>
-                        </button>
-                        
-                        <button class="plan-buffer-panel__method-row currency-sheet__item" type="button" data-plan-buffer-method="reserved" aria-pressed="false">
-                            <div class="plan-buffer-panel__method-illu plan-buffer-panel__method-illu--reserve" aria-hidden="true">
-                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--on" src="assets/illu_2_on.svg" alt="" />
-                                <img class="plan-buffer-panel__method-illu-img plan-buffer-panel__method-illu-img--off" src="assets/illu_2_off.svg" alt="" />
-                            </div>
-                            <div class="plan-buffer-panel__method-content">
-                                <div class="plan-buffer-panel__method-title">Pre-fund</div>
-                                <div class="plan-buffer-panel__method-desc">Set funds aside. Auto-refills when funding runs low.</div>
-                            </div>
-                            <div class="currency-sheet__item-radio" aria-hidden="true">
-                                <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" alt="" />
-                            </div>
-                        </button>
+                        <div class="plan-buffer-funding-seg" role="group" aria-label="Funding method">
+                            <button class="plan-buffer-funding-seg__btn is-selected" type="button" data-plan-buffer-method="reserved" aria-pressed="true">
+                                Set aside funds
+                            </button>
+                            <button class="plan-buffer-funding-seg__btn" type="button" data-plan-buffer-method="flexible" aria-pressed="false">
+                                Pay as you go
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Flexible details -->
+                    <!-- Pay as you go -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="flexible">
-                        <div class="plan-buffer-panel__reserve-title">Pay per buy</div>
-                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--avail-balance" data-plan-buffer-hide-on-flexible>
-                            <div class="plan-buffer-panel__kv-label">Avail. balance</div>
-                            <div class="plan-buffer-panel__kv-value-wrap">
-                                <span class="plan-buffer-panel__kv-value" data-plan-buffer-avail-balance>—</span>
-                                <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
-                                    <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
-                                </button>
+                        <div class="plan-buffer-funding-hero">
+                            <div class="plan-buffer-funding-hero__top">
+                                <p class="plan-buffer-funding-hero__title">
+                                    Uses your available <span data-plan-buffer-flex-hero-cur>USDT</span> balance at each buy
+                                </p>
+                                <div class="plan-buffer-funding-hero__illu" aria-hidden="true">
+                                    <img class="plan-buffer-funding-hero__illu-img" src="assets/funding_placeholder1.svg" width="48" height="48" alt="" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Amount per buy</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy>—</div>
-                        </div>
-                        <div class="plan-buffer-panel__kv">
-                            <div class="plan-buffer-panel__kv-label">Next buy</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-nextbuy>—</div>
-                        </div>
-                        <div class="plan-buffer-panel__kv plan-buffer-panel__kv--strong">
-                            <div class="plan-buffer-panel__kv-label">Deducted from</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-source>Wallet</div>
+                            <div class="plan-buffer-funding-hero__sub">
+                                <div class="plan-buffer-funding-warn" role="status">
+                                    <img
+                                        class="plan-buffer-funding-warn__icon"
+                                        src="assets/icon-warning.svg"
+                                        width="16"
+                                        height="16"
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <span class="plan-buffer-funding-warn__text">Might fail if balance is insufficient</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Reserved details -->
+                    <!-- Set aside funds -->
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="reserved" hidden>
-                        <div class="plan-buffer-panel__reserve-head">
-                            <div class="plan-buffer-panel__reserve-title-wrap">
-                                <div class="plan-buffer-panel__reserve-title">Pre-fund amount</div>
-                                <div class="plan-buffer-panel__reserve-meta" data-plan-buffer-reserve-track-note hidden>
-                                    <div class="plan-buffer-panel__reserve-avail">
-                                        <span class="plan-buffer-panel__kv-value plan-buffer-panel__reserve-avail-value" data-plan-buffer-avail-balance-2>—</span>
-                                        <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
-                                            <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
-                                        </button>
-                                    </div>
-                                    <div class="plan-buffer-panel__reserve-track-note">
-                                        <span data-plan-buffer-reserve-track-perbuy>—</span> per buy
-                                    </div>
+                        <div class="plan-buffer-funding-hero">
+                            <div class="plan-buffer-funding-hero__top">
+                                <p class="plan-buffer-funding-hero__title">
+                                    Set aside <span data-plan-buffer-res-hero-cur>USDT</span> to cover one or more upcoming buys
+                                </p>
+                                <div class="plan-buffer-funding-hero__illu" aria-hidden="true">
+                                    <img class="plan-buffer-funding-hero__illu-img" src="assets/funding_placeholder2.svg" width="48" height="48" alt="" />
                                 </div>
                             </div>
-                            <div class="plan-buffer-panel__reserve-steps" data-plan-buffer-steps>Steps of —</div>
-                        </div>
-
-                        <div class="plan-buffer-panel__reserve-stepper">
-                            <button class="plan-buffer-panel__reserve-btn plan-buffer-panel__reserve-btn--jump" type="button" data-plan-buffer-reserve-dec-10 aria-label="Decrease by 10">-10</button>
-                            <button class="plan-buffer-panel__reserve-btn" type="button" data-plan-buffer-reserve-dec aria-label="Decrease by 1">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                </svg>
-                            </button>
-                            <div class="plan-buffer-panel__reserve-center" aria-live="polite">
-                                <div class="plan-buffer-panel__reserve-cur" data-plan-buffer-reserve-cur>USDT</div>
-                                <div class="plan-buffer-panel__reserve-amt" data-plan-buffer-reserve-amt>—</div>
-                            </div>
-                            <button class="plan-buffer-panel__reserve-btn" type="button" data-plan-buffer-reserve-inc aria-label="Increase by 1">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                </svg>
-                            </button>
-                            <button class="plan-buffer-panel__reserve-btn plan-buffer-panel__reserve-btn--jump" type="button" data-plan-buffer-reserve-inc-10 aria-label="Increase by 10">+10</button>
-                        </div>
-                        <div class="plan-buffer-panel__use-max-row">
-                            <p class="plan-buffer-panel__reserve-error plan-buffer-panel__reserve-error--inline" data-plan-buffer-balance-error hidden>Not enough balance</p>
-                            <button class="plan-buffer-panel__use-max" type="button" data-plan-buffer-use-max>Use max balance</button>
-                        </div>
-
-                        <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
-                            <div class="plan-buffer-panel__kv-label">Amount per buy</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2>—</div>
-                        </div>
-                        <div class="plan-buffer-panel__kv" data-plan-buffer-hide-on-reserved>
-                            <div class="plan-buffer-panel__kv-label">Recurring pre-fund</div>
-                            <div class="plan-buffer-panel__kv-value" data-plan-buffer-recurring-prefund>—</div>
-                        </div>
-                        <div class="plan-buffer-panel__covers-title">
-                            Covers
-                            <span class="plan-buffer-panel__covers-title-pct" data-plan-buffer-covers-pct-wrap>
-                                <span data-plan-buffer-covers-pct>—</span>%
-                            </span>
-                        </div>
-                        <div class="plan-buffer-panel__covers-card">
-                            <div class="plan-buffer-panel__covers-bar" aria-hidden="true" data-plan-buffer-covers-bar>
-                                <div class="plan-buffer-panel__covers-bar-bg"></div>
-                                <div class="plan-buffer-panel__covers-bar-fill" data-plan-buffer-covers-fill></div>
-                                <div class="plan-buffer-panel__covers-bar-dividers" data-plan-buffer-covers-bar-dividers></div>
-                            </div>
-
-                            <div class="plan-buffer-panel__covers-rows">
-                                <div class="plan-buffer-panel__covers-row">
-                                    <span class="plan-buffer-panel__covers-label">Buy count</span>
-                                    <span class="plan-buffer-panel__covers-value">
-                                        <span class="plan-buffer-panel__covers-now" data-plan-buffer-covers-now>—</span>
-                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-buy-total-suffix hidden> / — buys</span>
-                                    </span>
-                                </div>
-                                <div class="plan-buffer-panel__covers-row">
-                                    <span class="plan-buffer-panel__covers-label">Period</span>
-                                    <span class="plan-buffer-panel__covers-value">
-                                        <span class="plan-buffer-panel__covers-period-now" data-plan-buffer-covers-period-now>—</span>
-                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-period-total-suffix hidden> / — months</span>
-                                    </span>
-                                </div>
-                                <div class="plan-buffer-panel__covers-row">
-                                    <span class="plan-buffer-panel__covers-label">Amount</span>
-                                    <span class="plan-buffer-panel__covers-value">
-                                        <span class="plan-buffer-panel__covers-amount-now" data-plan-buffer-covers-amount-now>—</span>
-                                        <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-amount-total-suffix hidden> / —</span>
-                                    </span>
-                                </div>
-                                <button class="plan-buffer-panel__autofill-info" type="button" data-plan-buffer-autofill-info>
-                                    <span class="plan-buffer-panel__autofill-info-text">Auto-refills when used up</span>
-                                    <img class="plan-buffer-panel__autofill-info-icon" src="assets/icon_info_circle_blue.svg" width="16" height="16" alt="" aria-hidden="true" />
+                            <div class="plan-buffer-funding-hero__sub">
+                                <button class="plan-buffer-funding-hero__learn" type="button" data-plan-buffer-learn-more-open>
+                                    <span class="plan-buffer-funding-hero__learn-text">Learn more</span>
+                                    <img
+                                        class="plan-buffer-funding-hero__learn-icon"
+                                        src="assets/icon_right_bluechev.svg"
+                                        width="16"
+                                        height="16"
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
                                 </button>
                             </div>
+                        </div>
+                        <div class="plan-buffer-funding-input">
+                            <div class="plan-buffer-funding-input__head">
+                                <div class="plan-buffer-funding-input__title">Amount</div>
+                                <div class="plan-buffer-funding-input__avail">
+                                    <span data-plan-buffer-avail-balance-2>Avail. —</span>
+                                    <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
+                                        <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="plan-buffer-funding-input__row">
+                                <div class="plan-buffer-funding-input__left">
+                                    <img class="plan-buffer-funding-input__icon" src="assets/icon_currency_usdt.svg" width="32" height="32" alt="" data-plan-buffer-reserve-input-icon />
+                                    <input
+                                        class="plan-buffer-funding-input__field"
+                                        type="text"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        autocomplete="off"
+                                        placeholder="0"
+                                        value=""
+                                        aria-label="Set aside amount"
+                                        data-plan-buffer-reserve-input
+                                    />
+                                    <span class="plan-buffer-funding-input__hint" data-plan-buffer-reserve-range>Min — / Max —</span>
+                                </div>
+                                <div class="plan-buffer-funding-input__cur" data-plan-buffer-reserve-cur>USDT</div>
+                            </div>
+                            <div class="plan-buffer-funding-input__divider"></div>
+                            <div class="plan-buffer-funding-input__max-row">
+                                <button class="plan-buffer-funding-input__max-btn" type="button" data-plan-buffer-reserve-max>Max</button>
+                            </div>
+                            <p class="plan-buffer-panel__reserve-error plan-buffer-panel__reserve-error--inline" data-plan-buffer-balance-error hidden>Not enough balance</p>
+                        </div>
+
+                        <div class="plan-buffer-funding-summary" aria-label="Funding summary">
+                            <div class="plan-buffer-funding-summary__row">
+                                <span class="plan-buffer-funding-summary__label">Per buy</span>
+                                <span class="plan-buffer-funding-summary__value" data-plan-buffer-sum-perbuy>—</span>
+                            </div>
+                            <div class="plan-buffer-funding-summary__row">
+                                <span class="plan-buffer-funding-summary__label">Amount covers</span>
+                                <span class="plan-buffer-funding-summary__value" data-plan-buffer-sum-covers>—</span>
+                            </div>
+                            <div class="plan-buffer-funding-summary__row">
+                                <span class="plan-buffer-funding-summary__label">Unused</span>
+                                <span class="plan-buffer-funding-summary__value" data-plan-buffer-sum-unused>—</span>
+                            </div>
+                            <div class="plan-buffer-funding-round" data-plan-buffer-rounding hidden>
+                                <div class="plan-buffer-funding-round__title">Round to a valid amount</div>
+                                <div class="plan-buffer-funding-round__sub">Avoid unused balance</div>
+                                <div class="plan-buffer-funding-round__actions">
+                                    <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-down>—</button>
+                                    <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-up>—</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="plan-buffer-panel__covers-legacy" hidden aria-hidden="true">
+                            <div class="plan-buffer-panel__covers-title">
+                                Covers
+                                <span class="plan-buffer-panel__covers-title-pct" data-plan-buffer-covers-pct-wrap>
+                                    <span data-plan-buffer-covers-pct>—</span>%
+                                </span>
+                            </div>
+                            <div class="plan-buffer-panel__covers-card">
+                                <div class="plan-buffer-panel__covers-bar" aria-hidden="true" data-plan-buffer-covers-bar>
+                                    <div class="plan-buffer-panel__covers-bar-bg"></div>
+                                    <div class="plan-buffer-panel__covers-bar-fill" data-plan-buffer-covers-fill></div>
+                                    <div class="plan-buffer-panel__covers-bar-dividers" data-plan-buffer-covers-bar-dividers></div>
+                                </div>
+                                <div class="plan-buffer-panel__covers-rows">
+                                    <div class="plan-buffer-panel__covers-row">
+                                        <span class="plan-buffer-panel__covers-label">Buy count</span>
+                                        <span class="plan-buffer-panel__covers-value">
+                                            <span class="plan-buffer-panel__covers-now" data-plan-buffer-covers-now>—</span>
+                                            <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-buy-total-suffix hidden> / — buys</span>
+                                        </span>
+                                    </div>
+                                    <div class="plan-buffer-panel__covers-row">
+                                        <span class="plan-buffer-panel__covers-label">Period</span>
+                                        <span class="plan-buffer-panel__covers-value">
+                                            <span class="plan-buffer-panel__covers-period-now" data-plan-buffer-covers-period-now>—</span>
+                                            <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-period-total-suffix hidden> / — months</span>
+                                        </span>
+                                    </div>
+                                    <div class="plan-buffer-panel__covers-row" data-plan-buffer-covers-amount>
+                                        <span class="plan-buffer-panel__covers-label">Amount</span>
+                                        <span class="plan-buffer-panel__covers-value">
+                                            <span class="plan-buffer-panel__covers-amount-now" data-plan-buffer-covers-amount-now>—</span>
+                                            <span class="plan-buffer-panel__covers-total-suffix" data-plan-buffer-covers-amount-total-suffix hidden> / —</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="plan-buffer-panel__kv-value" data-plan-buffer-perbuy-2></span>
+                            <span class="plan-buffer-panel__kv-value" data-plan-buffer-recurring-prefund></span>
+                            <span data-plan-buffer-covers-total></span>
+                            <span data-plan-buffer-covers-slash></span>
+                            <span data-plan-buffer-covers-amount-total></span>
                         </div>
                     </div>
                 </div>
-                <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single">
+                <div class="plan-buffer-panel__footer">
+                    <button class="plan-buffer-panel__btn plan-buffer-panel__btn--secondary" type="button" data-plan-buffer-back-bottom>Back</button>
                     <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-confirm>Continue</button>
                 </div>
             </div>
@@ -1575,23 +1585,23 @@
                                     role="tab"
                                     aria-selected="true"
                                     data-plan-buffer-learn-more-tab="flexible"
-                                >Pay per buy</button>
+                                >Pay as you go</button>
                                 <button
                                     class="finance__section-nav-item"
                                     type="button"
                                     role="tab"
                                     aria-selected="false"
                                     data-plan-buffer-learn-more-tab="reserved"
-                                >Pre-fund</button>
+                                >Set aside funds</button>
                             </div>
                         </div>
                         <div class="plan-buffer-learn-more-panel__views">
                             <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="flexible">
-                                <h3 class="plan-buffer-learn-more-panel__view-title">Pay per buy</h3>
+                                <h3 class="plan-buffer-learn-more-panel__view-title">Pay as you go</h3>
                                 <p class="plan-buffer-learn-more-panel__view-text">Each buy is deducted from your wallet balance when that buy runs.</p>
                             </div>
                             <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="reserved" hidden>
-                                <h3 class="plan-buffer-learn-more-panel__view-title">Pre-fund (auto-refills)</h3>
+                                <h3 class="plan-buffer-learn-more-panel__view-title">Set aside funds</h3>
                                 <p class="plan-buffer-learn-more-panel__view-text">Funds are reserved in advance and auto-refilled to keep upcoming buys covered.</p>
                             </div>
                         </div>
