@@ -5495,6 +5495,7 @@
 
       const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
       const formatWithCommas = (n) => n.toLocaleString('en-US');
+      const MAX_RESERVE_INPUT = 99999999;
       const currencyIconSrc = (code) => {
         const c = String(code || 'USDT').toUpperCase();
         const map = {
@@ -5538,7 +5539,7 @@
 
       const clampReserveAmount = (rawAmount) => {
         if (!Number.isFinite(rawAmount)) return 0;
-        const n = Math.max(0, Math.floor(rawAmount));
+        const n = Math.min(MAX_RESERVE_INPUT, Math.max(0, Math.floor(rawAmount)));
         if (perBuy <= 0) return n;
         const { max } = getReserveBuyBounds();
         if (Number.isFinite(max) && max > 0) {
@@ -5550,7 +5551,7 @@
       const getMaxAllowedAmount = () => {
         const balance = BALANCES[cur] ?? BALANCES.TWD;
         const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
-        return Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount)));
+        return Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount, MAX_RESERVE_INPUT)));
       };
 
       const render = () => {
@@ -5696,11 +5697,11 @@
         const showRounding = perBuy > 0 && rawAmount > 0 && unusedRaw !== 0;
         if (roundWrapEl) roundWrapEl.hidden = !showRounding;
         if (roundDownBtn) {
-          roundDownBtn.textContent = nearestDown > 0 ? String(nearestDown) : '—';
+          roundDownBtn.textContent = nearestDown > 0 ? formatWithCommas(nearestDown) : '—';
           roundDownBtn.disabled = !(nearestDown > 0);
         }
         if (roundUpBtn) {
-          roundUpBtn.textContent = nearestUp > 0 ? String(nearestUp) : '—';
+          roundUpBtn.textContent = nearestUp > 0 ? formatWithCommas(nearestUp) : '—';
           roundUpBtn.disabled = !(nearestUp > 0 && nearestUp <= maxAllowedAmount);
         }
         if (reserveMaxBtn) reserveMaxBtn.disabled = !(maxAllowedAmount > 0);
@@ -5802,8 +5803,7 @@
           reserveInputAmount = 0;
           return;
         }
-        const MAX_AMOUNT = 99999999;
-        const clamped = Math.min(parseInt(raw, 10), MAX_AMOUNT);
+        const clamped = Math.min(parseInt(raw, 10), MAX_RESERVE_INPUT);
         reserveInputAmount = Number.isFinite(clamped) ? clamped : 0;
         const formatted = formatWithCommas(reserveInputAmount);
         reserveInputEl.value = formatted;

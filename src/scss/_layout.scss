@@ -8426,11 +8426,14 @@ div.currency-sheet__item-icon {
 
 .plan-buffer-funding-input__max-row {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding-top: 16px;
 }
 
 .plan-buffer-funding-input__max-btn {
+  margin-left: auto;
   border: 0;
   background: transparent;
   padding: 0;
@@ -8523,8 +8526,9 @@ div.currency-sheet__item-icon {
   border-radius: 16px;
   background: #275cfd;
   color: #ffffff;
-  font-size: 28px;
+  font-size: 16px;
   font-weight: 600;
+  line-height: normal;
   cursor: pointer;
 }
 
@@ -8977,9 +8981,9 @@ div.currency-sheet__item-icon {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  text-align: right;
+  text-align: left;
   flex: 0 1 auto;
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .plan-buffer-panel__covers-title {
