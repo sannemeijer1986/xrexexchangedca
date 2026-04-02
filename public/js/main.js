@@ -5142,6 +5142,7 @@
         const prefundRowEl = overviewPanel.querySelector('[data-plan-overview-prefund-row]');
         const prefundAfterDividerEl = overviewPanel.querySelector('[data-plan-overview-prefund-after-divider]');
         const prefundAmountEl = overviewPanel.querySelector('[data-plan-overview-prefund-amount]');
+        const prefundSubEl = overviewPanel.querySelector('[data-plan-overview-prefund-sub]');
         const firstBuyEl = overviewPanel.querySelector('[data-plan-overview-first-buy]');
         const deductSubEl = overviewPanel.querySelector('[data-plan-overview-deduct-sub]');
 
@@ -5325,6 +5326,14 @@
           prefundAmountEl.textContent = Number.isFinite(reserveInputNum) && reserveInputNum > 0
             ? `${reserveInputNum.toLocaleString('en-US')} ${cur}`
             : '—';
+          if (prefundSubEl) {
+            const coversCount = Number.isFinite(reserveInputNum) && reserveInputNum > 0 && amount > 0
+              ? Math.floor(reserveInputNum / amount)
+              : 0;
+            const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+            const unitLabel = `${unit}${coversCount === 1 ? '' : 's'}`;
+            prefundSubEl.textContent = coversCount > 0 ? `Covers ${coversCount} ${unitLabel}` : 'Covers —';
+          }
         }
 
         const compactNextBuy = formatFinanceNextBuyCompact(sched);
@@ -5733,7 +5742,15 @@
         if (flexHeroCurEl) flexHeroCurEl.textContent = cur;
         if (resHeroCurEl) resHeroCurEl.textContent = cur;
         if (sumPerbuyEl) sumPerbuyEl.textContent = perBuyStr;
-        if (sumCoversEl) sumCoversEl.textContent = perBuy > 0 && rawAmount > 0 ? `${coversNow} ${coversNow === 1 ? 'buy' : 'buys'}` : '- -';
+        if (sumCoversEl) {
+          if (perBuy > 0 && rawAmount > 0) {
+            const buyLabel = coversNow === 1 ? 'buy' : 'buys';
+            const periodLabel = coversNow === 1 ? unit : unitPlural;
+            sumCoversEl.textContent = `${coversNow} ${buyLabel}/${periodLabel}`;
+          } else {
+            sumCoversEl.textContent = '- -';
+          }
+        }
         if (sumUnusedEl) {
           const unusedText = perBuy > 0 && rawAmount > 0 ? `${fmt(Math.max(0, unusedRaw))} ${cur}` : '- -';
           sumUnusedEl.textContent = unusedText;
@@ -5882,7 +5899,12 @@
       });
 
       reserveMaxBtn?.addEventListener('click', () => {
-        reserveInputAmount = getMaxAllowedAmount();
+        const maxAllowed = getMaxAllowedAmount();
+        if (perBuy > 0) {
+          reserveInputAmount = Math.floor(maxAllowed / perBuy) * perBuy;
+        } else {
+          reserveInputAmount = maxAllowed;
+        }
         render();
       });
 
@@ -5907,7 +5929,8 @@
       // "Use Max": take the max whole-buy amount from available balance.
       useMaxBtn?.addEventListener('click', () => {
         if (perBuy <= 0) return;
-        reserveInputAmount = getMaxAllowedAmount();
+        const maxAllowed = getMaxAllowedAmount();
+        reserveInputAmount = Math.floor(maxAllowed / perBuy) * perBuy;
         render();
       });
 
