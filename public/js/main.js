@@ -1208,7 +1208,45 @@
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
   /** Set when user confirms plan overview; cleared on prototype Reset */
-  let financeSummaryConfirmedReserved = '';
+  let financeSummaryConfirmedReserved = null;
+
+  // Static FX for prototype: 1 USD ≈ 32 TWD
+  const FX_USD_TWD = 32;
+
+  const normalizeFxCurrency = (cur) => {
+    const c = String(cur || '').trim().toUpperCase();
+    if (c === 'USDT') return 'USD';
+    return c || 'USD';
+  };
+
+  const parseMoneyWithCurrency = (text) => {
+    const t = String(text || '').trim();
+    if (!t || t === '—' || t === '- -') return null;
+    const m = t.match(/(-?\d[\d,]*)(?:\.(\d+))?\s*([A-Za-z]{3,5})\s*$/);
+    if (!m) return null;
+    const intPart = (m[1] || '').replace(/,/g, '');
+    const fracPart = m[2] ? `.${m[2]}` : '';
+    const amount = parseFloat(`${intPart}${fracPart}`);
+    if (!Number.isFinite(amount)) return null;
+    const currency = normalizeFxCurrency(m[3]);
+    return { amount, currency };
+  };
+
+  const convertFx = (amount, from, to) => {
+    const f = normalizeFxCurrency(from);
+    const t = normalizeFxCurrency(to);
+    if (!Number.isFinite(amount)) return 0;
+    if (f === t) return amount;
+    if (f === 'USD' && t === 'TWD') return amount * FX_USD_TWD;
+    if (f === 'TWD' && t === 'USD') return amount / FX_USD_TWD;
+    return amount;
+  };
+
+  const formatMoney = (amount, cur) => {
+    const n = Number.isFinite(amount) ? amount : 0;
+    const c = normalizeFxCurrency(cur);
+    return `${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${c}`;
+  };
 
   /** Compact "Mar 15 · ~12:00" / "Mon · ~12:00" from plan-detail schedule line */
   const formatFinanceNextBuyCompact = (schedText) => {
@@ -1231,16 +1269,29 @@
   };
 
   const applyFinanceSummaryMeta = () => {
+    const shortenWeekday = (s) => {
+      const t = String(s || '').trim();
+      if (!t || t.toLowerCase() === 'today') return t;
+      const m = t.match(/^([A-Za-z]+),\s*(.+)$/);
+      if (!m) return t;
+      const wk = m[1] || '';
+      const rest = m[2] || '';
+      return `${wk.slice(0, 3)}, ${rest}`;
+    };
+
     const suf = currencyState.summary;
-    const fallbackAmt = `0.00 ${suf}`;
-    const reservedAmt = financeSummaryConfirmedReserved.trim() || fallbackAmt;
+    const fallbackAmt = formatMoney(0, suf);
+    const reservedAmt = financeSummaryConfirmedReserved
+      ? formatMoney(convertFx(financeSummaryConfirmedReserved.amount, financeSummaryConfirmedReserved.currency, suf), suf)
+      : fallbackAmt;
     document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
       el.textContent = reservedAmt;
     });
     document.querySelectorAll('[data-finance-summary-invested]').forEach((el) => {
       el.textContent = fallbackAmt;
     });
-    const nb = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+    const nbRaw = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+    const nb = shortenWeekday(nbRaw);
     document.querySelectorAll('[data-finance-summary-next-buy]').forEach((el) => {
       el.textContent = nb;
     });
@@ -1259,7 +1310,7 @@
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
-      financeSummaryConfirmedReserved = '';
+      financeSummaryConfirmedReserved = null;
       applyFinanceSummaryMeta();
     });
   };
@@ -1299,7 +1350,7 @@
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
-      financeSummaryConfirmedReserved = '';
+      financeSummaryConfirmedReserved = null;
       applyFinanceSummaryMeta();
     });
   };
@@ -3303,8 +3354,8 @@
       const t = String(text || '').trim();
       const tl = t.toLowerCase();
       if (!t) return false;
-      // Guard continuous variants (including legacy typo "Continious").
-      if (tl.includes('continuous') || tl.includes('continious')) return false;
+      // Guard continuous variants (including legacy typo "Continuous").
+      if (tl.includes('continuous') || tl.includes('Continuous')) return false;
       if (tl.startsWith('after')) return false;
       if (t === 'End on date') return true;
       if (!/\b(buy|buys)\b/i.test(t)) return false;
@@ -5298,7 +5349,7 @@
 
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '—').trim();
-        let endMain = 'Continious';
+        let endMain = 'Continuous';
         let endSub = 'Pause anytime';
         const endLower = endRaw.toLowerCase();
         // When set to number-of-buys mode, plan-detail stores values like:
@@ -5313,7 +5364,7 @@
           endSubEl.textContent = endSub;
           endSubEl.hidden = !endSub;
         }
-        const isContinuousEnd = /\bcontinuous\b|\bcontinious\b/i.test(endRaw);
+        const isContinuousEnd = /\bcontinuous\b|\bContinuous\b/i.test(endRaw);
         const showTotalPlanned = isPlanDetailSetLimitEnd(endRaw) && !isContinuousEnd;
         if (totalPlannedRowEl) {
           totalPlannedRowEl.hidden = !showTotalPlanned;
@@ -5471,12 +5522,180 @@
       syncOverviewConsentUI();
       // Reserve option section removed from overview.
 
+      const continueSheet = document.querySelector('[data-plan-detail-continue-sheet]');
+      const continueSheetPanel = continueSheet?.querySelector('.currency-sheet__panel');
+      const continueSheetNameEl = continueSheet?.querySelector('[data-plan-continue-sheet-name]');
+      const continueSheetAmountEl = continueSheet?.querySelector('[data-plan-continue-sheet-amount]');
+      const continueSheetIconWrapEl = continueSheet?.querySelector('[data-plan-continue-sheet-icon-wrap]');
+      const continueSheetAllocHeadingEl = continueSheet?.querySelector('[data-plan-continue-sheet-alloc-heading]');
+      const continueSheetChipsEl = continueSheet?.querySelector('[data-plan-continue-sheet-chips]');
+      const continueSheetRepeatsEl = continueSheet?.querySelector('[data-plan-continue-sheet-repeats]');
+      const continueSheetRepeatsSubEl = continueSheet?.querySelector('[data-plan-continue-sheet-repeats-sub]');
+      const continueSheetDurationMainEl = continueSheet?.querySelector('[data-plan-continue-sheet-duration-main]');
+      const continueSheetDurationSubEl = continueSheet?.querySelector('[data-plan-continue-sheet-duration-sub]');
+
+      const navigateToFundingStep = () => {
+        if (ENABLE_PLAN_END_CONDITION_STEP) planEndConditionApi.open();
+        else planBufferApi.open();
+      };
+
+      const openContinueSheet = () => {
+        if (!continueSheet) return;
+        continueSheet.hidden = false;
+        requestAnimationFrame(() => continueSheet.classList.add('is-open'));
+      };
+
+      const closeContinueSheet = () => {
+        if (!continueSheet || !continueSheetPanel) return;
+        continueSheet.classList.remove('is-open');
+        const onEnd = () => {
+          if (!continueSheet.classList.contains('is-open')) continueSheet.hidden = true;
+          continueSheetPanel.removeEventListener('transitionend', onEnd);
+        };
+        continueSheetPanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 290);
+      };
+
+      const syncContinueSheetChips = () => {
+        if (!continueSheetChipsEl) return 0;
+        const multiItems = panel.querySelectorAll('.alloc-multi__item');
+        const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
+        continueSheetChipsEl.innerHTML = '';
+
+        const appendChip = (icon, ticker, pctText) => {
+          if (!ticker) return;
+          const chip = document.createElement('div');
+          chip.className = 'plan-overview-panel__chip';
+
+          const iconEl = document.createElement('img');
+          iconEl.className = 'plan-overview-panel__chip-icon';
+          iconEl.src = icon || '';
+          iconEl.alt = '';
+
+          const meta = document.createElement('div');
+          meta.className = 'plan-overview-panel__chip-meta';
+
+          const tickerEl = document.createElement('span');
+          tickerEl.className = 'plan-overview-panel__chip-ticker';
+          tickerEl.textContent = ticker;
+          meta.appendChild(tickerEl);
+
+          const pctEl = document.createElement('span');
+          pctEl.className = 'plan-overview-panel__chip-pct';
+          pctEl.textContent = pctText;
+          meta.appendChild(pctEl);
+
+          chip.appendChild(iconEl);
+          chip.appendChild(meta);
+          continueSheetChipsEl.appendChild(chip);
+        };
+
+        if (multiItems.length) {
+          const allocRoot = panel.querySelector('.alloc-multi');
+          const isAmountMode = !!allocRoot?.classList.contains('alloc-multi--amount-mode');
+          let pctValues = [];
+          if (isAmountMode) {
+            const amounts = Array.from(multiItems).map((row) => {
+              const pctIn = row.querySelector('[data-alloc-pct-input]');
+              const raw = pctIn ? String(pctIn.value || '').replace(/[^0-9]/g, '') : '';
+              return raw ? parseInt(raw, 10) : 0;
+            });
+            const totalAmt = amounts.reduce((s, n) => s + (isFinite(n) ? n : 0), 0);
+            if (totalAmt > 0) {
+              pctValues = amounts.map((n) => Math.max(0, Math.round((n / totalAmt) * 100)));
+              const sumPct = pctValues.reduce((s, n) => s + n, 0);
+              const adjIdx = pctValues.length - 1;
+              if (adjIdx >= 0 && sumPct !== 100) pctValues[adjIdx] += 100 - sumPct;
+            } else {
+              pctValues = amounts.map(() => 0);
+            }
+          }
+          multiItems.forEach((row, idx) => {
+            const icon = row.querySelector('.alloc-multi__icon')?.getAttribute('src') || '';
+            const ticker = row.querySelector('.alloc-multi__ticker')?.textContent?.trim() || '';
+            const pctIn = row.querySelector('[data-alloc-pct-input]');
+            const pctRaw = pctIn ? String(pctIn.value || '').replace(/[^0-9]/g, '') : '';
+            const pctNum = isAmountMode
+              ? (isFinite(pctValues[idx]) ? pctValues[idx] : 0)
+              : (pctRaw ? parseInt(pctRaw, 10) : 0);
+            const pct = pctNum > 0 ? `${pctNum}%` : '0%';
+            appendChip(icon, ticker, pct);
+          });
+          return continueSheetChipsEl.children.length;
+        }
+
+        singleItems.forEach((row) => {
+          const icon = row.querySelector('.plan-detail-panel__alloc-icon')?.getAttribute('src') || '';
+          const ticker = row.querySelector('.plan-detail-panel__alloc-ticker')?.textContent?.trim() || '';
+          appendChip(icon, ticker, '100%');
+        });
+        return continueSheetChipsEl.children.length;
+      };
+
+      const syncContinueSheetSummary = () => {
+        if (!continueSheet) return;
+        const name = panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || '—';
+        const amountRaw = parseInt(
+          String(panel.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
+          10,
+        ) || 0;
+        const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedClean = sched ? sched.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim() : '—';
+        const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
+        const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : '';
+        const cadence = sched.toLowerCase().startsWith('daily')
+          ? 'day'
+          : sched.toLowerCase().startsWith('weekly')
+            ? 'week'
+            : 'month';
+
+        const allocCount = syncContinueSheetChips();
+        const iconSourceWrap = panel.querySelector('[data-plan-detail-icon-wrap]');
+        const buyNowEnabled = String(panel.dataset.scheduleBuyNow || '0') === '1';
+        const overviewFirstBuy = panel.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
+        const repeatsSub = buyNowEnabled
+          ? 'First buy Today'
+          : (overviewFirstBuy && overviewFirstBuy !== '—'
+            ? `First buy ${overviewFirstBuy}`
+            : (timingDetail ? `First buy ${timingDetail}` : ''));
+        const durationMain = 'Continuous';
+        const durationSub = panel.querySelector('[data-plan-overview-end-sub]')?.textContent?.trim() || 'Pause anytime';
+
+        if (continueSheetNameEl) continueSheetNameEl.textContent = name;
+        if (continueSheetAmountEl) {
+          continueSheetAmountEl.innerHTML = amountRaw > 0
+            ? `Invest ${amountRaw.toLocaleString('en-US')} ${cur}<br aria-hidden="true" />each ${cadence}`
+            : '—';
+        }
+        if (continueSheetAllocHeadingEl) continueSheetAllocHeadingEl.textContent = `Allocation (${allocCount})`;
+        if (continueSheetRepeatsEl) continueSheetRepeatsEl.textContent = schedClean || '—';
+        if (continueSheetRepeatsSubEl) {
+          continueSheetRepeatsSubEl.textContent = repeatsSub;
+          continueSheetRepeatsSubEl.hidden = !repeatsSub;
+        }
+        if (continueSheetDurationMainEl) continueSheetDurationMainEl.textContent = durationMain;
+        if (continueSheetDurationSubEl) continueSheetDurationSubEl.textContent = durationSub;
+        if (continueSheetIconWrapEl && iconSourceWrap) {
+          continueSheetIconWrapEl.innerHTML = iconSourceWrap.innerHTML;
+        }
+      };
+
+      continueSheet?.querySelectorAll('[data-plan-detail-continue-sheet-close]').forEach((b) => {
+        b.addEventListener('click', closeContinueSheet);
+      });
+      continueSheet?.querySelector('[data-plan-detail-continue-sheet-confirm]')?.addEventListener('click', () => {
+        closeContinueSheet();
+        window.setTimeout(navigateToFundingStep, 500);
+      });
+
       panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {
         const btn = e.currentTarget;
         if (btn.disabled) return;
         e.preventDefault();
-        if (ENABLE_PLAN_END_CONDITION_STEP) planEndConditionApi.open();
-        else planBufferApi.open();
+        syncContinueSheetSummary();
+        if (continueSheet) openContinueSheet();
+        else navigateToFundingStep();
       });
 
       return { open, close, sync: syncFromPlanDetail };
@@ -6050,7 +6269,7 @@
       const syncFromPlanDetail = () => {
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '').trim();
-        const useContinuous = !endRaw || /\bcontinuous\b|\bcontinious\b/i.test(endRaw);
+        const useContinuous = !endRaw || /\bcontinuous\b|\bContinuous\b/i.test(endRaw);
         ecSelection = useContinuous ? 'continuous' : 'limit';
         ecMethodBtns.forEach((btn) => {
           const v = btn.getAttribute('data-plan-end-condition') === 'limit' ? 'limit' : 'continuous';
@@ -6073,7 +6292,7 @@
           scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         } else {
           const cur = String(endEl.dataset.endConditionText || endEl.textContent || '').trim();
-          if (/\bcontinuous\b|\bcontinious\b/i.test(cur) || !cur || !isPlanDetailSetLimitEnd(cur)) {
+          if (/\bcontinuous\b|\bContinuous\b/i.test(cur) || !cur || !isPlanDetailSetLimitEnd(cur)) {
             setEndConditionText('40 buys ~ Ends Dec 31, 2026');
             scheduleSheetApi.planDetailRepeatsEndLimitText = String(endEl.dataset.endConditionText || endEl.textContent || '').trim();
           }
@@ -6401,7 +6620,7 @@
           } else if (nextCompact) {
             financeSummaryConfirmedNextBuy = nextCompact;
           }
-          financeSummaryConfirmedReserved = (overviewReserved && overviewReserved !== '—') ? overviewReserved : '';
+          financeSummaryConfirmedReserved = parseMoneyWithCurrency(overviewReserved);
           applyFinanceSummaryMeta();
           openSuccess();
         }, LOADER_MS);

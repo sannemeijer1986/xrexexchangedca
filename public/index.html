@@ -1405,7 +1405,7 @@
                 <button class="plan-buffer-panel__icon-btn" type="button" data-plan-buffer-back aria-label="Back">
                     <img src="assets/icon_back.svg" alt="" width="24" height="24" />
                 </button>
-                <h1 class="plan-buffer-panel__title">How will you fund your plan?</h1>
+                <h1 class="plan-buffer-panel__title">How will you fund this plan?</h1>
                 <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
             </header>
             <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
@@ -1957,6 +1957,55 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-schedule-buy-now-info-sheet-close>Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="currency-sheet" data-plan-detail-continue-sheet hidden aria-modal="true" role="dialog" aria-label="Review your plan">
+        <button class="currency-sheet__backdrop" type="button" data-plan-detail-continue-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body plan-continue-sheet__body">
+                <div class="plan-continue-sheet__card">
+                    <span class="plan-continue-sheet__name" data-plan-continue-sheet-name>—</span>
+                    <div class="plan-continue-sheet__hero">
+                        <span class="plan-continue-sheet__amount" data-plan-continue-sheet-amount>—</span>
+                        <div class="plan-detail-panel__product-icon-wrap plan-continue-sheet__icon-wrap" data-plan-continue-sheet-icon-wrap aria-hidden="true"></div>
+                    </div>
+                </div>
+
+                <div class="plan-continue-sheet__details" aria-label="Plan summary">
+                    <div class="plan-continue-sheet__alloc-block">
+                        <span class="plan-continue-sheet__section-label" data-plan-continue-sheet-alloc-heading>Allocation (0)</span>
+                        <div class="plan-overview-panel__chips plan-continue-sheet__chips" data-plan-continue-sheet-chips></div>
+                    </div>
+
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">Repeats</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value" data-plan-continue-sheet-repeats>—</span>
+                            <span class="plan-overview-panel__row-sub plan-continue-sheet__repeats-sub" data-plan-continue-sheet-repeats-sub hidden></span>
+                        </div>
+                    </div>
+
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">Duration</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value" data-plan-continue-sheet-duration-main>—</span>
+                            <span class="plan-overview-panel__row-sub plan-continue-sheet__duration-sub" data-plan-continue-sheet-duration-sub>Pause anytime</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer plan-continue-sheet__footer">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button" data-plan-detail-continue-sheet-confirm>Continue with this plan</button>
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button" data-plan-detail-continue-sheet-close>Back</button>
             </div>
         </div>
     </div>
