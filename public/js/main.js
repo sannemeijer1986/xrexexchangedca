@@ -3657,10 +3657,10 @@
           } else {
             errEl.hidden = false;
             if (remainingRaw > 0.45) {
-              errEl.textContent = `${formatAllocTotalPct(remainingRaw)} left to allocate to reach 100%`;
+              errEl.textContent = `Add ${formatAllocTotalPct(remainingRaw)} to continue`;
             } else if (remainingRaw < -0.45) {
               const over = sum - 100;
-              errEl.textContent = `${formatAllocTotalPct(over)} allocated over 100%`;
+              errEl.textContent = `Reduce by ${formatAllocTotalPct(over)} to continue`;
             } else {
               errEl.textContent = 'Allocation should add up to 100%';
             }
