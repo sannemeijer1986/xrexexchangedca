@@ -4174,9 +4174,9 @@
 
       // Repeats schedule
       const freqLabels = {
-        daily: 'Daily · ~12:00',
-        weekly: 'Weekly · Mon at ~12:00',
-        monthly: 'Monthly · 15th at ~12:00',
+        daily: 'Daily',
+        weekly: 'Weekly · Monday',
+        monthly: 'Monthly · 15th',
       };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
