@@ -1274,7 +1274,14 @@
                     <div class="plan-overview-panel__summary">
                     <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack">
-                        <span class="plan-overview-panel__row-label">End condition</span>
+                        <span class="plan-overview-panel__row-label">Repeats</span>
+                        <div class="plan-overview-panel__row-value-col">
+                            <span class="plan-overview-panel__row-value" data-plan-overview-repeats>—</span>
+                        </div>
+                    </div>
+                    <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                    <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                        <span class="plan-overview-panel__row-label">Duration</span>
                         <div class="plan-overview-panel__row-value-col">
                             <span class="plan-overview-panel__row-value" data-plan-overview-end-main>—</span>
                             <span class="plan-overview-panel__row-sub" data-plan-overview-end-sub></span>
@@ -1289,7 +1296,7 @@
                     </div>
                     <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" data-plan-overview-total-planned-after-divider aria-hidden="true" hidden></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack">
-                        <span class="plan-overview-panel__row-label">Payment method</span>
+                        <span class="plan-overview-panel__row-label">Funding method</span>
                         <div class="plan-overview-panel__row-value-col">
                             <span class="plan-overview-panel__row-value" data-plan-overview-payment-method>—</span>
                             <span class="plan-overview-panel__row-sub" data-plan-overview-payment-method-sub hidden>Reserved instantly</span>
@@ -1297,7 +1304,7 @@
                     </div>
                     <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
                     <div class="plan-overview-panel__row plan-overview-panel__row--stack" data-plan-overview-prefund-row hidden>
-                        <span class="plan-overview-panel__row-label">Pre-fund amount</span>
+                        <span class="plan-overview-panel__row-label">Amount to reserve</span>
                         <div class="plan-overview-panel__row-value-col">
                             <span class="plan-overview-panel__row-value" data-plan-overview-prefund-amount>—</span>
                             <span class="plan-overview-panel__row-sub">Auto-refills when used up</span>
@@ -1320,6 +1327,12 @@
 
                 </div>
                 <div class="plan-overview-panel__footer">
+                    <button class="plan-overview-panel__consent" type="button" data-plan-overview-consent-toggle aria-pressed="false">
+                        <img class="plan-overview-panel__consent-icon" src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
+                        <span class="plan-overview-panel__consent-text">
+                            I agree with the <span class="plan-overview-panel__consent-link">Terms and conditions</span>
+                        </span>
+                    </button>
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm plan</button>
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-plan-overview-close>Back</button>
                 </div>
@@ -1569,40 +1582,18 @@
                 </div>
             </div>
 
-            <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Payment methods info">
+            <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Setting funds aside info">
                 <div class="plan-buffer-learn-more-panel__header">
                     <button class="plan-buffer-learn-more-panel__close" type="button" data-plan-buffer-learn-more-close aria-label="Close">
                         <img src="assets/icon_close.svg" alt="" width="24" height="24" />
                     </button>
-                    <h2 class="plan-buffer-learn-more-panel__title">Funding - How it works</h2>
+                    <h2 class="plan-buffer-learn-more-panel__title">Setting funds aside</h2>
                     <div class="plan-buffer-learn-more-panel__spacer" aria-hidden="true"></div>
                 </div>
                 <div class="plan-buffer-learn-more-panel__body">
                     <div class="plan-buffer-learn-more-panel__content">
-                        <div class="finance__section-nav-wrap plan-buffer-learn-more-panel__tabs-wrap">
-                            <div class="finance__section-nav plan-buffer-learn-more-panel__tabs" data-plan-buffer-learn-more-tabs role="tablist" aria-label="Payment method type">
-                                <button
-                                    class="finance__section-nav-item is-active"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="true"
-                                    data-plan-buffer-learn-more-tab="flexible"
-                                >Pay as you go</button>
-                                <button
-                                    class="finance__section-nav-item"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="false"
-                                    data-plan-buffer-learn-more-tab="reserved"
-                                >Set aside funds</button>
-                            </div>
-                        </div>
                         <div class="plan-buffer-learn-more-panel__views">
-                            <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="flexible">
-                                <h3 class="plan-buffer-learn-more-panel__view-title">Pay as you go</h3>
-                                <p class="plan-buffer-learn-more-panel__view-text">Each buy is deducted from your wallet balance when that buy runs.</p>
-                            </div>
-                            <div class="plan-buffer-learn-more-panel__view" data-plan-buffer-learn-more-view="reserved" hidden>
+                            <div class="plan-buffer-learn-more-panel__view">
                                 <h3 class="plan-buffer-learn-more-panel__view-title">Set aside funds</h3>
                                 <p class="plan-buffer-learn-more-panel__view-text">Funds are reserved in advance and auto-refilled to keep upcoming buys covered.</p>
                             </div>

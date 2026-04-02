@@ -5089,6 +5089,10 @@
       const overviewPanel = panel.querySelector('[data-plan-overview-panel]');
       if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
       const overviewScroller = overviewPanel.querySelector('.plan-overview-panel__scroller');
+      const overviewConfirmBtn = overviewPanel.querySelector('[data-plan-overview-confirm]');
+      const overviewConsentToggle = overviewPanel.querySelector('[data-plan-overview-consent-toggle]');
+      const overviewConsentIcon = overviewPanel.querySelector('.plan-overview-panel__consent-icon');
+      let overviewConsentChecked = false;
       let openedFromBuffer = false;
 
       const overviewTimingLabels = {
@@ -5106,6 +5110,19 @@
       // Reserve option section removed from overview.
       const closeReserveInfo = () => {};
 
+      const syncOverviewConsentUI = () => {
+        if (overviewConsentToggle) {
+          overviewConsentToggle.setAttribute('aria-pressed', overviewConsentChecked ? 'true' : 'false');
+        }
+        if (overviewConsentIcon) {
+          overviewConsentIcon.setAttribute(
+            'src',
+            overviewConsentChecked ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg',
+          );
+        }
+        if (overviewConfirmBtn) overviewConfirmBtn.disabled = !overviewConsentChecked;
+      };
+
       const syncFromPlanDetail = () => {
         const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
         const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
@@ -5113,6 +5130,7 @@
         const planAmountEl = overviewPanel.querySelector('[data-plan-overview-plan-amount]');
         const planMetaEl = overviewPanel.querySelector('[data-plan-overview-plan-meta]');
         const planIconWrap = overviewPanel.querySelector('[data-plan-overview-plan-icon-wrap]');
+        const repeatsEl = overviewPanel.querySelector('[data-plan-overview-repeats]');
         const endMainEl = overviewPanel.querySelector('[data-plan-overview-end-main]');
         const endSubEl = overviewPanel.querySelector('[data-plan-overview-end-sub]');
         const totalPlannedRowEl = overviewPanel.querySelector('[data-plan-overview-total-planned-row]');
@@ -5186,17 +5204,28 @@
 
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
-        if (planAmountEl) planAmountEl.textContent = `${amount.toLocaleString('en-US')} ${cur} per buy`;
 
         const freqKey = (
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
         const freqBtn = document.querySelector('[data-plan-freq-item].is-active');
         const freqText = freqBtn?.textContent?.trim() || 'Monthly';
+        const freqUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        if (planAmountEl) {
+          planAmountEl.textContent = amount > 0
+            ? `Buy ${amount.toLocaleString('en-US')} ${cur} each ${freqUnit}`
+            : '—';
+        }
 
         const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : schedParts[0] || '—';
+        const repeatsText = sched
+          ? sched.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim()
+          : '';
+        if (repeatsEl) {
+          repeatsEl.textContent = repeatsText || freqText;
+        }
         if (planMetaEl) {
           planMetaEl.textContent = timingDetail === '—'
             ? `Repeats ${freqText}`
@@ -5223,7 +5252,7 @@
 
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '—').trim();
-        let endMain = endRaw;
+        let endMain = 'Continious';
         let endSub = '';
         const endLower = endRaw.toLowerCase();
         // When set to number-of-buys mode, plan-detail stores values like:
@@ -5231,14 +5260,13 @@
         // so overview shows title: "12 buys", subtitle: "~ Ends Mar 24, 2027".
         const buysEndsMatch = endRaw.match(/^(.+?\bbuys?\b)\s*(?:~\s*)?Ends\s+(.+)$/i);
         if (buysEndsMatch) {
-          endMain = buysEndsMatch[1].trim();
-          endSub = `~ Ends ${buysEndsMatch[2].trim()}`;
+          endSub = '';
         } else if (endLower === 'continuous') {
-          endSub = 'Runs until you pause';
+          endSub = '';
         } else if (/^after\s*\d+/i.test(endRaw) || /^after number/i.test(endRaw)) {
-          endSub = 'Stops after set number of buys';
+          endSub = '';
         } else if (isPlanDetailSetLimitEnd(endRaw)) {
-          endSub = 'Stops on end date';
+          endSub = '';
         }
         if (endMainEl) endMainEl.textContent = endMain;
         if (endSubEl) {
@@ -5289,14 +5317,28 @@
           prefundAfterDividerEl.style.display = showPrefund ? '' : 'none';
         }
         if (prefundAmountEl) {
-          const reserveAmount = panel.querySelector('[data-plan-buffer-reserve-amt]')?.textContent?.trim() || '—';
-          prefundAmountEl.textContent = reserveAmount === '—' ? '—' : `${reserveAmount} ${cur}`;
+          const reserveInputRaw = String(
+            panel.querySelector('[data-plan-buffer-reserve-input]')?.value || '',
+          ).replace(/[^0-9]/g, '');
+          const reserveInputNum = reserveInputRaw ? parseInt(reserveInputRaw, 10) : NaN;
+          prefundAmountEl.textContent = Number.isFinite(reserveInputNum) && reserveInputNum > 0
+            ? `${reserveInputNum.toLocaleString('en-US')} ${cur}`
+            : '—';
         }
 
         const compactNextBuy = formatFinanceNextBuyCompact(sched);
         let firstBuyText = compactNextBuy || '—';
+        const buyNowOn = panel.dataset?.scheduleBuyNow === '1';
+        const timingMatch = sched.match(/\bat\s*(~?\d{1,2}:\d{2})\b/i);
+        const timingToken = timingMatch?.[1] || '';
+        if (buyNowOn) {
+          const t = timingToken
+            ? (timingToken.startsWith('~') ? timingToken : `~${timingToken}`)
+            : '';
+          firstBuyText = t ? `Today at ${t}` : 'Today';
+        }
         const firstBuyMatch = compactNextBuy.match(/^([A-Za-z]{3,9})\s+(\d{1,2})\s*·\s*(~?\d{1,2}:\d{2})$/);
-        if (firstBuyMatch) {
+        if (!buyNowOn && firstBuyMatch) {
           const toOrdinal = (n) => {
             const j = n % 10;
             const k = n % 100;
@@ -5311,7 +5353,7 @@
           const time = firstBuyMatch[3].startsWith('~') ? firstBuyMatch[3] : `~${firstBuyMatch[3]}`;
           const dayOrdinal = toOrdinal(dayNum);
           firstBuyText = `${month} ${dayOrdinal} at ${time}`;
-        } else if (compactNextBuy) {
+        } else if (!buyNowOn && compactNextBuy) {
           firstBuyText = compactNextBuy.replace(/\s*·\s*/, ' at ');
         }
         if (firstBuyEl) firstBuyEl.textContent = firstBuyText;
@@ -5325,6 +5367,8 @@
         planBreakdownApi.close();
         closeReserveInfo({ instant: true });
         syncFromPlanDetail();
+        overviewConsentChecked = false;
+        syncOverviewConsentUI();
         if (overviewScroller) overviewScroller.scrollTop = 0;
         openedFromBuffer = !!openOpts.fromBuffer;
         panel.classList.add('is-plan-overview-open');
@@ -5373,6 +5417,11 @@
       };
 
       overviewPanel.querySelectorAll('[data-plan-overview-close]').forEach((b) => b.addEventListener('click', close));
+      overviewConsentToggle?.addEventListener('click', () => {
+        overviewConsentChecked = !overviewConsentChecked;
+        syncOverviewConsentUI();
+      });
+      syncOverviewConsentUI();
       // Reserve option section removed from overview.
 
       panel.querySelector('.plan-detail-panel__continue')?.addEventListener('click', (e) => {

@@ -7738,6 +7738,7 @@ div.currency-sheet__item-icon {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
+  display: none;
   color: #8FB8FF;
   line-height: 1.2;
 }
@@ -7847,6 +7848,7 @@ div.currency-sheet__item-icon {
   flex: 1;
   min-width: 0;
   color: #9b9c9c;
+  font-size: 16px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -8010,6 +8012,41 @@ div.currency-sheet__item-icon {
   background: #0d0e0f;
 }
 
+.plan-overview-panel__consent {
+  width: 100%;
+  min-height: 62px;
+  border-radius: 16px;
+  border: 1px solid #3c4248;
+  background: transparent;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+.plan-overview-panel__consent-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.plan-overview-panel__consent-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #ffffff;
+}
+
+.plan-overview-panel__consent-link {
+  color: #ffffff;
+  text-decoration: none;
+}
+
 .plan-overview-panel__btn {
   width: 100%;
   height: 48px;
@@ -8023,6 +8060,12 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__btn--primary {
   background: #275cfd;
   color: #ffffff;
+}
+
+.plan-overview-panel__btn--primary:disabled {
+  background: #081b68;
+  color: #58595a;
+  cursor: not-allowed;
 }
 
 .plan-overview-panel__btn--secondary {
