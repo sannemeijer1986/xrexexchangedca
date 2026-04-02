@@ -6386,7 +6386,7 @@ div.currency-sheet__item-icon::before {
   font-weight: 700;
   font-size: 20px;
   line-height: normal;
-  gap: 4px;
+  gap: 3px;
 }
 
 .plan-detail-panel__alloc-total-check {
