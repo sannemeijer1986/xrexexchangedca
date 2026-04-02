@@ -3443,12 +3443,12 @@ html[data-active-tab="finance"] {
 }
 
 .currency-sheet.is-open .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.72);
 }
 
 // Nested bottom-sheet swap: keep dimmer steady (no fade) while the panel slides.
 .currency-sheet.currency-sheet--backdrop-handoff .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
 }
 
@@ -3461,7 +3461,7 @@ html[data-active-tab="finance"] {
 
 // Next sheet in chain: scrim at full dim immediately (no fade-in) until class is removed.
 .currency-sheet.currency-sheet--backdrop-instant-in .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
 }
 

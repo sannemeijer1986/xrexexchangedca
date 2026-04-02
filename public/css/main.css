@@ -3414,11 +3414,11 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .currency-sheet.is-open .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .currency-sheet.currency-sheet--backdrop-handoff .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
 }
 
@@ -3428,7 +3428,7 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .currency-sheet.currency-sheet--backdrop-instant-in .currency-sheet__backdrop {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
 }
 
