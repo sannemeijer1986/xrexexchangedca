@@ -2117,6 +2117,19 @@ html[data-active-tab="finance"] {
   flex-shrink: 0;
 }
 
+.finance-summary__label-info-btn {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .finance-summary__row {
   display: flex;
   gap: 16px;

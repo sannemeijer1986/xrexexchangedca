@@ -431,14 +431,18 @@
                                                 <div class="finance-summary__stat">
                                                     <div class="finance-summary__stat-label finance-summary__stat-label--with-info">
                                                         <span>Total reserved ≈</span>
-                                                        <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                        <button class="finance-summary__label-info-btn" type="button" data-finance-summary-info-open="reserved" aria-label="About total reserved">
+                                                            <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                        </button>
                                                     </div>
                                                     <div class="finance-summary__stat-value" data-finance-summary-reserved>0.00 TWD</div>
                                                 </div>
                                                 <div class="finance-summary__stat finance-summary__stat--right">
                                                     <div class="finance-summary__stat-label finance-summary__stat-label--with-info">
                                                         <span>Total invested ≈</span>
-                                                        <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                        <button class="finance-summary__label-info-btn" type="button" data-finance-summary-info-open="invested" aria-label="About total invested">
+                                                            <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
+                                                        </button>
                                                     </div>
                                                     <div class="finance-summary__stat-value" data-finance-summary-invested>0.00 TWD</div>
                                                 </div>
@@ -1953,6 +1957,38 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-schedule-buy-now-info-sheet-close>Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-finance-summary-info-sheet="reserved" hidden aria-modal="true" role="dialog" aria-label="Total reserved info">
+        <button class="currency-sheet__backdrop" type="button" data-finance-summary-info-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Total reserved</h2>
+                <p class="currency-sheet__desc">Details coming soon.</p>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-finance-summary-info-sheet-close>Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-finance-summary-info-sheet="invested" hidden aria-modal="true" role="dialog" aria-label="Total invested info">
+        <button class="currency-sheet__backdrop" type="button" data-finance-summary-info-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Total invested</h2>
+                <p class="currency-sheet__desc">Details coming soon.</p>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-finance-summary-info-sheet-close>Understood</button>
             </div>
         </div>
     </div>

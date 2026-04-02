@@ -1207,6 +1207,8 @@
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 ~ 11:00';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
+  /** Set when user confirms plan overview; cleared on prototype Reset */
+  let financeSummaryConfirmedReserved = '';
 
   /** Compact "Mar 15 · ~12:00" / "Mon · ~12:00" from plan-detail schedule line */
   const formatFinanceNextBuyCompact = (schedText) => {
@@ -1230,12 +1232,13 @@
 
   const applyFinanceSummaryMeta = () => {
     const suf = currencyState.summary;
-    const amt = `0.00 ${suf}`;
+    const fallbackAmt = `0.00 ${suf}`;
+    const reservedAmt = financeSummaryConfirmedReserved.trim() || fallbackAmt;
     document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
-      el.textContent = amt;
+      el.textContent = reservedAmt;
     });
     document.querySelectorAll('[data-finance-summary-invested]').forEach((el) => {
-      el.textContent = amt;
+      el.textContent = fallbackAmt;
     });
     const nb = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
     document.querySelectorAll('[data-finance-summary-next-buy]').forEach((el) => {
@@ -1256,6 +1259,7 @@
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
+      financeSummaryConfirmedReserved = '';
       applyFinanceSummaryMeta();
     });
   };
@@ -1295,6 +1299,7 @@
         sp500Toggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
+      financeSummaryConfirmedReserved = '';
       applyFinanceSummaryMeta();
     });
   };
@@ -1692,6 +1697,38 @@
       });
     });
     sheet.querySelectorAll('[data-schedule-buy-now-info-sheet-close]').forEach((btn) => btn.addEventListener('click', closeBuyNowInfoSheet));
+  };
+
+  const initFinanceSummaryInfoSheets = () => {
+    const closeSheet = (sheet) => {
+      const panel = sheet?.querySelector('.currency-sheet__panel');
+      if (!sheet || !panel) return;
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    document.querySelectorAll('[data-finance-summary-info-open]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const kind = btn.getAttribute('data-finance-summary-info-open');
+        if (!kind) return;
+        const sheet = document.querySelector(`[data-finance-summary-info-sheet="${kind}"]`);
+        if (!sheet) return;
+        sheetOpenWithInstantBackdrop(sheet);
+      });
+    });
+
+    document.querySelectorAll('[data-finance-summary-info-sheet]').forEach((sheet) => {
+      sheet.querySelectorAll('[data-finance-summary-info-sheet-close]').forEach((closeBtn) => {
+        closeBtn.addEventListener('click', () => closeSheet(sheet));
+      });
+    });
   };
 
   /** Plan detail: top-up sheet (Deposit / Convert) — reuses currency-sheet chrome. */
@@ -2905,6 +2942,7 @@
   initRangeSheet();
   initPlanBufferAutofillSheet();
   initScheduleBuyNowInfoSheet();
+  initFinanceSummaryInfoSheets();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
@@ -5222,8 +5260,8 @@
               : '';
         const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
         if (planAmountEl) {
-          planAmountEl.textContent = amount > 0
-            ? `Buy ${amount.toLocaleString('en-US')} ${cur} each ${freqUnit}`
+          planAmountEl.innerHTML = amount > 0
+            ? `Invest ${amount.toLocaleString('en-US')} ${cur}<br aria-hidden="true" /> each ${freqUnit}`
             : '—';
         }
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
@@ -5763,8 +5801,10 @@
         const showRounding = perBuy > 0 && rawAmount > 0 && unusedRaw !== 0;
         if (roundWrapEl) roundWrapEl.hidden = !showRounding;
         if (roundDownBtn) {
-          roundDownBtn.textContent = nearestDown > 0 ? formatWithCommas(nearestDown) : '—';
-          roundDownBtn.disabled = !(nearestDown > 0);
+          const hasRoundDownValue = nearestDown > 0;
+          roundDownBtn.textContent = hasRoundDownValue ? formatWithCommas(nearestDown) : '—';
+          roundDownBtn.disabled = !hasRoundDownValue;
+          roundDownBtn.hidden = !hasRoundDownValue;
         }
         if (roundUpBtn) {
           roundUpBtn.textContent = nearestUp > 0 ? formatWithCommas(nearestUp) : '—';
@@ -6352,9 +6392,16 @@
           // slides in over it—avoids the overview “popping off” before the submitted screen.
           if (gen !== submitGeneration) return;
           setState('flow', 2, { force: true });
+          const overviewFirstBuy = panel.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
+          const overviewReserved = panel.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '';
           const schedLine = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
           const nextCompact = formatFinanceNextBuyCompact(schedLine);
-          if (nextCompact) financeSummaryConfirmedNextBuy = nextCompact;
+          if (overviewFirstBuy && overviewFirstBuy !== '—') {
+            financeSummaryConfirmedNextBuy = overviewFirstBuy;
+          } else if (nextCompact) {
+            financeSummaryConfirmedNextBuy = nextCompact;
+          }
+          financeSummaryConfirmedReserved = (overviewReserved && overviewReserved !== '—') ? overviewReserved : '';
           applyFinanceSummaryMeta();
           openSuccess();
         }, LOADER_MS);
