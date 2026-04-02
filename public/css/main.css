@@ -6548,7 +6548,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .alloc-multi.alloc-multi--pct-invalid .alloc-multi__slider-fill {
-  background: #fbbcbc;
+  background: #FFE5E5;
 }
 
 .alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-wrap {
@@ -6650,7 +6650,7 @@ div.currency-sheet__item-icon::before {
   transform: translateY(-50%);
   left: 0;
   height: 5px;
-  background: #A8E8BD;
+  background: #D2F5DE;
   border-radius: 4px;
   pointer-events: none;
 }
