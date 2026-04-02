@@ -3615,6 +3615,7 @@
         const currentEl = el.querySelector('[data-plan-detail-alloc-total-current]');
         const targetEl = el.querySelector('[data-plan-detail-alloc-total-target]');
         const errEl = el.querySelector('[data-plan-detail-alloc-total-error]');
+        const checkEl = el.querySelector('[data-plan-detail-alloc-total-check]');
 
         if (inputMode === 'amount') {
           // Keep legacy behavior in amount mode: show total amount-per-buy; no /100% or allocation error.
@@ -3625,6 +3626,10 @@
           if (targetEl) targetEl.textContent = '';
           if (errEl) errEl.hidden = true;
           if (currentEl) currentEl.classList.remove('is-error');
+          if (checkEl) {
+            checkEl.hidden = true;
+            checkEl.setAttribute('aria-hidden', 'true');
+          }
           return;
         }
 
@@ -3645,6 +3650,10 @@
             currentEl.classList.add('is-error');
           }
         }
+        if (checkEl) {
+          checkEl.hidden = !isValid;
+          checkEl.setAttribute('aria-hidden', isValid ? 'false' : 'true');
+        }
         if (targetEl) targetEl.textContent = ' / 100%';
         if (errEl) {
           if (isValid) {
@@ -3655,7 +3664,7 @@
               errEl.textContent = `Add ${formatAllocTotalPct(remainingRaw)} to continue`;
             } else if (remainingRaw < -0.45) {
               const over = sum - 100;
-              errEl.textContent = `Reduce by ${formatAllocTotalPct(over)} to continue`;
+              errEl.textContent = `Reduce ${formatAllocTotalPct(over)} to continue`;
             } else {
               errEl.textContent = 'Allocation should add up to 100%';
             }

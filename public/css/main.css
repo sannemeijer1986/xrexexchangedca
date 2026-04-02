@@ -6389,6 +6389,17 @@ div.currency-sheet__item-icon::before {
   gap: 4px;
 }
 
+.plan-detail-panel__alloc-total-check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: block;
+  object-fit: contain;
+}
+.plan-detail-panel__alloc-total-check[hidden] {
+  display: none !important;
+}
+
 .plan-detail-panel__alloc-total-current {
   color: #5ac47d;
 }
