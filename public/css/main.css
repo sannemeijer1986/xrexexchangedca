@@ -2113,7 +2113,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .finance-summary__next.finance-summary__next--flow-2-hero {
   margin-top: 2px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.15;
   color: #ffffff;
@@ -2255,7 +2255,7 @@ html[data-active-tab=finance] .app-header__tabs {
 
 .finance-summary__stat-value {
   margin-top: 2px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
 }
