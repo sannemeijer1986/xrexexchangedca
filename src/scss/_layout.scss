@@ -3838,10 +3838,6 @@ div.currency-sheet__item-icon {
   display: none;
 }
 
-.plan-detail-panel__repeats-type {
-  display: none;
-}
-
 .schedule-sheet__field-label {
   align-self: flex-start;
   font-size: 14px;
@@ -3933,6 +3929,7 @@ div.currency-sheet__item-icon {
   align-items: center;
   gap: 8px;
   padding-top: 8px;
+  padding-bottom: 4px;
 }
 
 .schedule-sheet__buy-now-left {
@@ -3954,6 +3951,7 @@ div.currency-sheet__item-icon {
 .schedule-sheet__buy-now-info {
   flex-shrink: 0;
   display: block;
+  cursor: pointer;
 }
 
 .schedule-sheet__buy-now-state {
@@ -6018,8 +6016,30 @@ div.currency-sheet__item-icon {
 
 // ── Repeats section ───────────────────────────────────────────────────────────
 
-.plan-detail-panel__repeats-card {
+.plan-detail-panel__repeats-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.plan-detail-panel__repeats-buy-now-block {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px;
   background: #1b1d1d;
+  border-radius: 24px;
+  gap: 12px;
+}
+
+.plan-detail-panel__repeats-divider--in-buy-now-block {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.plan-detail-panel__repeats-card {
+  background: #2D2F2F;
   border-radius: 16px;
   padding: 16px;
   display: flex;
@@ -6081,11 +6101,7 @@ div.currency-sheet__item-icon {
   font-size: 14px;
   font-weight: 600;
   color: #8fb8ff;
-  display: none;
-}
-
-.plan-detail-panel__repeats-type.is-visible {
-  display: inline-block;
+  display: block;
 }
 
 .plan-detail-panel__edit-btn {

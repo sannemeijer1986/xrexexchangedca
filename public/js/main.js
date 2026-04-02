@@ -1670,18 +1670,12 @@
     };
 
     const open = () => {
-      const handoff = scheduleSheetApi.closeAnimatedForChild;
-      if (typeof handoff === 'function') {
-        handoff(() => reveal());
-      } else {
-        reveal();
-      }
+      reveal();
     };
 
-    const closeAndReopenSchedule = () => {
-      const reopen = scheduleSheetApi.reopenFromChild;
-      const suppressNestedScrim = getSuppressNestedScrimForScheduleChildClose();
-      sheetCloseWithBackdropHandoff(sheet, panel, () => reopen?.(), { suppressNestedScrim });
+    const closeBuyNowInfoSheet = () => {
+      // Buy-now info is opened from plan detail (not nested under the schedule sheet); dismiss only.
+      sheetCloseWithBackdropHandoff(sheet, panel);
     };
 
     document.querySelectorAll('.schedule-sheet__buy-now-info').forEach((el) => {
@@ -1691,7 +1685,7 @@
         open();
       });
     });
-    sheet.querySelectorAll('[data-schedule-buy-now-info-sheet-close]').forEach((btn) => btn.addEventListener('click', closeAndReopenSchedule));
+    sheet.querySelectorAll('[data-schedule-buy-now-info-sheet-close]').forEach((btn) => btn.addEventListener('click', closeBuyNowInfoSheet));
   };
 
   /** Plan detail: top-up sheet (Deposit / Convert) — reuses currency-sheet chrome. */
@@ -1907,8 +1901,8 @@
     const freqButtons = sheet.querySelectorAll('[data-schedule-freq]');
     const timingLabelEl = sheet.querySelector('[data-schedule-timing-label]');
     const timingValueEl = sheet.querySelector('[data-schedule-timing-value]');
-    const buyNowToggleEl = sheet.querySelector('[data-schedule-buy-now-toggle]');
-    const buyNowStateEl = sheet.querySelector('[data-schedule-buy-now-state]');
+    const buyNowToggleEl = planDetail?.querySelector('[data-schedule-buy-now-toggle]');
+    const buyNowStateEl = planDetail?.querySelector('[data-schedule-buy-now-state]');
     const endButtons = sheet.querySelectorAll('[data-schedule-end]');
 
     const timingSectionLabels = {
@@ -1923,7 +1917,6 @@
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
     let buyNowEnabled = false;
-    const repeatsTypeEl = planDetail?.querySelector('.plan-detail-panel__repeats-type');
 
     const setFreqUI = (freq) => {
       freqButtons.forEach((btn) => {
@@ -2012,6 +2005,7 @@
 
     const setBuyNowUI = (enabled) => {
       buyNowEnabled = !!enabled;
+      if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
       if (buyNowToggleEl) {
         buyNowToggleEl.classList.toggle('is-on', buyNowEnabled);
         buyNowToggleEl.setAttribute('aria-checked', buyNowEnabled ? 'true' : 'false');
@@ -2019,15 +2013,6 @@
       if (buyNowStateEl) {
         buyNowStateEl.textContent = buyNowEnabled ? 'On' : 'Off';
         buyNowStateEl.classList.toggle('is-on', buyNowEnabled);
-      }
-      if (repeatsTypeEl) {
-        repeatsTypeEl.classList.toggle('is-visible', buyNowEnabled);
-        if (buyNowEnabled) {
-          repeatsTypeEl.textContent = 'First buy today';
-        } else {
-          const storedEnd = String(repeatsTypeEl.dataset.endConditionText || '').trim();
-          repeatsTypeEl.textContent = storedEnd || 'Continuous';
-        }
       }
     };
 
@@ -2051,7 +2036,7 @@
       setBuyNowUI(planDetail?.dataset?.scheduleBuyNow === '1');
 
       let end = 'continuous';
-      const endText = endEl?.textContent?.trim() || '';
+      const endText = String(endEl?.dataset?.endConditionText || endEl?.textContent || '').trim();
       // Match "… · ~ Ends Jun 18, 2026" plus legacy variants.
       const isSetLimitPlanDetail =
         endText === 'End on date'
@@ -2137,7 +2122,7 @@
         const setEndConditionText = (nextText) => {
           const next = String(nextText || '').trim();
           endEl.dataset.endConditionText = next;
-          if (!endEl.classList.contains('is-visible')) endEl.textContent = next;
+          endEl.textContent = next;
         };
         if (end === 'continuous') {
           setEndConditionText('Continuous');
@@ -2199,6 +2184,10 @@
     document.querySelector('[data-plan-detail-amount-input]')?.addEventListener('input', () => {
       scheduleSheetApi.refreshEndConditionSubtitles?.();
     });
+
+    scheduleSheetApi.syncBuyNowFromPlanDetail = () => {
+      setBuyNowUI(planDetail?.dataset?.scheduleBuyNow === '1');
+    };
   };
 
   /**
@@ -4376,6 +4365,7 @@
         applyFooterAllocSliderTweak();
       }
       syncPlanDetailContinueState();
+      scheduleSheetApi.syncBuyNowFromPlanDetail?.();
       if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
         planOverviewApi.sync();
       }
@@ -5820,7 +5810,7 @@
         const setEndConditionText = (nextText) => {
           const next = String(nextText || '').trim();
           endEl.dataset.endConditionText = next;
-          if (!endEl.classList.contains('is-visible')) endEl.textContent = next;
+          endEl.textContent = next;
         };
         if (ecSelection === 'continuous') {
           setEndConditionText('Continuous');
@@ -5906,11 +5896,6 @@
           detailAllocOverride = null;
           // Entering from Finance entrypoints should start with Buy now OFF.
           panel.dataset.scheduleBuyNow = '0';
-          const repeatsTypeEl = panel.querySelector('.plan-detail-panel__repeats-type');
-          if (repeatsTypeEl) {
-            repeatsTypeEl.classList.remove('is-visible');
-            repeatsTypeEl.textContent = 'Continuous';
-          }
         }
         panelOpenContext =
           openCtx?.source === 'newplan'
@@ -5925,9 +5910,7 @@
         const repeatsEndEl = panel.querySelector('[data-plan-detail-repeats-end]');
         if (repeatsEndEl) {
           repeatsEndEl.dataset.endConditionText = 'Continuous';
-          const buyNowOn = panel.dataset.scheduleBuyNow === '1';
-          repeatsEndEl.classList.toggle('is-visible', buyNowOn);
-          repeatsEndEl.textContent = buyNowOn ? 'First buy today' : 'Continuous';
+          repeatsEndEl.textContent = 'Continuous';
         }
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         syncPlanDetailSetLimitDetailRowsVisibility();
