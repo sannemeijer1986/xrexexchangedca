@@ -2221,9 +2221,13 @@ html[data-active-tab=finance] .app-header__tabs {
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: 6px;
+}
+
+.phone-container.is-proto-finance-currency-selector-on .finance-summary__selector {
+  display: inline-flex;
 }
 
 .finance-summary__selector-chevron {
@@ -2254,6 +2258,24 @@ html[data-active-tab=finance] .app-header__tabs {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
+}
+
+.finance-summary__stat-value--chevron {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+button.finance-summary__stat-value--chevron {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.finance-summary__stat-chevron {
+  width: 14px;
+  height: 14px;
 }
 
 .finance-summary__next {

@@ -418,7 +418,7 @@
                                                         <span>Next scheduled buy</span>
                                                     </div>
                                                     <button class="finance-summary__next finance-summary__next--flow-2-hero" type="button" aria-label="Next buy time">
-                                                        <span data-finance-summary-next-buy>Mar 18 ~ 11:00</span>
+                                                        <span data-finance-summary-next-buy>Wed, Apr 15</span>
                                                         <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron" />
                                                     </button>
                                                 </div>
@@ -435,7 +435,10 @@
                                                             <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
                                                         </button>
                                                     </div>
-                                                    <div class="finance-summary__stat-value" data-finance-summary-reserved>0.00 TWD</div>
+                                                    <button class="finance-summary__stat-value finance-summary__stat-value--chevron" type="button" data-finance-summary-reserved aria-label="Total reserved">
+                                                        <span class="finance-summary__stat-value-text">0.00 TWD</span>
+                                                        <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron finance-summary__stat-chevron" width="16" height="16" aria-hidden="true" />
+                                                    </button>
                                                 </div>
                                                 <div class="finance-summary__stat finance-summary__stat--right">
                                                     <div class="finance-summary__stat-label finance-summary__stat-label--with-info">
@@ -444,7 +447,10 @@
                                                             <img src="assets/icon_info_circle_gray.svg" alt="" class="finance-summary__label-info" width="14" height="14" aria-hidden="true" />
                                                         </button>
                                                     </div>
-                                                    <div class="finance-summary__stat-value" data-finance-summary-invested>0.00 TWD</div>
+                                                    <div class="finance-summary__stat-value finance-summary__stat-value--chevron" data-finance-summary-invested>
+                                                        <span class="finance-summary__stat-value-text">0.00 TWD</span>
+                                                        <img src="assets/icon_back.svg" alt="" class="finance-summary__next-chevron finance-summary__stat-chevron" width="16" height="16" aria-hidden="true" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2368,6 +2374,13 @@
                     <input type="checkbox" data-prototype-breakdown-sp500
                         aria-label="Show S and P 500 in breakdown" />
                     <span>Show S&amp;P 500 in breakdown</span>
+                </label>
+            </div>
+            <div class="build-badge__section-row">
+                <label class="build-badge__checkbox">
+                    <input type="checkbox" data-prototype-finance-display-currency-selector
+                        aria-label="Show finance display currency selector" />
+                    <span>Show display currency toggle</span>
                 </label>
             </div>
             <div class="build-badge__section-row">

@@ -1204,7 +1204,7 @@
   // Flip to true to restore flow: Plan -> Set end condition -> Funding.
   const ENABLE_PLAN_END_CONDITION_STEP = false;
 
-  const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Mar 18 ~ 11:00';
+  const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Wed, Apr 15';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
   /** Set when user confirms plan overview; cleared on prototype Reset */
@@ -1285,10 +1285,14 @@
       ? formatMoney(convertFx(financeSummaryConfirmedReserved.amount, financeSummaryConfirmedReserved.currency, suf), suf)
       : fallbackAmt;
     document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
-      el.textContent = reservedAmt;
+      const t = el.querySelector('.finance-summary__stat-value-text');
+      if (t) t.textContent = reservedAmt;
+      else el.textContent = reservedAmt;
     });
     document.querySelectorAll('[data-finance-summary-invested]').forEach((el) => {
-      el.textContent = fallbackAmt;
+      const t = el.querySelector('.finance-summary__stat-value-text');
+      if (t) t.textContent = fallbackAmt;
+      else el.textContent = fallbackAmt;
     });
     const nbRaw = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
     const nb = shortenWeekday(nbRaw);
@@ -1312,6 +1316,7 @@
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       applyFinanceSummaryMeta();
+      syncPrototypeFinanceCurrencySelectorVisible();
     });
   };
 
@@ -1842,6 +1847,15 @@
     const input = document.querySelector('[data-prototype-breakdown-sp500]');
     if (!input) return true;
     return Boolean(input.checked);
+  };
+
+  /** Prototype control: show/hide Finance display currency selector pill. */
+  const syncPrototypeFinanceCurrencySelectorVisible = () => {
+    const input = document.querySelector('[data-prototype-finance-display-currency-selector]');
+    const container = document.querySelector('.phone-container');
+    if (!container) return;
+    const on = Boolean(input?.checked);
+    container.classList.toggle('is-proto-finance-currency-selector-on', on);
   };
 
   /**
@@ -3004,6 +3018,9 @@
   });
   document.querySelector('[data-prototype-breakdown-sp500]')?.addEventListener('change', () => {
     document.dispatchEvent(new CustomEvent('prototype-breakdown-sp500-toggle'));
+  });
+  document.querySelector('[data-prototype-finance-display-currency-selector]')?.addEventListener('change', () => {
+    syncPrototypeFinanceCurrencySelectorVisible();
   });
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
@@ -7058,6 +7075,7 @@
   });
 
   initPrototypeReset();
+  syncPrototypeFinanceCurrencySelectorVisible();
 
   // Drag-to-scroll for spotlight crypto grid.
   // Uses document-level move/up listeners (NOT pointer capture) so that:
