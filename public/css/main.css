@@ -1768,7 +1768,7 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance-intro {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .finance-intro.is-transitioning {
@@ -1781,7 +1781,7 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance-intro__state--compact {
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .finance-intro__first-card {

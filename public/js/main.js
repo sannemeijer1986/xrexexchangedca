@@ -1674,8 +1674,14 @@
     };
 
     const closeBuyNowInfoSheet = () => {
-      // Buy-now info is opened from plan detail (not nested under the schedule sheet); dismiss only.
-      sheetCloseWithBackdropHandoff(sheet, panel);
+      // Standalone sheet: same close as top-up — backdrop fades with the panel (no --backdrop-handoff nested swap).
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
     };
 
     document.querySelectorAll('.schedule-sheet__buy-now-info').forEach((el) => {
@@ -6742,7 +6748,8 @@
       if (dismissAnimating) return;
       dismissAnimating = true;
 
-      const firstHeight = firstStateEl?.offsetHeight || 0;
+      const roundPx = (n) => Math.max(0, Math.round(Number(n) || 0));
+      const firstHeight = roundPx(firstStateEl?.getBoundingClientRect().height);
       let compactHeight = firstHeight;
 
       if (introEl && firstHeight > 0) {
@@ -6758,7 +6765,7 @@
         compactStateEl.hidden = false;
         compactStateEl.style.visibility = 'hidden';
         compactStateEl.style.pointerEvents = 'none';
-        compactHeight = compactStateEl.offsetHeight || firstHeight;
+        compactHeight = roundPx(compactStateEl.getBoundingClientRect().height) || firstHeight;
         if (wasHidden) compactStateEl.hidden = true;
         if (prevStyle) compactStateEl.setAttribute('style', prevStyle);
         else compactStateEl.removeAttribute('style');
@@ -6767,17 +6774,32 @@
       setState('financeIntro', 2, { force: true });
       if (introEl && compactHeight > 0) {
         requestAnimationFrame(() => {
-          introEl.style.height = `${compactHeight}px`;
+          requestAnimationFrame(() => {
+            introEl.style.height = `${compactHeight}px`;
+          });
         });
       }
 
-      setTimeout(() => {
+      let finishFallbackTimer = 0;
+      let teardownDone = false;
+      const onHeightTransitionEnd = (e) => {
+        if (e.target !== introEl || e.propertyName !== 'height') return;
+        window.clearTimeout(finishFallbackTimer);
+        finishDismiss();
+      };
+      const finishDismiss = () => {
+        if (teardownDone) return;
+        teardownDone = true;
         if (introEl) {
+          introEl.removeEventListener('transitionend', onHeightTransitionEnd);
           introEl.classList.remove('is-transitioning');
           introEl.style.height = '';
         }
         dismissAnimating = false;
-      }, 300);
+      };
+      if (introEl) introEl.addEventListener('transitionend', onHeightTransitionEnd);
+      // Match .finance-intro.is-transitioning height duration (0.26s) + small buffer
+      finishFallbackTimer = window.setTimeout(finishDismiss, 360);
     });
     document.querySelector('[data-finance-intro-how-it-works-first]')?.addEventListener('click', () => {
       if (forceToCompactTimer) clearTimeout(forceToCompactTimer);

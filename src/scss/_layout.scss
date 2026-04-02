@@ -1744,9 +1744,10 @@ html[data-active-tab="finance"] {
   gap: 56px;
 }
 
+// Single bottom spacing on the wrapper — margin on the compact state was outside its offsetHeight,
+// so the height animation targeted the wrong value and layout jumped when inline height was cleared.
 .finance-intro {
-
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .finance-intro.is-transitioning {
@@ -1759,7 +1760,7 @@ html[data-active-tab="finance"] {
 }
 
 .finance-intro__state--compact {
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .finance-intro__first-card {
