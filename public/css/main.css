@@ -3920,6 +3920,8 @@ div.currency-sheet__item-icon::before {
   flex-shrink: 0;
   display: block;
   cursor: pointer;
+  width: 16px;
+  height: 16px;
 }
 
 .schedule-sheet__buy-now-state {
@@ -6015,8 +6017,6 @@ div.currency-sheet__item-icon::before {
   width: 100%;
   box-sizing: border-box;
   margin: 0;
-  padding: 16px;
-  background: #151718;
   border-radius: 24px;
   gap: 12px;
 }
