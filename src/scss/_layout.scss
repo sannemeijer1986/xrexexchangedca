@@ -7686,6 +7686,7 @@ div.currency-sheet__item-icon {
   z-index: 2;
   width: 100%;
   background: transparent;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.50);
 }
 
 .plan-overview-panel__alloc-block {
@@ -7855,6 +7856,10 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
+.plan-overview-panel__plan-name-label {
+  font-size: 14px;
+}
+
 .plan-overview-panel__row-value {
   flex-shrink: 0;
   color: #ffffff;
@@ -7884,7 +7889,7 @@ div.currency-sheet__item-icon {
   margin: 0;
   font-size: 12px;
   font-weight: 600;
-  color: #9b9c9c;
+  color: #8FB8FF;
   line-height: 1.25;
   text-align: right;
   max-width: 100%;

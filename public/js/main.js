@@ -5210,14 +5210,21 @@
         ).toLowerCase();
         const freqBtn = document.querySelector('[data-plan-freq-item].is-active');
         const freqText = freqBtn?.textContent?.trim() || 'Monthly';
-        const freqUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedLower = sched.toLowerCase();
+        const cadenceFromSchedule = schedLower.startsWith('daily')
+          ? 'day'
+          : schedLower.startsWith('weekly')
+            ? 'week'
+            : schedLower.startsWith('monthly')
+              ? 'month'
+              : '';
+        const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
         if (planAmountEl) {
           planAmountEl.textContent = amount > 0
             ? `Buy ${amount.toLocaleString('en-US')} ${cur} each ${freqUnit}`
             : '—';
         }
-
-        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : schedParts[0] || '—';
         const repeatsText = sched
@@ -5253,20 +5260,14 @@
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '—').trim();
         let endMain = 'Continious';
-        let endSub = '';
+        let endSub = 'Pause anytime';
         const endLower = endRaw.toLowerCase();
         // When set to number-of-buys mode, plan-detail stores values like:
         // "12 buys ~ Ends Mar 24, 2027" (or small legacy variants). Split this
         // so overview shows title: "12 buys", subtitle: "~ Ends Mar 24, 2027".
         const buysEndsMatch = endRaw.match(/^(.+?\bbuys?\b)\s*(?:~\s*)?Ends\s+(.+)$/i);
-        if (buysEndsMatch) {
-          endSub = '';
-        } else if (endLower === 'continuous') {
-          endSub = '';
-        } else if (/^after\s*\d+/i.test(endRaw) || /^after number/i.test(endRaw)) {
-          endSub = '';
-        } else if (isPlanDetailSetLimitEnd(endRaw)) {
-          endSub = '';
+        if (buysEndsMatch || endLower === 'continuous' || /^after\s*\d+/i.test(endRaw) || /^after number/i.test(endRaw) || isPlanDetailSetLimitEnd(endRaw)) {
+          endSub = 'Pause anytime';
         }
         if (endMainEl) endMainEl.textContent = endMain;
         if (endSubEl) {
@@ -5327,34 +5328,33 @@
         }
 
         const compactNextBuy = formatFinanceNextBuyCompact(sched);
-        let firstBuyText = compactNextBuy || '—';
+        let firstBuyText = '—';
         const buyNowOn = panel.dataset?.scheduleBuyNow === '1';
-        const timingMatch = sched.match(/\bat\s*(~?\d{1,2}:\d{2})\b/i);
-        const timingToken = timingMatch?.[1] || '';
         if (buyNowOn) {
-          const t = timingToken
-            ? (timingToken.startsWith('~') ? timingToken : `~${timingToken}`)
-            : '';
-          firstBuyText = t ? `Today at ${t}` : 'Today';
+          firstBuyText = 'Today';
         }
-        const firstBuyMatch = compactNextBuy.match(/^([A-Za-z]{3,9})\s+(\d{1,2})\s*·\s*(~?\d{1,2}:\d{2})$/);
-        if (!buyNowOn && firstBuyMatch) {
-          const toOrdinal = (n) => {
-            const j = n % 10;
-            const k = n % 100;
-            if (k >= 11 && k <= 13) return `${n}th`;
-            if (j === 1) return `${n}st`;
-            if (j === 2) return `${n}nd`;
-            if (j === 3) return `${n}rd`;
-            return `${n}th`;
-          };
-          const month = firstBuyMatch[1];
-          const dayNum = parseInt(firstBuyMatch[2], 10);
-          const time = firstBuyMatch[3].startsWith('~') ? firstBuyMatch[3] : `~${firstBuyMatch[3]}`;
-          const dayOrdinal = toOrdinal(dayNum);
-          firstBuyText = `${month} ${dayOrdinal} at ${time}`;
-        } else if (!buyNowOn && compactNextBuy) {
-          firstBuyText = compactNextBuy.replace(/\s*·\s*/, ' at ');
+        if (!buyNowOn && compactNextBuy) {
+          const dateToken = compactNextBuy.split('·')[0]?.trim() || '';
+          const monthDayMatch = dateToken.match(/^([A-Za-z]{3,9})\s+(\d{1,2})$/);
+          if (monthDayMatch) {
+            const monthDay = `${monthDayMatch[1]} ${monthDayMatch[2]}`;
+            const now = new Date();
+            const guessed = new Date(`${monthDay} ${now.getFullYear()}`);
+            if (!Number.isNaN(guessed.getTime())) {
+              if (guessed.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
+                guessed.setFullYear(guessed.getFullYear() + 1);
+              }
+              firstBuyText = guessed.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+              });
+            } else {
+              firstBuyText = dateToken || '—';
+            }
+          } else {
+            firstBuyText = dateToken || '—';
+          }
         }
         if (firstBuyEl) firstBuyEl.textContent = firstBuyText;
 
@@ -6245,6 +6245,10 @@
       };
 
       const buildFirstBuyLine = () => {
+        const overviewFirstBuy = panel.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
+        if (overviewFirstBuy && overviewFirstBuy !== '—') {
+          return `First buy on ${overviewFirstBuy}`;
+        }
         const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
         const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
@@ -6278,9 +6282,15 @@
           panel.querySelector('[data-plan-buffer-method][aria-pressed="true"]');
         const isReservedMethod = selectedMethodBtn?.getAttribute('data-plan-buffer-method') === 'reserved';
         if (prefundEl) {
-          const reserveAmount = panel.querySelector('[data-plan-buffer-reserve-amt]')?.textContent?.trim() || '—';
+          const reserveAmount =
+            panel.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim()
+            || panel.querySelector('[data-plan-buffer-reserve-amt]')?.textContent?.trim()
+            || '—';
           const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'USDT').trim();
-          prefundEl.textContent = reserveAmount === '—' ? `Pre-funded — ${cur}` : `Pre-funded ${reserveAmount} ${cur}`;
+          const hasCurrencySuffix = new RegExp(`\\b${cur}\\b$`, 'i').test(reserveAmount);
+          prefundEl.textContent = reserveAmount === '—'
+            ? `Reserved — ${cur}`
+            : `Reserved ${hasCurrencySuffix ? reserveAmount : `${reserveAmount} ${cur}`}`;
           prefundEl.hidden = !isReservedMethod;
           prefundEl.style.display = isReservedMethod ? '' : 'none';
         }
