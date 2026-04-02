@@ -3634,15 +3634,38 @@
         }
 
         const sum = pcts.reduce((a, b) => a + b, 0);
-        const r = Math.round(sum * 10) / 10;
-        const display = Number.isInteger(r) ? `${r}%` : `${r.toFixed(1)}%`;
+        const remainingRaw = 100 - sum;
         const isValid = isAllocPctTotalValid();
+        const formatAllocTotalPct = (n) => {
+          const v = Math.round(n * 10) / 10;
+          if (Number.isInteger(v)) return `${v}%`;
+          return `${v.toFixed(1)}%`;
+        };
         if (currentEl) {
-          currentEl.textContent = display;
-          currentEl.classList.toggle('is-error', !isValid);
+          if (isValid) {
+            currentEl.textContent = '0%';
+            currentEl.classList.remove('is-error');
+          } else {
+            currentEl.textContent = formatAllocTotalPct(remainingRaw);
+            currentEl.classList.add('is-error');
+          }
         }
         if (targetEl) targetEl.textContent = ' / 100%';
-        if (errEl) errEl.hidden = isValid;
+        if (errEl) {
+          if (isValid) {
+            errEl.hidden = true;
+          } else {
+            errEl.hidden = false;
+            if (remainingRaw > 0.45) {
+              errEl.textContent = `${formatAllocTotalPct(remainingRaw)} left to allocate to reach 100%`;
+            } else if (remainingRaw < -0.45) {
+              const over = sum - 100;
+              errEl.textContent = `${formatAllocTotalPct(over)} allocated over 100%`;
+            } else {
+              errEl.textContent = 'Allocation should add up to 100%';
+            }
+          }
+        }
       };
 
       const renderItem = (i) => {
