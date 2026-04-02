@@ -5494,6 +5494,7 @@
       };
 
       const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
+      const formatWithCommas = (n) => n.toLocaleString('en-US');
       const currencyIconSrc = (code) => {
         const c = String(code || 'USDT').toUpperCase();
         const map = {
@@ -5562,7 +5563,8 @@
         const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
         const hasReserveBalanceError = isReservedActive && rawAmount > balance;
         const isOverLimit = isReservedActive && rawAmount > reserveLimitAmount;
-        const isMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
+        // "Fits 1 or multiple buys" means the amount covers an integer number of buys exactly.
+        const isMultiple = perBuy > 0 && rawAmount > 0 && Math.floor(rawAmount / perBuy) * perBuy === rawAmount;
         const isValidReservedAmount = perBuy > 0 && rawAmount > 0 && isMultiple && !hasReserveBalanceError && !isOverLimit;
         reserveAmount = isValidReservedAmount ? rawAmount : 0;
 
@@ -5583,9 +5585,10 @@
         if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '- -';
         if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !(hasReserveBalanceError || isOverLimit);
         if (reserveInputEl && document.activeElement !== reserveInputEl) {
-          reserveInputEl.value = rawAmount > 0 ? String(rawAmount) : '';
+          reserveInputEl.value = rawAmount > 0 ? formatWithCommas(rawAmount) : '';
         }
         if (reserveRangeEl) {
+          reserveRangeEl.hidden = rawAmount > 0;
           const minText = perBuy > 0 ? fmt(perBuy) : '—';
           const maxText = Number.isFinite(maxAllowedAmount) && maxAllowedAmount > 0 ? fmt(maxAllowedAmount) : '—';
           reserveRangeEl.textContent = `Min ${minText} / Max ${maxText}`;
@@ -5688,7 +5691,9 @@
           sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--positive', rawAmount > 0 && unusedRaw === 0);
         }
 
-        const showRounding = perBuy > 0 && rawAmount > 0 && !isMultiple;
+        // If the amount already covers an integer number of buys, unused remainder is 0.
+        // In that case we hide the rounding UI.
+        const showRounding = perBuy > 0 && rawAmount > 0 && unusedRaw !== 0;
         if (roundWrapEl) roundWrapEl.hidden = !showRounding;
         if (roundDownBtn) {
           roundDownBtn.textContent = nearestDown > 0 ? String(nearestDown) : '—';
@@ -5786,10 +5791,44 @@
         });
       });
 
-      reserveInputEl?.addEventListener('input', (e) => {
-        const nextRaw = String(e.target?.value || '').replace(/[^0-9]/g, '');
-        reserveInputAmount = nextRaw ? parseInt(nextRaw, 10) : 0;
-        if (!Number.isFinite(reserveInputAmount)) reserveInputAmount = 0;
+      const applyReserveInputLiveFormat = () => {
+        if (!reserveInputEl) return;
+        const cursor = reserveInputEl.selectionStart || 0;
+        const oldVal = reserveInputEl.value || '';
+        const digitsBeforeCursor = oldVal.slice(0, cursor).replace(/[^0-9]/g, '').length;
+        const raw = oldVal.replace(/[^0-9]/g, '');
+        if (!raw) {
+          reserveInputEl.value = '';
+          reserveInputAmount = 0;
+          return;
+        }
+        const MAX_AMOUNT = 99999999;
+        const clamped = Math.min(parseInt(raw, 10), MAX_AMOUNT);
+        reserveInputAmount = Number.isFinite(clamped) ? clamped : 0;
+        const formatted = formatWithCommas(reserveInputAmount);
+        reserveInputEl.value = formatted;
+
+        let newCursor = 0;
+        let digitsSeen = 0;
+        for (let i = 0; i < formatted.length; i += 1) {
+          if (digitsSeen === digitsBeforeCursor) { newCursor = i; break; }
+          if (formatted[i] !== ',') digitsSeen += 1;
+          newCursor = i + 1;
+        }
+        reserveInputEl.setSelectionRange(newCursor, newCursor);
+      };
+
+      reserveInputEl?.addEventListener('input', () => {
+        applyReserveInputLiveFormat();
+        render();
+      });
+
+      reserveInputEl?.addEventListener('blur', () => {
+        const raw = parseInt(String(reserveInputEl.value || '').replace(/[^0-9]/g, ''), 10);
+        reserveInputAmount = Number.isFinite(raw) && raw > 0 ? raw : 0;
+        if (reserveInputEl) {
+          reserveInputEl.value = reserveInputAmount > 0 ? formatWithCommas(reserveInputAmount) : '';
+        }
         render();
       });
 

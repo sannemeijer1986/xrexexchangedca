@@ -8323,6 +8323,14 @@ div.currency-sheet__item-icon {
   gap: 0;
 }
 
+.plan-buffer-funding-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
 .plan-buffer-funding-input__head {
   display: flex;
   align-items: center;
@@ -8369,15 +8377,16 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-funding-input__field {
-  flex: 0 1 170px;
+  flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
   background: transparent;
   border: 0;
   outline: none;
   padding: 0;
   font-size: 32px;
   font-weight: 600;
-  line-height: 1;
+  line-height: normal;
   color: #ffffff;
   font-family: inherit;
   caret-color: #8fb8ff;
@@ -8412,6 +8421,7 @@ div.currency-sheet__item-icon {
 .plan-buffer-funding-input__divider {
   height: 1px;
   background: #3c4248;
+  margin-top: 4px;
 }
 
 .plan-buffer-funding-input__max-row {
@@ -8479,6 +8489,11 @@ div.currency-sheet__item-icon {
   flex-direction: column;
   align-items: center;
   gap: 10px;
+}
+
+// `display:flex` above can override UA `[hidden]`; force-hide when inactive.
+.plan-buffer-funding-round[hidden] {
+  display: none !important;
 }
 
 .plan-buffer-funding-round__title {
