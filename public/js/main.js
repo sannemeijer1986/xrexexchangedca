@@ -1313,6 +1313,11 @@
           sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
+      const smartAllocToggle = document.querySelector('[data-prototype-smart-allocation]');
+      if (smartAllocToggle) {
+        smartAllocToggle.checked = false;
+        smartAllocToggle.dispatchEvent(new Event('change'));
+      }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       applyFinanceSummaryMeta();
@@ -1353,6 +1358,11 @@
       if (sp500Toggle) {
         sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
+      }
+      const smartAllocToggle = document.querySelector('[data-prototype-smart-allocation]');
+      if (smartAllocToggle) {
+        smartAllocToggle.checked = false;
+        smartAllocToggle.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
@@ -1856,6 +1866,12 @@
     if (!container) return;
     const on = Boolean(input?.checked);
     container.classList.toggle('is-proto-finance-currency-selector-on', on);
+  };
+
+  /** Prototype control: toggles manual allocation vs smart allocation variant in plan detail. */
+  const getPrototypeSmartAllocationEnabled = () => {
+    const input = document.querySelector('[data-prototype-smart-allocation]');
+    return Boolean(input?.checked);
   };
 
   /**
@@ -3022,6 +3038,9 @@
   document.querySelector('[data-prototype-finance-display-currency-selector]')?.addEventListener('change', () => {
     syncPrototypeFinanceCurrencySelectorVisible();
   });
+  document.querySelector('[data-prototype-smart-allocation]')?.addEventListener('change', () => {
+    document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));
+  });
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
@@ -3097,7 +3116,7 @@
       if (!isFinite(base)) return;
       const tw = detailPanelAllocPctTweakFn();
       if (!isFinite(tw)) return;
-      const allocRoot = panel.querySelector('.alloc-multi');
+      const allocRoot = getActiveAllocMultiRoot();
       const isPctAllocInvalid = Boolean(
         allocRoot
         && allocRoot.classList.contains('alloc-multi--pct-invalid')
@@ -3293,6 +3312,33 @@
     ];
 
     let detailAllocOverride = null;
+    let latestAllocItemCount = 0;
+
+    const getManualAllocSection = () =>
+      panel.querySelector('.plan-detail-panel__allocation-section:not(.plan-detail-panel__allocation-section--auto)');
+    const getAutoAllocSection = () => panel.querySelector('[data-plan-detail-allocation-auto-section]');
+    const getActiveAllocSection = () => {
+      const useSmart = getPrototypeSmartAllocationEnabled();
+      const manualSection = getManualAllocSection();
+      const autoSection = getAutoAllocSection();
+      if (useSmart && autoSection && !autoSection.hidden) return autoSection;
+      if (manualSection && !manualSection.hidden) return manualSection;
+      if (autoSection && !autoSection.hidden) return autoSection;
+      return manualSection || autoSection || null;
+    };
+    const getActiveAllocMultiRoot = () => getActiveAllocSection()?.querySelector('.alloc-multi') || null;
+    const getActiveAllocMultiItems = () => Array.from(getActiveAllocSection()?.querySelectorAll('.alloc-multi__item') || []);
+    const syncActiveAllocationVariant = () => {
+      const manualSection = getManualAllocSection();
+      const autoSection = getAutoAllocSection();
+      const useSmart = getPrototypeSmartAllocationEnabled();
+      const canUseSmart = useSmart && latestAllocItemCount >= 2;
+      if (manualSection) manualSection.hidden = canUseSmart;
+      if (autoSection) autoSection.hidden = !canUseSmart;
+      detailPanelAllocPctTweakFn = canUseSmart
+        ? (panel._planDetailAutoAllocTweakFn || panel._planDetailManualAllocTweakFn || null)
+        : (panel._planDetailManualAllocTweakFn || panel._planDetailAutoAllocTweakFn || null);
+    };
 
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
@@ -3318,9 +3364,9 @@
       const exceedsBalance = amount > balance;
 
       let allocationOutOfBalance = false;
-      const allocRoot = panel.querySelector('.alloc-multi');
+      const allocRoot = getActiveAllocMultiRoot();
       if (allocRoot && allocCount >= 2) {
-        const rows = panel.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
+        const rows = allocRoot.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
         if (rows.length >= 2) {
           if (allocRoot.classList.contains('alloc-multi--amount-mode')) {
             let sumAmt = 0;
@@ -3627,10 +3673,11 @@
       if (panelEl[allocPanelAbortKey]) panelEl[allocPanelAbortKey].abort();
 
       if (count < 2) {
-        detailPanelAllocPctTweakFn = null;
+        panelEl._planDetailManualAllocTweakFn = null;
         panelEl._planDetailAllocRefreshAmounts = null;
         const resetBtnEarly = panelEl.querySelector('[data-alloc-reset]');
         if (resetBtnEarly) resetBtnEarly.hidden = true;
+        syncActiveAllocationVariant();
         return;
       }
 
@@ -3889,7 +3936,7 @@
 
       // Tiny synthetic sensitivity vs default split → footer % moves slightly (prototype only)
       const allocBaseline = [...defaultPcts];
-      detailPanelAllocPctTweakFn = () => {
+      panelEl._planDetailManualAllocTweakFn = () => {
         const sens = count === 3 ? [0.018, 0.01, -0.007] : [0.014, -0.014];
         let t = 0;
         for (let i = 0; i < count; i += 1) {
@@ -3897,6 +3944,7 @@
         }
         return Math.max(-1.6, Math.min(1.6, t));
       };
+      syncActiveAllocationVariant();
 
       items.forEach((item, i) => {
         const slider = item.querySelector('[data-alloc-slider]');
@@ -4068,6 +4116,266 @@
           );
         });
       }
+    };
+
+    const initAutoAllocSliders = (panelEl, autoRoot, count) => {
+      const autoAbortKey = '_autoAllocPanelControlsAbort';
+      if (panelEl[autoAbortKey]) panelEl[autoAbortKey].abort();
+      if (!autoRoot || count < 2) {
+        panelEl._planDetailAutoAllocTweakFn = null;
+        syncActiveAllocationVariant();
+        return;
+      }
+
+      const panelAc = new AbortController();
+      panelEl[autoAbortKey] = panelAc;
+      const panelCtlSignal = panelAc.signal;
+
+      const defaultPcts = count === 2 ? [50, 50] : [34, 33, 33];
+      const pcts = [...defaultPcts];
+      let lockedIdx = null;
+      let dragRafId = 0;
+      let pendingDrag = null;
+      const allocBaseline = [...defaultPcts];
+
+      const items = Array.from(autoRoot.querySelectorAll('.alloc-multi__item'));
+
+      const roundPct = (n) => Math.round((Number(n) || 0) * 10) / 10;
+
+      const redistributeByWeights = (total, idxs) => {
+        if (!idxs.length) return;
+        const safeTotal = Math.max(0, roundPct(total));
+        const currentWeights = idxs.map((idx) => Math.max(0, pcts[idx]));
+        let weightSum = currentWeights.reduce((sum, v) => sum + v, 0);
+        if (weightSum <= 0) {
+          for (let i = 0; i < currentWeights.length; i += 1) currentWeights[i] = 1;
+          weightSum = currentWeights.length;
+        }
+        const rawShares = currentWeights.map((w) => (w / weightSum) * safeTotal);
+        let allocated = 0;
+        idxs.forEach((idx, localIdx) => {
+          if (localIdx === idxs.length - 1) {
+            pcts[idx] = roundPct(safeTotal - allocated);
+          } else {
+            const share = roundPct(rawShares[localIdx]);
+            pcts[idx] = share;
+            allocated = roundPct(allocated + share);
+          }
+        });
+      };
+
+      const applyAutoAllocChange = (changedIdx, rawPct) => {
+        if (lockedIdx === changedIdx) return;
+        let nextChanged = roundPct(Math.max(0, Math.min(100, rawPct)));
+        if (lockedIdx !== null && lockedIdx !== changedIdx) {
+          const maxAllowed = Math.max(0, 100 - pcts[lockedIdx]);
+          nextChanged = Math.min(nextChanged, maxAllowed);
+        }
+        pcts[changedIdx] = nextChanged;
+
+        const fixedIdxs = new Set([changedIdx]);
+        if (lockedIdx !== null && lockedIdx !== changedIdx) fixedIdxs.add(lockedIdx);
+        const freeIdxs = [];
+        for (let i = 0; i < count; i += 1) {
+          if (!fixedIdxs.has(i)) freeIdxs.push(i);
+        }
+        const fixedTotal = [...fixedIdxs].reduce((sum, idx) => sum + pcts[idx], 0);
+        const remaining = roundPct(Math.max(0, 100 - fixedTotal));
+        redistributeByWeights(remaining, freeIdxs);
+        renderAll();
+        refreshPlanDetailAllocTweak();
+      };
+
+      const scheduleAutoAllocDrag = (changedIdx, rawPct) => {
+        pendingDrag = { changedIdx, rawPct };
+        if (dragRafId) return;
+        dragRafId = requestAnimationFrame(() => {
+          dragRafId = 0;
+          if (!pendingDrag) return;
+          const next = pendingDrag;
+          pendingDrag = null;
+          applyAutoAllocChange(next.changedIdx, next.rawPct);
+        });
+      };
+
+      panelCtlSignal.addEventListener('abort', () => {
+        if (dragRafId) cancelAnimationFrame(dragRafId);
+        dragRafId = 0;
+        pendingDrag = null;
+      });
+
+      panelEl._planDetailAutoAllocTweakFn = () => {
+        const sens = count === 3 ? [0.018, 0.01, -0.007] : [0.014, -0.014];
+        let t = 0;
+        for (let i = 0; i < count; i += 1) {
+          t += (pcts[i] - allocBaseline[i]) * sens[i];
+        }
+        return Math.max(-1.6, Math.min(1.6, t));
+      };
+      syncActiveAllocationVariant();
+
+      const renderItem = (i) => {
+        const item = items[i];
+        if (!item) return;
+        const fill = item.querySelector('[data-auto-alloc-fill]');
+        const thumb = item.querySelector('[data-auto-alloc-thumb]');
+        const input = item.querySelector('[data-auto-alloc-pct-input]');
+        const amountSubEl = item.querySelector('[data-auto-alloc-pct-amount-sub]');
+        const lockLabelEl = item.querySelector('[data-auto-alloc-lock-label]');
+        const lockBtn = item.querySelector('[data-auto-alloc-lock-btn]');
+        const lockVisual = item.querySelector('.alloc-multi__auto-lock-btn');
+        const lockIcon = item.querySelector('[data-auto-alloc-lock-icon]');
+        const p = pcts[i] / 100;
+        if (fill) fill.style.width = `${p * 100}%`;
+        if (thumb) thumb.style.left = `calc(${p * 100}% - ${p * 24}px)`;
+        if (input && document.activeElement !== input) input.value = String(Math.round(pcts[i]));
+        if (amountSubEl) {
+          const invest = Math.max(
+            0,
+            parseInt(panelEl.querySelector('[data-plan-detail-amount-input]')?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0,
+          );
+          const cur = panelEl.querySelector('[data-plan-detail-currency]')?.textContent?.trim() || 'TWD';
+          const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
+          amountSubEl.textContent = `${slice.toLocaleString('en-US')} ${cur}`;
+        }
+        const isLocked = lockedIdx === i;
+        item.classList.toggle('is-locked', isLocked);
+        if (lockLabelEl) lockLabelEl.textContent = isLocked ? 'Allocation locked' : 'Lock this allocation';
+        if (lockLabelEl) lockLabelEl.classList.toggle('is-locked', isLocked);
+        if (lockBtn) {
+          lockBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+        }
+        if (lockVisual) lockVisual.classList.toggle('is-locked', isLocked);
+        if (lockIcon) {
+          lockIcon.src = isLocked ? 'assets/icon_lock.svg' : 'assets/icon_unlock.svg';
+        }
+        if (input) {
+          input.disabled = isLocked;
+          input.setAttribute('aria-disabled', isLocked ? 'true' : 'false');
+        }
+      };
+
+      const renderAll = () => {
+        items.forEach((_, i) => renderItem(i));
+      };
+
+      items.forEach((item, i) => {
+        const slider = item.querySelector('[data-auto-alloc-slider]');
+        const input = item.querySelector('[data-auto-alloc-pct-input]');
+        const lockBtn = item.querySelector('[data-auto-alloc-lock-btn]');
+
+        if (slider) {
+          const getSliderPct = (clientX) => {
+            const rect = slider.getBoundingClientRect();
+            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+            return (x / rect.width) * 100;
+          };
+          slider.addEventListener(
+            'pointerdown',
+            (e) => {
+              if (lockedIdx === i) return;
+              e.preventDefault();
+              const ae = document.activeElement;
+              if (ae?.matches?.('[data-auto-alloc-pct-input]') && autoRoot.contains(ae)) ae.blur();
+              slider.setPointerCapture(e.pointerId);
+              applyAutoAllocChange(i, getSliderPct(e.clientX));
+            },
+            { signal: panelCtlSignal },
+          );
+          slider.addEventListener(
+            'pointermove',
+            (e) => {
+              if (!slider.hasPointerCapture(e.pointerId)) return;
+              if (lockedIdx === i) return;
+              e.preventDefault();
+              scheduleAutoAllocDrag(i, getSliderPct(e.clientX));
+            },
+            { signal: panelCtlSignal },
+          );
+          slider.addEventListener(
+            'pointerup',
+            (e) => {
+              if (pendingDrag && pendingDrag.changedIdx === i) {
+                const next = pendingDrag;
+                pendingDrag = null;
+                applyAutoAllocChange(next.changedIdx, next.rawPct);
+              }
+              if (slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+            },
+            { signal: panelCtlSignal },
+          );
+          slider.addEventListener(
+            'pointercancel',
+            (e) => {
+              if (pendingDrag && pendingDrag.changedIdx === i) {
+                const next = pendingDrag;
+                pendingDrag = null;
+                applyAutoAllocChange(next.changedIdx, next.rawPct);
+              }
+              if (slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+            },
+            { signal: panelCtlSignal },
+          );
+        }
+
+        if (input) {
+          input.addEventListener(
+            'keydown',
+            (e) => {
+              const allowed = ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+              if (!allowed.includes(e.key) && !/^\d$/.test(e.key) && !(e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+              }
+            },
+            { signal: panelCtlSignal },
+          );
+          input.addEventListener(
+            'input',
+            () => {
+              const digits = input.value.replace(/[^0-9]/g, '').slice(0, 3);
+              if (input.value !== digits) input.value = digits;
+              if (digits === '') return;
+              const val = parseInt(digits, 10);
+              if (!isNaN(val)) applyAutoAllocChange(i, val);
+            },
+            { signal: panelCtlSignal },
+          );
+          input.addEventListener(
+            'blur',
+            () => {
+              if (input.value.trim() === '') {
+                input.value = String(pcts[i]);
+                return;
+              }
+              const val = parseInt(input.value.replace(/[^0-9]/g, ''), 10);
+              if (isNaN(val)) input.value = String(pcts[i]);
+              else applyAutoAllocChange(i, val);
+            },
+            { signal: panelCtlSignal },
+          );
+        }
+
+        if (lockBtn) {
+          lockBtn.addEventListener(
+            'click',
+            () => {
+              lockedIdx = lockedIdx === i ? null : i;
+              if (lockedIdx === i) {
+                const ae = document.activeElement;
+                if (ae === input) ae.blur();
+              }
+              renderAll();
+            },
+            { signal: panelCtlSignal },
+          );
+        }
+      });
+
+      panelEl._planDetailAutoAllocRefreshAmounts = () => {
+        renderAll();
+      };
+      renderAll();
+      refreshPlanDetailAllocTweak();
     };
 
     const escPlanDetailIconAttr = (v) =>
@@ -4317,8 +4625,13 @@
       // Allocation list
       const allocList = panel.querySelector('[data-plan-detail-allocation]');
       const allocCountEl = panel.querySelector('[data-plan-detail-alloc-count]');
-      const allocSection = panel.querySelector('.plan-detail-panel__allocation-section');
+      const allocSection = getManualAllocSection();
       const allocSubtitleEl = panel.querySelector('[data-plan-detail-alloc-subtitle]');
+      const allocAutoSection = panel.querySelector('[data-plan-detail-allocation-auto-section]');
+      const allocAutoList = panel.querySelector('[data-plan-detail-allocation-auto]');
+      const allocAutoCountEl = panel.querySelector('[data-plan-detail-alloc-auto-count]');
+      const allocAutoRangeEl = panel.querySelector('[data-plan-detail-alloc-auto-range]');
+      const allocAutoHistoricPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
 
       if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) {
         // Empty state: no assets selected yet
@@ -4351,6 +4664,10 @@
         const resetNewplan = panel.querySelector('[data-alloc-reset]');
         if (resetNewplan) resetNewplan.hidden = true;
         if (allocSubtitleEl) allocSubtitleEl.hidden = true;
+        latestAllocItemCount = 0;
+        syncActiveAllocationVariant();
+        if (allocAutoSection) allocAutoSection.hidden = true;
+        if (allocAutoList) allocAutoList.innerHTML = '';
         updateDetailReturn();
         syncPlanDetailContinueState();
         return;
@@ -4371,6 +4688,7 @@
           : (planAllocation[planKey] || planAllocation.bitcoin));
 
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
+      latestAllocItemCount = allocItems.length;
 
       const addLabel = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
       panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
@@ -4392,6 +4710,11 @@
         belowHistLabel.textContent = allocItems.length >= 2
           ? `Past ${planRange}`
           : `Past ${planRange}`;
+      }
+      if (allocAutoRangeEl) allocAutoRangeEl.textContent = `Past ${planRange}`;
+      if (allocAutoHistoricPctEl) {
+        const histPct = panel.querySelector('[data-plan-detail-return-historic-pct]')?.textContent?.trim();
+        allocAutoHistoricPctEl.textContent = histPct || allocAutoHistoricPctEl.textContent;
       }
 
       // Show mode toggle + allocation subtitle for 2+ assets only
@@ -4462,6 +4785,54 @@
         const resetSingle = panel.querySelector('[data-alloc-reset]');
         if (resetSingle) resetSingle.hidden = true;
       }
+
+      if (allocAutoSection && allocAutoList) {
+        allocAutoSection.hidden = allocItems.length < 2;
+        if (allocAutoCountEl) allocAutoCountEl.textContent = String(allocItems.length);
+        if (allocItems.length >= 2) {
+          allocAutoList.innerHTML = `<div class="alloc-multi alloc-multi--auto">${
+            allocItems.map((item, i) => `
+              <div class="alloc-multi__item" data-auto-alloc-idx="${i}">
+                <div class="alloc-multi__row">
+                  <img class="alloc-multi__icon" src="${item.icon}" alt="" />
+                  <div class="alloc-multi__info">
+                    <span class="alloc-multi__name">${item.name}</span>
+                    <span class="alloc-multi__ticker">${item.ticker}</span>
+                  </div>
+                  <div class="alloc-multi__pct-col">
+                    <div class="alloc-multi__pct-wrap">
+                      <div class="alloc-multi__pct-inner">
+                        <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input data-auto-alloc-pct-input />
+                        <span class="alloc-multi__pct-symbol">%</span>
+                      </div>
+                    </div>
+                    <p class="alloc-multi__pct-amount-sub" data-auto-alloc-pct-amount-sub aria-hidden="false"></p>
+                  </div>
+                </div>
+                <div class="alloc-multi__slider-row">
+                  <div class="alloc-multi__slider" data-auto-alloc-slider>
+                    <div class="alloc-multi__slider-bg"></div>
+                    <div class="alloc-multi__slider-fill" data-auto-alloc-fill></div>
+                    <div class="alloc-multi__slider-thumb" data-auto-alloc-thumb></div>
+                  </div>
+                </div>
+                <div class="alloc-multi__auto-lock-row"${allocItems.length === 2 ? ' hidden' : ''}>
+                  <button class="alloc-multi__auto-lock-toggle" type="button" data-auto-alloc-lock-btn aria-pressed="false" aria-label="Toggle allocation lock">
+                    <span class="alloc-multi__auto-lock-label" data-auto-alloc-lock-label>Lock this allocation</span>
+                    <span class="alloc-multi__auto-lock-btn" aria-hidden="true">
+                      <img class="alloc-multi__auto-lock-icon" src="assets/icon_unlock.svg" width="16" height="16" alt="" data-auto-alloc-lock-icon />
+                    </span>
+                  </button>
+                </div>
+              </div>`).join('')
+          }</div>`;
+          initAutoAllocSliders(panel, allocAutoList, allocItems.length);
+        } else {
+          allocAutoList.innerHTML = '';
+          if (panel._planDetailAutoAllocRefreshAmounts) panel._planDetailAutoAllocRefreshAmounts = null;
+        }
+      }
+      syncActiveAllocationVariant();
 
       if (allocSection && historicRow && historicTone) {
         if (allocItems.length === 1) {
@@ -5043,6 +5414,23 @@
           domWrite: false,
           displayAssets: selectedAssets,
         });
+        const simWithAllocTweak = (() => {
+          if (!sim || typeof detailPanelAllocPctTweakFn !== 'function') return sim;
+          const tw = detailPanelAllocPctTweakFn();
+          if (!isFinite(tw)) return sim;
+          const next = { ...sim };
+          const simBasePct = Number.isFinite(sim.returnPct) ? sim.returnPct : 0;
+          const simAppliedTw = amount > 0 ? tw : 0;
+          const simNextPct = simBasePct + simAppliedTw;
+          next.returnPct = simNextPct;
+          if (Number.isFinite(sim.profit) && Math.abs(simBasePct) > 1e-6) {
+            next.profit = sim.profit * (simNextPct / simBasePct);
+          }
+          if (Number.isFinite(sim.historicReturnPct)) {
+            next.historicReturnPct = sim.historicReturnPct + tw;
+          }
+          return next;
+        })();
 
         applyCommonBreakdownUi({
           selectedAssets,
@@ -5051,7 +5439,7 @@
           amount,
           cur,
           freqLabel,
-          sim,
+          sim: simWithAllocTweak,
           chartPlanKey,
           freq,
           fallbackIconSrc,
@@ -5252,12 +5640,12 @@
         const firstBuyEl = overviewPanel.querySelector('[data-plan-overview-first-buy]');
         const deductSubEl = overviewPanel.querySelector('[data-plan-overview-deduct-sub]');
 
-        const multiItems = panel.querySelectorAll('.alloc-multi__item');
+        const multiItems = getActiveAllocMultiItems();
         const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
         const chips = [];
 
         if (multiItems.length) {
-          const allocRoot = panel.querySelector('.alloc-multi');
+          const allocRoot = getActiveAllocMultiRoot();
           const isAmountMode = !!allocRoot?.classList.contains('alloc-multi--amount-mode');
           /** @type {number[]} */
           let pctValues = [];
@@ -5347,7 +5735,7 @@
         }
 
         const fallbackPlanIcon =
-          panel.querySelector('.alloc-multi__icon')?.getAttribute('src') ||
+          getActiveAllocSection()?.querySelector('.alloc-multi__icon')?.getAttribute('src') ||
           panel.querySelector('.plan-detail-panel__alloc-icon')?.getAttribute('src') ||
           'assets/icon_currency_btc.svg';
         const selectedPlanAssets = getCurrentPlanDisplayAssets(fallbackPlanIcon);
@@ -5575,7 +5963,7 @@
 
       const syncContinueSheetChips = () => {
         if (!continueSheetChipsEl) return 0;
-        const multiItems = panel.querySelectorAll('.alloc-multi__item');
+        const multiItems = getActiveAllocMultiItems();
         const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
         continueSheetChipsEl.innerHTML = '';
 
@@ -5608,7 +5996,7 @@
         };
 
         if (multiItems.length) {
-          const allocRoot = panel.querySelector('.alloc-multi');
+          const allocRoot = getActiveAllocMultiRoot();
           const isAmountMode = !!allocRoot?.classList.contains('alloc-multi--amount-mode');
           let pctValues = [];
           if (isAmountMode) {
@@ -6782,10 +7170,10 @@
       ) || 0;
       const hasAmount = Number.isFinite(amount) && amount > 0;
       const hasAssets = allocCount > 0;
-      const allocRoot = panel.querySelector('.alloc-multi');
+      const allocRoot = getActiveAllocMultiRoot();
       let isPctAllocInvalid = false;
       if (allocRoot && allocCount >= 2 && !allocRoot.classList.contains('alloc-multi--amount-mode')) {
-        const rows = panel.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
+        const rows = allocRoot.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
         let sumPct = 0;
         rows.forEach((inp) => {
           const v = parseInt(String(inp.value || '').replace(/[^0-9]/g, ''), 10);
@@ -6918,6 +7306,25 @@
       if (!panel.classList.contains('is-open')) return;
       updateDetailReturn();
       panel._planDetailAllocRefreshAmounts?.();
+      panel._planDetailAutoAllocRefreshAmounts?.();
+    });
+
+    document.addEventListener('prototype-smart-allocation-toggle', () => {
+      syncActiveAllocationVariant();
+      if (!panel.classList.contains('is-open')) return;
+      updateDetailReturn();
+      panel._planDetailAllocRefreshAmounts?.();
+      panel._planDetailAutoAllocRefreshAmounts?.();
+      syncPlanDetailContinueState();
+      if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
+        planOverviewApi.sync();
+      }
+      if (document.querySelector('[data-plan-breakdown-panel]')?.classList.contains('is-open')) {
+        planBreakdownApi.sync();
+      }
+      if (document.querySelector('[data-plan-detail-continue-sheet]')?.classList.contains('is-open')) {
+        syncContinueSheetSummary();
+      }
     });
 
     document.addEventListener('plan-schedule-confirmed', () => {
@@ -6990,6 +7397,7 @@
         applyLiveFormat();
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
+        panel._planDetailAutoAllocRefreshAmounts?.();
         const bp = document.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
         const op = panel.querySelector('[data-plan-overview-panel]');
@@ -7007,6 +7415,7 @@
         }
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
+        panel._planDetailAutoAllocRefreshAmounts?.();
         const bp = document.querySelector('[data-plan-breakdown-panel]');
         if (bp?.classList.contains('is-open')) planBreakdownApi.sync();
         const op = panel.querySelector('[data-plan-overview-panel]');
@@ -7061,6 +7470,7 @@
           if (detailIcon) detailIcon.src = cur === 'USDT' ? 'assets/icon_currency_usdt.svg' : 'assets/icon_currency_TWD.svg';
           updateCoverageUI();
           panel._planDetailAllocRefreshAmounts?.();
+          panel._planDetailAutoAllocRefreshAmounts?.();
         });
         obs.observe(planCurrencyLabelMain, { childList: true, characterData: true, subtree: true });
       }

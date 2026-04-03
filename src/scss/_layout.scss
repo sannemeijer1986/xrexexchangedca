@@ -3608,7 +3608,11 @@ button.finance-summary__stat-value--chevron {
 }
 
 .build-badge__promo-trigger {
-  display: block;
+  display: none;
+}
+
+.build-badge__promo-trigger {
+  // display: block;
   width: 100%;
   margin-top: 8px;
   padding: 6px 10px;
@@ -7015,6 +7019,10 @@ div.currency-sheet__item-icon {
   pointer-events: none;
 }
 
+.alloc-multi--auto .alloc-multi__slider-fill {
+  background: #ffffff;
+}
+
 .alloc-multi__slider-thumb {
   position: absolute;
   top: 50%;
@@ -7167,6 +7175,100 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__allocation-section {
   padding-top: 8px;
+}
+
+.plan-detail-panel__allocation-section--auto {
+  margin-top: 12px;
+}
+
+.plan-detail-panel__alloc-header-historic-inline--auto {
+  display: flex;
+}
+
+.alloc-multi__auto-lock-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.alloc-multi__auto-lock-row[hidden] {
+  display: none !important;
+}
+
+.alloc-multi__auto-lock-toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.alloc-multi__auto-lock-toggle:focus {
+  outline: none;
+}
+
+.alloc-multi__auto-lock-toggle:focus-visible {
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.45);
+}
+
+.phone-container .alloc-multi__auto-lock-label {
+  margin: 0;
+  padding: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #9b9c9c;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.alloc-multi__auto-lock-label.is-locked {
+  color: #8FB8FF;
+}
+
+.phone-container .alloc-multi__auto-lock-label.is-locked {
+  color: #8FB8FF;
+}
+
+.alloc-multi__auto-lock-btn {
+  width: 32px;
+  height: 28px;
+  border: 0;
+  border-radius: 12px;
+  background: #2d2f2f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.alloc-multi__auto-lock-btn.is-locked {
+  background: #275cfd;
+}
+
+.alloc-multi__auto-lock-btn.is-locked .alloc-multi__auto-lock-icon {
+  filter: brightness(0) invert(1);
+}
+
+.alloc-multi__auto-lock-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.alloc-multi__item.is-locked .alloc-multi__slider,
+.alloc-multi__item.is-locked .alloc-multi__pct-wrap {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 // Empty allocation state (New plan — no assets selected yet)

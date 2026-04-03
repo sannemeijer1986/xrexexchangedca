@@ -1197,6 +1197,26 @@
                         <button class="plan-detail-panel__add-assets" type="button">Add assets</button>
                     </div>
                 </div>
+                <div class="plan-detail-panel__allocation-section plan-detail-panel__allocation-section--auto" data-plan-detail-allocation-auto-section hidden>
+                    <div class="plan-detail-panel__alloc-header">
+                        <div class="plan-detail-panel__alloc-header-main">
+                            <div class="plan-detail-panel__alloc-header-title-group">
+                                <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-auto-count>1</span>)</div>
+                                <div class="plan-detail-panel__alloc-header-historic-inline plan-detail-panel__alloc-header-historic-inline--auto">
+                                    <span class="plan-detail-panel__historic-performance-label--below" data-plan-detail-alloc-auto-range>Past 5Y</span>
+                                    <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
+                                        <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
+                                        <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-alloc-auto-historic-pct>0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-detail-panel__allocation-list" data-plan-detail-allocation-auto></div>
+                    <div class="plan-detail-panel__add-assets-wrap plan-detail-panel__add-assets-wrap--below-list">
+                        <button class="plan-detail-panel__add-assets" type="button">Add assets</button>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -2381,6 +2401,13 @@
                     <input type="checkbox" data-prototype-finance-display-currency-selector
                         aria-label="Show finance display currency selector" />
                     <span>Show display currency toggle</span>
+                </label>
+            </div>
+            <div class="build-badge__section-row">
+                <label class="build-badge__checkbox">
+                    <input type="checkbox" data-prototype-smart-allocation
+                        aria-label="Smart allocation" />
+                    <span>Smart allocation (On / Off)</span>
                 </label>
             </div>
             <div class="build-badge__section-row">
