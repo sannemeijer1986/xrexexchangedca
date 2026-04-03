@@ -3365,7 +3365,8 @@
 
       let allocationOutOfBalance = false;
       const allocRoot = getActiveAllocMultiRoot();
-      if (allocRoot && allocCount >= 2) {
+      const isSmartAllocUi = Boolean(allocRoot?.classList.contains('alloc-multi--auto'));
+      if (allocRoot && allocCount >= 2 && !isSmartAllocUi) {
         const rows = allocRoot.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
         if (rows.length >= 2) {
           if (allocRoot.classList.contains('alloc-multi--amount-mode')) {
@@ -7172,7 +7173,12 @@
       const hasAssets = allocCount > 0;
       const allocRoot = getActiveAllocMultiRoot();
       let isPctAllocInvalid = false;
-      if (allocRoot && allocCount >= 2 && !allocRoot.classList.contains('alloc-multi--amount-mode')) {
+      if (
+        allocRoot
+        && allocCount >= 2
+        && !allocRoot.classList.contains('alloc-multi--amount-mode')
+        && !allocRoot.classList.contains('alloc-multi--auto')
+      ) {
         const rows = allocRoot.querySelectorAll('.alloc-multi__item [data-alloc-pct-input]');
         let sumPct = 0;
         rows.forEach((inp) => {
@@ -7312,9 +7318,10 @@
     document.addEventListener('prototype-smart-allocation-toggle', () => {
       syncActiveAllocationVariant();
       if (!panel.classList.contains('is-open')) return;
-      updateDetailReturn();
+      // Refresh allocation row values before return/continue sync so active variant inputs are current.
       panel._planDetailAllocRefreshAmounts?.();
       panel._planDetailAutoAllocRefreshAmounts?.();
+      updateDetailReturn();
       syncPlanDetailContinueState();
       if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
         planOverviewApi.sync();
