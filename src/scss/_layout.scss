@@ -5336,6 +5336,16 @@ div.currency-sheet__item-icon {
   margin-top: 4px;
 }
 
+.build-badge__checkbox-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.build-badge__checkbox-stack .build-badge__section-row {
+  margin-top: 0;
+}
+
 .build-badge__section-row {
   display: flex;
   align-items: center;
@@ -5357,6 +5367,17 @@ div.currency-sheet__item-icon {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.build-badge__section-row .build-badge__checkbox-group {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.build-badge__section-row .build-badge__select {
+  width: 100%;
+  max-width: 100%;
 }
 
 .build-badge__label {
@@ -5381,7 +5402,6 @@ div.currency-sheet__item-icon {
   background-repeat: no-repeat;
   background-position: right 5px center;
   padding-right: 20px;
-  opacity: 0;
 }
 
 .build-badge__select:focus {
@@ -7352,6 +7372,10 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__add-assets-wrap--below-list {
   margin-top: 12px;
+}
+
+.plan-detail-panel__allocation-section--auto .plan-detail-panel__add-assets-wrap--below-list {
+  margin-top: 24px;
 }
 
 .plan-detail-panel__add-assets {

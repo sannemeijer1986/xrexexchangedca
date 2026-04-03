@@ -2382,42 +2382,36 @@
         <div class="build-badge__body" id="prototypeStatesBody">
             <button class="build-badge__reset" type="button" data-prototype-reset>Reset states</button>
             <button class="build-badge__promo-trigger" type="button" data-prototype-promo-intro-sheet>Fire promo bottomsheet</button>
-            <div class="build-badge__section-row">
-                <label class="build-badge__checkbox">
-                    <input type="checkbox" data-prototype-bottomsheet-stacking checked
-                        aria-label="Bottom sheet stacking" />
-                    <span>Bottom sheet stacking</span>
-                </label>
+            <div class="build-badge__checkbox-stack" role="group" aria-label="Prototype display toggles">
+                <div class="build-badge__section-row">
+                    <label class="build-badge__checkbox">
+                        <input type="checkbox" data-prototype-bottomsheet-stacking checked
+                            aria-label="Bottom sheet stacking" />
+                        <span>Bottom sheet stacking</span>
+                    </label>
+                </div>
+                <div class="build-badge__section-row">
+                    <label class="build-badge__checkbox">
+                        <input type="checkbox" data-prototype-breakdown-sp500
+                            aria-label="Show S and P 500 in breakdown" />
+                        <span>Show S&amp;P 500 in breakdown</span>
+                    </label>
+                </div>
+                <div class="build-badge__section-row">
+                    <label class="build-badge__checkbox">
+                        <input type="checkbox" data-prototype-finance-display-currency-selector
+                            aria-label="Show finance display currency selector" />
+                        <span>Show display currency toggle</span>
+                    </label>
+                </div>
             </div>
             <div class="build-badge__section-row">
-                <label class="build-badge__checkbox">
-                    <input type="checkbox" data-prototype-breakdown-sp500
-                        aria-label="Show S and P 500 in breakdown" />
-                    <span>Show S&amp;P 500 in breakdown</span>
-                </label>
-            </div>
-            <div class="build-badge__section-row">
-                <label class="build-badge__checkbox">
-                    <input type="checkbox" data-prototype-finance-display-currency-selector
-                        aria-label="Show finance display currency selector" />
-                    <span>Show display currency toggle</span>
-                </label>
-            </div>
-            <div class="build-badge__section-row">
-                <label class="build-badge__checkbox">
-                    <input type="checkbox" data-prototype-smart-allocation
-                        aria-label="Smart allocation" />
-                    <span>Smart allocation (On / Off)</span>
-                </label>
-            </div>
-            <div class="build-badge__section-row">
-                <div class="build-badge__section-title">DCA</div>
+                <div class="build-badge__section-title">Allocation</div>
                 <div class="build-badge__checkbox-group">
-                    <select class="build-badge__select" id="special-status" data-special-status aria-label="Special status">
-                        <option value="none">No special status</option>
-                        <option value="suspended">Suspended</option>
-                        <option value="restricted">Restricted</option>
-                        <option value="rejected">Rejected</option>
+                    <select class="build-badge__select" id="prototype-allocation-mode" data-prototype-smart-allocation
+                        aria-label="Plan detail allocation mode">
+                        <option value="manual" selected>Manual allocation</option>
+                        <option value="smart">Smart allocation</option>
                     </select>
                 </div>
             </div>

@@ -1313,10 +1313,10 @@
           sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
-      const smartAllocToggle = document.querySelector('[data-prototype-smart-allocation]');
-      if (smartAllocToggle) {
-        smartAllocToggle.checked = false;
-        smartAllocToggle.dispatchEvent(new Event('change'));
+      const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
+      if (smartAllocSelect) {
+        smartAllocSelect.value = 'manual';
+        smartAllocSelect.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
@@ -1359,10 +1359,10 @@
         sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
-      const smartAllocToggle = document.querySelector('[data-prototype-smart-allocation]');
-      if (smartAllocToggle) {
-        smartAllocToggle.checked = false;
-        smartAllocToggle.dispatchEvent(new Event('change'));
+      const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
+      if (smartAllocSelect) {
+        smartAllocSelect.value = 'manual';
+        smartAllocSelect.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
@@ -1868,10 +1868,10 @@
     container.classList.toggle('is-proto-finance-currency-selector-on', on);
   };
 
-  /** Prototype control: toggles manual allocation vs smart allocation variant in plan detail. */
+  /** Prototype control: plan detail allocation mode (manual vs smart). */
   const getPrototypeSmartAllocationEnabled = () => {
-    const input = document.querySelector('[data-prototype-smart-allocation]');
-    return Boolean(input?.checked);
+    const sel = document.querySelector('[data-prototype-smart-allocation]');
+    return String(sel?.value || 'manual') === 'smart';
   };
 
   /**
@@ -4332,7 +4332,7 @@
           input.addEventListener(
             'input',
             () => {
-              const digits = input.value.replace(/[^0-9]/g, '').slice(0, 3);
+              const digits = input.value.replace(/[^0-9]/g, '').slice(0, 2);
               if (input.value !== digits) input.value = digits;
               if (digits === '') return;
               const val = parseInt(digits, 10);
@@ -4802,7 +4802,7 @@
                   <div class="alloc-multi__pct-col">
                     <div class="alloc-multi__pct-wrap">
                       <div class="alloc-multi__pct-inner">
-                        <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input data-auto-alloc-pct-input />
+                        <input class="alloc-multi__pct-input" type="text" inputmode="numeric" maxlength="2" data-alloc-pct-input data-auto-alloc-pct-input />
                         <span class="alloc-multi__pct-symbol">%</span>
                       </div>
                     </div>
