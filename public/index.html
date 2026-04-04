@@ -1201,7 +1201,10 @@
                     <div class="plan-detail-panel__alloc-header">
                         <div class="plan-detail-panel__alloc-header-main">
                             <div class="plan-detail-panel__alloc-header-title-group">
-                                <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-auto-count>1</span>)</div>
+                                <div class="plan-detail-panel__section-label">
+                                    <span class="plan-detail-panel__alloc-auto-title-line">Allocation (<span data-plan-detail-alloc-auto-count>1</span>)</span>
+                                    <span class="plan-detail-panel__alloc-auto-tagline">Automatically balanced to 100%</span>
+                                </div>
                                 <div class="plan-detail-panel__alloc-header-historic-inline plan-detail-panel__alloc-header-historic-inline--auto">
                                     <span class="plan-detail-panel__historic-performance-label--below" data-plan-detail-alloc-auto-range>Past 5Y</span>
                                     <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
@@ -2410,8 +2413,8 @@
                 <div class="build-badge__checkbox-group">
                     <select class="build-badge__select" id="prototype-allocation-mode" data-prototype-smart-allocation
                         aria-label="Plan detail allocation mode">
-                        <option value="manual" selected>Manual allocation</option>
-                        <option value="smart">Smart allocation</option>
+                        <option value="smart" selected>Smart</option>
+                        <option value="manual">Manual</option>
                     </select>
                 </div>
             </div>

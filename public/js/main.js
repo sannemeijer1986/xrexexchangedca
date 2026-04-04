@@ -1315,7 +1315,7 @@
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
-        smartAllocSelect.value = 'manual';
+        smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
@@ -1361,7 +1361,7 @@
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
-        smartAllocSelect.value = 'manual';
+        smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
@@ -1871,7 +1871,7 @@
   /** Prototype control: plan detail allocation mode (manual vs smart). */
   const getPrototypeSmartAllocationEnabled = () => {
     const sel = document.querySelector('[data-prototype-smart-allocation]');
-    return String(sel?.value || 'manual') === 'smart';
+    return String(sel?.value || 'smart') === 'smart';
   };
 
   /**
@@ -4241,7 +4241,7 @@
         }
         const isLocked = lockedIdx === i;
         item.classList.toggle('is-locked', isLocked);
-        if (lockLabelEl) lockLabelEl.textContent = isLocked ? 'Allocation locked' : 'Lock this allocation';
+        if (lockLabelEl) lockLabelEl.textContent = isLocked ? 'Holding %' : 'Hold this %';
         if (lockLabelEl) lockLabelEl.classList.toggle('is-locked', isLocked);
         if (lockBtn) {
           lockBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');

@@ -4737,6 +4737,7 @@ div.currency-sheet__item-icon::before {
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+  color-scheme: dark;
   pointer-events: auto;
   transition: width 0.15s ease, max-height 0.25s ease, opacity 0.2s ease;
 }
@@ -5288,20 +5289,30 @@ div.currency-sheet__item-icon::before {
 }
 
 .build-badge__select {
-  font-size: 11px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.25;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  padding: 3px 7px;
+  padding: 6px 22px 6px 8px;
+  min-height: 30px;
   min-width: 0;
   cursor: pointer;
   appearance: none;
+  -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 5px center;
-  padding-right: 20px;
+  background-position: right 6px center;
+}
+
+.build-badge__select option {
+  font: inherit;
+  line-height: 1.35;
+  padding: 6px 10px;
 }
 
 .build-badge__select:focus {
@@ -6755,7 +6766,8 @@ div.currency-sheet__item-icon::before {
   width: max-content;
   max-width: 100%;
   font-family: "Manrope", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
+  margin-bottom: 2px;
   font-weight: 600;
   line-height: 1.25;
   color: #9b9c9c;
@@ -6998,6 +7010,34 @@ div.currency-sheet__item-icon::before {
 
 .plan-detail-panel__alloc-header-historic-inline--auto {
   display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.plan-detail-panel__allocation-section--auto .plan-detail-panel__alloc-header-title-group > .plan-detail-panel__section-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: min-content;
+}
+
+.plan-detail-panel__alloc-auto-title-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.phone-container .plan-detail-panel__alloc-auto-tagline {
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #ffffff;
 }
 
 .alloc-multi__auto-lock-row {
@@ -7159,6 +7199,7 @@ div.currency-sheet__item-icon::before {
   margin-top: 12px;
 }
 
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__add-assets-wrap--below-list,
 .plan-detail-panel__allocation-section--auto .plan-detail-panel__add-assets-wrap--below-list {
   margin-top: 24px;
 }
