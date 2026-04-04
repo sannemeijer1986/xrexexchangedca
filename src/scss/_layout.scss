@@ -2,6 +2,9 @@
 .phone-container {
   width: $phone-width;
   height: $phone-height;
+  @media (min-height: $bp-viewport-tall) {
+    height: $phone-height-viewport-tall;
+  }
   background: $bg-container;
   border-radius: 40px 40px 32px 32px;
   box-shadow: $shadow-lg;
@@ -6626,6 +6629,12 @@ div.currency-sheet__item-icon {
     width: 16px;
     height: 16px;
   }
+}
+
+// Historic % is globally `display:none` on `.plan-return-metric__pct-line--historic`; ensure it shows when the
+// tone node lives in a single-asset row even if section modifier classes were briefly out of sync.
+.plan-detail-panel__alloc-item [data-plan-detail-historic-performance-tone] .plan-return-metric__pct-line--historic {
+  display: flex !important;
 }
 
 .plan-detail-panel__alloc-item {

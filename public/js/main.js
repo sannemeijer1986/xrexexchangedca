@@ -4763,13 +4763,18 @@
       const historicRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
       const headerHistoric = panel.querySelector('[data-plan-detail-alloc-header-historic]');
       const historicBelowInHeader = headerHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
-      const historicTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+      let historicTone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
       const historicAllocSubtitle = historicRow?.querySelector('[data-plan-detail-alloc-subtitle]');
 
       const placeHistoricToneInAllocHeaderInline = () => {
-        if (!headerHistoric || !historicTone || !historicBelowInHeader) return;
-        if (!headerHistoric.contains(historicTone) || historicTone.previousElementSibling !== historicBelowInHeader) {
-          headerHistoric.insertBefore(historicTone, historicBelowInHeader.nextSibling);
+        const tone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
+        if (!headerHistoric || !tone) return;
+        if (historicBelowInHeader) {
+          if (tone.parentElement === headerHistoric && tone.previousElementSibling === historicBelowInHeader) return;
+          headerHistoric.insertBefore(tone, historicBelowInHeader.nextSibling);
+        } else {
+          if (tone.parentElement === headerHistoric) return;
+          headerHistoric.appendChild(tone);
         }
       };
 
@@ -4872,17 +4877,26 @@
       }
       syncActiveAllocationVariant();
 
-      if (allocSection && historicRow && historicTone) {
+      // Keep modifier classes in sync whenever we have assets; do not depend on historic DOM (avoids stale
+      // is-multi-asset + single-row list, which hid single-asset historic UI).
+      if (allocSection) {
         if (allocItems.length === 1) {
           allocSection.classList.add('is-single-asset');
           allocSection.classList.remove('is-multi-asset');
+        } else if (allocItems.length >= 2) {
+          allocSection.classList.remove('is-single-asset');
+          allocSection.classList.add('is-multi-asset');
+        }
+      }
+
+      historicTone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
+      if (allocSection && historicRow && historicTone) {
+        if (allocItems.length === 1) {
           const firstItem = allocList.querySelector('.plan-detail-panel__alloc-item');
           if (firstItem && !firstItem.contains(historicTone)) {
             firstItem.appendChild(historicTone);
           }
         } else {
-          allocSection.classList.remove('is-single-asset');
-          allocSection.classList.toggle('is-multi-asset', allocItems.length >= 2);
           placeHistoricToneInAllocHeaderInline();
         }
       }

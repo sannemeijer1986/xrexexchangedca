@@ -45,6 +45,9 @@ $finance-section-gap: 40px;
 // Phone container dimensions
 $phone-width: 360px;
 $phone-height: 720px;
+// Taller preview frame when the browser viewport is above 820px high
+$phone-height-viewport-tall: 800px;
+$bp-viewport-tall: 821px;
 $status-bar-height: 44px;
 
 // Breakpoints
