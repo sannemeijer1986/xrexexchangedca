@@ -7028,6 +7028,39 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
 }
 
+.phone-container .plan-detail-panel__alloc-auto-tagline-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.phone-container .plan-detail-panel__alloc-auto-tagline-info {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  color: inherit;
+}
+.phone-container .plan-detail-panel__alloc-auto-tagline-info:focus-visible {
+  outline: 2px solid #4d88ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.phone-container .plan-detail-panel__alloc-auto-tagline-info img {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
 .phone-container .plan-detail-panel__alloc-auto-tagline {
   display: block;
   margin: 0;
@@ -7037,7 +7070,7 @@ div.currency-sheet__item-icon::before {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
-  color: #ffffff;
+  color: #8fb8ff;
 }
 
 .alloc-multi__auto-lock-row {

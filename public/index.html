@@ -1203,7 +1203,13 @@
                             <div class="plan-detail-panel__alloc-header-title-group">
                                 <div class="plan-detail-panel__section-label">
                                     <span class="plan-detail-panel__alloc-auto-title-line">Allocation (<span data-plan-detail-alloc-auto-count>1</span>)</span>
-                                    <span class="plan-detail-panel__alloc-auto-tagline">Automatically balanced to 100%</span>
+                                    <span class="plan-detail-panel__alloc-auto-tagline-row">
+                                        <span class="plan-detail-panel__alloc-auto-tagline">Automatically balanced to 100%</span>
+                                        <button type="button" class="plan-detail-panel__alloc-auto-tagline-info"
+                                            aria-label="About automatic balancing" data-smart-alloc-info-trigger>
+                                            <img src="assets/icon_info_circle_blue.svg" alt="" width="16" height="16" />
+                                        </button>
+                                    </span>
                                 </div>
                                 <div class="plan-detail-panel__alloc-header-historic-inline plan-detail-panel__alloc-header-historic-inline--auto">
                                     <span class="plan-detail-panel__historic-performance-label--below" data-plan-detail-alloc-auto-range>Past 5Y</span>
@@ -1970,6 +1976,22 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-plan-buffer-autofill-sheet-close>Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart allocation: tagline info bottom sheet -->
+    <div class="currency-sheet" data-smart-alloc-info-sheet hidden aria-modal="true" role="dialog" aria-label="Smart allocation">
+        <button class="currency-sheet__backdrop" type="button" data-smart-alloc-info-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Smart allocation</h2>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-smart-alloc-info-sheet-close>Got it</button>
             </div>
         </div>
     </div>

@@ -1731,6 +1731,38 @@
     sheet.querySelectorAll('[data-plan-buffer-autofill-sheet-close]').forEach((btn) => btn.addEventListener('click', close));
   };
 
+  const initSmartAllocInfoSheet = () => {
+    const sheet = document.querySelector('[data-smart-alloc-info-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+
+    const open = () => {
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel?.removeEventListener('transitionend', onEnd);
+      };
+      panel?.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    document.querySelectorAll('[data-smart-alloc-info-trigger]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    });
+    sheet.querySelectorAll('[data-smart-alloc-info-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+  };
+
   const initScheduleBuyNowInfoSheet = () => {
     const sheet = document.querySelector('[data-schedule-buy-now-info-sheet]');
     if (!sheet) return;
@@ -3022,6 +3054,7 @@
   initPromoIntroSheet({ goFinanceAutoInvest });
   initRangeSheet();
   initPlanBufferAutofillSheet();
+  initSmartAllocInfoSheet();
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
   initTopupSheet();
