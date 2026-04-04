@@ -2062,7 +2062,7 @@
     const endButtons = sheet.querySelectorAll('[data-schedule-end]');
 
     const timingSectionLabels = {
-      daily: 'Every day at',
+      daily: 'Every day',
       weekly: 'Every week on',
       monthly: 'Every month on',
     };
