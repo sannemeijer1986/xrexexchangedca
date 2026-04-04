@@ -64,7 +64,7 @@ body {
 
 .phone-container {
   width: 360px;
-  height: 800px;
+  height: 720px;
   background: #0D0E0F;
   border-radius: 40px 40px 32px 32px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -6693,10 +6693,12 @@ div.currency-sheet__item-icon::before {
   flex-shrink: 0;
   display: block;
   object-fit: cover;
+  margin-bottom: 5px;
 }
 
 .alloc-multi__info {
   flex: 1;
+  margin-bottom: 5px;
   min-width: 0;
 }
 
