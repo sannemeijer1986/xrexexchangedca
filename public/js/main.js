@@ -4241,7 +4241,11 @@
         }
         const isLocked = lockedIdx === i;
         item.classList.toggle('is-locked', isLocked);
-        if (lockLabelEl) lockLabelEl.textContent = isLocked ? 'Holding %' : 'Hold this %';
+        if (lockLabelEl) {
+          lockLabelEl.textContent = isLocked
+            ? `Holding at ${Math.round(pcts[i])}%`
+            : 'Hold this %';
+        }
         if (lockLabelEl) lockLabelEl.classList.toggle('is-locked', isLocked);
         if (lockBtn) {
           lockBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
