@@ -5024,6 +5024,11 @@
         if (footerEl) footerEl.hidden = activeTab !== 'coins';
       };
 
+      const syncCoinListMaxSelectedClass = () => {
+        if (!coinsListEl) return;
+        coinsListEl.classList.toggle('alloc-picker-panel__coins--max-selected', selectedCoinKeys.length >= 3);
+      };
+
       const syncCoinRowSelectionOnly = () => {
         if (!coinsListEl) return;
         const onSrc = 'assets/icon_checkbox_on.svg';
@@ -5039,6 +5044,7 @@
             if (check.getAttribute('src') !== next) check.setAttribute('src', next);
           }
         });
+        syncCoinListMaxSelectedClass();
       };
 
       const renderCoins = (opts = { full: true }) => {
@@ -5075,6 +5081,7 @@
             </button>
           `;
         }).join('');
+        syncCoinListMaxSelectedClass();
       };
 
       const createAllocPickerChip = (c) => {

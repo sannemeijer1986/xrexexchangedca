@@ -10445,7 +10445,7 @@ div.currency-sheet__item-icon::before {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 16px 140px;
+  padding: 0 16px 172px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -10593,10 +10593,15 @@ div.currency-sheet__item-icon::before {
   height: 70px;
   border: 0px;
   text-align: left;
+  transition: opacity 0.15s ease;
 }
 
 .alloc-picker-panel__coin-row.is-selected {
   outline: 2px solid #ffffff;
+}
+
+.alloc-picker-panel__coins--max-selected .alloc-picker-panel__coin-row:not(.is-selected) {
+  opacity: 0.4;
 }
 
 .alloc-picker-panel__coin-icon {
@@ -10711,6 +10716,14 @@ div.currency-sheet__item-icon::before {
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
   background-color: #151718;
   border-top: 1px solid #2d2f2f;
+}
+
+.phone-container p.alloc-picker-panel__selected-heading {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #ffffff;
 }
 
 .alloc-picker-panel__chips {
