@@ -11011,12 +11011,31 @@ div.currency-sheet__item-icon {
   border-top: 1px solid #2d2f2f;
 }
 
-.phone-container p.alloc-picker-panel__selected-heading {
+.alloc-picker-panel__selected-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 8px;
   margin: 0 0 8px;
+}
+
+.phone-container p.alloc-picker-panel__selected-heading {
+  margin: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: normal;
   color: #ffffff;
+  text-align: left;
+}
+
+.alloc-picker-panel__selected-max {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #8fb8ff;
+  text-align: left;
 }
 
 .alloc-picker-panel__chips {

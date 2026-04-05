@@ -5009,6 +5009,7 @@
       const chipsEl = allocPickerPanel.querySelector('[data-alloc-picker-chips]');
       const footerEl = allocPickerPanel.querySelector('[data-alloc-picker-footer]');
       const continueBtn = allocPickerPanel.querySelector('[data-alloc-picker-continue]');
+      const selectedHeadingEl = allocPickerPanel.querySelector('[data-alloc-picker-selected-heading]');
       const searchInput = allocPickerPanel.querySelector('[data-alloc-picker-search]');
       const searchClearBtn = allocPickerPanel.querySelector('[data-alloc-picker-search-clear]');
       const searchWrap = allocPickerPanel.querySelector('.alloc-picker-panel__search-wrap');
@@ -5115,8 +5116,13 @@
       const renderChips = (opts = { full: false }) => {
         if (!chipsEl || !continueBtn) return;
         const selected = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean);
-        continueBtn.textContent = `Continue (${selected.length})`;
-        continueBtn.disabled = selected.length < 1;
+        const n = selected.length;
+        if (selectedHeadingEl) {
+          const headingByCount = ['No coins selected', '1 coin selected', '2 coins selected', '3 coins selected'];
+          selectedHeadingEl.textContent = headingByCount[n] ?? headingByCount[0];
+        }
+        continueBtn.textContent = 'Continue';
+        continueBtn.disabled = n < 1;
 
         if (opts.full) {
           chipsEl.replaceChildren(...selected.map((c) => createAllocPickerChip(c)));
