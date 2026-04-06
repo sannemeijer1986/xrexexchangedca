@@ -8867,7 +8867,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-funding-summary__value--negative {
-  color: #eb5347;
+  color: #ff6d47;
 }
 
 .plan-buffer-funding-summary__value--positive {
@@ -8938,6 +8938,16 @@ div.currency-sheet__item-icon {
 .plan-buffer-funding-round__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+// Between 0 and 1 buy: left control matches Figma secondary “0 {cur} / Pay as you go” (8797:433389).
+.plan-buffer-funding-round__btn.plan-buffer-funding-round__btn--secondary-paygo {
+  background: #2d2f2f;
+}
+
+.plan-buffer-funding-round__btn.plan-buffer-funding-round__btn--secondary-paygo:disabled {
+  opacity: 1;
+  cursor: pointer;
 }
 
 .plan-buffer-funding-round__btn-main {
@@ -9048,7 +9058,7 @@ div.currency-sheet__item-icon {
   line-height: 1.2;
 }
 
-.plan-buffer-funding-autorefill__text {
+.phone-container .plan-buffer-funding-autorefill__text {
   margin: 4px 0 0;
   font-size: 14px;
   font-weight: 400;

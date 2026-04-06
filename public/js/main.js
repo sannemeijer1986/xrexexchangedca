@@ -6529,10 +6529,19 @@
           const roundDownSub = roundDownBtn.querySelector('.plan-buffer-funding-round__btn-sub');
           const hasRoundDownValue = nearestDown > 0;
           const downBuys = perBuy > 0 ? Math.floor(nearestDown / perBuy) : 0;
-          if (roundDownMain) roundDownMain.textContent = hasRoundDownValue ? `${formatWithCommas(nearestDown)} ${cur}` : '—';
-          if (roundDownSub) roundDownSub.textContent = hasRoundDownValue ? `${downBuys} ${downBuys === 1 ? 'buy' : 'buys'}` : '—';
-          roundDownBtn.disabled = !hasRoundDownValue;
-          roundDownBtn.hidden = !hasRoundDownValue;
+          const isSubOneBuyRemainder = perBuy > 0 && rawAmount > 0 && rawAmount < perBuy;
+          roundDownBtn.classList.toggle('plan-buffer-funding-round__btn--secondary-paygo', isSubOneBuyRemainder);
+          if (isSubOneBuyRemainder) {
+            if (roundDownMain) roundDownMain.textContent = `0 ${cur}`;
+            if (roundDownSub) roundDownSub.textContent = 'Pay as you go';
+            roundDownBtn.disabled = false;
+            roundDownBtn.hidden = false;
+          } else {
+            if (roundDownMain) roundDownMain.textContent = hasRoundDownValue ? `${formatWithCommas(nearestDown)} ${cur}` : '—';
+            if (roundDownSub) roundDownSub.textContent = hasRoundDownValue ? `${downBuys} ${downBuys === 1 ? 'buy' : 'buys'}` : '—';
+            roundDownBtn.disabled = !hasRoundDownValue;
+            roundDownBtn.hidden = !hasRoundDownValue;
+          }
         }
         if (roundUpBtn) {
           const roundUpMain = roundUpBtn.querySelector('.plan-buffer-funding-round__btn-main');
