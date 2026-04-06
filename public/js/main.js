@@ -6240,6 +6240,8 @@
       const reserveMaxBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-max]');
       const perBuySubtitleEl = bufferPanel.querySelector('[data-plan-buffer-perbuy-sub]');
       const planActionEl = bufferPanel.querySelector('[data-plan-buffer-plan-action]');
+      const planActionTitleEl = bufferPanel.querySelector('[data-plan-buffer-plan-action-title]');
+      const planActionBodyEl = bufferPanel.querySelector('[data-plan-buffer-plan-action-body]');
       const autoRefillTextEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-text]');
       const autoRefillToggleEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-toggle]');
       const roundWrapEl = bufferPanel.querySelector('[data-plan-buffer-rounding]');
@@ -6402,7 +6404,7 @@
         }
         if (reserveRangeEl) {
           reserveRangeEl.hidden = rawAmount > 0;
-          const minText = perBuy > 0 ? fmt(perBuy) : '—';
+          const minText = '0';
           const maxText = Number.isFinite(maxAllowedAmount) && maxAllowedAmount > 0 ? fmt(maxAllowedAmount) : '—';
           reserveRangeEl.textContent = `Min ${minText} / Max ${maxText}`;
         }
@@ -6546,11 +6548,18 @@
         const showValidAction = isValidReservedAmount;
         if (planActionEl) {
           if (showZeroAction) {
-            planActionEl.textContent = 'Paid from your balance at time of purchase. May fail if balance is low.';
+            if (planActionTitleEl) planActionTitleEl.textContent = 'Mode: Pay as you go';
+            if (planActionBodyEl) {
+              planActionBodyEl.textContent = 'No funds are set aside: Your plan is paid from your balance at time of each buy. May fail if balance is low.';
+            }
           } else if (showValidAction) {
-            planActionEl.textContent = `${fmt(rawAmount)} ${cur} will be set aside now and reserved for upcoming buys.`;
+            if (planActionTitleEl) planActionTitleEl.textContent = 'Mode: Set funds aside';
+            if (planActionBodyEl) {
+              planActionBodyEl.textContent = `${fmt(rawAmount)} ${cur} will be set aside now and reserved for upcoming buys.`;
+            }
           } else {
-            planActionEl.textContent = '';
+            if (planActionTitleEl) planActionTitleEl.textContent = '';
+            if (planActionBodyEl) planActionBodyEl.textContent = '';
           }
           planActionEl.hidden = !(showZeroAction || showValidAction);
         }
