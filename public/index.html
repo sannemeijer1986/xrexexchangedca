@@ -1459,16 +1459,16 @@
                             </div>
                         </div>
                         <div class="plan-buffer-funding-stack">
-                            <div class="plan-buffer-funding-input">
-                                <div class="plan-buffer-funding-input__head">
-                                    <div class="plan-buffer-funding-input__title">Set aside</div>
-                                    <div class="plan-buffer-funding-input__avail">
-                                        <span data-plan-buffer-avail-balance-2>Avail. —</span>
-                                        <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
-                                            <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
-                                        </button>
-                                    </div>
+                            <div class="plan-buffer-funding-input__head">
+                                <div class="plan-buffer-funding-input__title">Set aside</div>
+                                <div class="plan-buffer-funding-input__avail">
+                                    <span data-plan-buffer-avail-balance-2>Avail. —</span>
+                                    <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
+                                        <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
+                                    </button>
                                 </div>
+                            </div>
+                            <div class="plan-buffer-funding-input">
                                 <div class="plan-buffer-funding-input__row">
                                     <div class="plan-buffer-funding-input__left">
                                         <img class="plan-buffer-funding-input__icon" src="assets/icon_currency_usdt.svg" width="32" height="32" alt="" data-plan-buffer-reserve-input-icon />
@@ -1492,6 +1492,19 @@
                                     <p class="plan-buffer-panel__reserve-error plan-buffer-panel__reserve-error--inline" data-plan-buffer-balance-error hidden>Not enough balance</p>
                                     <button class="plan-buffer-funding-input__max-btn" type="button" data-plan-buffer-reserve-max>Max</button>
                                 </div>
+                                <div class="plan-buffer-funding-round" data-plan-buffer-rounding hidden>
+                                    <div class="plan-buffer-funding-round__title">Round to a <span class="plan-buffer-funding-round__title-em">whole number of buys</span></div>
+                                    <div class="plan-buffer-funding-round__actions">
+                                        <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-down>
+                                            <span class="plan-buffer-funding-round__btn-main">—</span>
+                                            <span class="plan-buffer-funding-round__btn-sub">—</span>
+                                        </button>
+                                        <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-up>
+                                            <span class="plan-buffer-funding-round__btn-main">—</span>
+                                            <span class="plan-buffer-funding-round__btn-sub">—</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="plan-buffer-funding-action" data-plan-buffer-plan-action hidden></div>
                             </div>
 
@@ -1507,19 +1520,6 @@
                                 <div class="plan-buffer-funding-summary__row">
                                     <span class="plan-buffer-funding-summary__label">Unused remainder</span>
                                     <span class="plan-buffer-funding-summary__value" data-plan-buffer-sum-unused>—</span>
-                                </div>
-                                <div class="plan-buffer-funding-round" data-plan-buffer-rounding hidden>
-                                    <div class="plan-buffer-funding-round__title">Round to a <span class="plan-buffer-funding-round__title-em">whole number of buys</span></div>
-                                    <div class="plan-buffer-funding-round__actions">
-                                        <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-down>
-                                            <span class="plan-buffer-funding-round__btn-main">—</span>
-                                            <span class="plan-buffer-funding-round__btn-sub">—</span>
-                                        </button>
-                                        <button class="plan-buffer-funding-round__btn" type="button" data-plan-buffer-round-up>
-                                            <span class="plan-buffer-funding-round__btn-main">—</span>
-                                            <span class="plan-buffer-funding-round__btn-sub">—</span>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 

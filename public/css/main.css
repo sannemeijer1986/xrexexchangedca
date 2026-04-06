@@ -8437,7 +8437,7 @@ div.currency-sheet__item-icon::before {
   color: #ffffff;
 }
 
-.plan-buffer-funding-hero__subtitle {
+.plan-buffer-panel p.plan-buffer-funding-hero__subtitle {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
@@ -8626,8 +8626,8 @@ div.currency-sheet__item-icon::before {
 .plan-buffer-funding-round {
   width: 100%;
   border-top: 0;
-  margin-top: 2px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -8761,7 +8761,7 @@ div.currency-sheet__item-icon::before {
   line-height: 1.2;
 }
 
-.plan-buffer-funding-autorefill__text {
+.plan-buffer-panel p.plan-buffer-funding-autorefill__text {
   margin: 4px 0 0;
   font-size: 14px;
   font-weight: 400;
