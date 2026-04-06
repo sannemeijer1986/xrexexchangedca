@@ -6577,7 +6577,7 @@
 
         if (autoRefillTextEl) {
           autoRefillTextEl.textContent = showValidAction
-            ? `We\u2019ll reserve ${fmt(rawAmount)} ${cur} again after this ${fmt(rawAmount)} ${cur} runs out.`
+            ? `We\u2019ll reserve ${fmt(rawAmount)} ${cur} again after funds runs out.`
             : '\u2014';
         }
         autoRefillOptionBtns.forEach((btn) => {
