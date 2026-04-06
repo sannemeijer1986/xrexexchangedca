@@ -1506,7 +1506,9 @@
                                     </div>
                                 </div>
                                 <div class="plan-buffer-funding-action" data-plan-buffer-plan-action hidden>
-                                    <p class="plan-buffer-funding-action__title" data-plan-buffer-plan-action-title></p>
+                                    <p class="plan-buffer-funding-action__title" data-plan-buffer-plan-action-title>
+                                        <span class="plan-buffer-funding-action__title-prefix">Mode: </span><span class="plan-buffer-funding-action__title-suffix" data-plan-buffer-plan-action-title-suffix></span>
+                                    </p>
                                     <p class="plan-buffer-funding-action__body" data-plan-buffer-plan-action-body></p>
                                 </div>
                             </div>
@@ -1526,23 +1528,47 @@
                                 </div>
                             </div>
 
+                            <hr class="plan-buffer-funding-summary-autorefill-divider" aria-hidden="true" />
+
                             <div class="plan-buffer-funding-autorefill" data-plan-buffer-autorefill>
-                                <button class="plan-buffer-funding-autorefill__toggle is-on" type="button" role="switch" aria-checked="true" aria-label="Auto-refill when funds run out" data-plan-buffer-autorefill-toggle>
-                                    <span class="plan-buffer-funding-autorefill__toggle-knob" aria-hidden="true"></span>
-                                </button>
-                                <div class="plan-buffer-funding-autorefill__content">
-                                    <p class="plan-buffer-funding-autorefill__title">Auto-refill when funds run out</p>
-                                    <p class="plan-buffer-funding-autorefill__text" data-plan-buffer-autorefill-text>—</p>
-                                    <button class="plan-buffer-funding-autorefill__info" type="button" data-plan-buffer-autofill-info>
-                                        <span class="plan-buffer-funding-autorefill__info-text">Learn more</span>
-                                        <img
-                                            class="plan-buffer-funding-autorefill__info-icon"
-                                            src="assets/icon_right_bluechev.svg"
-                                            width="16"
-                                            height="16"
-                                            alt=""
-                                            aria-hidden="true"
-                                        />
+                                <p class="plan-buffer-funding-autorefill__heading">When set-aside funds run out</p>
+                                <div class="plan-buffer-funding-autorefill__list currency-sheet__list" role="radiogroup" aria-label="When set-aside funds run out">
+                                    <button
+                                        class="plan-buffer-funding-autorefill__option currency-sheet__item is-selected"
+                                        type="button"
+                                        role="radio"
+                                        aria-checked="true"
+                                        data-plan-buffer-autorefill-option="auto"
+                                    >
+                                        <span class="plan-buffer-funding-autorefill__option-icon" aria-hidden="true">
+                                            <img src="assets/icon_fund1.svg" width="20" height="20" alt="" />
+                                        </span>
+                                        <span class="plan-buffer-funding-autorefill__option-content currency-sheet__item-content">
+                                            <span class="plan-buffer-funding-autorefill__option-title currency-sheet__item-name">Add funds automatically</span>
+                                            <span class="plan-buffer-funding-autorefill__option-sub currency-sheet__item-desc" data-plan-buffer-autorefill-text>—</span>
+                                        </span>
+                                        <span class="currency-sheet__item-radio" aria-hidden="true">
+                                            <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" width="22" height="22" alt="" />
+                                        </span>
+                                    </button>
+                                    <div class="plan-buffer-funding-autorefill__divider" aria-hidden="true"></div>
+                                    <button
+                                        class="plan-buffer-funding-autorefill__option currency-sheet__item"
+                                        type="button"
+                                        role="radio"
+                                        aria-checked="false"
+                                        data-plan-buffer-autorefill-option="balance"
+                                    >
+                                        <span class="plan-buffer-funding-autorefill__option-icon" aria-hidden="true">
+                                            <img src="assets/icon_fund2.svg" width="20" height="20" alt="" />
+                                        </span>
+                                        <span class="plan-buffer-funding-autorefill__option-content currency-sheet__item-content">
+                                            <span class="plan-buffer-funding-autorefill__option-title currency-sheet__item-name">Use remaining balance</span>
+                                            <span class="plan-buffer-funding-autorefill__option-sub currency-sheet__item-desc">No funds set aside after funds run out: Deducted from balance per buy.</span>
+                                        </span>
+                                        <span class="currency-sheet__item-radio" aria-hidden="true">
+                                            <img class="currency-sheet__radio-inner" src="assets/icon_radiocheck.svg" width="22" height="22" alt="" />
+                                        </span>
                                     </button>
                                 </div>
                             </div>

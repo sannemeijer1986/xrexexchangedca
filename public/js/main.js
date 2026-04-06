@@ -6240,10 +6240,12 @@
       const reserveMaxBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-max]');
       const perBuySubtitleEl = bufferPanel.querySelector('[data-plan-buffer-perbuy-sub]');
       const planActionEl = bufferPanel.querySelector('[data-plan-buffer-plan-action]');
-      const planActionTitleEl = bufferPanel.querySelector('[data-plan-buffer-plan-action-title]');
+      const planActionTitleSuffixEl = bufferPanel.querySelector('[data-plan-buffer-plan-action-title-suffix]');
       const planActionBodyEl = bufferPanel.querySelector('[data-plan-buffer-plan-action-body]');
       const autoRefillTextEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-text]');
-      const autoRefillToggleEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-toggle]');
+      const autoRefillOptionBtns = Array.from(
+        bufferPanel.querySelectorAll('[data-plan-buffer-autorefill-option]'),
+      );
       const roundWrapEl = bufferPanel.querySelector('[data-plan-buffer-rounding]');
       const roundDownBtn = bufferPanel.querySelector('[data-plan-buffer-round-down]');
       const roundUpBtn = bufferPanel.querySelector('[data-plan-buffer-round-up]');
@@ -6557,17 +6559,17 @@
         const showValidAction = isValidReservedAmount;
         if (planActionEl) {
           if (showZeroAction) {
-            if (planActionTitleEl) planActionTitleEl.textContent = 'Mode: Pay as you go';
+            if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = 'Pay as you go';
             if (planActionBodyEl) {
               planActionBodyEl.textContent = 'No funds are set aside: Your plan is paid from your balance at time of each buy. May fail if balance is low.';
             }
           } else if (showValidAction) {
-            if (planActionTitleEl) planActionTitleEl.textContent = 'Mode: Set funds aside';
+            if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = 'Set funds aside';
             if (planActionBodyEl) {
               planActionBodyEl.textContent = `${fmt(rawAmount)} ${cur} will be set aside now and reserved for upcoming buys.`;
             }
           } else {
-            if (planActionTitleEl) planActionTitleEl.textContent = '';
+            if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = '';
             if (planActionBodyEl) planActionBodyEl.textContent = '';
           }
           planActionEl.hidden = !(showZeroAction || showValidAction);
@@ -6578,10 +6580,12 @@
             ? `We\u2019ll reserve ${fmt(rawAmount)} ${cur} again after this ${fmt(rawAmount)} ${cur} runs out.`
             : '\u2014';
         }
-        if (autoRefillToggleEl) {
-          autoRefillToggleEl.classList.toggle('is-on', autoRefillEnabled);
-          autoRefillToggleEl.setAttribute('aria-checked', autoRefillEnabled ? 'true' : 'false');
-        }
+        autoRefillOptionBtns.forEach((btn) => {
+          const key = btn.getAttribute('data-plan-buffer-autorefill-option') || 'auto';
+          const selected = autoRefillEnabled ? key === 'auto' : key === 'balance';
+          btn.classList.toggle('is-selected', selected);
+          btn.setAttribute('aria-checked', selected ? 'true' : 'false');
+        });
 
         bufferPanel.classList.toggle('plan-buffer-panel--state-empty', isEmptyInput);
         bufferPanel.classList.toggle('plan-buffer-panel--state-zero', isZeroInput);
@@ -6753,9 +6757,12 @@
         render();
       });
 
-      autoRefillToggleEl?.addEventListener('click', () => {
-        autoRefillEnabled = !autoRefillEnabled;
-        render();
+      autoRefillOptionBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-plan-buffer-autorefill-option') || 'auto';
+          autoRefillEnabled = key !== 'balance';
+          render();
+        });
       });
 
       bufferPanel.querySelector('[data-plan-buffer-confirm]')?.addEventListener('click', () => {
