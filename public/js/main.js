@@ -4490,6 +4490,14 @@
     let planBufferApi = { open: () => {}, close: () => {} };
     let planEndConditionApi = { open: () => {}, close: () => {} };
     let planSuccessApi = { close: () => {}, forceClose: () => {} };
+    let planBufferOverviewState = {
+      mode: 'flexible',
+      rawAmount: 0,
+      reservedAmount: 0,
+      autoRefillEnabled: true,
+      currency: '',
+      perBuy: 0,
+    };
 
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
@@ -5850,17 +5858,16 @@
           totalPlannedValEl.textContent = showTotalPlanned ? detailTotalPlanned : '- -';
         }
 
-        const selectedMethodBtn =
-          panel.querySelector('[data-plan-buffer-method].is-selected') ||
-          panel.querySelector('[data-plan-buffer-method][aria-pressed="true"]');
-        const selectedMethod = selectedMethodBtn?.getAttribute('data-plan-buffer-method') === 'reserved'
-          ? 'reserved'
-          : 'flexible';
+        const selectedMethod = planBufferOverviewState.mode === 'reserved' ? 'reserved' : 'flexible';
         if (paymentMethodEl) {
           paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Set aside funds' : 'Pay as you go';
         }
         if (paymentMethodSubEl) {
           const showPaymentMethodSub = selectedMethod === 'reserved';
+          const refillLabel = planBufferOverviewState.autoRefillEnabled
+            ? 'Auto-refill: On'
+            : 'Auto-refill: Off';
+          paymentMethodSubEl.textContent = showPaymentMethodSub ? `Reserved instantly · ${refillLabel}` : '';
           paymentMethodSubEl.hidden = !showPaymentMethodSub;
           paymentMethodSubEl.style.display = showPaymentMethodSub ? '' : 'none';
         }
@@ -5878,10 +5885,9 @@
           prefundAfterDividerEl.style.display = showPrefund ? '' : 'none';
         }
         if (prefundAmountEl) {
-          const reserveInputRaw = String(
-            panel.querySelector('[data-plan-buffer-reserve-input]')?.value || '',
-          ).replace(/[^0-9]/g, '');
-          const reserveInputNum = reserveInputRaw ? parseInt(reserveInputRaw, 10) : NaN;
+          const reserveInputNum = Number.isFinite(planBufferOverviewState.reservedAmount)
+            ? Math.floor(planBufferOverviewState.reservedAmount)
+            : NaN;
           prefundAmountEl.textContent = Number.isFinite(reserveInputNum) && reserveInputNum > 0
             ? `${reserveInputNum.toLocaleString('en-US')} ${cur}`
             : '—';
@@ -6557,6 +6563,14 @@
 
         const showZeroAction = isZeroInput;
         const showValidAction = isValidReservedAmount;
+        planBufferOverviewState = {
+          mode: showValidAction ? 'reserved' : 'flexible',
+          rawAmount,
+          reservedAmount: reserveAmount,
+          autoRefillEnabled,
+          currency: cur,
+          perBuy,
+        };
         if (planActionEl) {
           if (showZeroAction) {
             if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = 'Pay as you go';
