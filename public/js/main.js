@@ -6231,8 +6231,6 @@
       const coversPeriodTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-period-total-suffix]');
       const coversAmountTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total-suffix]');
 
-      const flexHeroCurEl = bufferPanel.querySelector('[data-plan-buffer-flex-hero-cur]');
-      const resHeroCurEl = bufferPanel.querySelector('[data-plan-buffer-res-hero-cur]');
       const sumPerbuyEl = bufferPanel.querySelector('[data-plan-buffer-sum-perbuy]');
       const sumCoversEl = bufferPanel.querySelector('[data-plan-buffer-sum-covers]');
       const sumUnusedEl = bufferPanel.querySelector('[data-plan-buffer-sum-unused]');
@@ -6240,6 +6238,10 @@
       const reserveRangeEl = bufferPanel.querySelector('[data-plan-buffer-reserve-range]');
       const reserveInputIconEl = bufferPanel.querySelector('[data-plan-buffer-reserve-input-icon]');
       const reserveMaxBtn = bufferPanel.querySelector('[data-plan-buffer-reserve-max]');
+      const perBuySubtitleEl = bufferPanel.querySelector('[data-plan-buffer-perbuy-sub]');
+      const planActionEl = bufferPanel.querySelector('[data-plan-buffer-plan-action]');
+      const autoRefillTextEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-text]');
+      const autoRefillToggleEl = bufferPanel.querySelector('[data-plan-buffer-autorefill-toggle]');
       const roundWrapEl = bufferPanel.querySelector('[data-plan-buffer-rounding]');
       const roundDownBtn = bufferPanel.querySelector('[data-plan-buffer-round-down]');
       const roundUpBtn = bufferPanel.querySelector('[data-plan-buffer-round-up]');
@@ -6251,6 +6253,7 @@
       let reserveInputAmount = 0;
       let coversTotalBuys = 40;
       let isSetLimit = false;
+      let autoRefillEnabled = true;
 
       const setMethodUI = (next) => {
         method = next === 'reserved' ? 'reserved' : 'flexible';
@@ -6281,6 +6284,11 @@
       const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('en-US') : '—');
       const formatWithCommas = (n) => n.toLocaleString('en-US');
       const MAX_RESERVE_INPUT = 99999999;
+      const formatBuys = (n) => {
+        if (!Number.isFinite(n) || n <= 0) return '0';
+        const rounded = Math.round(n * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+      };
       const currencyIconSrc = (code) => {
         const c = String(code || 'USDT').toUpperCase();
         const map = {
@@ -6346,6 +6354,9 @@
         const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
         const maxAllowedAmount = Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount)));
         const rawAmount = reserveInputAmount;
+        const inputDigits = String(reserveInputEl?.value || '').replace(/[^0-9]/g, '');
+        const isEmptyInput = inputDigits.length === 0;
+        const isZeroInput = !isEmptyInput && rawAmount === 0;
         const isReservedActive = !!reservedDetails && !reservedDetails.hidden;
         const hasReserveBalanceError = isReservedActive && rawAmount > balance;
         const isOverLimit = isReservedActive && rawAmount > reserveLimitAmount;
@@ -6371,7 +6382,7 @@
         if (reserveAmtEl) reserveAmtEl.textContent = reserveAmount > 0 ? fmt(reserveAmount) : '- -';
         if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !(hasReserveBalanceError || isOverLimit);
         if (reserveInputEl && document.activeElement !== reserveInputEl) {
-          reserveInputEl.value = rawAmount > 0 ? formatWithCommas(rawAmount) : '';
+          reserveInputEl.value = rawAmount > 0 ? formatWithCommas(rawAmount) : (isEmptyInput ? '' : '0');
         }
         if (reserveRangeEl) {
           reserveRangeEl.hidden = rawAmount > 0;
@@ -6466,17 +6477,20 @@
         if (incBtn) incBtn.disabled = coversNowForButtons >= maxBuys;
         if (inc10Btn) inc10Btn.disabled = coversNowForButtons >= maxBuys;
 
-        if (flexHeroCurEl) flexHeroCurEl.textContent = cur;
-        if (resHeroCurEl) resHeroCurEl.textContent = cur;
+        if (perBuySubtitleEl) {
+          perBuySubtitleEl.textContent = perBuy > 0 ? `Per buy : ${fmt(perBuy)} ${cur}` : 'Per buy : —';
+        }
         if (sumPerbuyEl) sumPerbuyEl.textContent = perBuyStr;
         if (sumCoversEl) {
           if (perBuy > 0 && rawAmount > 0) {
-            const buyLabel = coversNow === 1 ? 'buy' : 'buys';
-            const periodLabel = coversNow === 1 ? unit : unitPlural;
-            sumCoversEl.textContent = `${coversNow} ${buyLabel}/${periodLabel}`;
+            const buysCovered = rawAmount / perBuy;
+            const buyLabel = buysCovered === 1 ? 'buy' : 'buys';
+            sumCoversEl.textContent = `${formatBuys(buysCovered)} ${buyLabel}`;
           } else {
             sumCoversEl.textContent = '- -';
           }
+          sumCoversEl.classList.toggle('plan-buffer-funding-summary__value--warning', rawAmount > 0 && unusedRaw > 0);
+          sumCoversEl.classList.toggle('plan-buffer-funding-summary__value--highlight', rawAmount > 0 && unusedRaw === 0);
         }
         if (sumUnusedEl) {
           const unusedText = perBuy > 0 && rawAmount > 0 ? `${fmt(Math.max(0, unusedRaw))} ${cur}` : '- -';
@@ -6490,19 +6504,56 @@
         const showRounding = perBuy > 0 && rawAmount > 0 && unusedRaw !== 0;
         if (roundWrapEl) roundWrapEl.hidden = !showRounding;
         if (roundDownBtn) {
+          const roundDownMain = roundDownBtn.querySelector('.plan-buffer-funding-round__btn-main');
+          const roundDownSub = roundDownBtn.querySelector('.plan-buffer-funding-round__btn-sub');
           const hasRoundDownValue = nearestDown > 0;
-          roundDownBtn.textContent = hasRoundDownValue ? formatWithCommas(nearestDown) : '—';
+          const downBuys = perBuy > 0 ? Math.floor(nearestDown / perBuy) : 0;
+          if (roundDownMain) roundDownMain.textContent = hasRoundDownValue ? `${formatWithCommas(nearestDown)} ${cur}` : '—';
+          if (roundDownSub) roundDownSub.textContent = hasRoundDownValue ? `${downBuys} ${downBuys === 1 ? 'buy' : 'buys'}` : '—';
           roundDownBtn.disabled = !hasRoundDownValue;
           roundDownBtn.hidden = !hasRoundDownValue;
         }
         if (roundUpBtn) {
-          roundUpBtn.textContent = nearestUp > 0 ? formatWithCommas(nearestUp) : '—';
+          const roundUpMain = roundUpBtn.querySelector('.plan-buffer-funding-round__btn-main');
+          const roundUpSub = roundUpBtn.querySelector('.plan-buffer-funding-round__btn-sub');
+          const upBuys = perBuy > 0 ? Math.floor(nearestUp / perBuy) : 0;
+          if (roundUpMain) roundUpMain.textContent = nearestUp > 0 ? `${formatWithCommas(nearestUp)} ${cur}` : '—';
+          if (roundUpSub) roundUpSub.textContent = nearestUp > 0 ? `${upBuys} ${upBuys === 1 ? 'buy' : 'buys'}` : '—';
           roundUpBtn.disabled = !(nearestUp > 0 && nearestUp <= maxAllowedAmount);
         }
         if (reserveMaxBtn) reserveMaxBtn.disabled = !(maxAllowedAmount > 0);
 
-        const reservedContinueDisabled = method === 'reserved' && !isValidReservedAmount;
-        if (ctaBtn) ctaBtn.disabled = reservedContinueDisabled;
+        const showZeroAction = isZeroInput;
+        const showValidAction = isValidReservedAmount;
+        if (planActionEl) {
+          if (showZeroAction) {
+            planActionEl.textContent = 'Paid from your balance at time of purchase. May fail if balance is low.';
+          } else if (showValidAction) {
+            planActionEl.textContent = `${fmt(rawAmount)} ${cur} will be set aside now and reserved for upcoming buys.`;
+          } else {
+            planActionEl.textContent = '';
+          }
+          planActionEl.hidden = !(showZeroAction || showValidAction);
+        }
+
+        if (autoRefillTextEl) {
+          autoRefillTextEl.textContent = showValidAction
+            ? `We\u2019ll reserve ${fmt(rawAmount)} ${cur} again after this ${fmt(rawAmount)} ${cur} runs out.`
+            : '\u2014';
+        }
+        if (autoRefillToggleEl) {
+          autoRefillToggleEl.classList.toggle('is-on', autoRefillEnabled);
+          autoRefillToggleEl.setAttribute('aria-checked', autoRefillEnabled ? 'true' : 'false');
+        }
+
+        bufferPanel.classList.toggle('plan-buffer-panel--state-empty', isEmptyInput);
+        bufferPanel.classList.toggle('plan-buffer-panel--state-zero', isZeroInput);
+        bufferPanel.classList.toggle('plan-buffer-panel--has-positive', rawAmount > 0);
+        bufferPanel.classList.toggle('plan-buffer-panel--state-invalid', rawAmount > 0 && !isMultiple);
+        bufferPanel.classList.toggle('plan-buffer-panel--state-valid', showValidAction);
+
+        const shouldDisableContinue = isEmptyInput || (rawAmount > 0 && !isValidReservedAmount);
+        if (ctaBtn) ctaBtn.disabled = shouldDisableContinue;
       };
 
       const syncFromPlanDetail = () => {
@@ -6522,6 +6573,7 @@
         // Funding (Set aside) starts empty until user enters a valid amount.
         reserveInputAmount = 0;
         reserveAmount = 0;
+        autoRefillEnabled = true;
 
         setMethodUI('reserved');
         render();
@@ -6619,10 +6671,11 @@
       });
 
       reserveInputEl?.addEventListener('blur', () => {
-        const raw = parseInt(String(reserveInputEl.value || '').replace(/[^0-9]/g, ''), 10);
-        reserveInputAmount = Number.isFinite(raw) && raw > 0 ? raw : 0;
+        const digits = String(reserveInputEl.value || '').replace(/[^0-9]/g, '');
+        const raw = parseInt(digits, 10);
+        reserveInputAmount = Number.isFinite(raw) ? Math.max(0, raw) : 0;
         if (reserveInputEl) {
-          reserveInputEl.value = reserveInputAmount > 0 ? formatWithCommas(reserveInputAmount) : '';
+          reserveInputEl.value = digits ? formatWithCommas(reserveInputAmount) : '';
         }
         render();
       });
@@ -6660,6 +6713,11 @@
         if (perBuy <= 0) return;
         const maxAllowed = getMaxAllowedAmount();
         reserveInputAmount = Math.floor(maxAllowed / perBuy) * perBuy;
+        render();
+      });
+
+      autoRefillToggleEl?.addEventListener('click', () => {
+        autoRefillEnabled = !autoRefillEnabled;
         render();
       });
 
