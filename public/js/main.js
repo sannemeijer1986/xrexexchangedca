@@ -6323,6 +6323,22 @@
         return guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
+      const computeCoversUntilText = ({ periods, unit, unitPlural }) => {
+        if (!Number.isFinite(periods) || periods <= 0) return '- -';
+        const nextBuyDate = computeNextBuyDate();
+        const anchor = new Date(nextBuyDate);
+        if (Number.isNaN(anchor.getTime())) {
+          const label = periods === 1 ? unit : unitPlural;
+          return `${periods} ${label}`;
+        }
+        if (unit === 'day') anchor.setDate(anchor.getDate() + periods);
+        else if (unit === 'week') anchor.setDate(anchor.getDate() + (periods * 7));
+        else anchor.setMonth(anchor.getMonth() + periods);
+        const month = anchor.toLocaleDateString('en-US', { month: 'short' });
+        const label = periods === 1 ? unit : unitPlural;
+        return `${month} · ${periods} ${label}`;
+      };
+
       const getReserveBuyBounds = () => {
         // Prototype rule: pre-fund stepper never goes below 1 buy.
         if (!isSetLimit) return { min: 1, max: Number.POSITIVE_INFINITY };
@@ -6480,17 +6496,20 @@
         if (perBuySubtitleEl) {
           perBuySubtitleEl.textContent = perBuy > 0 ? `Per buy : ${fmt(perBuy)} ${cur}` : 'Per buy : —';
         }
-        if (sumPerbuyEl) sumPerbuyEl.textContent = perBuyStr;
-        if (sumCoversEl) {
+        if (sumPerbuyEl) {
           if (perBuy > 0 && rawAmount > 0) {
             const buysCovered = rawAmount / perBuy;
             const buyLabel = buysCovered === 1 ? 'buy' : 'buys';
-            sumCoversEl.textContent = `${formatBuys(buysCovered)} ${buyLabel}`;
+            sumPerbuyEl.textContent = `${formatBuys(buysCovered)} ${buyLabel}`;
           } else {
-            sumCoversEl.textContent = '- -';
+            sumPerbuyEl.textContent = '- -';
           }
-          sumCoversEl.classList.toggle('plan-buffer-funding-summary__value--warning', rawAmount > 0 && unusedRaw > 0);
-          sumCoversEl.classList.toggle('plan-buffer-funding-summary__value--highlight', rawAmount > 0 && unusedRaw === 0);
+          sumPerbuyEl.classList.toggle('plan-buffer-funding-summary__value--warning', rawAmount > 0 && unusedRaw > 0);
+          sumPerbuyEl.classList.toggle('plan-buffer-funding-summary__value--highlight', rawAmount > 0 && unusedRaw === 0);
+        }
+        if (sumCoversEl) {
+          const periods = perBuy > 0 && rawAmount > 0 ? Math.max(1, Math.floor(rawAmount / perBuy)) : 0;
+          sumCoversEl.textContent = computeCoversUntilText({ periods, unit, unitPlural });
         }
         if (sumUnusedEl) {
           const unusedText = perBuy > 0 && rawAmount > 0 ? `${fmt(Math.max(0, unusedRaw))} ${cur}` : '- -';
