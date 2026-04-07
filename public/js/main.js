@@ -3274,8 +3274,8 @@
       // Pay-as-you-go only: "Uses your balance each buy" row.
       if (!planRecord.isReserved) {
         const balanceRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
-        balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Uses your balance each buy'));
-        const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Balance ok');
+        balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Paid from your balance'));
+        const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Sufficient balance');
         balanceRow.appendChild(bal);
         list.appendChild(balanceRow);
       }

@@ -10485,6 +10485,7 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-panel__tabs {
   display: flex;
+  margin-top: 12px;
   flex-direction: row;
   align-items: stretch;
   flex-shrink: 0;
