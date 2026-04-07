@@ -5707,6 +5707,9 @@
         const paymentMethodSubEl = overviewPanel.querySelector('[data-plan-overview-payment-method-sub]');
         const prefundDividerEl = overviewPanel.querySelector('[data-plan-overview-prefund-divider]');
         const prefundRowEl = overviewPanel.querySelector('[data-plan-overview-prefund-row]');
+        const runoutDividerEl = overviewPanel.querySelector('[data-plan-overview-runout-divider]');
+        const runoutRowEl = overviewPanel.querySelector('[data-plan-overview-runout-row]');
+        const runoutValueEl = overviewPanel.querySelector('[data-plan-overview-runout-value]');
         const prefundAfterDividerEl = overviewPanel.querySelector('[data-plan-overview-prefund-after-divider]');
         const prefundAmountEl = overviewPanel.querySelector('[data-plan-overview-prefund-amount]');
         const prefundSubEl = overviewPanel.querySelector('[data-plan-overview-prefund-sub]');
@@ -5863,13 +5866,9 @@
           paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Set aside funds' : 'Pay as you go';
         }
         if (paymentMethodSubEl) {
-          const showPaymentMethodSub = selectedMethod === 'reserved';
-          const refillLabel = planBufferOverviewState.autoRefillEnabled
-            ? 'Auto-refill: On'
-            : 'Auto-refill: Off';
-          paymentMethodSubEl.textContent = showPaymentMethodSub ? `Reserved instantly · ${refillLabel}` : '';
-          paymentMethodSubEl.hidden = !showPaymentMethodSub;
-          paymentMethodSubEl.style.display = showPaymentMethodSub ? '' : 'none';
+          paymentMethodSubEl.textContent = '';
+          paymentMethodSubEl.hidden = true;
+          paymentMethodSubEl.style.display = 'none';
         }
         const showPrefund = selectedMethod === 'reserved';
         if (prefundRowEl) {
@@ -5879,6 +5878,19 @@
         if (prefundDividerEl) {
           prefundDividerEl.hidden = !showPrefund;
           prefundDividerEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (runoutDividerEl) {
+          runoutDividerEl.hidden = !showPrefund;
+          runoutDividerEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (runoutRowEl) {
+          runoutRowEl.hidden = !showPrefund;
+          runoutRowEl.style.display = showPrefund ? '' : 'none';
+        }
+        if (runoutValueEl) {
+          runoutValueEl.textContent = planBufferOverviewState.autoRefillEnabled
+            ? 'Auto-refill'
+            : 'Use remaining balance';
         }
         if (prefundAfterDividerEl) {
           prefundAfterDividerEl.hidden = !showPrefund;
