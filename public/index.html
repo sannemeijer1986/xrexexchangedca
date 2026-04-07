@@ -1857,11 +1857,7 @@
                     <div class="my-plans-panel__section" data-my-plans-list></div>
                     <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
-                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
-                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
+                            <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
                         <p class="my-plans-panel__empty-text">No data</p>
                     </div>
@@ -1870,11 +1866,7 @@
                     <div class="my-plans-panel__section" data-my-plans-list></div>
                     <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
-                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
-                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
+                            <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
                         <p class="my-plans-panel__empty-text">No data</p>
                     </div>
@@ -1883,16 +1875,31 @@
                     <div class="my-plans-panel__section" data-my-plans-list></div>
                     <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
-                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
-                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                            </svg>
+                            <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
                         <p class="my-plans-panel__empty-text">No data</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Plan detail from My plans (slides in over list; same phone frame) -->
+    <section class="my-plans-detail-panel" data-my-plans-detail-panel hidden aria-label="Plan details">
+        <header class="my-plans-detail-panel__header">
+            <button class="my-plans-detail-panel__icon-btn" type="button" data-my-plans-detail-close aria-label="Back">
+                <img src="assets/icon_back.svg" alt="" width="24" height="24" />
+            </button>
+            <div class="my-plans-detail-panel__title-wrap">
+                <p class="my-plans-detail-panel__kicker" data-my-plans-detail-kicker>Plan</p>
+                <h1 class="my-plans-detail-panel__title" data-my-plans-detail-title>Your plan</h1>
+            </div>
+        </header>
+        <div class="my-plans-detail-panel__scroller">
+            <div class="my-plans-detail-panel__product">
+                <div class="my-plans-detail-panel__icons" data-my-plans-detail-icons aria-hidden="true"></div>
+            </div>
+            <div class="my-plans-detail-panel__section" data-my-plans-detail-body></div>
         </div>
     </section>
 

@@ -1226,6 +1226,8 @@
   let financeSummaryConfirmedReserved = null;
   /** Snapshot of the latest submitted plan used by "My plans". */
   let myPlansSubmittedPlan = null;
+  /** Frozen pre-submit snapshot used by "My plans" until a plan is submitted. */
+  let myPlansPrefillPlan = null;
 
   // Static FX for prototype: 1 USD ≈ 32 TWD
   const FX_USD_TWD = 32;
@@ -1342,6 +1344,7 @@
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       myPlansSubmittedPlan = null;
+      myPlansPrefillPlan = null;
       applyFinanceSummaryMeta();
       syncPrototypeFinanceCurrencySelectorVisible();
     });
@@ -1394,6 +1397,7 @@
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       myPlansSubmittedPlan = null;
+      myPlansPrefillPlan = null;
       applyFinanceSummaryMeta();
     });
   };
@@ -2965,6 +2969,7 @@
     const getDismissPlanDetail =
       typeof opts.getDismissPlanDetailStackInstant === 'function' ? opts.getDismissPlanDetailStackInstant : () => () => {};
     const panel = document.querySelector('[data-my-plans-panel]');
+    const detailPanel = document.querySelector('[data-my-plans-detail-panel]');
     const container = document.querySelector('.phone-container');
     if (!panel) {
       return { open: () => {}, close: () => {} };
@@ -3042,10 +3047,15 @@
     };
 
     const getMyPlansRecords = () => {
-      if ((states.flow ?? 1) < 2) return [];
+      if ((states.flow ?? 1) < 2) {
+        myPlansPrefillPlan = null;
+        return [];
+      }
       if (myPlansSubmittedPlan) return [myPlansSubmittedPlan];
-      const fallback = buildFallbackPlanSnapshot();
-      return fallback ? [fallback] : [];
+      if (!myPlansPrefillPlan) {
+        myPlansPrefillPlan = buildFallbackPlanSnapshot();
+      }
+      return myPlansPrefillPlan ? [myPlansPrefillPlan] : [];
     };
 
     const parsePerBuyFromInvestLine = (investLine) => {
@@ -3182,6 +3192,7 @@
 
       const card = el('article', `my-plans-position-card my-plans-position-card--${statusKey}`);
       card.setAttribute('data-plan-status', statusKey);
+      if (planRecord.id) card.setAttribute('data-my-plans-plan-id', String(planRecord.id));
 
       // Header: product row + auto-investing (divider below via CSS)
       const head = el('div', 'my-plans-position-card__head');
@@ -3306,7 +3317,7 @@
       leftActions.appendChild(btn('Add funds', 'secondary', 'data-plan-card-add-funds'));
       leftActions.appendChild(btn(statusKey === 'paused' ? 'Resume' : 'Pause', 'secondary', 'data-plan-card-pause'));
       actions.appendChild(leftActions);
-      actions.appendChild(btn('View detail', 'primary', 'data-plan-card-view-detail'));
+      actions.appendChild(btn('View details', 'primary', 'data-plan-card-view-detail'));
       card.appendChild(actions);
 
       target.appendChild(card);
@@ -3352,8 +3363,98 @@
 
     let backFromPlanSuccessView = false;
 
+    const closePlanDetail = (instant = false) => {
+      if (!detailPanel) return;
+      if (instant) {
+        detailPanel.classList.remove('is-open');
+        detailPanel.hidden = true;
+        return;
+      }
+      detailPanel.classList.remove('is-open');
+      const onEnd = () => {
+        if (!detailPanel.classList.contains('is-open')) detailPanel.hidden = true;
+        detailPanel.removeEventListener('transitionend', onEnd);
+      };
+      detailPanel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    const populateMyPlansPlanDetail = (rec) => {
+      if (!detailPanel || !rec) return;
+      const kickerEl = detailPanel.querySelector('[data-my-plans-detail-kicker]');
+      const detailTitleEl = detailPanel.querySelector('[data-my-plans-detail-title]');
+      const iconsWrap = detailPanel.querySelector('[data-my-plans-detail-icons]');
+      const body = detailPanel.querySelector('[data-my-plans-detail-body]');
+      if (kickerEl) kickerEl.textContent = rec.kicker || rec.name || 'Plan';
+      if (detailTitleEl) detailTitleEl.textContent = rec.tickers || '—';
+      renderMyPlansHeaderIcons(
+        iconsWrap,
+        rec.tickers,
+        rec.iconSrc || 'assets/icon_currency_btc.svg',
+        rec.assetIcons || [],
+      );
+      if (body) {
+        body.innerHTML = '';
+        const statusText = rec.status === 'paused' ? 'Paused' : rec.status === 'ended' ? 'Ended' : 'Active';
+        const addRow = (label, value) => {
+          const v = value == null ? '' : String(value).trim();
+          if (!v) return;
+          const row = document.createElement('div');
+          row.className = 'my-plans-detail-panel__row';
+          const lbl = document.createElement('div');
+          lbl.className = 'my-plans-detail-panel__row-label';
+          lbl.textContent = label;
+          const val = document.createElement('div');
+          val.className = 'my-plans-detail-panel__row-value';
+          val.textContent = v;
+          row.appendChild(lbl);
+          row.appendChild(val);
+          body.appendChild(row);
+        };
+        addRow('Status', statusText);
+        addRow('Auto-investing', rec.investLine);
+        addRow('Repeats', rec.repeats);
+        addRow(
+          'Next buy',
+          shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK),
+        );
+        const n = Number.isFinite(rec.completedBuys) ? rec.completedBuys : 0;
+        addRow('Completed', `${n} buys`);
+        addRow('Total invested', rec.totalInvested);
+        addRow('Funding', rec.fundingMethod);
+        if (rec.isReserved) {
+          addRow('Reserved funds remaining', rec.reservedFunds);
+          addRow('If funds run out', rec.runoutPolicy);
+        }
+      }
+    };
+
+    const openPlanDetail = (rec) => {
+      if (!detailPanel || !rec) return;
+      populateMyPlansPlanDetail(rec);
+      detailPanel.hidden = false;
+      requestAnimationFrame(() => {
+        detailPanel.classList.add('is-open');
+      });
+    };
+
+    panel.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-plan-card-view-detail]');
+      if (!btn || !panel.contains(btn)) return;
+      const cardEl = btn.closest('.my-plans-position-card');
+      const id = cardEl?.getAttribute('data-my-plans-plan-id');
+      const list = getMyPlansRecords();
+      const rec = id ? list.find((r) => String(r.id) === id) : list[0];
+      if (rec) openPlanDetail(rec);
+    });
+
+    detailPanel?.querySelector('[data-my-plans-detail-close]')?.addEventListener('click', () => {
+      closePlanDetail(false);
+    });
+
     const open = (openOpts = {}) => {
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
+      closePlanDetail(true);
       syncMyPlansFromFlow();
       setFilter('active');
       panel.hidden = false;
@@ -3377,6 +3478,7 @@
     };
 
     const closeMyPlans = () => {
+      closePlanDetail(true);
       panel.classList.remove('is-open');
       if (container) {
         container.classList.add('is-my-plans-fading');
@@ -7730,6 +7832,7 @@
             reservedFunds: overviewReserved || '—',
             runoutPolicy: runoutPolicy || '—',
           };
+          myPlansPrefillPlan = null;
           applyFinanceSummaryMeta();
           myPlansPanelApi.sync?.();
           openSuccess();
