@@ -3091,6 +3091,11 @@
       // Title stays "My plans" per Figma; only tabs show counts.
       if (titleEl) titleEl.textContent = 'My plans';
 
+      // Finance summary button label shows total count.
+      document.querySelectorAll('[data-my-plans-count-label]').forEach((el) => {
+        el.textContent = `My plans (${records.length})`;
+      });
+
       tabs.forEach((tab) => {
         const k = (tab.getAttribute('data-my-plans-filter') || 'active').toLowerCase();
         const base = k === 'paused' ? 'Paused' : k === 'ended' ? 'Ended' : 'Active';
