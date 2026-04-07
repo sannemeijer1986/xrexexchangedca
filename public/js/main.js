@@ -3167,7 +3167,7 @@
       const card = el('article', `my-plans-position-card my-plans-position-card--${statusKey}`);
       card.setAttribute('data-plan-status', statusKey);
 
-      // Header gradient block
+      // Header: product row + auto-investing (divider below via CSS)
       const head = el('div', 'my-plans-position-card__head');
       const headRow = el('div', 'my-plans-position-card__head-row');
       const left = el('div', 'my-plans-position-card__head-left');
@@ -3207,11 +3207,14 @@
       const body = el('div', 'my-plans-position-card__body');
 
       const twoCol = el('div', 'my-plans-position-card__two-col');
+      const nextCard = el('div', 'my-plans-position-card__kv-card');
       const next = el('div', 'my-plans-position-card__kv');
       next.appendChild(el('div', 'my-plans-position-card__kv-label', 'Next buy'));
       next.appendChild(el('div', 'my-plans-position-card__kv-value', planRecord.nextBuy || planRecord.firstBuy || '—'));
-      twoCol.appendChild(next);
+      nextCard.appendChild(next);
+      twoCol.appendChild(nextCard);
 
+      const completedCard = el('div', 'my-plans-position-card__kv-card');
       const completed = el('div', 'my-plans-position-card__kv my-plans-position-card__kv--right');
       completed.appendChild(el('div', 'my-plans-position-card__kv-label', 'Completed'));
       const compLine = el('div', 'my-plans-position-card__completed-line');
@@ -3223,7 +3226,8 @@
       compLine.appendChild(check);
       compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${planRecord.completedBuys ?? 2} buys`));
       completed.appendChild(compLine);
-      twoCol.appendChild(completed);
+      completedCard.appendChild(completed);
+      twoCol.appendChild(completedCard);
       body.appendChild(twoCol);
 
       body.appendChild(el('div', 'my-plans-position-card__divider'));

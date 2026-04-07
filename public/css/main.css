@@ -10640,12 +10640,14 @@ div.currency-sheet__item-icon::before {
   background: #151718;
   overflow: hidden;
   box-sizing: border-box;
-  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
 .my-plans-position-card__head {
-  padding: 12px 16px 16px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 1.2%, rgba(206, 206, 206, 0.09) 128.38%);
+  padding: 0;
+  margin: 0;
+  background: #151718;
+  box-sizing: border-box;
 }
 
 .my-plans-position-card__auto {
@@ -10653,14 +10655,18 @@ div.currency-sheet__item-icon::before {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding: 16px 16px 16px;
+  box-sizing: border-box;
 }
 
 .my-plans-position-card__head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: #1B1D1D;
   gap: 12px;
-  padding-bottom: 12px;
+  padding: 12px 16px;
+  box-sizing: border-box;
 }
 
 .my-plans-position-card__head-left {
@@ -10755,7 +10761,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-position-card__body {
-  padding: 16px;
+  padding: 0 16px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -10764,15 +10770,24 @@ div.currency-sheet__item-icon::before {
 .my-plans-position-card__two-col {
   display: flex;
   gap: 16px;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.my-plans-position-card__kv-card {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #1b1d1d;
+  box-sizing: border-box;
 }
 
 .my-plans-position-card__kv {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-}
-
-.my-plans-position-card__kv--right {
-  text-align: right;
+  height: 100%;
 }
 
 .my-plans-position-card__kv-label {
@@ -10791,7 +10806,7 @@ div.currency-sheet__item-icon::before {
 .my-plans-position-card__completed-line {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 4px;
 }
 
@@ -10805,6 +10820,7 @@ div.currency-sheet__item-icon::before {
   height: 1px;
   width: 100%;
   background: #252627;
+  display: none;
 }
 
 .my-plans-position-card__list {
