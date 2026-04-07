@@ -1209,6 +1209,9 @@
   let financeSummaryConfirmedNextBuy = '';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedReserved = null;
+  /** Snapshot of the latest submitted plan used by "My plans". */
+  /** Snapshot of the latest submitted plan used by "My plans". */
+  let myPlansSubmittedPlan = null;
 
   // Static FX for prototype: 1 USD ≈ 32 TWD
   const FX_USD_TWD = 32;
@@ -1294,6 +1297,15 @@
       if (t) t.textContent = fallbackAmt;
       else el.textContent = fallbackAmt;
     });
+
+    // Keep "My plans" summary strip in sync with Finance summary.
+    document.querySelectorAll('[data-my-plans-summary-reserved-text]').forEach((el) => {
+      el.textContent = reservedAmt;
+    });
+    document.querySelectorAll('[data-my-plans-summary-invested-text]').forEach((el) => {
+      el.textContent = fallbackAmt;
+    });
+
     const nbRaw = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
     const nb = shortenWeekday(nbRaw);
     document.querySelectorAll('[data-finance-summary-next-buy]').forEach((el) => {
@@ -1325,6 +1337,7 @@
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
+      myPlansSubmittedPlan = null;
       applyFinanceSummaryMeta();
       syncPrototypeFinanceCurrencySelectorVisible();
     });
@@ -1376,6 +1389,7 @@
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
+      myPlansSubmittedPlan = null;
       applyFinanceSummaryMeta();
     });
   };
@@ -2954,28 +2968,288 @@
 
     const titleEl = panel.querySelector('[data-my-plans-title]');
 
-    /** Plan list count for prototype: 0 until Flow ≥ 2 (after overview Confirm), then 1 */
-    const getMyPlansCount = () => ((states.flow ?? 1) >= 2 ? 1 : 0);
+    const tabs = panel.querySelectorAll('[data-my-plans-filter]');
+    const views = panel.querySelectorAll('[data-my-plans-view]');
+    let activeFilter = 'active';
+
+    const buildFallbackPlanSnapshot = () => {
+      if ((states.flow ?? 1) < 2) return null;
+      const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan';
+      const amountRaw = parseInt(
+        String(document.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
+        10,
+      ) || 0;
+      const cur = String(document.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+      const freqKey = (
+        document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+      ).toLowerCase();
+      const cadence = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+      const investLine = amountRaw > 0
+        ? `${amountRaw.toLocaleString('en-US')} ${cur} each ${cadence}`
+        : `— ${cur} each ${cadence}`;
+      const repeats = document.querySelector('[data-plan-overview-repeats]')?.textContent?.trim()
+        || document.querySelector('[data-plan-detail-schedule]')?.textContent?.trim()
+        || '—';
+      const firstBuy = document.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim()
+        || financeSummaryConfirmedNextBuy
+        || '—';
+      const fundingMethod = document.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || 'Pay as you go';
+      const isReserved = /\bset aside funds\b/i.test(fundingMethod);
+      const reservedFunds = document.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '—';
+      const runoutPolicy = document.querySelector('[data-plan-overview-runout-value]')?.textContent?.trim() || '—';
+      return {
+        id: 'plan-active-1',
+        status: 'active',
+        name,
+        investLine,
+        repeats,
+        firstBuy,
+        fundingMethod,
+        isReserved,
+        reservedFunds,
+        runoutPolicy,
+      };
+    };
+
+    const getMyPlansRecords = () => {
+      if (myPlansSubmittedPlan) return [myPlansSubmittedPlan];
+      const fallback = buildFallbackPlanSnapshot();
+      return fallback ? [fallback] : [];
+    };
+
+    const escIconAttr = (v) =>
+      String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+
+    /**
+     * Reuse Plan detail's icon stack DOM/CSS (2-coin + placeholder, or 3-coin).
+     * Supports single-asset mode (one circular 32px icon).
+     * @param {HTMLElement | null} wrap
+     * @param {string} tickersText e.g. "BTC · ETH · SOL" or "BTC"
+     * @param {string} fallbackIconSrc
+     */
+    const renderMyPlansHeaderIcons = (wrap, tickersText, fallbackIconSrc) => {
+      if (!wrap) return;
+
+      const toIcon = (ticker) => {
+        const t = String(ticker || '').trim().toUpperCase();
+        if (!t) return null;
+        if (t === 'BTC') return 'assets/icon_currency_btc.svg';
+        if (t === 'ETH') return 'assets/icon_currency_eth.svg';
+        if (t === 'SOL' || t === 'SOLANA') return 'assets/icon_solana.svg';
+        if (t === 'USDT') return 'assets/icon_currency_usdt.svg';
+        if (t === 'TWD') return 'assets/icon_currency_TWD.svg';
+        return null;
+      };
+
+      const tickers = String(tickersText || '')
+        .split(/[·,]/g)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+      const items = tickers.map((t) => ({ ticker: t, icon: toIcon(t) })).filter((x) => x.icon);
+
+      const buildStackMarkup = () => {
+        const icons = items.slice(0, 3);
+        if (icons.length < 2) return null;
+        const twoOnly = icons.length === 2;
+        const mod = twoOnly ? ' plan-detail-panel__icon-stack--two' : '';
+        const baseClass = `plan-detail-panel__icon-stack${mod}`;
+        const [a, b, c] = [icons[0], icons[1], icons[2]];
+        const br = c?.icon
+          ? `<img src="${escIconAttr(c.icon)}" alt="" />`
+          : '<span class="plan-detail-panel__icon-stack-placeholder" aria-hidden="true"></span>';
+        return `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escIconAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escIconAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+      };
+
+      const stack = buildStackMarkup();
+      if (stack) {
+        wrap.innerHTML = stack;
+        return;
+      }
+
+      const singleSrc =
+        items.length === 1 && items[0]?.icon
+          ? items[0].icon
+          : fallbackIconSrc;
+      wrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${escIconAttr(singleSrc)}" alt="" />`;
+    };
 
     const syncMyPlansLabels = () => {
-      const n = getMyPlansCount();
-      if (titleEl) titleEl.textContent = `My plans (${n})`;
-      document.querySelectorAll('[data-my-plans-count-label]').forEach((el) => {
-        el.textContent = `My plans (${n})`;
+      const records = getMyPlansRecords();
+      const counts = records.reduce(
+        (acc, item) => {
+          const k = item.status === 'paused' ? 'paused' : item.status === 'ended' ? 'ended' : 'active';
+          acc[k] = (acc[k] || 0) + 1;
+          return acc;
+        },
+        { active: 0, paused: 0, ended: 0 },
+      );
+
+      // Title stays "My plans" per Figma; only tabs show counts.
+      if (titleEl) titleEl.textContent = 'My plans';
+
+      tabs.forEach((tab) => {
+        const k = (tab.getAttribute('data-my-plans-filter') || 'active').toLowerCase();
+        const base = k === 'paused' ? 'Paused' : k === 'ended' ? 'Ended' : 'Active';
+        const n = counts[k] || 0;
+        tab.textContent = k === 'ended' ? 'Ended' : `${base} (${n})`;
       });
     };
 
-    const tabs = panel.querySelectorAll('[data-my-plans-filter]');
-    const views = panel.querySelectorAll('[data-my-plans-view]');
+    const appendPlanCard = (target, planRecord) => {
+      const el = (tag, className, text) => {
+        const n = document.createElement(tag);
+        if (className) n.className = className;
+        if (typeof text === 'string') n.textContent = text;
+        return n;
+      };
+
+      const statusKey = planRecord.status === 'paused' ? 'paused' : planRecord.status === 'ended' ? 'ended' : 'active';
+      const statusLabel = statusKey === 'paused' ? 'Paused' : statusKey === 'ended' ? 'Ended' : 'Active';
+
+      const card = el('article', `my-plans-position-card my-plans-position-card--${statusKey}`);
+      card.setAttribute('data-plan-status', statusKey);
+
+      // Header gradient block
+      const head = el('div', 'my-plans-position-card__head');
+      const headRow = el('div', 'my-plans-position-card__head-row');
+      const left = el('div', 'my-plans-position-card__head-left');
+
+      // Icon stack: reuse plan-detail-panel__icon-stack CSS/logic (supports single asset).
+      const icons = el('div', 'my-plans-position-card__icons');
+      renderMyPlansHeaderIcons(
+        icons,
+        planRecord.tickers || 'BTC · ETH · SOL',
+        planRecord.iconSrc || 'assets/icon_currency_btc.svg',
+      );
+      left.appendChild(icons);
+
+      const titleWrap = el('div', 'my-plans-position-card__title-wrap');
+      // Figma: small label + tickers line
+      titleWrap.appendChild(el('div', 'my-plans-position-card__kicker', planRecord.kicker || 'Big Three'));
+      titleWrap.appendChild(el('div', 'my-plans-position-card__tickers', planRecord.tickers || 'BTC · ETH · SOL'));
+      left.appendChild(titleWrap);
+
+      headRow.appendChild(left);
+
+      const tag = el('div', 'my-plans-position-card__tag');
+      const dot = el('span', 'my-plans-position-card__tag-dot');
+      tag.appendChild(dot);
+      tag.appendChild(el('span', 'my-plans-position-card__tag-text', statusLabel));
+      headRow.appendChild(tag);
+      head.appendChild(headRow);
+
+      const auto = el('div', 'my-plans-position-card__auto');
+      auto.appendChild(el('div', 'my-plans-position-card__auto-label', 'Auto-investing'));
+      auto.appendChild(el('div', 'my-plans-position-card__auto-value', planRecord.investLine || '—'));
+      head.appendChild(auto);
+      card.appendChild(head);
+
+      // Body
+      const body = el('div', 'my-plans-position-card__body');
+
+      const twoCol = el('div', 'my-plans-position-card__two-col');
+      const next = el('div', 'my-plans-position-card__kv');
+      next.appendChild(el('div', 'my-plans-position-card__kv-label', 'Next buy'));
+      next.appendChild(el('div', 'my-plans-position-card__kv-value', planRecord.nextBuy || planRecord.firstBuy || '—'));
+      twoCol.appendChild(next);
+
+      const completed = el('div', 'my-plans-position-card__kv my-plans-position-card__kv--right');
+      completed.appendChild(el('div', 'my-plans-position-card__kv-label', 'Completed'));
+      const compLine = el('div', 'my-plans-position-card__completed-line');
+      const check = document.createElement('img');
+      check.src = 'assets/icon_check_green.svg';
+      check.alt = '';
+      check.setAttribute('aria-hidden', 'true');
+      check.className = 'my-plans-position-card__completed-icon';
+      compLine.appendChild(check);
+      compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${planRecord.completedBuys ?? 2} buys`));
+      completed.appendChild(compLine);
+      twoCol.appendChild(completed);
+      body.appendChild(twoCol);
+
+      body.appendChild(el('div', 'my-plans-position-card__divider'));
+
+      const list = el('div', 'my-plans-position-card__list');
+      const row = (label, value, opts = {}) => {
+        const r = el('div', `my-plans-position-card__row${opts.tight ? ' my-plans-position-card__row--tight' : ''}`);
+        r.appendChild(el('div', 'my-plans-position-card__row-label', label));
+        r.appendChild(el('div', 'my-plans-position-card__row-value', value));
+        return r;
+      };
+
+      // Total invested (prototype: derive from invest amount * completed buys when possible)
+      const parsed = String(planRecord.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/);
+      const per = parsed ? parseFloat(parsed[1].replace(/,/g, '')) : NaN;
+      const cur = parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary;
+      const completedN = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 2;
+      const totalInv = Number.isFinite(per) ? formatMoney(per * completedN, cur) : (planRecord.totalInvested || `500.00 ${cur}`);
+      list.appendChild(row('Total invested', totalInv));
+
+      // Uses balance each buy + status
+      const balanceRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
+      balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Uses your balance each buy'));
+      const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Balance ok');
+      balanceRow.appendChild(bal);
+      list.appendChild(balanceRow);
+
+      if (planRecord.isReserved) {
+        const reservedRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split my-plans-position-card__row--tight');
+        reservedRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Reserved funds remaining'));
+        reservedRow.appendChild(el('div', 'my-plans-position-card__row-value', planRecord.reservedFunds || '—'));
+        list.appendChild(reservedRow);
+        list.appendChild(el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', planRecord.coversBuys || 'Covers 10 more buys'));
+      }
+
+      body.appendChild(list);
+      card.appendChild(body);
+
+      // Actions
+      const actions = el('div', 'my-plans-position-card__actions');
+      const leftActions = el('div', 'my-plans-position-card__actions-left');
+      const btn = (label, kind, dataAttr) => {
+        const b = el('button', `my-plans-position-card__btn my-plans-position-card__btn--${kind}`, label);
+        b.type = 'button';
+        if (dataAttr) b.setAttribute(dataAttr, '');
+        return b;
+      };
+      leftActions.appendChild(btn('Add funds', 'secondary', 'data-plan-card-add-funds'));
+      leftActions.appendChild(btn(statusKey === 'paused' ? 'Resume' : 'Pause', 'secondary', 'data-plan-card-pause'));
+      actions.appendChild(leftActions);
+      actions.appendChild(btn('View detail', 'primary', 'data-plan-card-view-detail'));
+      card.appendChild(actions);
+
+      target.appendChild(card);
+    };
+
+    const renderMyPlansViews = () => {
+      const records = getMyPlansRecords();
+      panel.classList.toggle('my-plans-panel--hide-cards', records.length === 0);
+      views.forEach((view) => {
+        const viewId = view.getAttribute('data-my-plans-view') || 'active';
+        const list = view.querySelector('[data-my-plans-list]');
+        const empty = view.querySelector('[data-my-plans-empty]');
+        if (!list) return;
+        list.innerHTML = '';
+        const filtered = records.filter((item) => item.status === viewId);
+        filtered.forEach((item) => appendPlanCard(list, item));
+        if (empty) empty.hidden = filtered.length > 0;
+      });
+      syncMyPlansLabels();
+    };
 
     const setFilter = (id) => {
+      activeFilter = id || 'active';
       tabs.forEach((tab) => {
-        const on = tab.getAttribute('data-my-plans-filter') === id;
+        const on = tab.getAttribute('data-my-plans-filter') === activeFilter;
         tab.classList.toggle('is-active', on);
         tab.setAttribute('aria-selected', on ? 'true' : 'false');
       });
       views.forEach((view) => {
-        view.hidden = view.getAttribute('data-my-plans-view') !== id;
+        view.hidden = view.getAttribute('data-my-plans-view') !== activeFilter;
       });
     };
 
@@ -2984,9 +3258,7 @@
     });
 
     const syncMyPlansFromFlow = () => {
-      const flow = states.flow ?? 1;
-      panel.classList.toggle('my-plans-panel--hide-cards', flow === 1);
-      syncMyPlansLabels();
+      renderMyPlansViews();
     };
 
     syncMyPlansFlowUi = syncMyPlansFromFlow;
@@ -2996,7 +3268,7 @@
     const open = (openOpts = {}) => {
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       syncMyPlansFromFlow();
-      setFilter('all');
+      setFilter('active');
       panel.hidden = false;
       if (container) {
         container.classList.remove('is-my-plans-open');
@@ -3046,6 +3318,13 @@
       closeMyPlans();
     });
 
+    // "+" button: go back to Finance and open "New plan".
+    panel.querySelector('[data-my-plans-add]')?.addEventListener('click', () => {
+      closeMyPlans();
+      goFinance();
+      document.querySelector('[data-finance-new-plan]')?.click();
+    });
+
     document.querySelectorAll('[data-open-my-plans]').forEach((btn) => {
       btn.addEventListener('click', () => {
         goFinance();
@@ -3055,7 +3334,7 @@
 
     syncMyPlansFromFlow();
 
-    return { open, close: closeMyPlans };
+    return { open, close: closeMyPlans, sync: syncMyPlansFromFlow };
   };
 
   const myPlansPanelApi = initMyPlansPanel({
@@ -7279,13 +7558,39 @@
           const overviewReserved = panel.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '';
           const schedLine = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
           const nextCompact = formatFinanceNextBuyCompact(schedLine);
+          const paymentMethod = panel.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || 'Pay as you go';
+          const runoutPolicy = panel.querySelector('[data-plan-overview-runout-value]')?.textContent?.trim() || '—';
+          const repeatsValue = panel.querySelector('[data-plan-overview-repeats]')?.textContent?.trim() || schedLine || '—';
+          const amountRaw = parseInt(
+            String(panel.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
+            10,
+          ) || 0;
+          const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+          const freqKey = (
+            document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+          ).toLowerCase();
+          const cadence = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+          const isReservedPlan = /\bset aside funds\b/i.test(paymentMethod);
           if (overviewFirstBuy && overviewFirstBuy !== '—') {
             financeSummaryConfirmedNextBuy = overviewFirstBuy;
           } else if (nextCompact) {
             financeSummaryConfirmedNextBuy = nextCompact;
           }
           financeSummaryConfirmedReserved = parseMoneyWithCurrency(overviewReserved);
+          myPlansSubmittedPlan = {
+            id: `plan-active-${Date.now()}`,
+            status: 'active',
+            name: panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan',
+            investLine: amountRaw > 0 ? `${amountRaw.toLocaleString('en-US')} ${cur} each ${cadence}` : `— ${cur} each ${cadence}`,
+            repeats: repeatsValue,
+            firstBuy: (overviewFirstBuy && overviewFirstBuy !== '—') ? overviewFirstBuy : (nextCompact || '—'),
+            fundingMethod: paymentMethod,
+            isReserved: isReservedPlan,
+            reservedFunds: overviewReserved || '—',
+            runoutPolicy: runoutPolicy || '—',
+          };
           applyFinanceSummaryMeta();
+          myPlansPanelApi.sync?.();
           openSuccess();
         }, LOADER_MS);
       });

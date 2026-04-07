@@ -461,7 +461,7 @@
                                             <img src="assets/icon_guide.svg" alt="" class="finance-summary__guide-icon" />
                                         </button> -->
                                         <button class="finance-summary__btn finance-summary__btn--secondary" type="button" data-open-my-plans data-my-plans-count-label>My plans (0)</button>
-                                        <button class="finance-summary__btn finance-summary__btn--primary" type="button">New plan</button>
+                                        <button class="finance-summary__btn finance-summary__btn--primary" type="button" data-finance-new-plan>New plan</button>
                                     </div>
                                 </div>
 
@@ -1810,30 +1810,87 @@
                 <button class="my-plans-panel__icon-btn" type="button" data-my-plans-close aria-label="Back">
                     <img src="assets/icon_back.svg" alt="" width="24" height="24" />
                 </button>
-                <h1 class="my-plans-panel__title" data-my-plans-title>My plans (0)</h1>
+                <h1 class="my-plans-panel__title" data-my-plans-title>My plans</h1>
+                <button class="my-plans-panel__icon-btn my-plans-panel__icon-btn--add" type="button" data-my-plans-add aria-label="New plan">
+                    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 5v14M5 12h14" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                </button>
             </header>
+            <div class="my-plans-panel__summary" aria-label="Portfolio summary">
+                <div class="my-plans-panel__stat">
+                    <div class="my-plans-panel__stat-label my-plans-panel__stat-label--with-info">
+                        <span>Total reserved ≈</span>
+                        <button class="my-plans-panel__label-info-btn" type="button" data-finance-summary-info-open="reserved" aria-label="About total reserved">
+                            <img src="assets/icon_info_circle_gray.svg" alt="" class="my-plans-panel__label-info" width="14" height="14" aria-hidden="true" />
+                        </button>
+                    </div>
+                    <button class="my-plans-panel__stat-value my-plans-panel__stat-value--chevron" type="button" data-my-plans-summary-reserved aria-label="Total reserved">
+                        <span class="my-plans-panel__stat-value-text" data-my-plans-summary-reserved-text>0.00 TWD</span>
+                        <img src="assets/icon_back.svg" alt="" class="my-plans-panel__stat-chevron" width="16" height="16" aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="my-plans-panel__stat my-plans-panel__stat--right">
+                    <div class="my-plans-panel__stat-label my-plans-panel__stat-label--with-info">
+                        <span>Total invested ≈</span>
+                        <button class="my-plans-panel__label-info-btn" type="button" data-finance-summary-info-open="invested" aria-label="About total invested">
+                            <img src="assets/icon_info_circle_gray.svg" alt="" class="my-plans-panel__label-info" width="14" height="14" aria-hidden="true" />
+                        </button>
+                    </div>
+                    <div class="my-plans-panel__stat-value" data-my-plans-summary-invested>
+                        <span class="my-plans-panel__stat-value-text" data-my-plans-summary-invested-text>0.00 TWD</span>
+                    </div>
+                </div>
+            </div>
             <div class="my-plans-panel__tabs" role="tablist" aria-label="Filter plans">
                 <button class="my-plans-panel__tab is-active" type="button" role="tab" aria-selected="true"
-                    data-my-plans-filter="all">All</button>
+                    data-my-plans-filter="active">Active (0)</button>
                 <button class="my-plans-panel__tab" type="button" role="tab" aria-selected="false"
-                    data-my-plans-filter="in-progress">In progress</button>
-                <button class="my-plans-panel__tab" type="button" role="tab" aria-selected="false"
-                    data-my-plans-filter="paused">Paused</button>
+                    data-my-plans-filter="paused">Paused (0)</button>
                 <button class="my-plans-panel__tab" type="button" role="tab" aria-selected="false"
                     data-my-plans-filter="ended">Ended</button>
             </div>
         </div>
         <div class="my-plans-panel__scroller">
             <div class="my-plans-panel__views">
-                <div class="my-plans-panel__view" data-my-plans-view="all" role="tabpanel">
-                    <div class="my-plans-panel__card"><span class="my-plans-panel__card-placeholder">To be designed</span></div>
-                </div>
-                <div class="my-plans-panel__view" data-my-plans-view="in-progress" role="tabpanel" hidden>
-                    <div class="my-plans-panel__card"><span class="my-plans-panel__card-placeholder">To be designed</span></div>
+                <div class="my-plans-panel__view" data-my-plans-view="active" role="tabpanel">
+                    <div class="my-plans-panel__section" data-my-plans-list></div>
+                    <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
+                        <div class="my-plans-panel__empty-badge" aria-hidden="true">
+                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
+                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="my-plans-panel__empty-text">No data</p>
+                    </div>
                 </div>
                 <div class="my-plans-panel__view" data-my-plans-view="paused" role="tabpanel" hidden>
+                    <div class="my-plans-panel__section" data-my-plans-list></div>
+                    <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
+                        <div class="my-plans-panel__empty-badge" aria-hidden="true">
+                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
+                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="my-plans-panel__empty-text">No data</p>
+                    </div>
                 </div>
                 <div class="my-plans-panel__view" data-my-plans-view="ended" role="tabpanel" hidden>
+                    <div class="my-plans-panel__section" data-my-plans-list></div>
+                    <div class="my-plans-panel__empty my-plans-panel__empty--nodata" data-my-plans-empty hidden>
+                        <div class="my-plans-panel__empty-badge" aria-hidden="true">
+                            <svg class="my-plans-panel__empty-doc" width="44" height="44" viewBox="0 0 24 24" fill="none">
+                                <path d="M8 3.8h6.4L18.2 7.6V20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M14.4 3.8V7.6h3.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="my-plans-panel__empty-text">No data</p>
+                    </div>
                 </div>
             </div>
         </div>
