@@ -5866,18 +5866,22 @@
           paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Set aside funds' : 'Pay as you go';
         }
         if (paymentMethodSubEl) {
-          paymentMethodSubEl.textContent = '';
-          paymentMethodSubEl.hidden = true;
-          paymentMethodSubEl.style.display = 'none';
+          const showPaymentMethodSub = selectedMethod === 'reserved';
+          paymentMethodSubEl.textContent = showPaymentMethodSub ? 'Reserved directly' : '';
+          paymentMethodSubEl.hidden = !showPaymentMethodSub;
+          paymentMethodSubEl.style.display = showPaymentMethodSub ? '' : 'none';
         }
         const showPrefund = selectedMethod === 'reserved';
         if (prefundRowEl) {
           prefundRowEl.hidden = !showPrefund;
           prefundRowEl.style.display = showPrefund ? '' : 'none';
         }
+        // Keep divider below "Funding method" visible in both modes:
+        // - reserved: divider sits above "Amount to reserve"
+        // - pay as you go: it becomes the divider above "Deduct from"
         if (prefundDividerEl) {
-          prefundDividerEl.hidden = !showPrefund;
-          prefundDividerEl.style.display = showPrefund ? '' : 'none';
+          prefundDividerEl.hidden = false;
+          prefundDividerEl.style.display = '';
         }
         if (runoutDividerEl) {
           runoutDividerEl.hidden = !showPrefund;
@@ -5889,7 +5893,7 @@
         }
         if (runoutValueEl) {
           runoutValueEl.textContent = planBufferOverviewState.autoRefillEnabled
-            ? 'Auto-refill'
+            ? 'Auto-reserve again'
             : 'Use remaining balance';
         }
         if (prefundAfterDividerEl) {
@@ -5909,7 +5913,29 @@
               : 0;
             const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
             const unitLabel = `${unit}${coversCount === 1 ? '' : 's'}`;
-            prefundSubEl.textContent = coversCount > 0 ? `Covers ${coversCount} ${unitLabel}` : 'Covers —';
+            let untilText = '';
+            if (coversCount > 0) {
+              const compactNextBuyForCovers = formatFinanceNextBuyCompact(sched);
+              const dateToken = compactNextBuyForCovers.split('·')[0]?.trim() || '';
+              const monthDayMatch = dateToken.match(/^([A-Za-z]{3,9})\s+(\d{1,2})$/);
+              if (monthDayMatch) {
+                const monthDay = `${monthDayMatch[1]} ${monthDayMatch[2]}`;
+                const now = new Date();
+                const endDate = new Date(`${monthDay} ${now.getFullYear()}`);
+                if (!Number.isNaN(endDate.getTime())) {
+                  if (endDate.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
+                    endDate.setFullYear(endDate.getFullYear() + 1);
+                  }
+                  if (unit === 'day') endDate.setDate(endDate.getDate() + coversCount);
+                  else if (unit === 'week') endDate.setDate(endDate.getDate() + (coversCount * 7));
+                  else endDate.setMonth(endDate.getMonth() + coversCount);
+                  untilText = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+              }
+            }
+            prefundSubEl.textContent = coversCount > 0
+              ? `~${coversCount} ${unitLabel}${untilText ? ` · until ${untilText}` : ''}`
+              : '—';
           }
         }
 
