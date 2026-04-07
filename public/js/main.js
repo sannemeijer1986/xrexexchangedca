@@ -3223,7 +3223,7 @@
       check.alt = '';
       check.setAttribute('aria-hidden', 'true');
       check.className = 'my-plans-position-card__completed-icon';
-      compLine.appendChild(check);
+      // compLine.appendChild(check);
       compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${planRecord.completedBuys ?? 2} buys`));
       completed.appendChild(compLine);
       completedCard.appendChild(completed);

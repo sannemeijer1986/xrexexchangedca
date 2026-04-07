@@ -10777,15 +10777,17 @@ div.currency-sheet__item-icon::before {
 .my-plans-position-card__kv-card {
   flex: 1;
   min-width: 0;
-  padding: 14px 16px;
+  padding: 12px 12px;
   border-radius: 12px;
-  background: #1b1d1d;
+  border: 1px solid #252627;
   box-sizing: border-box;
 }
 
 .my-plans-position-card__kv {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   min-width: 0;
   height: 100%;
 }
@@ -10806,7 +10808,7 @@ div.currency-sheet__item-icon::before {
 .my-plans-position-card__completed-line {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 4px;
 }
 
