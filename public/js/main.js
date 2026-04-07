@@ -3197,12 +3197,14 @@
       const totalInv = Number.isFinite(per) ? formatMoney(per * completedN, cur) : (planRecord.totalInvested || `500.00 ${cur}`);
       list.appendChild(row('Total invested', totalInv));
 
-      // Uses balance each buy + status
-      const balanceRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
-      balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Uses your balance each buy'));
-      const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Balance ok');
-      balanceRow.appendChild(bal);
-      list.appendChild(balanceRow);
+      // Pay-as-you-go only: "Uses your balance each buy" row.
+      if (!planRecord.isReserved) {
+        const balanceRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
+        balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Uses your balance each buy'));
+        const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Balance ok');
+        balanceRow.appendChild(bal);
+        list.appendChild(balanceRow);
+      }
 
       if (planRecord.isReserved) {
         const reservedRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split my-plans-position-card__row--tight');
