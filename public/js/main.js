@@ -3020,6 +3020,25 @@
       return fallback ? [fallback] : [];
     };
 
+    const parsePerBuyFromInvestLine = (investLine) => {
+      const m = String(investLine || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})\s+each\b/i);
+      if (!m) return null;
+      const amount = parseFloat(String(m[1] || '').replace(/,/g, ''));
+      if (!Number.isFinite(amount) || amount <= 0) return null;
+      return { amount, currency: normalizeFxCurrency(m[2]) };
+    };
+
+    const computeCoversBuysText = (planRecord) => {
+      if (String(planRecord?.coversBuys || '').trim()) return String(planRecord.coversBuys).trim();
+      if (!planRecord?.isReserved) return '';
+      const reserved = parseMoneyWithCurrency(planRecord.reservedFunds || '');
+      const perBuy = parsePerBuyFromInvestLine(planRecord.investLine || '');
+      if (!reserved || !perBuy) return '';
+      const reservedInPerBuyCur = convertFx(reserved.amount, reserved.currency, perBuy.currency);
+      const buys = Math.max(0, Math.floor(reservedInPerBuyCur / perBuy.amount));
+      return `Covers ${buys} more ${buys === 1 ? 'buy' : 'buys'}`;
+    };
+
     const escIconAttr = (v) =>
       String(v ?? '')
         .replace(/&/g, '&amp;')
@@ -3211,7 +3230,10 @@
         reservedRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Reserved funds remaining'));
         reservedRow.appendChild(el('div', 'my-plans-position-card__row-value', planRecord.reservedFunds || '—'));
         list.appendChild(reservedRow);
-        list.appendChild(el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', planRecord.coversBuys || 'Covers 10 more buys'));
+        const coversText = computeCoversBuysText(planRecord);
+        if (coversText) {
+          list.appendChild(el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', coversText));
+        }
       }
 
       body.appendChild(list);
