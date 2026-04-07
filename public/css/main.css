@@ -10679,7 +10679,7 @@ div.currency-sheet__item-icon::before {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 0px;
 }
 
 .my-plans-position-card__kicker {
@@ -10695,6 +10695,7 @@ div.currency-sheet__item-icon::before {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-top: -2px;
 }
 
 .my-plans-position-card__tag {
@@ -10736,13 +10737,13 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   color: #a3a3a3;
-  margin-bottom: 2px;
 }
 
 .my-plans-position-card__auto-value {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
+  margin-top: -2px;
 }
 
 .my-plans-position-card__body {
@@ -10770,13 +10771,13 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   color: #a3a3a3;
-  margin-bottom: 2px;
 }
 
 .my-plans-position-card__kv-value {
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
+  margin-top: -1px;
 }
 
 .my-plans-position-card__completed-line {
@@ -10839,7 +10840,7 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   text-align: right;
-  margin-top: -2px;
+  margin-top: -6px;
 }
 
 .my-plans-position-card__subvalue--positive {
