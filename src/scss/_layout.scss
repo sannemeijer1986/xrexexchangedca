@@ -9279,7 +9279,7 @@ div.currency-sheet__item-icon {
   transform: translateY(0);
 }
 
-// Row chrome matches `plan-buffer-panel__header` (52px top inset, 16px horizontal): left spacer, flex middle, close right.
+// Row chrome matches Funding header: close left, flex middle, spacer right (same inset as `plan-buffer-panel__header`).
 .plan-buffer-learn-more-panel__header-middle {
   flex: 1;
   min-width: 0;
