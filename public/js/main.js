@@ -6522,10 +6522,13 @@
           sumCoversEl.textContent = computeCoversUntilText({ periods, unit, unitPlural });
         }
         if (sumUnusedEl) {
-          const unusedText = perBuy > 0 && rawAmount > 0 ? `${fmt(Math.max(0, unusedRaw))} ${cur}` : '- -';
+          const shouldHideUnused = perBuy > 0 && rawAmount > 0 && (rawAmount < perBuy || unusedRaw === 0);
+          const unusedText = perBuy > 0 && rawAmount > 0 && !shouldHideUnused
+            ? `${fmt(Math.max(0, unusedRaw))} ${cur}`
+            : '- -';
           sumUnusedEl.textContent = unusedText;
-          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--negative', rawAmount > 0 && unusedRaw > 0);
-          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--positive', rawAmount > 0 && unusedRaw === 0);
+          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--negative', rawAmount > 0 && unusedRaw > 0 && !shouldHideUnused);
+          sumUnusedEl.classList.toggle('plan-buffer-funding-summary__value--positive', rawAmount > 0 && unusedRaw === 0 && !shouldHideUnused);
         }
 
         // If the amount already covers an integer number of buys, unused remainder is 0.
@@ -6629,6 +6632,7 @@
         reserveInputAmount = 0;
         reserveAmount = 0;
         autoRefillEnabled = true;
+        if (reserveInputEl) reserveInputEl.value = '';
 
         setMethodUI('reserved');
         render();
