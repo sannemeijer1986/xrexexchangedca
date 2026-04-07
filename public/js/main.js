@@ -5908,6 +5908,8 @@
             ? `${reserveInputNum.toLocaleString('en-US')} ${cur}`
             : '—';
           if (prefundSubEl) {
+            // Always start from neutral text; avoid any stale legacy "Covers ..." copy.
+            prefundSubEl.textContent = '—';
             const coversCount = Number.isFinite(reserveInputNum) && reserveInputNum > 0 && amount > 0
               ? Math.floor(reserveInputNum / amount)
               : 0;
@@ -5915,7 +5917,7 @@
             const unitLabel = `${unit}${coversCount === 1 ? '' : 's'}`;
             let untilText = '';
             if (coversCount > 0) {
-              const compactNextBuyForCovers = formatFinanceNextBuyCompact(sched);
+              const compactNextBuyForCovers = formatFinanceNextBuyCompact(sched) || '';
               const dateToken = compactNextBuyForCovers.split('·')[0]?.trim() || '';
               const monthDayMatch = dateToken.match(/^([A-Za-z]{3,9})\s+(\d{1,2})$/);
               if (monthDayMatch) {
