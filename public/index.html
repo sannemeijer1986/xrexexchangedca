@@ -1571,6 +1571,18 @@
                                         </span>
                                     </button>
                                 </div>
+                                <div class="plan-buffer-funding-autorefill__learn-more">
+                                    <button
+                                        class="plan-buffer-panel__learn-more plan-buffer-panel__learn-more--with-chevron"
+                                        type="button"
+                                        data-plan-buffer-learn-more-open
+                                    >
+                                        Learn more
+                                        <svg class="plan-buffer-panel__learn-more-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path d="M6.92938 14.7389C7.27754 15.087 7.83887 15.087 8.18704 14.7389L12.425 10.5009C12.7021 10.2238 12.7021 9.77618 12.425 9.49907L8.18704 5.26112C7.83887 4.91296 7.27754 4.91296 6.92938 5.26112C6.58121 5.60929 6.58121 6.17062 6.92938 6.51879L10.407 10.0036L6.92227 13.4883C6.58121 13.8294 6.58121 14.3978 6.92938 14.7389Z" fill="currentColor" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1626,22 +1638,26 @@
             </div>
 
             <section class="plan-buffer-learn-more-panel" data-plan-buffer-learn-more-panel hidden aria-label="Setting funds aside info">
-                <div class="plan-buffer-learn-more-panel__header">
-                    <button class="plan-buffer-learn-more-panel__close" type="button" data-plan-buffer-learn-more-close aria-label="Close">
+                <header class="plan-buffer-learn-more-panel__header plan-buffer-panel__header plan-buffer-panel__header--funding">
+                    <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
+                    <div class="plan-buffer-learn-more-panel__header-middle" aria-hidden="true"></div>
+                    <button class="plan-buffer-panel__icon-btn" type="button" data-plan-buffer-learn-more-close aria-label="Close">
                         <img src="assets/icon_close.svg" alt="" width="24" height="24" />
                     </button>
-                    <h2 class="plan-buffer-learn-more-panel__title">Setting funds aside</h2>
-                    <div class="plan-buffer-learn-more-panel__spacer" aria-hidden="true"></div>
-                </div>
+                </header>
+                <!-- <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div> -->
                 <div class="plan-buffer-learn-more-panel__body">
                     <div class="plan-buffer-learn-more-panel__content">
                         <div class="plan-buffer-learn-more-panel__views">
                             <div class="plan-buffer-learn-more-panel__view">
-                                <h3 class="plan-buffer-learn-more-panel__view-title">Set aside funds</h3>
-                                <p class="plan-buffer-learn-more-panel__view-text">Funds are reserved in advance and auto-refilled to keep upcoming buys covered.</p>
+                                <h2 class="plan-buffer-learn-more-panel__view-title">When set-aside funds run out</h2>
+                                <p class="plan-buffer-learn-more-panel__view-text">Set-aside funds are earmarked for this plan’s upcoming purchases. When they run out, you can add the same amount again automatically, or pay each buy from your available balance.</p>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="plan-buffer-learn-more-panel__footer plan-buffer-panel__footer plan-buffer-panel__footer--single">
+                    <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-plan-buffer-learn-more-close>Understood</button>
                 </div>
             </section>
         </section>

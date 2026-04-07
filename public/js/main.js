@@ -6581,7 +6581,7 @@
               planActionBodyEl.textContent = 'No funds are set aside: Your plan is paid from your balance at time of each buy. May fail if balance is low.';
             }
           } else if (showValidAction) {
-            if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = 'Set funds aside';
+            if (planActionTitleSuffixEl) planActionTitleSuffixEl.textContent = 'Set aside funds';
             if (planActionBodyEl) {
               planActionBodyEl.textContent = `${fmt(rawAmount)} ${cur} will be set aside now and reserved for upcoming buys.`;
             }
