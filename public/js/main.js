@@ -942,10 +942,13 @@
 
     if (detailPanel) {
       const histPctEl = document.querySelector('[data-plan-detail-return-historic-pct]');
+      const autoHistPctEl = document.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
       const iconWrap = document.querySelector('[data-plan-detail-return-asset-icons]');
       const capHist = document.querySelector('[data-plan-detail-return-historic-caption]');
       const capStrat = document.querySelector('[data-plan-detail-return-strategy-caption]');
-      if (histPctEl) histPctEl.textContent = formatPct(historicReturnPct);
+      const histText = formatPct(historicReturnPct);
+      if (histPctEl) histPctEl.textContent = histText;
+      if (autoHistPctEl) autoHistPctEl.textContent = histText;
       setReturnMetricIconWrapHtml(iconWrap, iconsHtml, { layoutSig: iconsSig });
       if (capHist) capHist.textContent = historicCaption;
       if (capStrat) capStrat.textContent = 'Return';
@@ -3448,6 +3451,7 @@
       const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
       const absEl = panel.querySelector('[data-plan-detail-return-abs]');
       const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+      const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
       const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
       const curEl = panel.querySelector('[data-plan-detail-return-currency]');
       const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
@@ -3472,7 +3476,9 @@
           const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
           if (isFinite(baseHist)) {
             const nextHist = baseHist + tw;
-            histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+            const histText = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+            histPctEl.textContent = histText;
+            if (autoHistPctEl) autoHistPctEl.textContent = histText;
             if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
           }
         }
@@ -3505,7 +3511,9 @@
         const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
         if (isFinite(baseHist)) {
           const nextHist = baseHist + tw;
-          histPctEl.textContent = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+          const histText = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+          histPctEl.textContent = histText;
+          if (autoHistPctEl) autoHistPctEl.textContent = histText;
           if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
         }
       }
@@ -7775,6 +7783,7 @@
         const absEl = panel.querySelector('[data-plan-detail-return-abs]');
         const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
         const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+        const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
         const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
         const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
         const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
@@ -7790,6 +7799,7 @@
           histPctEl.textContent = '0.0%';
           histPctEl.removeAttribute('data-alloc-base-hist-pct');
         }
+        if (autoHistPctEl) autoHistPctEl.textContent = '0.0%';
         setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
         if (histCap) histCap.textContent = 'Price change';
         if (stratCap) stratCap.textContent = 'Return';
