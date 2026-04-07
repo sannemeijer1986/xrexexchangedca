@@ -2978,6 +2978,14 @@
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan';
+      const tickerLineRaw = document.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || '';
+      const tickers = tickerLineRaw
+        ? tickerLineRaw.split(/[·,]/g).map((t) => t.trim()).filter(Boolean).join(' · ')
+        : '';
+      const detailSingleIconSrc = document
+        .querySelector('[data-plan-detail-icon-wrap] img')
+        ?.getAttribute('src')
+        || 'assets/icon_currency_btc.svg';
       const amountRaw = parseInt(
         String(document.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
         10,
@@ -3004,6 +3012,10 @@
         id: 'plan-active-1',
         status: 'active',
         name,
+        kicker: name,
+        tickers: tickers || 'BTC',
+        iconSrc: detailSingleIconSrc,
+        assetIcons: [{ ticker: tickers.split(' · ')[0] || 'BTC', icon: detailSingleIconSrc }],
         investLine,
         repeats,
         firstBuy,
@@ -3052,7 +3064,7 @@
      * @param {string} tickersText e.g. "BTC · ETH · SOL" or "BTC"
      * @param {string} fallbackIconSrc
      */
-    const renderMyPlansHeaderIcons = (wrap, tickersText, fallbackIconSrc) => {
+    const renderMyPlansHeaderIcons = (wrap, tickersText, fallbackIconSrc, explicitAssets = []) => {
       if (!wrap) return;
 
       const toIcon = (ticker) => {
@@ -3063,15 +3075,30 @@
         if (t === 'SOL' || t === 'SOLANA') return 'assets/icon_solana.svg';
         if (t === 'USDT') return 'assets/icon_currency_usdt.svg';
         if (t === 'TWD') return 'assets/icon_currency_TWD.svg';
+        if (t === 'XAUT') return 'assets/icon_currency_xaut.svg';
+        if (t === 'RENDER') return 'assets/icon_currency_render.svg';
+        if (t === 'NEAR') return 'assets/icon_currency_near.svg';
+        if (t === 'LINK') return 'assets/icon_currency_link.svg';
+        if (t === 'XRP') return 'assets/icon_currency_xrp.svg';
         return null;
       };
 
+      const explicit = Array.isArray(explicitAssets)
+        ? explicitAssets
+          .map((a) => ({
+            ticker: String(a?.ticker || '').trim(),
+            icon: String(a?.icon || '').trim(),
+          }))
+          .filter((a) => a.icon)
+          .slice(0, 3)
+        : [];
       const tickers = String(tickersText || '')
         .split(/[·,]/g)
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 3);
-      const items = tickers.map((t) => ({ ticker: t, icon: toIcon(t) })).filter((x) => x.icon);
+      const inferred = tickers.map((t) => ({ ticker: t, icon: toIcon(t) })).filter((x) => x.icon);
+      const items = explicit.length ? explicit : inferred;
 
       const buildStackMarkup = () => {
         const icons = items.slice(0, 3);
@@ -3151,6 +3178,7 @@
         icons,
         planRecord.tickers || 'BTC · ETH · SOL',
         planRecord.iconSrc || 'assets/icon_currency_btc.svg',
+        planRecord.assetIcons || [],
       );
       left.appendChild(icons);
 
@@ -7636,6 +7664,12 @@
           ).toLowerCase();
           const cadence = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
           const isReservedPlan = /\bset aside funds\b/i.test(paymentMethod);
+          const selectedAssets = getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg') || [];
+          const selectedTickers = selectedAssets
+            .map((a) => String(a?.ticker || '').trim())
+            .filter(Boolean);
+          const tickerLine = selectedTickers.join(' · ');
+          const singleIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
           if (overviewFirstBuy && overviewFirstBuy !== '—') {
             financeSummaryConfirmedNextBuy = overviewFirstBuy;
           } else if (nextCompact) {
@@ -7646,6 +7680,12 @@
             id: `plan-active-${Date.now()}`,
             status: 'active',
             name: panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan',
+            kicker: selectedAssets.length === 1
+              ? (selectedAssets[0]?.name || panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan')
+              : (panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan'),
+            tickers: tickerLine || (panel.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || 'BTC'),
+            iconSrc: singleIconSrc,
+            assetIcons: selectedAssets.map((a) => ({ ticker: String(a?.ticker || '').trim(), icon: String(a?.icon || '').trim() })).filter((a) => a.icon),
             investLine: amountRaw > 0 ? `${amountRaw.toLocaleString('en-US')} ${cur} each ${cadence}` : `— ${cur} each ${cadence}`,
             repeats: repeatsValue,
             firstBuy: (overviewFirstBuy && overviewFirstBuy !== '—') ? overviewFirstBuy : (nextCompact || '—'),
