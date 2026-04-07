@@ -7026,13 +7026,6 @@
         if (bufferScroller) bufferScroller.scrollTop = 0;
         bufferPanel.hidden = false;
         requestAnimationFrame(() => bufferPanel.classList.add('is-open'));
-        // Autofocus reserve input on open (Funding page).
-        requestAnimationFrame(() => {
-          if (!reserveInputEl) return;
-          reserveInputEl.focus();
-          const len = (reserveInputEl.value || '').length;
-          try { reserveInputEl.setSelectionRange(len, len); } catch (_) {}
-        });
       };
 
       const close = (opts = {}) => {
