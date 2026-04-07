@@ -1313,6 +1313,11 @@
           sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
       }
+      const firstBuyTodayToggle = document.querySelector('[data-prototype-show-first-buy-today]');
+      if (firstBuyTodayToggle) {
+        firstBuyTodayToggle.checked = false;
+        firstBuyTodayToggle.dispatchEvent(new Event('change'));
+      }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
         smartAllocSelect.value = 'smart';
@@ -1358,6 +1363,11 @@
       if (sp500Toggle) {
         sp500Toggle.checked = false;
         sp500Toggle.dispatchEvent(new Event('change'));
+      }
+      const firstBuyTodayToggle = document.querySelector('[data-prototype-show-first-buy-today]');
+      if (firstBuyTodayToggle) {
+        firstBuyTodayToggle.checked = false;
+        firstBuyTodayToggle.dispatchEvent(new Event('change'));
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
@@ -1898,6 +1908,15 @@
     if (!container) return;
     const on = Boolean(input?.checked);
     container.classList.toggle('is-proto-finance-currency-selector-on', on);
+  };
+
+  /** Prototype control: show/hide "First buy today" row in schedule sheet. */
+  const syncPrototypeScheduleBuyNowRowVisible = () => {
+    const input = document.querySelector('[data-prototype-show-first-buy-today]');
+    const on = Boolean(input?.checked);
+    document.querySelectorAll('.schedule-sheet__buy-now-row').forEach((row) => {
+      row.style.display = on ? '' : 'none';
+    });
   };
 
   /** Prototype control: plan detail allocation mode (manual vs smart). */
@@ -3071,9 +3090,13 @@
   document.querySelector('[data-prototype-finance-display-currency-selector]')?.addEventListener('change', () => {
     syncPrototypeFinanceCurrencySelectorVisible();
   });
+  document.querySelector('[data-prototype-show-first-buy-today]')?.addEventListener('change', () => {
+    syncPrototypeScheduleBuyNowRowVisible();
+  });
   document.querySelector('[data-prototype-smart-allocation]')?.addEventListener('change', () => {
     document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));
   });
+  syncPrototypeScheduleBuyNowRowVisible();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
@@ -6381,12 +6404,23 @@
           const label = periods === 1 ? unit : unitPlural;
           return `${periods} ${label}`;
         }
+        const ordinalDay = (day) => {
+          const d = Number(day) || 0;
+          const mod100 = d % 100;
+          if (mod100 >= 11 && mod100 <= 13) return `${d}th`;
+          const mod10 = d % 10;
+          if (mod10 === 1) return `${d}st`;
+          if (mod10 === 2) return `${d}nd`;
+          if (mod10 === 3) return `${d}rd`;
+          return `${d}th`;
+        };
         if (unit === 'day') anchor.setDate(anchor.getDate() + periods);
         else if (unit === 'week') anchor.setDate(anchor.getDate() + (periods * 7));
         else anchor.setMonth(anchor.getMonth() + periods);
         const month = anchor.toLocaleDateString('en-US', { month: 'short' });
+        const day = ordinalDay(anchor.getDate());
         const label = periods === 1 ? unit : unitPlural;
-        return `${month} · ${periods} ${label}`;
+        return `${month} ${day} · ${periods} ${label}`;
       };
 
       const getReserveBuyBounds = () => {
