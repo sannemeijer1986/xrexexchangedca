@@ -1208,11 +1208,22 @@
   const ENABLE_PLAN_END_CONDITION_STEP = false;
 
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Wed, Apr 15';
+
+  /** "Wednesday, Apr 15" → "Wed, Apr 15" for summary + My plans (3-letter weekday). */
+  const shortenWeekdayLabel = (s) => {
+    const t = String(s || '').trim();
+    if (!t || t.toLowerCase() === 'today') return t;
+    const m = t.match(/^([A-Za-z]+),\s*(.+)$/);
+    if (!m) return t;
+    const wk = m[1] || '';
+    const rest = m[2] || '';
+    return `${wk.slice(0, 3)}, ${rest}`;
+  };
+
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedNextBuy = '';
   /** Set when user confirms plan overview; cleared on prototype Reset */
   let financeSummaryConfirmedReserved = null;
-  /** Snapshot of the latest submitted plan used by "My plans". */
   /** Snapshot of the latest submitted plan used by "My plans". */
   let myPlansSubmittedPlan = null;
 
@@ -1275,16 +1286,6 @@
   };
 
   const applyFinanceSummaryMeta = () => {
-    const shortenWeekday = (s) => {
-      const t = String(s || '').trim();
-      if (!t || t.toLowerCase() === 'today') return t;
-      const m = t.match(/^([A-Za-z]+),\s*(.+)$/);
-      if (!m) return t;
-      const wk = m[1] || '';
-      const rest = m[2] || '';
-      return `${wk.slice(0, 3)}, ${rest}`;
-    };
-
     const suf = currencyState.summary;
     const fallbackAmt = formatMoney(0, suf);
     const reservedAmt = financeSummaryConfirmedReserved
@@ -1310,7 +1311,7 @@
     });
 
     const nbRaw = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
-    const nb = shortenWeekday(nbRaw);
+    const nb = shortenWeekdayLabel(nbRaw);
     document.querySelectorAll('[data-finance-summary-next-buy]').forEach((el) => {
       el.textContent = nb;
     });
@@ -2990,20 +2991,31 @@
         String(document.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
         10,
       ) || 0;
+      const sliderAmt = parseInt(
+        String(document.querySelector('[data-plan-slider]')?.getAttribute('aria-valuenow') || '').trim(),
+        10,
+      ) || 0;
       const cur = String(document.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
       const freqKey = (
         document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
       ).toLowerCase();
       const cadence = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-      const investLine = amountRaw > 0
-        ? `${amountRaw.toLocaleString('en-US')} ${cur} each ${cadence}`
-        : `— ${cur} each ${cadence}`;
+      const effAmount = amountRaw > 0 ? amountRaw : (sliderAmt > 0 ? sliderAmt : 5000);
+      const investLine = `${effAmount.toLocaleString('en-US')} ${cur} each ${cadence}`;
       const repeats = document.querySelector('[data-plan-overview-repeats]')?.textContent?.trim()
         || document.querySelector('[data-plan-detail-schedule]')?.textContent?.trim()
         || '—';
-      const firstBuy = document.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim()
-        || financeSummaryConfirmedNextBuy
-        || '—';
+      const schedLine = document.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+      const nextCompact = formatFinanceNextBuyCompact(schedLine);
+      const overviewFirstBuy = document.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
+      const financeNextBuy = document.querySelector('[data-finance-summary-next-buy]')?.textContent?.trim() || '';
+      const confirmedNb = String(financeSummaryConfirmedNextBuy || '').trim();
+      const nextBuyRaw = (overviewFirstBuy && overviewFirstBuy !== '—')
+        ? overviewFirstBuy
+        : (confirmedNb && confirmedNb !== '—')
+          ? confirmedNb
+          : (financeNextBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK || nextCompact);
+      const nextBuyDisplay = shortenWeekdayLabel(nextBuyRaw);
       const fundingMethod = document.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || 'Pay as you go';
       const isReserved = /\bset aside funds\b/i.test(fundingMethod);
       const reservedFunds = document.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '—';
@@ -3018,7 +3030,10 @@
         assetIcons: [{ ticker: tickers.split(' · ')[0] || 'BTC', icon: detailSingleIconSrc }],
         investLine,
         repeats,
-        firstBuy,
+        firstBuy: nextBuyDisplay,
+        nextBuy: nextBuyDisplay,
+        completedBuys: 0,
+        totalInvested: formatMoney(0, cur),
         fundingMethod,
         isReserved,
         reservedFunds,
@@ -3027,6 +3042,7 @@
     };
 
     const getMyPlansRecords = () => {
+      if ((states.flow ?? 1) < 2) return [];
       if (myPlansSubmittedPlan) return [myPlansSubmittedPlan];
       const fallback = buildFallbackPlanSnapshot();
       return fallback ? [fallback] : [];
@@ -3210,7 +3226,11 @@
       const nextCard = el('div', 'my-plans-position-card__kv-card');
       const next = el('div', 'my-plans-position-card__kv');
       next.appendChild(el('div', 'my-plans-position-card__kv-label', 'Next buy'));
-      next.appendChild(el('div', 'my-plans-position-card__kv-value', planRecord.nextBuy || planRecord.firstBuy || '—'));
+      next.appendChild(el(
+        'div',
+        'my-plans-position-card__kv-value',
+        shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK),
+      ));
       nextCard.appendChild(next);
       twoCol.appendChild(nextCard);
 
@@ -3224,7 +3244,8 @@
       check.setAttribute('aria-hidden', 'true');
       check.className = 'my-plans-position-card__completed-icon';
       // compLine.appendChild(check);
-      compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${planRecord.completedBuys ?? 2} buys`));
+      const completedCount = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 0;
+      compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${completedCount} buys`));
       completed.appendChild(compLine);
       completedCard.appendChild(completed);
       twoCol.appendChild(completedCard);
@@ -3244,8 +3265,10 @@
       const parsed = String(planRecord.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/);
       const per = parsed ? parseFloat(parsed[1].replace(/,/g, '')) : NaN;
       const cur = parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary;
-      const completedN = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 2;
-      const totalInv = Number.isFinite(per) ? formatMoney(per * completedN, cur) : (planRecord.totalInvested || `500.00 ${cur}`);
+      const completedN = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 0;
+      const totalInv = (planRecord.totalInvested != null && String(planRecord.totalInvested).trim() !== '')
+        ? planRecord.totalInvested
+        : (Number.isFinite(per) ? formatMoney(per * completedN, cur) : formatMoney(0, normalizeFxCurrency(cur)));
       list.appendChild(row('Total invested', totalInv));
 
       // Pay-as-you-go only: "Uses your balance each buy" row.
@@ -7655,6 +7678,7 @@
           const overviewReserved = panel.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '';
           const schedLine = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
           const nextCompact = formatFinanceNextBuyCompact(schedLine);
+          const financeNextBuy = document.querySelector('[data-finance-summary-next-buy]')?.textContent?.trim() || '';
           const paymentMethod = panel.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || 'Pay as you go';
           const runoutPolicy = panel.querySelector('[data-plan-overview-runout-value]')?.textContent?.trim() || '—';
           const repeatsValue = panel.querySelector('[data-plan-overview-repeats]')?.textContent?.trim() || schedLine || '—';
@@ -7662,11 +7686,16 @@
             String(panel.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
             10,
           ) || 0;
+          const sliderAmt = parseInt(
+            String(document.querySelector('[data-plan-slider]')?.getAttribute('aria-valuenow') || '').trim(),
+            10,
+          ) || 0;
           const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
           const freqKey = (
             document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
           ).toLowerCase();
           const cadence = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+          const effAmount = amountRaw > 0 ? amountRaw : (sliderAmt > 0 ? sliderAmt : 5000);
           const isReservedPlan = /\bset aside funds\b/i.test(paymentMethod);
           const selectedAssets = getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg') || [];
           const selectedTickers = selectedAssets
@@ -7674,11 +7703,11 @@
             .filter(Boolean);
           const tickerLine = selectedTickers.join(' · ');
           const singleIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
-          if (overviewFirstBuy && overviewFirstBuy !== '—') {
-            financeSummaryConfirmedNextBuy = overviewFirstBuy;
-          } else if (nextCompact) {
-            financeSummaryConfirmedNextBuy = nextCompact;
-          }
+          const resolvedNextBuyRaw = (overviewFirstBuy && overviewFirstBuy !== '—')
+            ? overviewFirstBuy
+            : (financeNextBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK || nextCompact);
+          const resolvedNextBuy = shortenWeekdayLabel(resolvedNextBuyRaw);
+          financeSummaryConfirmedNextBuy = resolvedNextBuy;
           financeSummaryConfirmedReserved = parseMoneyWithCurrency(overviewReserved);
           myPlansSubmittedPlan = {
             id: `plan-active-${Date.now()}`,
@@ -7690,9 +7719,12 @@
             tickers: tickerLine || (panel.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || 'BTC'),
             iconSrc: singleIconSrc,
             assetIcons: selectedAssets.map((a) => ({ ticker: String(a?.ticker || '').trim(), icon: String(a?.icon || '').trim() })).filter((a) => a.icon),
-            investLine: amountRaw > 0 ? `${amountRaw.toLocaleString('en-US')} ${cur} each ${cadence}` : `— ${cur} each ${cadence}`,
+            investLine: `${effAmount.toLocaleString('en-US')} ${cur} each ${cadence}`,
             repeats: repeatsValue,
-            firstBuy: (overviewFirstBuy && overviewFirstBuy !== '—') ? overviewFirstBuy : (nextCompact || '—'),
+            firstBuy: resolvedNextBuy,
+            nextBuy: resolvedNextBuy,
+            completedBuys: 0,
+            totalInvested: formatMoney(0, cur),
             fundingMethod: paymentMethod,
             isReserved: isReservedPlan,
             reservedFunds: overviewReserved || '—',
