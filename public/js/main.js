@@ -6369,7 +6369,7 @@
 
       const navigateToFundingStep = () => {
         if (ENABLE_PLAN_END_CONDITION_STEP) planEndConditionApi.open();
-        else planBufferApi.open();
+        else planBufferApi.open({ autofocusInput: true });
       };
 
       const openContinueSheet = () => {
@@ -7012,7 +7012,8 @@
         render();
       };
 
-      const open = () => {
+      const open = (openOpts = {}) => {
+        const shouldAutofocusInput = !!openOpts.autofocusInput;
         planBreakdownApi.close();
         planOverviewApi.close({ instant: true });
         planSuccessApi.forceClose();
@@ -7026,6 +7027,33 @@
         if (bufferScroller) bufferScroller.scrollTop = 0;
         bufferPanel.hidden = false;
         requestAnimationFrame(() => bufferPanel.classList.add('is-open'));
+        if (shouldAutofocusInput) {
+          // Focus only after panel transition finishes to avoid viewport jump
+          // interrupting stacked panel animations.
+          let focused = false;
+          const focusInput = () => {
+            if (focused || !reserveInputEl) return;
+            if (bufferPanel.hidden || !bufferPanel.classList.contains('is-open')) return;
+            focused = true;
+            try {
+              reserveInputEl.focus({ preventScroll: true });
+            } catch (_) {
+              reserveInputEl.focus();
+            }
+            const len = (reserveInputEl.value || '').length;
+            try { reserveInputEl.setSelectionRange(len, len); } catch (_) {}
+          };
+          const onEnd = () => {
+            bufferPanel.removeEventListener('transitionend', onEnd);
+            focusInput();
+          };
+          bufferPanel.addEventListener('transitionend', onEnd);
+          // Fallback in case transitionend is skipped.
+          setTimeout(() => {
+            bufferPanel.removeEventListener('transitionend', onEnd);
+            focusInput();
+          }, 420);
+        }
       };
 
       const close = (opts = {}) => {
@@ -7303,7 +7331,7 @@
 
       endPanel.querySelector('[data-plan-end-condition-continue]')?.addEventListener('click', () => {
         applySelectionToPlanDetail();
-        planBufferApi.open();
+        planBufferApi.open({ autofocusInput: true });
       });
 
       return { open, close, sync: syncFromPlanDetail };
