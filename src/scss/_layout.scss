@@ -10942,6 +10942,13 @@ div.currency-sheet__item-icon {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 1.2%, rgba(206, 206, 206, 0.09) 128.38%);
 }
 
+.my-plans-position-card__auto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
 .my-plans-position-card__head-row {
   display: flex;
   align-items: center;
