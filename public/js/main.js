@@ -3876,16 +3876,15 @@
         if (absEl) absEl.textContent = '- -';
         if (curEl) curEl.hidden = true;
         if (simPctInlineEl) simPctInlineEl.hidden = true;
-        // Keep combined historic performance responsive to allocation changes.
+        // Match invalid-state treatment with return metrics row.
         if (histPctEl) {
-          const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
-          if (isFinite(baseHist)) {
-            const nextHist = baseHist + tw;
-            const histText = `${nextHist.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
-            histPctEl.textContent = histText;
-            if (autoHistPctEl) autoHistPctEl.textContent = histText;
-            if (histToneRoot) setReturnMetricTone(histToneRoot, nextHist);
-          }
+          histPctEl.textContent = '- -';
+        }
+        if (autoHistPctEl) {
+          autoHistPctEl.textContent = '- -';
+        }
+        if (histToneRoot) {
+          histToneRoot.classList.remove('plan-return-metric__group--loss');
         }
         return;
       }
@@ -4045,21 +4044,21 @@
         key: 'bigthree',
         icon: 'assets/icon_bigthree.svg',
         title: 'Big Three',
-        tickers: 'BTC, ETH, SOL',
+        tickers: 'BTC · ETH · SOL',
         desc: 'DCA into the top three cryptos',
       },
       {
         key: 'digitalgold',
         icon: 'assets/icon_digitalgold.svg',
         title: 'Digital gold',
-        tickers: 'BTC, XAUT',
+        tickers: 'BTC · XAUT',
         desc: 'Tokenized Gold and Bitcoin combined',
       },
       {
         key: 'aiessentials',
         icon: 'assets/icon_aiessentials.svg',
         title: 'AI essentials',
-        tickers: 'RENDER, NEAR, SOL',
+        tickers: 'RENDER · NEAR · SOL',
         desc: 'Leading AI projects and platforms',
       },
     ];
@@ -5272,7 +5271,7 @@
           .map((item) => String(item?.ticker || '').trim())
           .filter(Boolean);
         title = 'Your plan';
-        ticker = selectedTickers.join(', ');
+        ticker = selectedTickers.join(' · ');
       }
       if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.items?.length) {
         const curatedMeta = pickerCurated.find((p) => p.key === detailAllocOverride.key);
@@ -5280,7 +5279,7 @@
           .map((item) => String(item?.ticker || '').trim())
           .filter(Boolean);
         title = curatedMeta?.title || title;
-        ticker = curatedTickers.join(', ');
+        ticker = curatedTickers.join(' · ');
         if (curatedMeta?.icon) iconSrc = curatedMeta.icon;
       }
 
@@ -5455,6 +5454,26 @@
 
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
       latestAllocItemCount = allocItems.length;
+
+      if (allocItems.length >= 2) {
+        const tickLine = allocItems
+          .map((item) => String(item?.ticker || '').trim())
+          .filter(Boolean)
+          .join(' · ');
+        if (tickLine) {
+          ticker = tickLine;
+          const tEl = panel.querySelector('[data-plan-detail-ticker]');
+          const htEl = panel.querySelector('[data-plan-detail-header-ticker]');
+          if (tEl) {
+            tEl.textContent = tickLine;
+            tEl.hidden = !!isCustomNoAssetsYet;
+          }
+          if (htEl) {
+            htEl.textContent = tickLine;
+            htEl.hidden = !!isCustomNoAssetsYet;
+          }
+        }
+      }
 
       const addLabel = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
       panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
@@ -6669,7 +6688,11 @@
         let firstBuyText = '—';
         const buyNowOn = panel.dataset?.scheduleBuyNow === '1';
         if (buyNowOn) {
-          firstBuyText = 'Today';
+          firstBuyText = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+          });
         }
         if (!buyNowOn && compactNextBuy) {
           const dateToken = compactNextBuy.split('·')[0]?.trim() || '';
@@ -6933,9 +6956,8 @@
         const btn = e.currentTarget;
         if (btn.disabled) return;
         e.preventDefault();
-        syncContinueSheetSummary();
-        if (continueSheet) openContinueSheet();
-        else navigateToFundingStep();
+        // UX update: Continue goes straight to Plan overview (skip summary sheet).
+        planOverviewApi.open();
       });
 
       return { open, close, sync: syncFromPlanDetail };

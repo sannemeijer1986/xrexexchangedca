@@ -6620,6 +6620,7 @@ div.currency-sheet__item-icon::before {
 
 .plan-detail-panel__alloc-total-target {
   color: #ffffff;
+  display: none;
 }
 
 .plan-detail-panel__alloc-total-error {
