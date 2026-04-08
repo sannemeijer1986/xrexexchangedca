@@ -3860,6 +3860,13 @@
       const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
       const curEl = panel.querySelector('[data-plan-detail-return-currency]');
       const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
+      const historicInlineArrows = panel.querySelectorAll(
+        '.plan-detail-panel__alloc-header-historic-inline .plan-return-metric__arrow--historic, '
+        + '.plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__return-arrow',
+      );
+      const historicToneArrows = histToneRoot?.querySelectorAll(
+        '.plan-return-metric__arrow--historic, .plan-detail-panel__return-arrow',
+      ) || [];
       if (!pctEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
       const base = parseFloat(pctEl.dataset.allocBasePct || '');
       if (!isFinite(base)) return;
@@ -3886,11 +3893,19 @@
         if (histToneRoot) {
           histToneRoot.classList.remove('plan-return-metric__group--loss');
         }
+        [...historicInlineArrows, ...historicToneArrows].forEach((arrow) => {
+          arrow.hidden = true;
+          arrow.style.display = 'none';
+        });
         return;
       }
 
       if (curEl) curEl.hidden = false;
       if (simPctInlineEl) simPctInlineEl.hidden = false;
+      [...historicInlineArrows, ...historicToneArrows].forEach((arrow) => {
+        arrow.hidden = false;
+        arrow.style.display = '';
+      });
       const amountInp = panel.querySelector('[data-plan-detail-amount-input]');
       const investAmt = Math.max(0, parseInt(amountInp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
       // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
