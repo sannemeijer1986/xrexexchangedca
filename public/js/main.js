@@ -2970,6 +2970,8 @@
       typeof opts.getDismissPlanDetailStackInstant === 'function' ? opts.getDismissPlanDetailStackInstant : () => () => {};
     const panel = document.querySelector('[data-my-plans-panel]');
     const detailPanel = document.querySelector('[data-my-plans-detail-panel]');
+    const detailHeader = detailPanel?.querySelector('.my-plans-detail-panel__header');
+    const detailScroller = detailPanel?.querySelector('.my-plans-detail-panel__scroller');
     const container = document.querySelector('.phone-container');
     if (!panel) {
       return { open: () => {}, close: () => {} };
@@ -3140,8 +3142,10 @@
      * @param {HTMLElement | null} wrap
      * @param {string} tickersText e.g. "BTC · ETH · SOL" or "BTC"
      * @param {string} fallbackIconSrc
+     * @param {Array<{ticker?:string,icon?:string}>} [explicitAssets]
+     * @param {'header'|'product'} [variant]
      */
-    const renderMyPlansHeaderIcons = (wrap, tickersText, fallbackIconSrc, explicitAssets = []) => {
+    const renderMyPlansHeaderIcons = (wrap, tickersText, fallbackIconSrc, explicitAssets = [], variant = 'header') => {
       if (!wrap) return;
 
       const toIcon = (ticker) => {
@@ -3187,7 +3191,11 @@
         const br = c?.icon
           ? `<img src="${escIconAttr(c.icon)}" alt="" />`
           : '<span class="plan-detail-panel__icon-stack-placeholder" aria-hidden="true"></span>';
-        return `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escIconAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escIconAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+        const stack = `<div class="${baseClass}" aria-hidden="true"><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--top"><img src="${escIconAttr(a.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--bl"><img src="${escIconAttr(b.icon)}" alt="" /></div><div class="plan-detail-panel__icon-slot plan-detail-panel__icon-slot--br">${br}</div></div>`;
+        if (variant === 'product') {
+          return `<div class="plan-detail-panel__product-icon-wrap" aria-hidden="true">${stack}</div>`;
+        }
+        return stack;
       };
 
       const stack = buildStackMarkup();
@@ -3200,7 +3208,11 @@
         items.length === 1 && items[0]?.icon
           ? items[0].icon
           : fallbackIconSrc;
-      wrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${escIconAttr(singleSrc)}" alt="" />`;
+      if (variant === 'product') {
+        wrap.innerHTML = `<div class="plan-detail-panel__product-icon-wrap" aria-hidden="true"><img class="plan-detail-panel__product-icon" src="${escIconAttr(singleSrc)}" alt="" /></div>`;
+      } else {
+        wrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${escIconAttr(singleSrc)}" alt="" />`;
+      }
     };
 
     const renderMyPlansTickers = (target, planRecord) => {
@@ -3449,10 +3461,13 @@
       if (!detailPanel) return;
       if (instant) {
         detailPanel.classList.remove('is-open');
+        detailHeader?.classList.remove('is-collapsed');
+        if (detailScroller) detailScroller.scrollTop = 0;
         detailPanel.hidden = true;
         return;
       }
       detailPanel.classList.remove('is-open');
+      detailHeader?.classList.remove('is-collapsed');
       const onEnd = () => {
         if (!detailPanel.classList.contains('is-open')) detailPanel.hidden = true;
         detailPanel.removeEventListener('transitionend', onEnd);
@@ -3498,6 +3513,7 @@
         rec.tickers,
         rec.iconSrc || 'assets/icon_currency_btc.svg',
         rec.assetIcons || [],
+        'product',
       );
 
       const tickers = String(rec.tickers || '')
@@ -3630,10 +3646,21 @@
       if (!detailPanel || !rec) return;
       populateMyPlansPlanDetail(rec);
       detailPanel.hidden = false;
+      if (detailScroller) detailScroller.scrollTop = 0;
+      detailHeader?.classList.remove('is-collapsed');
       requestAnimationFrame(() => {
         detailPanel.classList.add('is-open');
       });
     };
+
+    const syncMyPlansDetailHeaderCollapse = () => {
+      if (!detailPanel || !detailHeader || !detailScroller) return;
+      const hero = detailPanel.querySelector('.my-plans-detail-panel__hero');
+      const threshold = Math.max(24, (hero?.offsetHeight || 100) - 20);
+      detailHeader.classList.toggle('is-collapsed', detailScroller.scrollTop >= threshold);
+    };
+
+    detailScroller?.addEventListener('scroll', syncMyPlansDetailHeaderCollapse, { passive: true });
 
     panel.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-plan-card-view-detail]');
