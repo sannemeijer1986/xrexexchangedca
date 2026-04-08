@@ -6427,7 +6427,11 @@
                   if (unit === 'day') endDate.setDate(endDate.getDate() + coversCount);
                   else if (unit === 'week') endDate.setDate(endDate.getDate() + (coversCount * 7));
                   else endDate.setMonth(endDate.getMonth() + coversCount);
-                  untilText = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  untilText = endDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  });
                 }
               }
             }
