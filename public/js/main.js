@@ -6774,7 +6774,8 @@
       const coversAmountTotalSuffix = bufferPanel.querySelector('[data-plan-buffer-covers-amount-total-suffix]');
 
       const sumPerbuyEl = bufferPanel.querySelector('[data-plan-buffer-sum-perbuy]');
-      const sumCoversEl = bufferPanel.querySelector('[data-plan-buffer-sum-covers]');
+      const sumCoversDateEl = bufferPanel.querySelector('[data-plan-buffer-sum-covers-date]');
+      const sumCoversDurationEl = bufferPanel.querySelector('[data-plan-buffer-sum-covers-duration]');
       const sumUnusedEl = bufferPanel.querySelector('[data-plan-buffer-sum-unused]');
       const reserveInputEl = bufferPanel.querySelector('[data-plan-buffer-reserve-input]');
       const reserveRangeEl = bufferPanel.querySelector('[data-plan-buffer-reserve-range]');
@@ -6869,14 +6870,11 @@
         return guess.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
-      const computeCoversUntilText = ({ periods, unit, unitPlural }) => {
-        if (!Number.isFinite(periods) || periods <= 0) return '- -';
-        const nextBuyDate = computeNextBuyDate();
-        const anchor = new Date(nextBuyDate);
-        if (Number.isNaN(anchor.getTime())) {
-          const label = periods === 1 ? unit : unitPlural;
-          return `${periods} ${label}`;
-        }
+      const computeCoversUntilDisplay = ({ periods, unit, unitPlural }) => {
+        const empty = { dateText: '- -', durationText: '', showDuration: false };
+        if (!Number.isFinite(periods) || periods <= 0) return empty;
+        const label = periods === 1 ? unit : unitPlural;
+        const durationText = `${periods} ${label}`;
         const ordinalDay = (day) => {
           const d = Number(day) || 0;
           const mod100 = d % 100;
@@ -6887,13 +6885,19 @@
           if (mod10 === 3) return `${d}rd`;
           return `${d}th`;
         };
+        const nextBuyDate = computeNextBuyDate();
+        const anchor = new Date(nextBuyDate);
+        if (Number.isNaN(anchor.getTime())) {
+          return { dateText: '—', durationText, showDuration: true };
+        }
         if (unit === 'day') anchor.setDate(anchor.getDate() + periods);
-        else if (unit === 'week') anchor.setDate(anchor.getDate() + (periods * 7));
+        else if (unit === 'week') anchor.setDate(anchor.getDate() + periods * 7);
         else anchor.setMonth(anchor.getMonth() + periods);
         const month = anchor.toLocaleDateString('en-US', { month: 'short' });
         const day = ordinalDay(anchor.getDate());
-        const label = periods === 1 ? unit : unitPlural;
-        return `${month} ${day} · ${periods} ${label}`;
+        const year = anchor.getFullYear();
+        const dateText = `${month} ${day}, ${year}`;
+        return { dateText, durationText, showDuration: true };
       };
 
       const getReserveBuyBounds = () => {
@@ -7064,9 +7068,23 @@
           sumPerbuyEl.classList.toggle('plan-buffer-funding-summary__value--warning', rawAmount > 0 && unusedRaw > 0);
           sumPerbuyEl.classList.toggle('plan-buffer-funding-summary__value--highlight', rawAmount > 0 && unusedRaw === 0);
         }
-        if (sumCoversEl) {
+        if (sumCoversDateEl && sumCoversDurationEl) {
           const periods = perBuy > 0 && rawAmount > 0 ? Math.max(1, Math.floor(rawAmount / perBuy)) : 0;
-          sumCoversEl.textContent = computeCoversUntilText({ periods, unit, unitPlural });
+          const { dateText, durationText, showDuration } = computeCoversUntilDisplay({
+            periods,
+            unit,
+            unitPlural,
+          });
+          sumCoversDateEl.textContent = dateText;
+          if (showDuration && durationText) {
+            sumCoversDurationEl.textContent = durationText;
+            sumCoversDurationEl.hidden = false;
+            sumCoversDurationEl.setAttribute('aria-hidden', 'false');
+          } else {
+            sumCoversDurationEl.textContent = '';
+            sumCoversDurationEl.hidden = true;
+            sumCoversDurationEl.setAttribute('aria-hidden', 'true');
+          }
         }
         if (sumUnusedEl) {
           const shouldHideUnused = perBuy > 0 && rawAmount > 0 && (rawAmount < perBuy || unusedRaw === 0);

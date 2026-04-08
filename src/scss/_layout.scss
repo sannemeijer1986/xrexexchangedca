@@ -8864,6 +8864,10 @@ div.currency-sheet__item-icon {
   font-weight: 600;
 }
 
+.plan-buffer-funding-summary__row--covers {
+  align-items: flex-start;
+}
+
 .plan-buffer-funding-summary__label {
   flex: 1 1 auto;
   color: #9b9c9c;
@@ -8874,6 +8878,35 @@ div.currency-sheet__item-icon {
   color: #ffffff;
   text-align: right;
   white-space: nowrap;
+}
+
+.plan-buffer-funding-summary__value--covers-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: normal;
+  max-width: 58%;
+}
+
+.plan-buffer-funding-summary__covers-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.plan-buffer-funding-summary__covers-duration {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.plan-buffer-funding-summary__covers-duration[hidden] {
+  display: none !important;
 }
 
 .plan-buffer-funding-summary__value--negative {
