@@ -4380,7 +4380,7 @@
             const invest = getPlanDetailInvestTotal();
             const cur = getPlanDetailCurrency();
             const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
-            amountSubEl.textContent = `${slice.toLocaleString('en-US')} ${cur}`;
+            amountSubEl.textContent = `≈ ${slice.toLocaleString('en-US')} ${cur}`;
             amountSubEl.setAttribute('aria-hidden', 'false');
           }
         }
@@ -4766,7 +4766,7 @@
           );
           const cur = panelEl.querySelector('[data-plan-detail-currency]')?.textContent?.trim() || 'TWD';
           const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
-          amountSubEl.textContent = `${slice.toLocaleString('en-US')} ${cur}`;
+          amountSubEl.textContent = `≈ ${slice.toLocaleString('en-US')} ${cur}`;
         }
         const isLocked = lockedIdx === i;
         item.classList.toggle('is-locked', isLocked);

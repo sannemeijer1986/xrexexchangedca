@@ -3877,6 +3877,7 @@ div.currency-sheet__item-icon {
   width: 100%;
   max-width: 100%;
   gap: 20px;
+  padding-bottom: 4px;
 }
 
 .currency-sheet__body--schedule .currency-sheet__title {
@@ -3944,6 +3945,15 @@ div.currency-sheet__item-icon {
 .schedule-sheet__timing-row:disabled {
   cursor: not-allowed;
   opacity: 0.65;
+}
+
+.phone-container p.schedule-sheet__execution-window {
+  margin: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #9b9c9c;
+  line-height: 1.35;
 }
 
 .schedule-sheet__timing-cal {
