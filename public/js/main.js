@@ -3463,51 +3463,166 @@
 
     const populateMyPlansPlanDetail = (rec) => {
       if (!detailPanel || !rec) return;
-      const kickerEl = detailPanel.querySelector('[data-my-plans-detail-kicker]');
       const detailTitleEl = detailPanel.querySelector('[data-my-plans-detail-title]');
+      const statusLabelEl = detailPanel.querySelector('[data-my-plans-detail-status-label]');
+      const investLineEl = detailPanel.querySelector('[data-my-plans-detail-invest-line]');
       const iconsWrap = detailPanel.querySelector('[data-my-plans-detail-icons]');
-      const body = detailPanel.querySelector('[data-my-plans-detail-body]');
-      if (kickerEl) kickerEl.textContent = rec.kicker || rec.name || 'Plan';
-      if (detailTitleEl) detailTitleEl.textContent = rec.tickers || '—';
+      const allocationEl = detailPanel.querySelector('[data-my-plans-detail-allocation]');
+      const createdAtEl = detailPanel.querySelector('[data-my-plans-detail-created-at]');
+      const nextBuyEl = detailPanel.querySelector('[data-my-plans-detail-next-buy]');
+      const completedEl = detailPanel.querySelector('[data-my-plans-detail-completed]');
+      const totalInvestedEl = detailPanel.querySelector('[data-my-plans-detail-total-invested]');
+      const fundingMainEl = detailPanel.querySelector('[data-my-plans-detail-funding-main]');
+      const fundingSubEl = detailPanel.querySelector('[data-my-plans-detail-funding-sub]');
+      const accumulatedEl = detailPanel.querySelector('[data-my-plans-detail-accumulated]');
+      const activityEl = detailPanel.querySelector('[data-my-plans-detail-activity]');
+      const pauseBtn = detailPanel.querySelector('[data-my-plans-detail-pause]');
+
+      const statusKey = rec.status === 'paused' ? 'paused' : rec.status === 'ended' ? 'ended' : 'active';
+      detailPanel.setAttribute('data-plan-status', statusKey);
+      const statusText = statusKey === 'paused' ? 'Paused' : statusKey === 'ended' ? 'Ended' : 'Active';
+      if (statusLabelEl) statusLabelEl.textContent = statusText;
+      if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
+      if (investLineEl) {
+        const investLine = String(rec.investLine || '').trim();
+        const m = investLine.match(/^(.+?\s+[A-Za-z]{3,5})\s+each\s+(.+)$/i);
+        if (m) {
+          investLineEl.innerHTML = `${m[1]}<br/>each ${m[2]}`;
+        } else {
+          investLineEl.textContent = investLine || '—';
+        }
+      }
+      if (pauseBtn) pauseBtn.textContent = statusKey === 'paused' ? 'Resume' : 'Pause';
       renderMyPlansHeaderIcons(
         iconsWrap,
         rec.tickers,
         rec.iconSrc || 'assets/icon_currency_btc.svg',
         rec.assetIcons || [],
       );
-      if (body) {
-        body.innerHTML = '';
-        const statusText = rec.status === 'paused' ? 'Paused' : rec.status === 'ended' ? 'Ended' : 'Active';
-        const addRow = (label, value) => {
-          const v = value == null ? '' : String(value).trim();
-          if (!v) return;
-          const row = document.createElement('div');
-          row.className = 'my-plans-detail-panel__row';
-          const lbl = document.createElement('div');
-          lbl.className = 'my-plans-detail-panel__row-label';
-          lbl.textContent = label;
-          const val = document.createElement('div');
-          val.className = 'my-plans-detail-panel__row-value';
-          val.textContent = v;
-          row.appendChild(lbl);
-          row.appendChild(val);
-          body.appendChild(row);
-        };
-        addRow('Status', statusText);
-        addRow('Auto-investing', rec.investLine);
-        addRow('Repeats', rec.repeats);
-        addRow(
-          'Next buy',
-          shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK),
-        );
-        const n = Number.isFinite(rec.completedBuys) ? rec.completedBuys : 0;
-        addRow('Completed', `${n} buys`);
-        addRow('Total invested', rec.totalInvested);
-        addRow('Funding', rec.fundingMethod);
-        if (rec.isReserved) {
-          addRow('Reserved funds remaining', rec.reservedFunds);
-          addRow('If funds run out', rec.runoutPolicy);
+
+      const tickers = String(rec.tickers || '')
+        .split(/[·,]/g)
+        .map((x) => x.trim().toUpperCase())
+        .filter(Boolean);
+      const mixRaw = Array.isArray(rec.assetMix) ? rec.assetMix : [];
+      let mix = mixRaw
+        .map((m) => ({
+          ticker: String(m?.ticker || '').trim().toUpperCase(),
+          pct: Number.isFinite(Number(m?.pct)) ? Math.max(0, Math.round(Number(m.pct))) : 0,
+        }))
+        .filter((m) => m.ticker);
+      if (!mix.length && tickers.length) {
+        if (tickers.length === 1) mix = [{ ticker: tickers[0], pct: 100 }];
+        else {
+          const base = Math.floor(100 / tickers.length);
+          let rem = 100 - (base * tickers.length);
+          mix = tickers.map((ticker) => {
+            const pct = base + (rem > 0 ? 1 : 0);
+            if (rem > 0) rem -= 1;
+            return { ticker, pct };
+          });
         }
+      }
+      const tickerMeta = (ticker) => {
+        const t = String(ticker || '').trim().toUpperCase();
+        const explicit = Array.isArray(rec.assetIcons)
+          ? rec.assetIcons.find((a) => String(a?.ticker || '').trim().toUpperCase() === t && String(a?.icon || '').trim())
+          : null;
+        const names = {
+          BTC: 'Bitcoin',
+          ETH: 'Ethereum',
+          SOL: 'Solana',
+          XAUT: 'Tether Gold',
+          RENDER: 'Render',
+          NEAR: 'NEAR',
+          LINK: 'Chainlink',
+          XRP: 'XRP',
+        };
+        const icon = explicit?.icon
+          || (t === 'BTC' ? 'assets/icon_currency_btc.svg'
+            : t === 'ETH' ? 'assets/icon_currency_eth.svg'
+              : t === 'SOL' ? 'assets/icon_solana.svg'
+                : t === 'XAUT' ? 'assets/icon_currency_xaut.svg'
+                  : t === 'RENDER' ? 'assets/icon_currency_render.svg'
+                    : t === 'NEAR' ? 'assets/icon_currency_near.svg'
+                      : t === 'LINK' ? 'assets/icon_currency_link.svg'
+                        : t === 'XRP' ? 'assets/icon_currency_xrp.svg'
+                          : (rec.iconSrc || 'assets/icon_currency_btc.svg'));
+        return { ticker: t, name: names[t] || t, icon };
+      };
+      if (allocationEl) {
+        allocationEl.innerHTML = '';
+        mix.forEach((m) => {
+          const meta = tickerMeta(m.ticker);
+          const chip = document.createElement('span');
+          chip.className = 'my-plans-detail-panel__chip';
+          const ic = document.createElement('img');
+          ic.className = 'my-plans-detail-panel__chip-icon';
+          ic.src = meta.icon;
+          ic.alt = '';
+          ic.setAttribute('aria-hidden', 'true');
+          const tk = document.createElement('span');
+          tk.className = 'my-plans-detail-panel__chip-ticker';
+          tk.textContent = m.ticker;
+          const pct = document.createElement('span');
+          pct.className = 'my-plans-detail-panel__chip-pct';
+          pct.textContent = `${m.pct}%`;
+          chip.appendChild(ic);
+          chip.appendChild(tk);
+          chip.appendChild(pct);
+          allocationEl.appendChild(chip);
+        });
+      }
+
+      const nextBuyText = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
+      if (nextBuyEl) nextBuyEl.textContent = nextBuyText;
+      const completedN = Number.isFinite(rec.completedBuys) ? rec.completedBuys : 0;
+      if (completedEl) completedEl.textContent = `${completedN} buys`;
+      if (totalInvestedEl) totalInvestedEl.textContent = rec.totalInvested || '—';
+      if (fundingMainEl) fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : 'Paid from your balance';
+      if (fundingSubEl) {
+        const sub = rec.isReserved
+          ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
+          : 'Sufficient balance';
+        fundingSubEl.textContent = sub;
+      }
+
+      if (createdAtEl) {
+        const d = new Date();
+        createdAtEl.textContent = `Created on ${d.toLocaleDateString('en-US', { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })}, ${d.getFullYear()}`;
+      }
+
+      const inferredMoney = parseMoneyWithCurrency(rec.totalInvested || '') || parsePerBuyFromInvestLine(rec.investLine || '');
+      const cur = inferredMoney?.currency || currencyState.plan || 'TWD';
+      const totalAmt = inferredMoney?.amount || 0;
+      const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
+
+      if (accumulatedEl) {
+        accumulatedEl.innerHTML = '';
+        mix.forEach((m) => {
+          const meta = tickerMeta(m.ticker);
+          const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
+          const price = px[m.ticker] || 100;
+          const qty = amount > 0 ? amount / price : 0;
+          const card = document.createElement('article');
+          card.className = 'my-plans-detail-panel__asset-card';
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div>`;
+          accumulatedEl.appendChild(card);
+        });
+      }
+
+      if (activityEl) {
+        const now = new Date();
+        const stamp = `${now.toLocaleDateString('en-US', { month: 'short' })} ${now.getDate()}th, ${now.getFullYear()}`;
+        const hh = now.toLocaleTimeString('en-US', { hour12: false });
+        const lines = mix.map((m) => {
+          const meta = tickerMeta(m.ticker);
+          const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
+          const price = px[m.ticker] || 100;
+          const qty = amount > 0 ? amount / price : 0;
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span>+ ${qty.toFixed(4)} ${m.ticker}</span></div><div class="my-plans-detail-panel__act-right"><span>- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-chevron">›</span></div></div>`;
+        }).join('');
+        activityEl.innerHTML = `<article class="my-plans-detail-panel__activity-card"><div class="my-plans-detail-panel__activity-head"><span>${stamp}</span><span>${hh}</span></div>${lines}</article>`;
       }
     };
 

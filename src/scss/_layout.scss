@@ -4473,7 +4473,7 @@ div.currency-sheet__item-icon {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .plan-continue-sheet__name {
@@ -4529,7 +4529,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-continue-sheet__section-label {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.2;
   font-weight: 600;
   color: #9b9c9c;
@@ -8088,7 +8088,7 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__plan-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   padding: 16px;
   background: linear-gradient(180deg, #0d0e0f 0%, #15161a 100%);
 }
@@ -11300,17 +11300,18 @@ div.currency-sheet__item-icon {
 
 .my-plans-detail-panel__header {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 52px 16px 16px;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px 0;
+  min-height: 84px;
+  box-sizing: border-box;
   flex-shrink: 0;
-  background: #1b1d1d;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0d0e0f;
 }
 
 .my-plans-detail-panel__icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -11328,18 +11329,9 @@ div.currency-sheet__item-icon {
   }
 }
 
-.my-plans-detail-panel__title-wrap {
+.my-plans-detail-panel__header-main {
   flex: 1;
   min-width: 0;
-  padding-top: 2px;
-}
-
-.phone-container p.my-plans-detail-panel__kicker {
-  margin: 0 0 4px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #9b9c9c;
-  line-height: 1.2;
 }
 
 .phone-container h1.my-plans-detail-panel__title {
@@ -11347,8 +11339,53 @@ div.currency-sheet__item-icon {
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.25;
+  line-height: 1;
   letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.my-plans-detail-panel__status {
+  height: 24px;
+  border-radius: 30px;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #5ac47d;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.my-plans-detail-panel__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #5ac47d;
+}
+
+.my-plans-detail-panel[data-plan-status='paused'] .my-plans-detail-panel__status,
+.my-plans-detail-panel[data-plan-status='paused'] .my-plans-detail-panel__status-dot {
+  color: #f1b347;
+  background: #f1b347;
+}
+
+.my-plans-detail-panel[data-plan-status='paused'] .my-plans-detail-panel__status {
+  background: rgba(241, 179, 71, 0.16);
+}
+
+.my-plans-detail-panel[data-plan-status='ended'] .my-plans-detail-panel__status,
+.my-plans-detail-panel[data-plan-status='ended'] .my-plans-detail-panel__status-dot {
+  color: #9b9c9c;
+  background: #9b9c9c;
+}
+
+.my-plans-detail-panel[data-plan-status='ended'] .my-plans-detail-panel__status {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .my-plans-detail-panel__scroller {
@@ -11356,68 +11393,360 @@ div.currency-sheet__item-icon {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #1b1d1d;
+  background: #0d0e0f;
   -webkit-overflow-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
   }
   scrollbar-width: none;
+  padding-bottom: 92px;
 }
 
-.my-plans-detail-panel__product {
-  padding: 24px 16px 8px;
+.my-plans-detail-panel__hero {
+  padding: 8px 16px 16px;
+  background: linear-gradient(180deg, #0D0E0F 0%, #15161A 100%);
+}
+
+.phone-container p.my-plans-detail-panel__section-title {
+  margin: 0;
+  color: #9b9c9c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.my-plans-detail-panel__hero-row {
+  margin-top: 10px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  background: #1b1d1d;
+  gap: 10px;
 }
 
 .my-plans-detail-panel__icons {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 48px;
+  justify-content: flex-end;
+  min-height: 56px;
+  min-width: 56px;
+  flex-shrink: 0;
 }
 
 .my-plans-detail-panel__icons .plan-detail-panel__header-icon {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
 }
 
-.my-plans-detail-panel__section {
-  padding: 8px 16px 40px;
+.my-plans-detail-panel__hero-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.my-plans-detail-panel__block {
+  padding: 16px 16px 0;
+}
+
+.my-plans-detail-panel__block + .my-plans-detail-panel__block {
+  margin-top: 12px;
+}
+
+.my-plans-detail-panel__allocation {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.my-plans-detail-panel__chip {
+  height: 29px;
+  border-radius: 999px;
+  border: 1px solid #3c4248;
+  background: #0d0e0f;
+  color: #e9eaeb;
+  padding: 0 10px 0 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__chip-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.my-plans-detail-panel__chip-ticker {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.my-plans-detail-panel__chip-pct {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
+.my-plans-detail-panel__section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.phone-container p.my-plans-detail-panel__section-meta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #58595a;
+}
+
+.my-plans-detail-panel__overview-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.my-plans-detail-panel__ov-card {
+  border-radius: 16px;
+  background: #151718;
+  padding: 16px;
+  min-height: 76px;
   box-sizing: border-box;
 }
 
-.my-plans-detail-panel__row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 14px;
+.my-plans-detail-panel__ov-card--full {
+  grid-column: 1 / span 2;
+  min-height: 138px;
+}
+
+.my-plans-detail-panel__ov-label {
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__ov-label--mt {
+  margin-top: 12px;
+}
+
+.my-plans-detail-panel__ov-value {
+  margin-top: 2px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.35;
 }
 
-.my-plans-detail-panel__row:last-child {
-  border-bottom: 0;
+.my-plans-detail-panel__ov-sub {
+  margin-top: 2px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.my-plans-detail-panel__row-label {
+.my-plans-detail-panel__ov-sub--positive {
+  color: #5ac47d;
+  font-size: 12px;
+}
+
+.my-plans-detail-panel__cards {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-plans-detail-panel__asset-card,
+.my-plans-detail-panel__activity-card {
+  border-radius: 12px;
+  background: #151718;
+  padding: 0;
+}
+
+.my-plans-detail-panel__asset-head,
+.my-plans-detail-panel__activity-head,
+.my-plans-detail-panel__act-row,
+.my-plans-detail-panel__asset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.my-plans-detail-panel__asset-head {
+  padding: 16px;
+}
+
+.my-plans-detail-panel__asset-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-plans-detail-panel__asset-right {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.my-plans-detail-panel__asset-icon {
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  max-width: 46%;
-  color: #9b9c9c;
-  font-weight: 500;
 }
 
-.my-plans-detail-panel__row-value {
-  text-align: right;
+.my-plans-detail-panel__asset-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.my-plans-detail-panel__asset-ticker,
+.my-plans-detail-panel__asset-qty {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__asset-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9b9c9c;
+}
+
+.my-plans-detail-panel__asset-sub {
+  margin-top: 0;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__asset-row {
+  margin-top: 0;
+  padding: 12px 16px 16px 56px;
+  border-top: 1px solid #252627;
+  color: #9b9c9c;
+  font-size: 12px;
+}
+
+.my-plans-detail-panel__asset-row strong {
   color: #ffffff;
   font-weight: 600;
-  min-width: 0;
-  word-break: break-word;
+}
+
+.my-plans-detail-panel__activity-head {
+  color: #7f8082;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 0;
+  padding: 12px 16px 2px;
+}
+
+.my-plans-detail-panel__act-row {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-top: 1px solid #252627;
+}
+
+.my-plans-detail-panel__act-row:first-of-type {
+  border-top: 0;
+}
+
+.my-plans-detail-panel__act-left,
+.my-plans-detail-panel__act-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-plans-detail-panel__act-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.my-plans-detail-panel__act-right {
+  margin-left: auto;
+  color: #a3a3a3;
+}
+
+.my-plans-detail-panel__act-chevron {
+  width: 17px;
+  height: 17px;
+  border-radius: 50px;
+  background: #202326;
+  color: #a3a3a3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.my-plans-detail-panel__show-all-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+}
+
+.my-plans-detail-panel__show-all {
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: #2d2f2f;
+  color: #ffffff;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.my-plans-detail-panel__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px 16px;
+  display: flex;
+  gap: 10px;
+  background: #151718;
+  border-top: 1px solid #252627;
+}
+
+.my-plans-detail-panel__footer-btn {
+  height: 48px;
+  border-radius: 14px;
+  border: 0;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__footer-btn--primary {
+  flex: 1 1 auto;
+  background: #275cfd;
+}
+
+.my-plans-detail-panel__footer-btn--secondary {
+  flex: 1 1 auto;
+  background: #2d2f2f;
+}
+
+.my-plans-detail-panel__footer-btn--icon {
+  width: 56px;
+  flex: 0 0 56px;
+  background: #2d2f2f;
 }
 
 .alloc-picker-panel {

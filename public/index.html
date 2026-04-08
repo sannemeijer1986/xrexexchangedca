@@ -1893,17 +1893,70 @@
             <button class="my-plans-detail-panel__icon-btn" type="button" data-my-plans-detail-close aria-label="Back">
                 <img src="assets/icon_back.svg" alt="" width="24" height="24" />
             </button>
-            <div class="my-plans-detail-panel__title-wrap">
-                <p class="my-plans-detail-panel__kicker" data-my-plans-detail-kicker>Plan</p>
+            <div class="my-plans-detail-panel__header-main">
                 <h1 class="my-plans-detail-panel__title" data-my-plans-detail-title>Your plan</h1>
+            </div>
+            <div class="my-plans-detail-panel__status">
+                <span class="my-plans-detail-panel__status-dot" aria-hidden="true"></span>
+                <span data-my-plans-detail-status-label>Active</span>
             </div>
         </header>
         <div class="my-plans-detail-panel__scroller">
-            <div class="my-plans-detail-panel__product">
-                <div class="my-plans-detail-panel__icons" data-my-plans-detail-icons aria-hidden="true"></div>
-            </div>
-            <div class="my-plans-detail-panel__section" data-my-plans-detail-body></div>
+            <section class="my-plans-detail-panel__hero">
+                <p class="my-plans-detail-panel__section-title">Auto-invest</p>
+                <div class="my-plans-detail-panel__hero-row">
+                    <div class="my-plans-detail-panel__hero-value" data-my-plans-detail-invest-line>—</div>
+                    <div class="my-plans-detail-panel__icons" data-my-plans-detail-icons aria-hidden="true"></div>
+                </div>
+            </section>
+
+            <section class="my-plans-detail-panel__block">
+                <p class="my-plans-detail-panel__section-title">Allocation</p>
+                <div class="my-plans-detail-panel__allocation" data-my-plans-detail-allocation></div>
+            </section>
+
+            <section class="my-plans-detail-panel__block">
+                <div class="my-plans-detail-panel__section-head">
+                    <p class="my-plans-detail-panel__section-title">Overview</p>
+                    <p class="my-plans-detail-panel__section-meta" data-my-plans-detail-created-at>—</p>
+                </div>
+                <div class="my-plans-detail-panel__overview-grid">
+                    <article class="my-plans-detail-panel__ov-card">
+                        <div class="my-plans-detail-panel__ov-label">Next buy</div>
+                        <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-next-buy>—</div>
+                    </article>
+                    <article class="my-plans-detail-panel__ov-card">
+                        <div class="my-plans-detail-panel__ov-label">Completed</div>
+                        <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-completed>0 buys</div>
+                    </article>
+                    <article class="my-plans-detail-panel__ov-card my-plans-detail-panel__ov-card--full">
+                        <div class="my-plans-detail-panel__ov-label">Total invested</div>
+                        <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-total-invested>—</div>
+                        <div class="my-plans-detail-panel__ov-label my-plans-detail-panel__ov-label--mt">Funding</div>
+                        <div class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</div>
+                        <div class="my-plans-detail-panel__ov-sub my-plans-detail-panel__ov-sub--positive" data-my-plans-detail-funding-sub></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="my-plans-detail-panel__block">
+                <p class="my-plans-detail-panel__section-title">Accumulated</p>
+                <div class="my-plans-detail-panel__cards" data-my-plans-detail-accumulated></div>
+            </section>
+
+            <section class="my-plans-detail-panel__block">
+                <p class="my-plans-detail-panel__section-title">Recent activity</p>
+                <div class="my-plans-detail-panel__cards" data-my-plans-detail-activity></div>
+                <div class="my-plans-detail-panel__show-all-wrap">
+                    <button class="my-plans-detail-panel__show-all" type="button">Show all</button>
+                </div>
+            </section>
         </div>
+        <footer class="my-plans-detail-panel__footer">
+            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--primary" type="button">Add funds</button>
+            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--secondary" type="button" data-my-plans-detail-pause>Pause</button>
+            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--icon" type="button" aria-label="More actions">...</button>
+        </footer>
     </section>
 
     <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->
