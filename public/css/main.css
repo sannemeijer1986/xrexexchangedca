@@ -5846,7 +5846,7 @@ div.currency-sheet__item-icon::before {
 
 .phone-container .plan-detail-panel__product-info .plan-detail-panel__product-desc.curated-portfolios__desc {
   padding-left: 0;
-  margin-top: 4px;
+  margin-top: 1px;
 }
 
 .phone-container .plan-detail-panel__product-desc[hidden] {
@@ -11132,7 +11132,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__hero-row {
-  margin-top: 10px;
+  margin-top: 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
