@@ -2981,6 +2981,55 @@
     const views = panel.querySelectorAll('[data-my-plans-view]');
     let activeFilter = 'active';
 
+    const buildEqualMixFromTickers = (tickers) => {
+      const arr = Array.isArray(tickers)
+        ? tickers.map((t) => String(t || '').trim()).filter(Boolean)
+        : [];
+      if (arr.length < 2) return [];
+      const base = Math.floor(100 / arr.length);
+      let rem = 100 - (base * arr.length);
+      return arr.map((ticker) => {
+        const pct = base + (rem > 0 ? 1 : 0);
+        if (rem > 0) rem -= 1;
+        return { ticker, pct };
+      });
+    };
+
+    const extractMyPlansAssetMixFromDetail = () => {
+      const detailRoot = document.querySelector('[data-plan-detail-panel]');
+      if (!detailRoot) return [];
+
+      const multiRoot =
+        detailRoot.querySelector('[data-plan-detail-allocation-auto-section]:not([hidden]) .alloc-multi')
+        || detailRoot.querySelector('.plan-detail-panel__allocation-section:not(.plan-detail-panel__allocation-section--auto):not([hidden]) .alloc-multi')
+        || detailRoot.querySelector('.plan-detail-panel__allocation-section .alloc-multi');
+      if (multiRoot) {
+        const mix = Array.from(multiRoot.querySelectorAll('.alloc-multi__item'))
+          .map((row) => {
+            const ticker = String(row.querySelector('.alloc-multi__ticker')?.textContent || '').trim().toUpperCase();
+            const raw = String(row.querySelector('[data-alloc-pct-input]')?.value || '').replace(/[^0-9]/g, '');
+            const pct = raw ? parseInt(raw, 10) : 0;
+            return { ticker, pct };
+          })
+          .filter((x) => x.ticker);
+        if (mix.length > 1) {
+          const hasAnyPct = mix.some((x) => Number.isFinite(x.pct) && x.pct > 0);
+          return hasAnyPct ? mix : buildEqualMixFromTickers(mix.map((x) => x.ticker));
+        }
+      }
+
+      const singleItems = Array.from(
+        detailRoot.querySelectorAll('.plan-detail-panel__allocation-section:not(.plan-detail-panel__allocation-section--auto):not([hidden]) .plan-detail-panel__alloc-item'),
+      );
+      if (singleItems.length > 1) {
+        const tickers = singleItems
+          .map((row) => String(row.querySelector('.plan-detail-panel__alloc-ticker')?.textContent || '').trim().toUpperCase())
+          .filter(Boolean);
+        return buildEqualMixFromTickers(tickers);
+      }
+      return [];
+    };
+
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan';
@@ -2988,6 +3037,7 @@
       const tickers = tickerLineRaw
         ? tickerLineRaw.split(/[·,]/g).map((t) => t.trim()).filter(Boolean).join(' · ')
         : '';
+      const assetMix = extractMyPlansAssetMixFromDetail();
       const detailSingleIconSrc = document
         .querySelector('[data-plan-detail-icon-wrap] img')
         ?.getAttribute('src')
@@ -3031,6 +3081,7 @@
         name,
         kicker: name,
         tickers: tickers || 'BTC',
+        assetMix,
         iconSrc: detailSingleIconSrc,
         assetIcons: [{ ticker: tickers.split(' · ')[0] || 'BTC', icon: detailSingleIconSrc }],
         investLine,
@@ -3152,6 +3203,35 @@
       wrap.innerHTML = `<img class="plan-detail-panel__header-icon" src="${escIconAttr(singleSrc)}" alt="" />`;
     };
 
+    const renderMyPlansTickers = (target, planRecord) => {
+      if (!target) return;
+      target.innerHTML = '';
+      const mixRaw = Array.isArray(planRecord?.assetMix) ? planRecord.assetMix : [];
+      const mix = mixRaw
+        .map((x) => ({
+          ticker: String(x?.ticker || '').trim().toUpperCase(),
+          pct: Number.isFinite(Number(x?.pct)) ? Math.max(0, Math.round(Number(x.pct))) : NaN,
+        }))
+        .filter((x) => x.ticker);
+      if (mix.length > 1) {
+        mix.forEach((x) => {
+          const seg = document.createElement('span');
+          seg.className = 'my-plans-position-card__ticker-seg';
+          const tk = document.createElement('span');
+          tk.className = 'my-plans-position-card__ticker-symbol';
+          tk.textContent = x.ticker;
+          const pct = document.createElement('span');
+          pct.className = 'my-plans-position-card__ticker-pct';
+          pct.textContent = Number.isFinite(x.pct) ? `${x.pct}%` : '';
+          seg.appendChild(tk);
+          if (pct.textContent) seg.appendChild(pct);
+          target.appendChild(seg);
+        });
+        return;
+      }
+      target.textContent = planRecord?.tickers || 'BTC · ETH · SOL';
+    };
+
     const syncMyPlansLabels = () => {
       const records = getMyPlansRecords();
       const counts = records.reduce(
@@ -3212,7 +3292,9 @@
       const titleWrap = el('div', 'my-plans-position-card__title-wrap');
       // Figma: small label + tickers line
       titleWrap.appendChild(el('div', 'my-plans-position-card__kicker', planRecord.kicker || 'Big Three'));
-      titleWrap.appendChild(el('div', 'my-plans-position-card__tickers', planRecord.tickers || 'BTC · ETH · SOL'));
+      const tickersLine = el('div', 'my-plans-position-card__tickers');
+      renderMyPlansTickers(tickersLine, planRecord);
+      titleWrap.appendChild(tickersLine);
       left.appendChild(titleWrap);
 
       headRow.appendChild(left);
@@ -7825,6 +7907,34 @@
           const selectedTickers = selectedAssets
             .map((a) => String(a?.ticker || '').trim())
             .filter(Boolean);
+          const buildEqualMix = (tickers) => {
+            if (!Array.isArray(tickers) || tickers.length < 2) return [];
+            const base = Math.floor(100 / tickers.length);
+            let rem = 100 - (base * tickers.length);
+            return tickers.map((ticker) => {
+              const pct = base + (rem > 0 ? 1 : 0);
+              if (rem > 0) rem -= 1;
+              return { ticker: String(ticker || '').trim().toUpperCase(), pct };
+            });
+          };
+          let assetMix = [];
+          const activeItems = getActiveAllocMultiItems();
+          if (activeItems.length > 1) {
+            assetMix = activeItems
+              .map((row) => {
+                const ticker = String(row.querySelector('.alloc-multi__ticker')?.textContent || '').trim().toUpperCase();
+                const raw = String(row.querySelector('[data-alloc-pct-input]')?.value || '').replace(/[^0-9]/g, '');
+                const pct = raw ? parseInt(raw, 10) : 0;
+                return { ticker, pct };
+              })
+              .filter((x) => x.ticker);
+            if (assetMix.length > 1 && !assetMix.some((x) => Number.isFinite(x.pct) && x.pct > 0)) {
+              assetMix = buildEqualMix(assetMix.map((x) => x.ticker));
+            }
+          }
+          if (assetMix.length < 2) {
+            assetMix = buildEqualMix(selectedTickers);
+          }
           const tickerLine = selectedTickers.join(' · ');
           const singleIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
           const resolvedNextBuyRaw = (overviewFirstBuy && overviewFirstBuy !== '—')
@@ -7841,6 +7951,7 @@
               ? (selectedAssets[0]?.name || panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan')
               : (panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan'),
             tickers: tickerLine || (panel.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || 'BTC'),
+            assetMix,
             iconSrc: singleIconSrc,
             assetIcons: selectedAssets.map((a) => ({ ticker: String(a?.ticker || '').trim(), icon: String(a?.icon || '').trim() })).filter((a) => a.icon),
             investLine: `${effAmount.toLocaleString('en-US')} ${cur} each ${cadence}`,

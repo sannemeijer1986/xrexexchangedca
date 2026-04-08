@@ -10756,6 +10756,29 @@ div.currency-sheet__item-icon::before {
   margin-top: -2px;
 }
 
+.my-plans-position-card__ticker-seg {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-right: 6px;
+}
+
+.my-plans-position-card__ticker-seg:last-child {
+  margin-right: 0;
+}
+
+.my-plans-position-card__ticker-symbol {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.my-plans-position-card__ticker-pct {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9b9c9c;
+}
+
 .my-plans-position-card__tag {
   flex-shrink: 0;
   display: inline-flex;
