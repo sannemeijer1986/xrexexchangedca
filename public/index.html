@@ -2339,6 +2339,24 @@
         </div>
     </div>
 
+    <!-- Funding 2: exit confirmation -->
+    <div class="currency-sheet" data-funding2-exit-sheet hidden aria-modal="true" role="dialog" aria-label="Leave pre-funding flow?">
+        <button class="currency-sheet__backdrop" type="button" data-funding2-exit-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Leave pre-funding?</h2>
+                <p class="currency-sheet__desc">If you leave now, any changes in this pre-funding flow won't be applied. Are you sure you want to end this flow?</p>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split">
+                <button class="currency-sheet__cancel currency-sheet__cancel--secondary" type="button" data-funding2-exit-close>Keep going</button>
+                <button class="currency-sheet__cancel currency-sheet__cancel--primary" type="button" data-funding2-exit-confirm>End flow</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Plan detail: auto-invest schedule -->
     <div class="currency-sheet currency-sheet--schedule" data-schedule-sheet hidden aria-modal="true" role="dialog"
         aria-label="Auto-invest schedule">

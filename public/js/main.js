@@ -3968,6 +3968,44 @@
     let snackbarTimer = null;
     let snackbarEl = null;
     let funding2PanelEl = null;
+    const funding2ExitSheet = document.querySelector('[data-funding2-exit-sheet]');
+    const funding2ExitSheetPanel = funding2ExitSheet?.querySelector('.currency-sheet__panel');
+
+    const closeFunding2ExitSheet = () => {
+      if (!funding2ExitSheet || !funding2ExitSheetPanel) return;
+      funding2ExitSheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!funding2ExitSheet.classList.contains('is-open')) funding2ExitSheet.hidden = true;
+        funding2ExitSheetPanel.removeEventListener('transitionend', onEnd);
+      };
+      funding2ExitSheetPanel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const openFunding2ExitSheet = () => {
+      if (!funding2ExitSheet) return;
+      sheetOpenWithInstantBackdrop(funding2ExitSheet);
+    };
+
+    const closeFunding2Panel = () => {
+      const clone = funding2PanelEl;
+      if (!clone) return;
+      clone.classList.remove('is-open');
+      const onEnd = () => {
+        if (!clone.classList.contains('is-open')) clone.hidden = true;
+        clone.removeEventListener('transitionend', onEnd);
+      };
+      clone.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    funding2ExitSheet?.querySelectorAll('[data-funding2-exit-close]').forEach((btn) => {
+      btn.addEventListener('click', closeFunding2ExitSheet);
+    });
+    funding2ExitSheet?.querySelector('[data-funding2-exit-confirm]')?.addEventListener('click', () => {
+      closeFunding2ExitSheet();
+      closeFunding2Panel();
+    });
 
     const ensureFunding2Panel = () => {
       if (funding2PanelEl && funding2PanelEl.isConnected) return funding2PanelEl;
@@ -3978,23 +4016,19 @@
       clone.setAttribute('data-plan-buffer-panel-2', 'true');
       clone.classList.remove('is-open');
       clone.hidden = true;
-      clone.querySelectorAll('[data-plan-buffer-back], [data-plan-buffer-back-bottom]').forEach((btn) => {
-        btn.setAttribute('data-plan-buffer2-close', 'true');
-      });
       const titleEl = clone.querySelector('.plan-buffer-panel__title');
       if (titleEl) titleEl.textContent = 'Funding 2';
+      const headerCloseBtn = clone.querySelector('[data-plan-buffer-back]');
+      if (headerCloseBtn) {
+        headerCloseBtn.setAttribute('data-plan-buffer2-exit-open', 'true');
+        headerCloseBtn.setAttribute('aria-label', 'Close');
+        const icon = headerCloseBtn.querySelector('img');
+        if (icon) icon.setAttribute('src', 'assets/icon_close.svg');
+      }
+      clone.querySelector('[data-plan-buffer-back-bottom]')?.setAttribute('data-plan-buffer2-close', 'true');
       container.appendChild(clone);
-      clone.querySelectorAll('[data-plan-buffer2-close]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          clone.classList.remove('is-open');
-          const onEnd = () => {
-            if (!clone.classList.contains('is-open')) clone.hidden = true;
-            clone.removeEventListener('transitionend', onEnd);
-          };
-          clone.addEventListener('transitionend', onEnd);
-          setTimeout(onEnd, 380);
-        });
-      });
+      clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
+      clone.querySelector('[data-plan-buffer2-close]')?.addEventListener('click', closeFunding2Panel);
       funding2PanelEl = clone;
       return funding2PanelEl;
     };

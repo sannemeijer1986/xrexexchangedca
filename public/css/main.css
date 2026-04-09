@@ -10369,8 +10369,6 @@ div.currency-sheet__item-icon::before {
 .plan-success-panel__reserve-illu {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
-  background: #2D2F2F;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -10378,8 +10376,8 @@ div.currency-sheet__item-icon::before {
 }
 .plan-success-panel__reserve-illu img {
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 48px;
 }
 
 .phone-container p.plan-success-panel__reserve-copy {
@@ -10397,6 +10395,13 @@ div.currency-sheet__item-icon::before {
 
 .plan-success-panel__reserve-cta {
   margin: 0;
+  min-height: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 8px 12px;
 }
 
 .plan-success-panel__icon-wrap {
