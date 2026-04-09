@@ -10607,6 +10607,82 @@ div.currency-sheet__item-icon {
   max-width: 328px;
 }
 
+.plan-success-panel__reserve-card {
+  margin-top: 28px;
+  width: 100%;
+  border-radius: 24px;
+  border: 1px solid #3C4248;
+  background: #1B1D1D;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+.plan-success-panel__reserve-top {
+  padding: 20px 16px 0;
+  background:
+    linear-gradient(180deg, rgba(45, 47, 47, 0.75) 0%, #1B1D1D 100%),
+    linear-gradient(90deg, #1B1D1D 0%, #1B1D1D 100%);
+}
+
+.phone-container p.plan-success-panel__reserve-tip {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #8FB8FF;
+}
+
+.plan-success-panel__reserve-head {
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.phone-container p.plan-success-panel__reserve-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
+.plan-success-panel__reserve-illu {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #2D2F2F;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    display: block;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.phone-container p.plan-success-panel__reserve-copy {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 23px;
+  color: #9B9C9C;
+}
+
+.plan-success-panel__reserve-bottom {
+  background: #1B1D1D;
+  padding: 24px 16px 16px;
+}
+
+.plan-success-panel__reserve-cta {
+  margin: 0;
+}
+
 .plan-success-panel__icon-wrap {
   width: 60px;
   height: 60px;
@@ -10645,7 +10721,7 @@ div.currency-sheet__item-icon {
   font-size: 14px;
   font-weight: 600;
   color: #9b9c9c;
-  margin-top: 12px;
+  margin-top: 4px;
   text-align: center;
   line-height: 1.25;
   white-space: nowrap;
@@ -10677,9 +10753,19 @@ div.currency-sheet__item-icon {
   color: #ffffff;
 }
 
+.plan-success-panel__footer > .plan-success-panel__btn.plan-success-panel__btn--primary {
+  display: none;
+}
+
 .plan-success-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
+}
+
+.plan-buffer-panel[data-plan-buffer-panel-2] {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
 }
 
 // ─── My plans panel (Figma 8541:11409) ───────────────────────────────────────

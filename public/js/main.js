@@ -3967,6 +3967,60 @@
     const nameSpan = panel.querySelector('[data-plan-detail-name]');
     let snackbarTimer = null;
     let snackbarEl = null;
+    let funding2PanelEl = null;
+
+    const ensureFunding2Panel = () => {
+      if (funding2PanelEl && funding2PanelEl.isConnected) return funding2PanelEl;
+      const baseFundingPanel = panel.querySelector('[data-plan-buffer-panel]');
+      if (!baseFundingPanel || !container) return null;
+      const clone = baseFundingPanel.cloneNode(true);
+      clone.removeAttribute('data-plan-buffer-panel');
+      clone.setAttribute('data-plan-buffer-panel-2', 'true');
+      clone.classList.remove('is-open');
+      clone.hidden = true;
+      clone.querySelectorAll('[data-plan-buffer-back], [data-plan-buffer-back-bottom]').forEach((btn) => {
+        btn.setAttribute('data-plan-buffer2-close', 'true');
+      });
+      const titleEl = clone.querySelector('.plan-buffer-panel__title');
+      if (titleEl) titleEl.textContent = 'Funding 2';
+      container.appendChild(clone);
+      clone.querySelectorAll('[data-plan-buffer2-close]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          clone.classList.remove('is-open');
+          const onEnd = () => {
+            if (!clone.classList.contains('is-open')) clone.hidden = true;
+            clone.removeEventListener('transitionend', onEnd);
+          };
+          clone.addEventListener('transitionend', onEnd);
+          setTimeout(onEnd, 380);
+        });
+      });
+      funding2PanelEl = clone;
+      return funding2PanelEl;
+    };
+
+    const openFunding2FromSuccess = () => {
+      const funding2 = ensureFunding2Panel();
+      if (!funding2) return;
+      if (funding2.querySelector('.plan-buffer-panel__scroller')) {
+        funding2.querySelector('.plan-buffer-panel__scroller').scrollTop = 0;
+      }
+      funding2.hidden = false;
+      requestAnimationFrame(() => funding2.classList.add('is-open'));
+      let cleaned = false;
+      const cleanupPlanFlow = () => {
+        if (cleaned) return;
+        cleaned = true;
+        funding2.removeEventListener('transitionend', cleanupPlanFlow);
+        // Keep success visible during Funding 2 entrance, then tear down the full plan flow behind it.
+        planSuccessApi.forceClose();
+        planOverviewApi.close({ instant: true });
+        planBufferApi.close({ instant: true });
+        setOpen(false);
+      };
+      funding2.addEventListener('transitionend', cleanupPlanFlow);
+      setTimeout(cleanupPlanFlow, 380);
+    };
 
     const ensureTopSnackbar = () => {
       if (snackbarEl && snackbarEl.isConnected) return snackbarEl;
@@ -8004,6 +8058,7 @@
         const titleEl = successEl?.querySelector('[data-plan-success-title]');
         const prefundEl = successEl?.querySelector('[data-plan-success-prefund]');
         const subEl = successEl?.querySelector('[data-plan-success-sub]');
+        const reserveCardEl = successEl?.querySelector('[data-plan-success-reserve-card]');
         if (titleEl) {
           titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
         }
@@ -8023,6 +8078,10 @@
             : `Reserved ${hasCurrencySuffix ? reserveAmount : `${reserveAmount} ${cur}`}`;
           prefundEl.hidden = !isReservedMethod;
           prefundEl.style.display = isReservedMethod ? '' : 'none';
+        }
+        if (reserveCardEl) {
+          reserveCardEl.hidden = isReservedMethod;
+          reserveCardEl.style.display = isReservedMethod ? 'none' : '';
         }
         if (subEl) subEl.textContent = buildFirstBuyLine();
       };
@@ -8165,6 +8224,8 @@
       successEl?.querySelectorAll('[data-plan-success-dismiss]').forEach((b) => {
         b.addEventListener('click', leaveSuccessToFinanceAuto);
       });
+
+      successEl?.querySelector('[data-plan-success-open-prefund]')?.addEventListener('click', openFunding2FromSuccess);
 
       successEl?.querySelector('[data-plan-success-view-plan]')?.addEventListener('click', leaveSuccessToMyPlans);
 
