@@ -3987,7 +3987,26 @@
       sheetOpenWithInstantBackdrop(funding2ExitSheet);
     };
 
-    const closeFunding2Panel = () => {
+    const resetFinanceAutoInvestScrollInstant = () => {
+      const contentEl = document.querySelector('[data-content]');
+      if (contentEl) {
+        const prevBehavior = contentEl.style.scrollBehavior;
+        contentEl.style.scrollBehavior = 'auto';
+        contentEl.scrollTop = 0;
+        contentEl.style.scrollBehavior = prevBehavior;
+      }
+      const autoPageEl = document.querySelector('[data-finance-page="auto"]');
+      if (autoPageEl && 'scrollTop' in autoPageEl) {
+        autoPageEl.scrollTop = 0;
+      }
+    };
+
+    const closeFunding2Panel = (opts = {}) => {
+      const shouldResetFinanceScroll = !!opts.resetFinanceScroll;
+      if (shouldResetFinanceScroll) {
+        // Reset before unmasking Finance so users never see a scroll jump.
+        resetFinanceAutoInvestScrollInstant();
+      }
       const clone = funding2PanelEl;
       if (!clone) return;
       clone.classList.remove('is-open');
@@ -4004,7 +4023,7 @@
     });
     funding2ExitSheet?.querySelector('[data-funding2-exit-confirm]')?.addEventListener('click', () => {
       closeFunding2ExitSheet();
-      closeFunding2Panel();
+      closeFunding2Panel({ resetFinanceScroll: true });
     });
 
     const ensureFunding2Panel = () => {

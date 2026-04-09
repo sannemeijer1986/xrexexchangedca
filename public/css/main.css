@@ -10393,7 +10393,7 @@ div.currency-sheet__item-icon::before {
   padding: 24px 16px 16px;
 }
 
-.plan-success-panel__reserve-cta {
+.plan-success-panel__reserve-bottom .plan-success-panel__reserve-cta {
   margin: 0;
   min-height: 40px;
   height: 40px;
@@ -10402,6 +10402,7 @@ div.currency-sheet__item-icon::before {
   font-weight: 600;
   line-height: 1;
   padding: 8px 12px;
+  gap: 6px;
 }
 
 .plan-success-panel__icon-wrap {
@@ -10487,6 +10488,16 @@ div.currency-sheet__item-icon::before {
   position: absolute;
   inset: 0;
   z-index: 35;
+}
+
+[data-funding2-exit-sheet] .funding2-exit-sheet__btn--leave {
+  background: #EB5347;
+  color: #FFFFFF;
+}
+
+[data-funding2-exit-sheet] .funding2-exit-sheet__btn--stay {
+  background: #2D2F2F;
+  color: #FFFFFF;
 }
 
 .my-plans-panel {
