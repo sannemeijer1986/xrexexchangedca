@@ -11723,6 +11723,35 @@ div.currency-sheet__item-icon {
   font-weight: 600;
 }
 
+.my-plans-detail-panel__ov-funding-line {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.my-plans-detail-panel__ov-funding-line .my-plans-detail-panel__ov-sub {
+  margin-top: 0;
+}
+
+.my-plans-detail-panel__funding-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 0;
+
+  img {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .my-plans-detail-panel__ov-funding-row {
   display: flex;
   align-items: center;
@@ -11754,6 +11783,23 @@ div.currency-sheet__item-icon {
   gap: 10px;
 }
 
+// Recent activity — Figma MCP 8874:43471 (12px title → list, 16px between cards).
+.my-plans-detail-panel__activity-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.my-plans-detail-panel__activity-stack .my-plans-detail-panel__cards[data-my-plans-detail-activity] {
+  margin-top: 0;
+  gap: 16px;
+}
+
+.my-plans-detail-panel__activity-stack .my-plans-detail-panel__section-title {
+  margin: 0;
+}
+
 // "You have bought": flat list on page bg (Figma MCP — not a filled card stack).
 .my-plans-detail-panel__cards[data-my-plans-detail-accumulated] {
   gap: 0;
@@ -11777,7 +11823,6 @@ div.currency-sheet__item-icon {
 }
 
 .my-plans-detail-panel__asset-head,
-.my-plans-detail-panel__activity-head,
 .my-plans-detail-panel__act-row,
 .my-plans-detail-panel__asset-row {
   display: flex;
@@ -11857,12 +11902,29 @@ div.currency-sheet__item-icon {
 }
 
 .my-plans-detail-panel__activity-head {
-  color: #9b9c9c;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px 16px 0;
+  box-sizing: border-box;
+}
+
+.my-plans-detail-panel__activity-date-col {
+  flex-shrink: 0;
+  max-width: 157px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.my-plans-detail-panel__activity-date {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 0;
-  padding: 12px 16px;
-  align-items: flex-start;
+  color: #ffffff;
+  line-height: normal;
+  white-space: nowrap;
 }
 
 .my-plans-detail-panel__activity-time {
@@ -11871,18 +11933,39 @@ div.currency-sheet__item-icon {
   color: #58595a;
   font-size: 12px;
   font-weight: 400;
+  line-height: normal;
 }
 
-.my-plans-detail-panel__activity-spend {
-  margin-left: auto;
-  color: #9b9c9c;
+.my-plans-detail-panel__activity-spend-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0;
+  text-align: right;
+}
+
+.my-plans-detail-panel__activity-spend-amt {
   font-size: 14px;
   font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.my-plans-detail-panel__activity-spend-src {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #58595a;
+  line-height: normal;
   white-space: nowrap;
 }
 
 .my-plans-detail-panel__act-toggle {
-  margin-left: 8px;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border: 0;
@@ -11908,20 +11991,68 @@ div.currency-sheet__item-icon {
   height: 1px;
   background: #252627;
   margin: 0 16px;
+  flex-shrink: 0;
+}
+
+.my-plans-detail-panel__act-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 2px 16px 12px;
+  box-sizing: border-box;
+}
+
+.my-plans-detail-panel__act-list-divider {
+  height: 1px;
+  background: #252627;
+  margin: 0 -16px;
+  width: calc(100% + 32px);
+  flex-shrink: 0;
 }
 
 .my-plans-detail-panel__act-row {
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 10px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
 }
 
-.my-plans-detail-panel__act-left,
-.my-plans-detail-panel__act-right {
+.my-plans-detail-panel__act-left {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  min-width: 0;
+}
+
+.my-plans-detail-panel__act-name-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.my-plans-detail-panel__act-ticker-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+.my-plans-detail-panel__act-ticker {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__act-pct {
+  font-size: 10px;
+  font-weight: 400;
+  color: #58595a;
+  line-height: normal;
 }
 
 .my-plans-detail-panel__act-icon {
@@ -11931,61 +12062,76 @@ div.currency-sheet__item-icon {
 }
 
 .my-plans-detail-panel__act-right {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
   margin-left: auto;
-  color: #a3a3a3;
-  gap: 4px;
+  flex-shrink: 0;
+}
+
+.my-plans-detail-panel__act-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  width: 100px;
   text-align: right;
 }
 
-.my-plans-detail-panel__act-coin {
-  display: block;
-  color: #ffffff;
+.my-plans-detail-panel__act-pay {
+  font-size: 12px;
+  font-weight: 600;
+  color: #58595a;
+  line-height: normal;
 }
 
 .my-plans-detail-panel__act-gain {
-  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
   color: #5ac47d;
-}
-
-.my-plans-detail-panel__act-sub {
-  display: block;
-  color: #58595a;
-  font-size: 12px;
+  line-height: normal;
 }
 
 .my-plans-detail-panel__act-chevron {
   width: 17px;
   height: 17px;
-  border-radius: 50px;
-  background: #202326;
-  color: #a3a3a3;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
-  line-height: 1;
+  line-height: 0;
+
+  img {
+    display: block;
+    width: 15px;
+    height: 15px;
+  }
 }
 
 .my-plans-detail-panel__activity-card--compact .my-plans-detail-panel__activity-head {
-  align-items: center;
+  padding: 12px 16px;
 }
 
 .my-plans-detail-panel__show-all-wrap {
   display: flex;
   justify-content: center;
-  padding: 4px 0 0;
+  padding: 4px 6px;
 }
 
 .my-plans-detail-panel__show-all {
-  height: 30px;
+  height: 32px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 12px;
   background: #2d2f2f;
   color: #ffffff;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 4px 10px;
+  font-size: 12px;
   font-weight: 600;
   font-family: inherit;
+  line-height: normal;
 }
 
 .my-plans-detail-panel__meta-value {

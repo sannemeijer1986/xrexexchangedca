@@ -2088,6 +2088,45 @@
     });
   };
 
+  /** My plans detail: funding line info (matches Figma info + bottom sheet). */
+  const initMyPlansFundingInfoSheet = () => {
+    const sheet = document.querySelector('[data-my-plans-funding-info-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const titleEl = sheet.querySelector('[data-my-plans-funding-info-sheet-title]');
+    if (!panel) return;
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const open = () => {
+      const main = document.querySelector('[data-my-plans-detail-funding-main]');
+      const text = String(main?.textContent || '').trim() || 'Paid from balance';
+      if (titleEl) titleEl.textContent = text;
+      sheet.setAttribute('aria-label', text);
+      sheetOpenWithInstantBackdrop(sheet);
+    };
+
+    document.querySelectorAll('[data-my-plans-funding-info-trigger]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    });
+
+    sheet.querySelectorAll('[data-my-plans-funding-info-sheet-close]').forEach((b) => {
+      b.addEventListener('click', () => close());
+    });
+  };
+
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
   const initScheduleSheet = () => {
     const sheet = document.querySelector('[data-schedule-sheet]');
@@ -3646,20 +3685,23 @@
 
       if (activityEl) {
         const now = new Date();
-        const mkStamp = (date) => `${date.toLocaleDateString('en-US', { weekday: 'short' })}, ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}`;
+        const mkStamp = (date) => `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}`;
         const mkTime = (date) => `${date.getFullYear()} - ${date.toLocaleTimeString('en-US', { hour12: false })}`;
+        const spendBlock = () => `<div class="my-plans-detail-panel__activity-spend-col"><span class="my-plans-detail-panel__activity-spend-amt">- ${formatMoney(totalAmt || 5000, cur)}</span><span class="my-plans-detail-panel__activity-spend-src">From wallet</span></div>`;
+        const activityHead = (d, expanded) => `<div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><span class="my-plans-detail-panel__activity-date">${mkStamp(d)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(d)}</span></div>${spendBlock()}<button class="my-plans-detail-panel__act-toggle" type="button" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div>`;
         const lines = mix.map((m) => {
           const meta = tickerMeta(m.ticker);
           const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
-          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div><span class="my-plans-detail-panel__act-coin">${m.ticker}</span><span class="my-plans-detail-panel__act-gain">+ ${qty.toFixed(4)}</span></div></div><div class="my-plans-detail-panel__act-right"><span>- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-sub">Avg. ${formatMoney(price, cur)}</span><span class="my-plans-detail-panel__act-chevron">›</span></div></div>`;
+          const qtyStr = String(qty.toFixed(8)).replace(/\.?0+$/, '') || '0';
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const currentHead = `<article class="my-plans-detail-panel__activity-card"><div class="my-plans-detail-panel__activity-head"><div><span>${mkStamp(now)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(now)}</span></div><div class="my-plans-detail-panel__activity-spend">- ${formatMoney(totalAmt || 5000, cur)}</div><button class="my-plans-detail-panel__act-toggle" type="button" aria-label="Collapse activity"><img src="assets/icon_n_collapse.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div>${lines}</article>`;
+        const currentHead = `<article class="my-plans-detail-panel__activity-card">${activityHead(now, true)}<div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}<div class="my-plans-detail-panel__act-list-divider" aria-hidden="true"></div></div></article>`;
         const older = [1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
-          return `<article class="my-plans-detail-panel__activity-card my-plans-detail-panel__activity-card--compact"><div class="my-plans-detail-panel__activity-head"><div><span>${mkStamp(d)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(d)}</span></div><div class="my-plans-detail-panel__activity-spend">- ${formatMoney(totalAmt || 5000, cur)}</div><button class="my-plans-detail-panel__act-toggle" type="button" aria-label="Expand activity"><img src="assets/icon_n_expand.svg" alt="" width="16" height="16" /></button></div></article>`;
+          return `<article class="my-plans-detail-panel__activity-card my-plans-detail-panel__activity-card--compact">${activityHead(d, false)}</article>`;
         }).join('');
         activityEl.innerHTML = `${currentHead}${older}`;
       }
@@ -3813,6 +3855,7 @@
   initSmartAllocInfoSheet();
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
+  initMyPlansFundingInfoSheet();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();

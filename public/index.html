@@ -1955,7 +1955,12 @@
                         <div class="my-plans-detail-panel__ov-label my-plans-detail-panel__ov-label--mt">Funding</div>
                         <div class="my-plans-detail-panel__ov-funding-row">
                             <div>
-                                <div class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</div>
+                                <div class="my-plans-detail-panel__ov-funding-line">
+                                    <span class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</span>
+                                    <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-funding-info-trigger aria-label="About funding">
+                                        <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" />
+                                    </button>
+                                </div>
                                 <div class="my-plans-detail-panel__ov-sub my-plans-detail-panel__ov-sub--positive" data-my-plans-detail-funding-sub></div>
                             </div>
                             <button class="my-plans-detail-panel__prefund-chip" type="button">Pre-fund</button>
@@ -1970,13 +1975,12 @@
             </section>
 
             <section class="my-plans-detail-panel__block">
-                <div class="my-plans-detail-panel__section-head my-plans-detail-panel__section-head--left">
+                <div class="my-plans-detail-panel__activity-stack">
                     <p class="my-plans-detail-panel__section-title">Recent activity</p>
-                    <img src="assets/icon_info_circle_gray.svg" alt="" width="16" height="16" aria-hidden="true" />
-                </div>
-                <div class="my-plans-detail-panel__cards" data-my-plans-detail-activity></div>
-                <div class="my-plans-detail-panel__show-all-wrap">
-                    <button class="my-plans-detail-panel__show-all" type="button">Show all</button>
+                    <div class="my-plans-detail-panel__cards" data-my-plans-detail-activity></div>
+                    <div class="my-plans-detail-panel__show-all-wrap">
+                        <button class="my-plans-detail-panel__show-all" type="button">Show all</button>
+                    </div>
                 </div>
             </section>
 
@@ -2283,6 +2287,22 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-finance-summary-info-sheet-close>Understood</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-my-plans-funding-info-sheet hidden aria-modal="true" role="dialog" aria-label="Funding">
+        <button class="currency-sheet__backdrop" type="button" data-my-plans-funding-info-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title" id="my-plans-funding-info-sheet-title" data-my-plans-funding-info-sheet-title>Paid from balance</h2>
+                <p class="currency-sheet__desc">Every time your auto-invest schedule triggers, we automatically place a market order to buy your selected assets.</p>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-my-plans-funding-info-sheet-close>Understood</button>
             </div>
         </div>
     </div>
