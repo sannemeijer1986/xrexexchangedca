@@ -11343,6 +11343,16 @@ div.currency-sheet__item-icon::before {
   margin-top: 16px;
 }
 
+.my-plans-detail-panel__block--meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.my-plans-detail-panel__block--meta .my-plans-detail-panel__section-head--compact {
+  margin-top: 0;
+}
+
 .my-plans-detail-panel__overview-grid {
   margin-top: 12px;
   display: grid;
@@ -11502,6 +11512,10 @@ div.currency-sheet__item-icon::before {
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
+}
+
+.my-plans-detail-panel__asset-qty {
+  color: #5AC47D;
 }
 
 .my-plans-detail-panel__asset-name {
@@ -11672,10 +11686,19 @@ div.currency-sheet__item-icon::before {
   font-weight: 600;
 }
 
+.phone-container p.my-plans-detail-panel__meta-value {
+  margin: 0;
+  line-height: 1;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .my-plans-detail-panel__meta-id-wrap {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  min-height: 16px;
 }
 
 .my-plans-detail-panel__copy-btn {
@@ -11687,6 +11710,9 @@ div.currency-sheet__item-icon::before {
   background: transparent;
   cursor: pointer;
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  line-height: 0;
 }
 .my-plans-detail-panel__copy-btn img {
   display: block;

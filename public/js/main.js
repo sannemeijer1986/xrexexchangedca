@@ -3616,9 +3616,18 @@
       }
 
       if (planIdEl) {
-        const rawId = String(rec.id || '').trim();
-        const digits = rawId.replace(/\D+/g, '').slice(-8);
-        planIdEl.textContent = digits || '81613161';
+        /** Stable 9-digit display id from record (looks like a real plan ref). */
+        const planIdForDisplay = (r) => {
+          const key = String(r?.id ?? r?.kicker ?? r?.name ?? r?.tickers ?? 'plan');
+          let h = 2166136261;
+          for (let i = 0; i < key.length; i += 1) {
+            h ^= key.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          const n = (Math.abs(h) % 900000000) + 100000000;
+          return String(n);
+        };
+        planIdEl.textContent = planIdForDisplay(rec);
       }
 
       if (accumulatedEl) {
