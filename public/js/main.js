@@ -3484,6 +3484,7 @@
       const iconsWrap = detailPanel.querySelector('[data-my-plans-detail-icons]');
       const allocationEl = detailPanel.querySelector('[data-my-plans-detail-allocation]');
       const createdAtEl = detailPanel.querySelector('[data-my-plans-detail-created-at]');
+      const planIdEl = detailPanel.querySelector('[data-my-plans-detail-plan-id]');
       const nextBuyEl = detailPanel.querySelector('[data-my-plans-detail-next-buy]');
       const completedEl = detailPanel.querySelector('[data-my-plans-detail-completed]');
       const totalInvestedEl = detailPanel.querySelector('[data-my-plans-detail-total-invested]');
@@ -3495,7 +3496,7 @@
 
       const statusKey = rec.status === 'paused' ? 'paused' : rec.status === 'ended' ? 'ended' : 'active';
       detailPanel.setAttribute('data-plan-status', statusKey);
-      const statusText = statusKey === 'paused' ? 'Paused' : statusKey === 'ended' ? 'Ended' : 'Active';
+      const statusText = statusKey === 'paused' ? 'Plan is paused' : statusKey === 'ended' ? 'Plan is ended' : 'Plan is active';
       if (statusLabelEl) statusLabelEl.textContent = statusText;
       if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
       if (investLineEl) {
@@ -3594,8 +3595,12 @@
       if (nextBuyEl) nextBuyEl.textContent = nextBuyText;
       const completedN = Number.isFinite(rec.completedBuys) ? rec.completedBuys : 0;
       if (completedEl) completedEl.textContent = `${completedN} buys`;
+      const inferredMoney = parseMoneyWithCurrency(rec.totalInvested || '') || parsePerBuyFromInvestLine(rec.investLine || '');
+      const cur = inferredMoney?.currency || currencyState.plan || 'TWD';
+      const totalAmt = inferredMoney?.amount || 0;
+      const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
       if (totalInvestedEl) totalInvestedEl.textContent = rec.totalInvested || '—';
-      if (fundingMainEl) fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : 'Paid from your balance';
+      if (fundingMainEl) fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Paid from ${cur} balance`;
       if (fundingSubEl) {
         const sub = rec.isReserved
           ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
@@ -3604,14 +3609,17 @@
       }
 
       if (createdAtEl) {
-        const d = new Date();
-        createdAtEl.textContent = `Created on ${d.toLocaleDateString('en-US', { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString('en-US', { month: 'short' })}, ${d.getFullYear()}`;
+        const d = rec.createdAt ? new Date(rec.createdAt) : new Date();
+        const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+        const month = d.toLocaleDateString('en-US', { month: 'short' });
+        createdAtEl.textContent = `${weekday} ${d.getDate()} ${month}, ${d.getFullYear()}`;
       }
 
-      const inferredMoney = parseMoneyWithCurrency(rec.totalInvested || '') || parsePerBuyFromInvestLine(rec.investLine || '');
-      const cur = inferredMoney?.currency || currencyState.plan || 'TWD';
-      const totalAmt = inferredMoney?.amount || 0;
-      const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
+      if (planIdEl) {
+        const rawId = String(rec.id || '').trim();
+        const digits = rawId.replace(/\D+/g, '').slice(-8);
+        planIdEl.textContent = digits || '81613161';
+      }
 
       if (accumulatedEl) {
         accumulatedEl.innerHTML = '';
@@ -3622,23 +3630,29 @@
           const qty = amount > 0 ? amount / price : 0;
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
 
       if (activityEl) {
         const now = new Date();
-        const stamp = `${now.toLocaleDateString('en-US', { month: 'short' })} ${now.getDate()}th, ${now.getFullYear()}`;
-        const hh = now.toLocaleTimeString('en-US', { hour12: false });
+        const mkStamp = (date) => `${date.toLocaleDateString('en-US', { weekday: 'short' })}, ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}`;
+        const mkTime = (date) => `${date.getFullYear()} - ${date.toLocaleTimeString('en-US', { hour12: false })}`;
         const lines = mix.map((m) => {
           const meta = tickerMeta(m.ticker);
           const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
-          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span>+ ${qty.toFixed(4)} ${m.ticker}</span></div><div class="my-plans-detail-panel__act-right"><span>- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-chevron">›</span></div></div>`;
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div><span class="my-plans-detail-panel__act-coin">${m.ticker}</span><span class="my-plans-detail-panel__act-gain">+ ${qty.toFixed(4)}</span></div></div><div class="my-plans-detail-panel__act-right"><span>- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-sub">Avg. ${formatMoney(price, cur)}</span><span class="my-plans-detail-panel__act-chevron">›</span></div></div>`;
         }).join('');
-        activityEl.innerHTML = `<article class="my-plans-detail-panel__activity-card"><div class="my-plans-detail-panel__activity-head"><span>${stamp}</span><span>${hh}</span></div>${lines}</article>`;
+        const currentHead = `<article class="my-plans-detail-panel__activity-card"><div class="my-plans-detail-panel__activity-head"><div><span>${mkStamp(now)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(now)}</span></div><div class="my-plans-detail-panel__activity-spend">- ${formatMoney(totalAmt || 5000, cur)}</div><button class="my-plans-detail-panel__act-toggle" type="button" aria-label="Collapse activity"><img src="assets/icon_n_collapse.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div>${lines}</article>`;
+        const older = [1, 2].map((idx) => {
+          const d = new Date(now);
+          d.setMonth(d.getMonth() - idx);
+          return `<article class="my-plans-detail-panel__activity-card my-plans-detail-panel__activity-card--compact"><div class="my-plans-detail-panel__activity-head"><div><span>${mkStamp(d)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(d)}</span></div><div class="my-plans-detail-panel__activity-spend">- ${formatMoney(totalAmt || 5000, cur)}</div><button class="my-plans-detail-panel__act-toggle" type="button" aria-label="Expand activity"><img src="assets/icon_n_expand.svg" alt="" width="16" height="16" /></button></div></article>`;
+        }).join('');
+        activityEl.innerHTML = `${currentHead}${older}`;
       }
     };
 
@@ -3674,6 +3688,28 @@
 
     detailPanel?.querySelector('[data-my-plans-detail-close]')?.addEventListener('click', () => {
       closePlanDetail(false);
+    });
+
+    detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
+      const idEl = detailPanel.querySelector('[data-my-plans-detail-plan-id]');
+      const text = String(idEl?.textContent || '').trim();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+        } finally {
+          document.body.removeChild(ta);
+        }
+      }
     });
 
     const open = (openOpts = {}) => {
