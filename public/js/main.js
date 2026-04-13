@@ -3807,9 +3807,10 @@
           const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
+          const qtyTone = qty > 0 ? 'positive' : 'zero';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }

@@ -11387,6 +11387,7 @@ div.currency-sheet__item-icon::before {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 .my-plans-detail-panel__block--meta .my-plans-detail-panel__section-head--compact {
@@ -11426,7 +11427,7 @@ div.currency-sheet__item-icon::before {
 .my-plans-detail-panel__ov-value {
   margin-top: 2px;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -11586,15 +11587,23 @@ div.currency-sheet__item-icon::before {
   gap: 1px;
 }
 
-.my-plans-detail-panel__asset-ticker,
-.my-plans-detail-panel__asset-qty {
+.my-plans-detail-panel__asset-ticker {
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
 }
 
 .my-plans-detail-panel__asset-qty {
-  color: #5AC47D;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.my-plans-detail-panel__asset-qty--zero {
+  color: #9b9c9c;
+}
+
+.my-plans-detail-panel__asset-qty--positive {
+  color: #5ac47d;
 }
 
 .my-plans-detail-panel__asset-name {
