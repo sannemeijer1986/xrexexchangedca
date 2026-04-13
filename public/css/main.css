@@ -11317,7 +11317,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container p.my-plans-detail-panel__section-subtitle {
-  margin: 6px 0 0;
+  margin: 3px 0 0;
   color: #58595a;
   font-size: 12px;
   font-weight: 600;
@@ -11391,11 +11391,17 @@ div.currency-sheet__item-icon::before {
   margin-top: 16px;
 }
 
+.my-plans-detail-panel__stack-overview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .my-plans-detail-panel__block--meta {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
 .my-plans-detail-panel__block--meta .my-plans-detail-panel__section-head--compact {
@@ -11433,7 +11439,6 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__ov-value {
-  margin-top: 2px;
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
@@ -11449,7 +11454,6 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__ov-total-row {
-  margin-top: 2px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -11511,7 +11515,7 @@ div.currency-sheet__item-icon::before {
   height: 32px;
   border: 0;
   border-radius: 12px;
-  background: #2d2f2f;
+  background: #275CFD;
   color: #ffffff;
   font-family: inherit;
   font-size: 12px;
@@ -11531,6 +11535,7 @@ div.currency-sheet__item-icon::before {
   flex-direction: column;
   gap: 12px;
   width: 100%;
+  margin-bottom: 24px;
 }
 
 .my-plans-detail-panel__activity-stack .my-plans-detail-panel__cards[data-my-plans-detail-activity] {
@@ -11582,7 +11587,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__asset-head {
-  padding: 16px 0px 12px 0;
+  padding: 8px 0px 8px 0;
 }
 
 .my-plans-detail-panel__asset-left {
@@ -11883,6 +11888,10 @@ div.currency-sheet__item-icon::before {
   display: flex;
   justify-content: center;
   padding: 4px 6px;
+}
+
+.my-plans-detail-panel__show-all-wrap[hidden] {
+  display: none;
 }
 
 .my-plans-detail-panel__show-all {

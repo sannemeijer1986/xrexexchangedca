@@ -1940,41 +1940,59 @@
                 </section>
             </div>
 
-            <section class="my-plans-detail-panel__block">
-                <div class="my-plans-detail-panel__section-head">
-                    <p class="my-plans-detail-panel__section-title">Overview</p>
-                </div>
-                <div class="my-plans-detail-panel__overview-grid">
-                    <article class="my-plans-detail-panel__ov-card">
-                        <div class="my-plans-detail-panel__ov-label">Next buy</div>
-                        <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-next-buy>—</div>
-                    </article>
-                    <article class="my-plans-detail-panel__ov-card">
-                        <div class="my-plans-detail-panel__ov-label">Completed</div>
-                        <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-completed>0 buys</div>
-                    </article>
-                    <article class="my-plans-detail-panel__ov-card my-plans-detail-panel__ov-card--full">
-                        <div class="my-plans-detail-panel__ov-label">Total invested</div>
-                        <div class="my-plans-detail-panel__ov-total-row">
-                            <div class="my-plans-detail-panel__ov-value my-plans-detail-panel__ov-value--inline" data-my-plans-detail-total-invested>—</div>
-                            <span class="my-plans-detail-panel__ov-chevron" aria-hidden="true">›</span>
+            <div class="my-plans-detail-panel__stack-overview-meta">
+                <section class="my-plans-detail-panel__block my-plans-detail-panel__block--meta">
+                    <div class="my-plans-detail-panel__section-head">
+                        <p class="my-plans-detail-panel__section-title">Created</p>
+                        <p class="my-plans-detail-panel__meta-value" data-my-plans-detail-created-at>—</p>
+                    </div>
+                    <div class="my-plans-detail-panel__section-head my-plans-detail-panel__section-head--compact">
+                        <p class="my-plans-detail-panel__section-title">Plan ID</p>
+                        <div class="my-plans-detail-panel__meta-id-wrap">
+                            <p class="my-plans-detail-panel__meta-value" data-my-plans-detail-plan-id>—</p>
+                            <button class="my-plans-detail-panel__copy-btn" type="button" data-my-plans-detail-copy-id aria-label="Copy plan ID">
+                                <img src="assets/icon_n_copy.svg" alt="" width="16" height="16" />
+                            </button>
                         </div>
-                        <div class="my-plans-detail-panel__ov-label my-plans-detail-panel__ov-label--mt">Funding</div>
-                        <div class="my-plans-detail-panel__ov-funding-row">
-                            <div>
-                                <div class="my-plans-detail-panel__ov-funding-line">
-                                    <span class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</span>
-                                    <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-funding-info-trigger aria-label="About funding">
-                                        <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" />
-                                    </button>
-                                </div>
-                                <div class="my-plans-detail-panel__ov-sub my-plans-detail-panel__ov-sub--positive" data-my-plans-detail-funding-sub></div>
+                    </div>
+                </section>
+
+                <section class="my-plans-detail-panel__block">
+                    <div class="my-plans-detail-panel__section-head">
+                        <p class="my-plans-detail-panel__section-title">Overview</p>
+                    </div>
+                    <div class="my-plans-detail-panel__overview-grid">
+                        <article class="my-plans-detail-panel__ov-card">
+                            <div class="my-plans-detail-panel__ov-label">Next buy</div>
+                            <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-next-buy>—</div>
+                        </article>
+                        <article class="my-plans-detail-panel__ov-card">
+                            <div class="my-plans-detail-panel__ov-label">Completed</div>
+                            <div class="my-plans-detail-panel__ov-value" data-my-plans-detail-completed>0 buys</div>
+                        </article>
+                        <article class="my-plans-detail-panel__ov-card my-plans-detail-panel__ov-card--full">
+                            <div class="my-plans-detail-panel__ov-label">Total invested</div>
+                            <div class="my-plans-detail-panel__ov-total-row">
+                                <div class="my-plans-detail-panel__ov-value my-plans-detail-panel__ov-value--inline" data-my-plans-detail-total-invested>—</div>
+                                <span class="my-plans-detail-panel__ov-chevron" aria-hidden="true">›</span>
                             </div>
-                            <button class="my-plans-detail-panel__prefund-chip" type="button">Pre-fund</button>
-                        </div>
-                    </article>
-                </div>
-            </section>
+                            <div class="my-plans-detail-panel__ov-label my-plans-detail-panel__ov-label--mt">Funding</div>
+                            <div class="my-plans-detail-panel__ov-funding-row">
+                                <div>
+                                    <div class="my-plans-detail-panel__ov-funding-line">
+                                        <span class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</span>
+                                        <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-funding-info-trigger aria-label="About funding">
+                                            <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" />
+                                        </button>
+                                    </div>
+                                    <div class="my-plans-detail-panel__ov-sub my-plans-detail-panel__ov-sub--positive" data-my-plans-detail-funding-sub></div>
+                                </div>
+                                <button class="my-plans-detail-panel__prefund-chip" type="button">Pre-fund</button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
 
             <section class="my-plans-detail-panel__block">
                 <p class="my-plans-detail-panel__section-title">Bought through this plan</p>
@@ -1992,21 +2010,6 @@
                 </div>
             </section>
 
-            <section class="my-plans-detail-panel__block my-plans-detail-panel__block--meta">
-                <div class="my-plans-detail-panel__section-head">
-                    <p class="my-plans-detail-panel__section-title">Created</p>
-                    <p class="my-plans-detail-panel__meta-value" data-my-plans-detail-created-at>—</p>
-                </div>
-                <div class="my-plans-detail-panel__section-head my-plans-detail-panel__section-head--compact">
-                    <p class="my-plans-detail-panel__section-title">Plan ID</p>
-                    <div class="my-plans-detail-panel__meta-id-wrap">
-                        <p class="my-plans-detail-panel__meta-value" data-my-plans-detail-plan-id>—</p>
-                        <button class="my-plans-detail-panel__copy-btn" type="button" data-my-plans-detail-copy-id aria-label="Copy plan ID">
-                            <img src="assets/icon_n_copy.svg" alt="" width="16" height="16" />
-                        </button>
-                    </div>
-                </div>
-            </section>
         </div>
         <footer class="my-plans-detail-panel__footer">
             <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--primary" type="button">Pre-fund</button>
