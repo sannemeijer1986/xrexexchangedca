@@ -3516,7 +3516,11 @@
       check.setAttribute('aria-hidden', 'true');
       check.className = 'my-plans-position-card__completed-icon';
       // compLine.appendChild(check);
-      const completedCount = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 0;
+      const flowState = states.flow ?? 1;
+      const recCompletedBuys = Number.isFinite(planRecord.completedBuys)
+        ? Math.max(0, Math.floor(planRecord.completedBuys))
+        : 0;
+      const completedCount = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
       compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${completedCount} buys`));
       completed.appendChild(compLine);
       completedCard.appendChild(completed);
@@ -3536,11 +3540,15 @@
       // Total invested (prototype: derive from invest amount * completed buys when possible)
       const parsed = String(planRecord.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/);
       const per = parsed ? parseFloat(parsed[1].replace(/,/g, '')) : NaN;
-      const cur = parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary;
-      const completedN = Number.isFinite(planRecord.completedBuys) ? planRecord.completedBuys : 0;
-      const totalInv = (planRecord.totalInvested != null && String(planRecord.totalInvested).trim() !== '')
-        ? planRecord.totalInvested
-        : (Number.isFinite(per) ? formatMoney(per * completedN, cur) : formatMoney(0, normalizeFxCurrency(cur)));
+      const parsedTotalInvested = parseMoneyWithCurrency(planRecord.totalInvested || '');
+      const cur = parsedTotalInvested?.currency
+        || (parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary);
+      let totalInvAmount = 0;
+      if (flowState >= 3) {
+        if (parsedTotalInvested && parsedTotalInvested.amount > 0) totalInvAmount = parsedTotalInvested.amount;
+        else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
+      }
+      const totalInv = formatMoney(totalInvAmount, cur);
       list.appendChild(row('Total invested', totalInv));
 
       // Pay-as-you-go only: matches plan detail Funding line (method · currency balance).
@@ -3827,15 +3835,26 @@
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
           const qtyTone = qty > 0 ? 'positive' : 'zero';
-          const avgBuyPriceText = completedN > 0 ? formatMoney(price, cur) : '--';
+          const flow2ZeroPlaceholder = '- -';
+          const investedRowText =
+            amount <= 0 && flowState === 2 ? flow2ZeroPlaceholder : formatMoney(amount, cur);
+          const avgRowText =
+            completedN > 0
+              ? formatMoney(price, cur)
+              : flowState === 2
+                ? flow2ZeroPlaceholder
+                : '--';
           const investedZeroClass = amount <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
           const avgZeroClass = completedN <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong class="${avgZeroClass.trim()}">${avgBuyPriceText}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${investedRowText}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong class="${avgZeroClass.trim()}">${avgRowText}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
+
+      const showAllWrap = detailPanel.querySelector('.my-plans-detail-panel__show-all-wrap');
+      if (showAllWrap) showAllWrap.hidden = flowState === 2;
 
       if (activityEl) {
         if (completedN <= 0) {
