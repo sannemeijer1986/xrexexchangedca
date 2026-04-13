@@ -11668,43 +11668,9 @@ div.currency-sheet__item-icon {
   padding-top: 28px;
 }
 
-.my-plans-detail-panel__allocation {
+/* Uses `plan-overview-panel__chips` + `plan-overview-panel__chip*` (same as Plan overview). */
+.my-plans-detail-panel__allocation.plan-overview-panel__chips {
   margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.my-plans-detail-panel__chip {
-  height: 29px;
-  border-radius: 999px;
-  border: 1px solid #3c4248;
-  background: #0d0e0f;
-  color: #e9eaeb;
-  padding: 0 10px 0 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.my-plans-detail-panel__chip-icon {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-}
-
-.my-plans-detail-panel__chip-ticker {
-  font-size: 16px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.my-plans-detail-panel__chip-pct {
-  font-size: 14px;
-  font-weight: 600;
-  color: #9b9c9c;
 }
 
 .my-plans-detail-panel__section-head {

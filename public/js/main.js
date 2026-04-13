@@ -1312,6 +1312,51 @@
     return clean;
   };
 
+  /**
+   * Allocation chips: same DOM + classes as `plan-overview-panel__chips` (Plan overview).
+   * Same rules as syncFromPlanDetail: show pct when > 0; single-asset row uses 100% when pct missing.
+   */
+  const appendPlanOverviewStyleAllocChip = (container, { icon, ticker, pct }, opts = {}) => {
+    if (!container) return;
+    const t = String(ticker || '').trim();
+    if (!t) return;
+    const pctNum = Number.isFinite(Number(pct)) ? Math.max(0, Math.round(Number(pct))) : 0;
+    const pctPart = pctNum > 0 ? `${pctNum}` : '';
+    const singleFallback = Boolean(opts.singleAssetFallback);
+
+    const chip = document.createElement('div');
+    chip.className = 'plan-overview-panel__chip';
+
+    const iconEl = document.createElement('img');
+    iconEl.className = 'plan-overview-panel__chip-icon';
+    iconEl.src = String(icon || '').trim() || 'assets/icon_currency_btc.svg';
+    iconEl.alt = '';
+
+    const meta = document.createElement('div');
+    meta.className = 'plan-overview-panel__chip-meta';
+
+    const tickerEl = document.createElement('span');
+    tickerEl.className = 'plan-overview-panel__chip-ticker';
+    tickerEl.textContent = t;
+
+    meta.appendChild(tickerEl);
+    if (pctPart) {
+      const pctEl = document.createElement('span');
+      pctEl.className = 'plan-overview-panel__chip-pct';
+      pctEl.textContent = `${pctPart}%`;
+      meta.appendChild(pctEl);
+    } else if (singleFallback) {
+      const pctEl = document.createElement('span');
+      pctEl.className = 'plan-overview-panel__chip-pct';
+      pctEl.textContent = '100%';
+      meta.appendChild(pctEl);
+    }
+
+    chip.appendChild(iconEl);
+    chip.appendChild(meta);
+    container.appendChild(chip);
+  };
+
   const applyFinanceSummaryMeta = () => {
     const suf = currencyState.summary;
     const fallbackAmt = formatMoney(0, suf);
@@ -3682,26 +3727,15 @@
         return { ticker: t, name: names[t] || t, icon };
       };
       if (allocationEl) {
-        allocationEl.innerHTML = '';
+        allocationEl.textContent = '';
+        const singleAsset = mix.length === 1;
         mix.forEach((m) => {
           const meta = tickerMeta(m.ticker);
-          const chip = document.createElement('span');
-          chip.className = 'my-plans-detail-panel__chip';
-          const ic = document.createElement('img');
-          ic.className = 'my-plans-detail-panel__chip-icon';
-          ic.src = meta.icon;
-          ic.alt = '';
-          ic.setAttribute('aria-hidden', 'true');
-          const tk = document.createElement('span');
-          tk.className = 'my-plans-detail-panel__chip-ticker';
-          tk.textContent = m.ticker;
-          const pct = document.createElement('span');
-          pct.className = 'my-plans-detail-panel__chip-pct';
-          pct.textContent = `${m.pct}%`;
-          chip.appendChild(ic);
-          chip.appendChild(tk);
-          chip.appendChild(pct);
-          allocationEl.appendChild(chip);
+          appendPlanOverviewStyleAllocChip(
+            allocationEl,
+            { icon: meta.icon, ticker: m.ticker, pct: m.pct },
+            { singleAssetFallback: singleAsset },
+          );
         });
       }
 
@@ -6427,7 +6461,11 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
-        if (simTitleEl) simTitleEl.textContent = `If you'd started ${range} ago ≈`;
+        const simCadencePhrase =
+          freq === 'daily' ? 'every day' : freq === 'weekly' ? 'every week' : 'every month';
+        if (simTitleEl) {
+          simTitleEl.textContent = `If you had invested ${simCadencePhrase} for the past ${range} ≈`;
+        }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `${range} simulated outcome ≈`;
         });
@@ -6694,12 +6732,6 @@
         monthly: 'Every month on',
       };
 
-      const escOv = (s) =>
-        String(s ?? '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/"/g, '&quot;');
-
       // Reserve option section removed from overview.
       const closeReserveInfo = () => {};
 
@@ -6745,7 +6777,8 @@
 
         const multiItems = getActiveAllocMultiItems();
         const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
-        const chips = [];
+
+        if (chipsEl) chipsEl.textContent = '';
 
         if (multiItems.length) {
           const allocRoot = getActiveAllocMultiRoot();
@@ -6769,6 +6802,7 @@
               pctValues = amounts.map(() => 0);
             }
           }
+          const singleMulti = multiItems.length === 1;
           multiItems.forEach((row, idx) => {
             const icon = row.querySelector('.alloc-multi__icon')?.getAttribute('src') || '';
             const ticker = row.querySelector('.alloc-multi__ticker')?.textContent?.trim() || '';
@@ -6777,22 +6811,27 @@
             const pctNum = isAmountMode
               ? (isFinite(pctValues[idx]) ? pctValues[idx] : 0)
               : (pctRaw ? parseInt(pctRaw, 10) : 0);
-            const pct = pctNum > 0 ? `${pctNum}` : '';
             if (!ticker) return;
-            const pctPart = pct ? `<span class="plan-overview-panel__chip-pct">${escOv(pct)}%</span>` : '';
-            chips.push(`<div class="plan-overview-panel__chip"><img class="plan-overview-panel__chip-icon" src="${escPlanDetailIconAttr(icon)}" alt="" /><div class="plan-overview-panel__chip-meta"><span class="plan-overview-panel__chip-ticker">${escOv(ticker)}</span>${pctPart}</div></div>`);
+            appendPlanOverviewStyleAllocChip(
+              chipsEl,
+              { icon, ticker, pct: pctNum },
+              { singleAssetFallback: singleMulti },
+            );
           });
         } else {
           singleItems.forEach((row) => {
             const icon = row.querySelector('.plan-detail-panel__alloc-icon')?.getAttribute('src') || '';
             const ticker = row.querySelector('.plan-detail-panel__alloc-ticker')?.textContent?.trim() || '';
             if (!ticker) return;
-            chips.push(`<div class="plan-overview-panel__chip"><img class="plan-overview-panel__chip-icon" src="${escPlanDetailIconAttr(icon)}" alt="" /><div class="plan-overview-panel__chip-meta"><span class="plan-overview-panel__chip-ticker">${escOv(ticker)}</span><span class="plan-overview-panel__chip-pct">100%</span></div></div>`);
+            appendPlanOverviewStyleAllocChip(
+              chipsEl,
+              { icon, ticker, pct: 100 },
+              { singleAssetFallback: true },
+            );
           });
         }
 
-        if (chipsEl) chipsEl.innerHTML = chips.join('');
-        const n = chips.length;
+        const n = chipsEl ? chipsEl.children.length : 0;
         if (headingEl) headingEl.textContent = `Allocation (${n})`;
 
         const planName = panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || '—';
