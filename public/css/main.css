@@ -11219,7 +11219,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container p.my-plans-detail-panel__header-kicker {
-  margin: 0 0 2px;
+  margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
