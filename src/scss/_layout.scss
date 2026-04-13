@@ -3871,6 +3871,44 @@ div.currency-sheet__item-icon {
   }
 }
 
+// My plans → Manage plan sheet (Figma 8900:126245 — same row pattern as Get TWD / top-up)
+.currency-sheet__body--manage-plan {
+  gap: 24px;
+  padding-top: 16px;
+}
+
+.currency-sheet__body--manage-plan .currency-sheet__title {
+  margin-top: 0;
+}
+
+.currency-sheet__item--manage-plan {
+  gap: 8px;
+}
+
+.currency-sheet__item-icon--manage-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #47494a;
+
+  &::before {
+    display: none;
+  }
+
+  img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+}
+
+[data-my-plans-manage-sheet] .currency-sheet__cancel--manage-back {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+
 // Plan detail: auto-invest schedule bottom sheet (Figma 8510:9549)
 .currency-sheet__body--schedule {
   align-items: stretch;
@@ -10704,7 +10742,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-success-panel__reserve-head {
-  margin-top: 9px;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 16px;

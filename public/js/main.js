@@ -4050,6 +4050,64 @@
       closeActivityDetail(false);
     });
 
+    const resolveManagePlanRecord = (sourceEl) => {
+      const recs = getMyPlansRecords();
+      if (!recs.length) return null;
+      const detailOpen =
+        detailPanel && !detailPanel.hidden && detailPanel.classList.contains('is-open');
+      if (detailOpen) {
+        const id = String(detailPanel.getAttribute('data-my-plans-detail-plan-id') || '').trim();
+        if (id) {
+          const r = recs.find((x) => String(x.id) === id);
+          if (r) return r;
+        }
+      }
+      const card = sourceEl?.closest?.('.my-plans-position-card');
+      if (card) {
+        const id = String(card.getAttribute('data-my-plans-plan-id') || '').trim();
+        if (id) {
+          const r = recs.find((x) => String(x.id) === id);
+          if (r) return r;
+        }
+      }
+      return recs[0] || null;
+    };
+
+    const syncManageSheetUi = (rec) => {
+      if (!manageSheet || !rec) return;
+      const statusKey =
+        rec.status === 'paused' ? 'paused' : rec.status === 'ended' ? 'ended' : 'active';
+      const pauseRow = manageSheet.querySelector('[data-my-plans-manage-pause-row]');
+      const endRow = manageSheet.querySelector('[data-my-plans-manage-end-row]');
+      const d0 = manageSheet.querySelector('[data-my-plans-manage-divider="0"]');
+      const d1 = manageSheet.querySelector('[data-my-plans-manage-divider="1"]');
+      const pauseIcon = manageSheet.querySelector('[data-my-plans-manage-pause-icon]');
+      const pauseLabel = manageSheet.querySelector('[data-my-plans-manage-pause-label]');
+      const pauseBtn = manageSheet.querySelector('[data-my-plans-manage-pause-row]');
+
+      if (statusKey === 'ended') {
+        if (pauseRow) pauseRow.hidden = true;
+        if (endRow) endRow.hidden = true;
+        if (d0) d0.hidden = true;
+        if (d1) d1.hidden = true;
+        return;
+      }
+      if (pauseRow) pauseRow.hidden = false;
+      if (endRow) endRow.hidden = false;
+      if (d0) d0.hidden = false;
+      if (d1) d1.hidden = false;
+
+      if (statusKey === 'paused') {
+        pauseBtn?.setAttribute('data-my-plans-manage-action', 'resume');
+        if (pauseIcon) pauseIcon.src = 'assets/icon_play.svg';
+        if (pauseLabel) pauseLabel.textContent = 'Resume plan';
+      } else {
+        pauseBtn?.setAttribute('data-my-plans-manage-action', 'pause');
+        if (pauseIcon) pauseIcon.src = 'assets/icon_pause.svg';
+        if (pauseLabel) pauseLabel.textContent = 'Pause plan';
+      }
+    };
+
     const closeManageSheet = () => {
       if (!manageSheet) return;
       const panelEl = manageSheet.querySelector('.currency-sheet__panel');
@@ -4066,21 +4124,32 @@
       setTimeout(onEnd, 290);
     };
 
-    const openManageSheet = () => {
+    const openManageSheet = (sourceEl) => {
       if (!manageSheet) return;
+      syncManageSheetUi(resolveManagePlanRecord(sourceEl));
       sheetOpenWithInstantBackdrop(manageSheet);
     };
-    detailPanel?.querySelector('[data-my-plans-detail-manage-trigger]')?.addEventListener('click', openManageSheet);
+    detailPanel?.querySelector('[data-my-plans-detail-manage-trigger]')?.addEventListener('click', (e) => {
+      openManageSheet(e.currentTarget);
+    });
     panel.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-plan-card-manage]');
       if (!trigger || !panel.contains(trigger)) return;
-      openManageSheet();
+      openManageSheet(trigger);
     });
     manageSheet?.querySelectorAll('[data-my-plans-manage-sheet-close]').forEach((btn) => {
       btn.addEventListener('click', closeManageSheet);
     });
     manageSheet?.querySelectorAll('[data-my-plans-manage-action]').forEach((btn) => {
       btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-my-plans-manage-action');
+        if (action === 'prefund') {
+          closeManageSheet();
+          window.setTimeout(() => {
+            document.querySelector('[data-plan-detail-topup-trigger]')?.click();
+          }, 320);
+          return;
+        }
         closeManageSheet();
       });
     });
