@@ -3197,7 +3197,7 @@
 
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
-      const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan';
+      const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan';
       const tickerLineRaw = document.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || '';
       const tickers = tickerLineRaw
         ? tickerLineRaw.split(/[·,]/g).map((t) => t.trim()).filter(Boolean).join(' · ')
@@ -5778,7 +5778,7 @@
       const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
       if (ctx.source === 'newplan') {
-        title = 'Your plan';
+        title = 'My plan';
         const now = new Date();
         ticker = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         iconSrc = 'assets/icon_noallocation.svg';
@@ -5817,7 +5817,7 @@
         const selectedTickers = detailAllocOverride.items
           .map((item) => String(item?.ticker || '').trim())
           .filter(Boolean);
-        title = 'Your plan';
+        title = 'My plan';
         ticker = selectedTickers.join(' · ');
       }
       if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.items?.length) {
@@ -5874,7 +5874,7 @@
 
       const curatedProductKeyForDesc = (() => {
         // Manual/new plans should never show curated subtitles.
-        if (ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins' || title === 'Your plan') {
+        if (ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins' || title === 'My plan') {
           return null;
         }
         if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.key) {
@@ -6221,7 +6221,7 @@
 
     const enterTitleEditMode = () => {
       if (!nameInput || !nameEditBtn) return;
-      const current = panel.querySelector('[data-plan-detail-name]')?.textContent || 'Your plan';
+      const current = panel.querySelector('[data-plan-detail-name]')?.textContent || 'My plan';
       nameInput.value = String(current).trim();
       if (nameSpan) nameSpan.hidden = true;
       // Keep the edit icon + product icon visible; only swap title text → input.
@@ -8681,10 +8681,10 @@
           myPlansSubmittedPlan = {
             id: `plan-active-${Date.now()}`,
             status: 'active',
-            name: panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan',
+            name: panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan',
             kicker: selectedAssets.length === 1
-              ? (selectedAssets[0]?.name || panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan')
-              : (panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan'),
+              ? (selectedAssets[0]?.name || panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan')
+              : (panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan'),
             tickers: tickerLine || (panel.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || 'BTC'),
             assetMix,
             iconSrc: singleIconSrc,
