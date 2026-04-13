@@ -3108,6 +3108,7 @@
       typeof opts.getDismissPlanDetailStackInstant === 'function' ? opts.getDismissPlanDetailStackInstant : () => () => {};
     const panel = document.querySelector('[data-my-plans-panel]');
     const detailPanel = document.querySelector('[data-my-plans-detail-panel]');
+    const activityDetailPanel = document.querySelector('[data-my-plans-activity-detail-panel]');
     const detailHeader = detailPanel?.querySelector('.my-plans-detail-panel__header');
     const detailScroller = detailPanel?.querySelector('.my-plans-detail-panel__scroller');
     const container = document.querySelector('.phone-container');
@@ -3646,17 +3647,35 @@
 
     let backFromPlanSuccessView = false;
 
+    const closeActivityDetail = (instant = false) => {
+      if (!activityDetailPanel) return;
+      if (instant) {
+        activityDetailPanel.classList.remove('is-open');
+        activityDetailPanel.hidden = true;
+        return;
+      }
+      activityDetailPanel.classList.remove('is-open');
+      const onEnd = () => {
+        if (!activityDetailPanel.classList.contains('is-open')) activityDetailPanel.hidden = true;
+        activityDetailPanel.removeEventListener('transitionend', onEnd);
+      };
+      activityDetailPanel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 380);
+    };
+
     const closePlanDetail = (instant = false) => {
       if (!detailPanel) return;
       if (instant) {
         detailPanel.classList.remove('is-open');
         detailHeader?.classList.remove('is-collapsed');
+        closeActivityDetail(true);
         if (detailScroller) detailScroller.scrollTop = 0;
         detailPanel.hidden = true;
         return;
       }
       detailPanel.classList.remove('is-open');
       detailHeader?.classList.remove('is-collapsed');
+      closeActivityDetail(true);
       const onEnd = () => {
         if (!detailPanel.classList.contains('is-open')) detailPanel.hidden = true;
         detailPanel.removeEventListener('transitionend', onEnd);
@@ -3953,6 +3972,26 @@
         const icon = rowToggle.querySelector('img');
         if (icon) icon.setAttribute('src', `assets/icon_n_${shouldExpand ? 'collapse' : 'expand'}.svg`);
       });
+    });
+
+    const openActivityDetail = () => {
+      if (!activityDetailPanel) return;
+      const titleEl = activityDetailPanel.querySelector('[data-my-plans-activity-detail-title]');
+      if (titleEl) titleEl.textContent = 'Activity details';
+      activityDetailPanel.hidden = false;
+      requestAnimationFrame(() => {
+        activityDetailPanel.classList.add('is-open');
+      });
+    };
+
+    detailPanel?.addEventListener('click', (e) => {
+      const row = e.target.closest('.my-plans-detail-panel__act-row');
+      if (!row || !detailPanel.contains(row)) return;
+      openActivityDetail();
+    });
+
+    activityDetailPanel?.querySelector('[data-my-plans-activity-detail-close]')?.addEventListener('click', () => {
+      closeActivityDetail(false);
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {

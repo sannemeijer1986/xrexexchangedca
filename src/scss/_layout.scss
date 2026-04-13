@@ -11473,6 +11473,158 @@ div.currency-sheet__item-icon {
   transform: translateX(0);
 }
 
+.my-plans-activity-detail-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 36;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: inherit;
+}
+
+.my-plans-activity-detail-panel.is-open {
+  transform: translateX(0);
+}
+
+.my-plans-activity-detail-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 52px 16px 16px;
+  flex-shrink: 0;
+  background: #0d0e0f;
+  position: relative;
+  z-index: 2;
+}
+
+.my-plans-activity-detail-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.my-plans-activity-detail-panel__card {
+  background: #1B1D1D;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.my-plans-activity-detail-panel__pair-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.my-plans-activity-detail-panel__pair-row--top {
+  padding-bottom: 1px;
+}
+
+.my-plans-activity-detail-panel__side--positive {
+  color: #56c488;
+}
+
+.my-plans-activity-detail-panel__divider {
+  height: 1px;
+  background: #252627;
+}
+
+.my-plans-activity-detail-panel__amount-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.my-plans-activity-detail-panel__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #a3a3a3;
+}
+
+.my-plans-activity-detail-panel__amount {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.my-plans-activity-detail-panel__pair-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.my-plans-activity-detail-panel__value {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.my-plans-activity-detail-panel__meta-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.my-plans-activity-detail-panel__meta-row {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.my-plans-activity-detail-panel__meta-key {
+  font-size: 14px;
+  font-weight: 600;
+  color: #a3a3a3;
+}
+
+.my-plans-activity-detail-panel__meta-key--with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  img {
+    width: 14px;
+    height: 14px;
+    display: block;
+  }
+}
+
+.my-plans-activity-detail-panel__meta-value {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #ffffff;
+  text-align: right;
+}
+
+.my-plans-activity-detail-panel__tag {
+  border-radius: 30px;
+  background: #2a2e34;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9d9d9d;
+}
+
 .my-plans-detail-panel__header {
   display: flex;
   align-items: center;
@@ -12044,7 +12196,7 @@ div.currency-sheet__item-icon {
 }
 
 .my-plans-detail-panel__activity-invested-text {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #5ac47d;
   line-height: normal;
@@ -12105,6 +12257,7 @@ div.currency-sheet__item-icon {
   gap: 10px;
   padding: 0;
   margin: 0;
+  cursor: pointer;
 }
 
 .my-plans-detail-panel__act-left {
