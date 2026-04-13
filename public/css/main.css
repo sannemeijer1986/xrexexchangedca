@@ -11289,6 +11289,10 @@ div.currency-sheet__item-icon::before {
   color: #a3a3a3;
 }
 
+.my-plans-activity-detail-panel__meta-key--plan-id {
+  padding-left: 8px;
+}
+
 .my-plans-activity-detail-panel__meta-key--with-icon {
   display: inline-flex;
   align-items: center;
@@ -11464,6 +11468,14 @@ div.currency-sheet__item-icon::before {
   color: #9b9c9c;
   font-size: 14px;
   font-weight: 600;
+  line-height: 1;
+}
+
+.phone-container p.my-plans-detail-panel__section-titleLarge {
+  margin: 2px 0px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -11863,6 +11875,7 @@ div.currency-sheet__item-icon::before {
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
+  display: none;
 }
 
 .my-plans-detail-panel__activity-invested-line {
@@ -11887,25 +11900,17 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__act-toggle {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: 100px;
-  background: #2d2f2f;
-  color: #ffffff;
-  font-size: 12px;
-  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 .my-plans-detail-panel__act-toggle img {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .my-plans-detail-panel__act-divider {

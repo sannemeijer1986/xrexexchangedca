@@ -3895,7 +3895,7 @@
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
           return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_green.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><button class="my-plans-detail-panel__act-toggle" type="button" data-my-plans-activity-toggle aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_green.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
         const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
@@ -3911,8 +3911,8 @@
           if (!rowToggle) return;
           rowToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
           rowToggle.setAttribute('aria-label', expanded ? 'Collapse activity' : 'Expand activity');
-          const icon = rowToggle.querySelector('img');
-          if (icon) icon.setAttribute('src', `assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg`);
+          const icon = rowCard.querySelector('.my-plans-detail-panel__act-toggle img');
+          if (icon) icon.setAttribute('src', `assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg`);
         });
       }
     };
@@ -3969,15 +3969,64 @@
         if (!rowToggle) return;
         rowToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
         rowToggle.setAttribute('aria-label', shouldExpand ? 'Collapse activity' : 'Expand activity');
-        const icon = rowToggle.querySelector('img');
-        if (icon) icon.setAttribute('src', `assets/icon_n_${shouldExpand ? 'collapse' : 'expand'}.svg`);
+        const icon = rowCard.querySelector('.my-plans-detail-panel__act-toggle img');
+        if (icon) icon.setAttribute('src', `assets/icon_chevron_${shouldExpand ? 'up' : 'down'}_white.svg`);
       });
     });
 
-    const openActivityDetail = () => {
+    detailPanel?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const trigger = e.target.closest('[data-my-plans-activity-toggle]');
+      if (!trigger || !detailPanel.contains(trigger)) return;
+      e.preventDefault();
+      trigger.click();
+    });
+
+    const populateActivityDetailFromRow = (row) => {
+      if (!activityDetailPanel || !row) return;
+      const card = row.closest('[data-my-plans-activity-card]');
+      const ticker = String(row.querySelector('.my-plans-detail-panel__act-ticker')?.textContent || '').trim() || 'BTC';
+      const gainRaw = String(row.querySelector('.my-plans-detail-panel__act-gain')?.textContent || '').trim();
+      const payRaw = String(row.querySelector('.my-plans-detail-panel__act-pay')?.textContent || '').trim();
+      const gainNum = gainRaw.replace(/^\+\s*/, '').trim() || '0';
+      const payClean = payRaw.replace(/^-+\s*/, '').trim();
+      const payAmtMatch = payClean.match(/^([\d,]+(?:\.\d+)?)/);
+      const payCurMatch = payClean.match(/\b([A-Za-z]{3,5})\b$/);
+      const payAmt = payAmtMatch ? payAmtMatch[1] : '0.00';
+      const payCur = payCurMatch ? String(payCurMatch[1]).toUpperCase() : (currencyState.plan || 'TWD');
+      const dateText = String(card?.querySelector('.my-plans-detail-panel__activity-date')?.textContent || '').trim();
+      const timeText = String(card?.querySelector('.my-plans-detail-panel__activity-time')?.textContent || '').replace(/^·\s*/, '').trim();
+      const timestamp = dateText && timeText ? `${dateText}, ${timeText}` : (dateText || '--');
+      const planIdText = String(detailPanel?.querySelector('[data-my-plans-detail-plan-id]')?.textContent || '').trim() || '—';
+      const orderId = (() => {
+        const key = `${dateText}|${timeText}|${ticker}|${payAmt}|${payCur}`;
+        let h = 0;
+        for (let i = 0; i < key.length; i += 1) h = ((h << 5) - h) + key.charCodeAt(i);
+        return String((Math.abs(h) % 9000000) + 1000000);
+      })();
+      const setText = (sel, val) => {
+        const el = activityDetailPanel.querySelector(sel);
+        if (el) el.textContent = val;
+      };
+      setText('[data-my-plans-activity-detail-pair]', `${ticker} / ${payCur}`);
+      setText('[data-my-plans-activity-detail-amount]', `≈ ${gainNum} ${ticker} / ${gainNum} ${ticker}`);
+      setText('[data-my-plans-activity-detail-avg-price]', `${payAmt} ${payCur}`);
+      setText('[data-my-plans-activity-detail-total]', `${payAmt} ${payCur}`);
+      setText('[data-my-plans-activity-detail-actual-amount]', `${gainNum} ${ticker}`);
+      setText('[data-my-plans-activity-detail-actual-total]', `${payAmt} ${payCur}`);
+      setText('[data-my-plans-activity-detail-start]', timestamp);
+      setText('[data-my-plans-activity-detail-end]', timestamp);
+      setText('[data-my-plans-activity-detail-fee]', `0.000001 ${ticker}`);
+      setText('[data-my-plans-activity-detail-order-id]', orderId);
+      setText('[data-my-plans-activity-detail-order-via]', 'Auto-invest');
+      setText('[data-my-plans-activity-detail-plan-id]', planIdText);
+    };
+
+    const openActivityDetail = (row = null) => {
       if (!activityDetailPanel) return;
       const titleEl = activityDetailPanel.querySelector('[data-my-plans-activity-detail-title]');
-      if (titleEl) titleEl.textContent = 'Activity details';
+      if (titleEl) titleEl.textContent = 'Order history detail';
+      if (row) populateActivityDetailFromRow(row);
       activityDetailPanel.hidden = false;
       requestAnimationFrame(() => {
         activityDetailPanel.classList.add('is-open');
@@ -3987,7 +4036,7 @@
     detailPanel?.addEventListener('click', (e) => {
       const row = e.target.closest('.my-plans-detail-panel__act-row');
       if (!row || !detailPanel.contains(row)) return;
-      openActivityDetail();
+      openActivityDetail(row);
     });
 
     activityDetailPanel?.querySelector('[data-my-plans-activity-detail-close]')?.addEventListener('click', () => {

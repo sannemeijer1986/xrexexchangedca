@@ -1958,7 +1958,7 @@
                 </section>
 
                 <section class="my-plans-detail-panel__block">
-                    <div class="my-plans-detail-panel__section-head">
+                    <div class="my-plans-detail-panel__section-head" style="display:none;">
                         <p class="my-plans-detail-panel__section-title">Overview</p>
                     </div>
                     <div class="my-plans-detail-panel__overview-grid">
@@ -1995,14 +1995,14 @@
             </div>
 
             <section class="my-plans-detail-panel__block">
-                <p class="my-plans-detail-panel__section-title">Bought through this plan</p>
+                <p class="my-plans-detail-panel__section-titleLarge">Bought through this plan</p>
                 <p class="my-plans-detail-panel__section-subtitle">May differ from your current holdings</p>
                 <div class="my-plans-detail-panel__cards" data-my-plans-detail-accumulated></div>
             </section>
 
             <section class="my-plans-detail-panel__block">
                 <div class="my-plans-detail-panel__activity-stack">
-                    <p class="my-plans-detail-panel__section-title">Recent activity</p>
+                    <p class="my-plans-detail-panel__section-titleLarge">Recent activity</p>
                     <div class="my-plans-detail-panel__cards" data-my-plans-detail-activity></div>
                     <div class="my-plans-detail-panel__show-all-wrap">
                         <button class="my-plans-detail-panel__show-all" type="button">Show all</button>
@@ -2026,41 +2026,42 @@
                 <img src="assets/icon_back.svg" alt="" width="24" height="24" />
             </button>
             <div class="my-plans-detail-panel__header-main">
-                <p class="my-plans-detail-panel__header-kicker">Activity</p>
-                <h1 class="my-plans-detail-panel__title" data-my-plans-activity-detail-title>Activity details</h1>
+                <h1 class="my-plans-detail-panel__title" data-my-plans-activity-detail-title>Order history detail</h1>
             </div>
-            <div class="my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right" aria-hidden="true"></div>
+            <button class="my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right" type="button" aria-label="Support">
+                <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
+            </button>
         </header>
         <div class="my-plans-activity-detail-panel__body">
             <div class="my-plans-activity-detail-panel__card">
                 <div class="my-plans-activity-detail-panel__pair-row my-plans-activity-detail-panel__pair-row--top">
                     <span class="my-plans-activity-detail-panel__side my-plans-activity-detail-panel__side--positive">Market / Buy</span>
-                    <span class="my-plans-activity-detail-panel__side">BTC / TWD</span>
+                    <span class="my-plans-activity-detail-panel__side" data-my-plans-activity-detail-pair>BTC / TWD</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__divider"></div>
                 <div class="my-plans-activity-detail-panel__amount-wrap">
                     <div class="my-plans-activity-detail-panel__label">Amount</div>
-                    <div class="my-plans-activity-detail-panel__amount">≈ 0.0319 BTC / 0.0319 BTC</div>
+                    <div class="my-plans-activity-detail-panel__amount" data-my-plans-activity-detail-amount>≈ 0.0319 BTC / 0.0319 BTC</div>
                 </div>
                 <div class="my-plans-activity-detail-panel__pair-grid">
                     <div>
                         <div class="my-plans-activity-detail-panel__label">Average price</div>
-                        <div class="my-plans-activity-detail-panel__value">2,256,095.20 TWD</div>
+                        <div class="my-plans-activity-detail-panel__value" data-my-plans-activity-detail-avg-price>2,256,095.20 TWD</div>
                     </div>
                     <div>
                         <div class="my-plans-activity-detail-panel__label">Total</div>
-                        <div class="my-plans-activity-detail-panel__value">8,333.33 TWD</div>
+                        <div class="my-plans-activity-detail-panel__value" data-my-plans-activity-detail-total>8,333.33 TWD</div>
                     </div>
                 </div>
                 <div class="my-plans-activity-detail-panel__divider"></div>
                 <div class="my-plans-activity-detail-panel__pair-grid">
                     <div>
                         <div class="my-plans-activity-detail-panel__label">Actual amount</div>
-                        <div class="my-plans-activity-detail-panel__value">0.03171244 BTC</div>
+                        <div class="my-plans-activity-detail-panel__value" data-my-plans-activity-detail-actual-amount>0.03171244 BTC</div>
                     </div>
                     <div>
                         <div class="my-plans-activity-detail-panel__label">Actual total</div>
-                        <div class="my-plans-activity-detail-panel__value">8,333.33 TWD</div>
+                        <div class="my-plans-activity-detail-panel__value" data-my-plans-activity-detail-actual-total>8,333.33 TWD</div>
                     </div>
                 </div>
             </div>
@@ -2072,27 +2073,27 @@
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
                     <span class="my-plans-activity-detail-panel__meta-key">Start date</span>
-                    <span class="my-plans-activity-detail-panel__meta-value">08/07/2024, 21:32:07</span>
+                    <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-start>08/07/2024, 21:32:07</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
                     <span class="my-plans-activity-detail-panel__meta-key">End date</span>
-                    <span class="my-plans-activity-detail-panel__meta-value">08/07/2024, 21:32:07</span>
+                    <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-end>08/07/2024, 21:32:07</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
                     <span class="my-plans-activity-detail-panel__meta-key my-plans-activity-detail-panel__meta-key--with-icon">Fee <img src="assets/icon_info_circle_white.svg" alt="" width="14" height="14" /></span>
-                    <span class="my-plans-activity-detail-panel__meta-value">0.000001 BTC</span>
+                    <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-fee>0.000001 BTC</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
                     <span class="my-plans-activity-detail-panel__meta-key">Order ID</span>
-                    <span class="my-plans-activity-detail-panel__meta-value">1453537</span>
+                    <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-order-id>1453537</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
                     <span class="my-plans-activity-detail-panel__meta-key">Order via</span>
-                    <span class="my-plans-activity-detail-panel__tag">Auto-invest</span>
+                    <span class="my-plans-activity-detail-panel__tag" data-my-plans-activity-detail-order-via>Auto-invest</span>
                 </div>
                 <div class="my-plans-activity-detail-panel__meta-row">
-                    <span class="my-plans-activity-detail-panel__meta-key">&bull; Plan ID</span>
-                    <span class="my-plans-activity-detail-panel__meta-value">81613161</span>
+                    <span class="my-plans-activity-detail-panel__meta-key my-plans-activity-detail-panel__meta-key--plan-id">&bull; Plan ID</span>
+                    <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-plan-id>81613161</span>
                 </div>
             </div>
         </div>
