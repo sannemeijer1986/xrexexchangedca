@@ -7982,9 +7982,12 @@ div.currency-sheet__item-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 52px 16px 12px;
+  gap: 12px;
+  padding: 52px 16px 16px;
   box-sizing: border-box;
+  background: #0d0e0f;
+  position: relative;
+  z-index: 2;
 }
 
 .plan-overview-panel__icon-btn {
@@ -8007,11 +8010,23 @@ div.currency-sheet__item-icon {
   }
 }
 
+.plan-overview-panel__header-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.phone-container p.plan-overview-panel__header-kicker {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
 // Match plan detail / limits nav titles; override .phone-container h1 from _base.scss (28px)
 .phone-container h1.plan-overview-panel__title {
   margin: 0;
-  flex: 1;
-  min-width: 0;
+  padding-bottom: 1px;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -8039,8 +8054,10 @@ div.currency-sheet__item-icon {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 20px;
   overflow-y: auto;
   overflow-x: hidden;
+  background: #0d0e0f;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
@@ -8056,27 +8073,23 @@ div.currency-sheet__item-icon {
 }
 
 .plan-overview-panel__body {
-  flex: 1;
-  padding: 20px 16px 16px 16px;
+  padding: 0 16px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.plan-overview-panel__plan-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+.plan-overview-panel__gradient-wrap {
   width: 100%;
-  background: transparent;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.50);
+  padding: 12px 16px 016px;
+  background: linear-gradient(180deg, #0d0e0f 0%, #15161a 100%);
 }
 
 .plan-overview-panel__alloc-block {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 16px 0 24px 0;
+  padding: 20px 0 0 0;
 }
 
 // Figma 8538:77120 — 8px between chips block and Invest row; 8px between each row + divider stack
@@ -8090,7 +8103,7 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 16px;
+  // padding: 16px;
   background: linear-gradient(180deg, #0d0e0f 0%, #15161a 100%);
 }
 

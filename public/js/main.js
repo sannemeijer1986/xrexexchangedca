@@ -1287,6 +1287,31 @@
     return `${mon} ${day} · ${timeStr}`;
   };
 
+  /** "Monthly · 15th at ~12:00" -> "Every month on the 15th" */
+  const formatScheduleNaturalLine = (schedText) => {
+    const sched = String(schedText || '').trim();
+    if (!sched) return '';
+    const clean = sched.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim();
+    const parts = clean.split('·').map((t) => t.trim()).filter(Boolean);
+    const head = (parts[0] || '').toLowerCase();
+    const tail = parts.length > 1 ? parts.slice(1).join(' · ').trim() : '';
+
+    if (head.startsWith('daily')) return 'Every day';
+
+    if (head.startsWith('weekly')) {
+      const detail = tail || clean.replace(/^weekly\b/i, '').trim();
+      return detail ? `Every week on ${detail}` : 'Every week';
+    }
+
+    if (head.startsWith('monthly')) {
+      let detail = tail || clean.replace(/^monthly\b/i, '').trim();
+      if (detail && /^\d/.test(detail)) detail = `the ${detail}`;
+      return detail ? `Every month on ${detail}` : 'Every month';
+    }
+
+    return clean;
+  };
+
   const applyFinanceSummaryMeta = () => {
     const suf = currencyState.summary;
     const fallbackAmt = formatMoney(0, suf);
@@ -3540,9 +3565,14 @@
       if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
       if (investLineEl) {
         const investLine = String(rec.investLine || '').trim();
-        const m = investLine.match(/^(.+?\s+[A-Za-z]{3,5})\s+each\s+(.+)$/i);
-        if (m) {
-          investLineEl.innerHTML = `${m[1]}<br/>each ${m[2]}`;
+        const money = investLine.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+        const moneyPart = money ? `${money[1]} ${String(money[2] || '').toUpperCase()}` : '';
+        const schedulePart = formatScheduleNaturalLine(rec.repeats || '');
+        if (moneyPart) {
+          investLineEl.textContent = '';
+          investLineEl.append(`Invest ${moneyPart}`);
+          investLineEl.appendChild(document.createElement('br'));
+          investLineEl.append(schedulePart || '—');
         } else {
           investLineEl.textContent = investLine || '—';
         }
@@ -6740,9 +6770,10 @@
               ? 'month'
               : '';
         const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
+        const scheduleLine = formatScheduleNaturalLine(sched) || `Every ${freqUnit === 'day' ? 'day' : freqUnit}`;
         if (planAmountEl) {
           planAmountEl.innerHTML = amount > 0
-            ? `Invest ${amount.toLocaleString('en-US')} ${cur}<br aria-hidden="true" /> each ${freqUnit}`
+            ? `Invest ${amount.toLocaleString('en-US')} ${cur}<br aria-hidden="true" /> ${scheduleLine}`
             : '—';
         }
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
