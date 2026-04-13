@@ -11317,7 +11317,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__hero-row {
-  margin-top: 4px;
+  margin-top: 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -11356,7 +11356,7 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-detail-panel__gradient-wrap .my-plans-detail-panel__block--allocation {
   margin-top: 0;
-  padding-top: 20px;
+  padding-top: 28px;
 }
 
 .my-plans-detail-panel__allocation {

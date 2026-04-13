@@ -1296,17 +1296,17 @@
     const head = (parts[0] || '').toLowerCase();
     const tail = parts.length > 1 ? parts.slice(1).join(' · ').trim() : '';
 
-    if (head.startsWith('daily')) return 'Every day';
+    if (head.startsWith('daily')) return 'every day';
 
     if (head.startsWith('weekly')) {
       const detail = tail || clean.replace(/^weekly\b/i, '').trim();
-      return detail ? `Every week on ${detail}` : 'Every week';
+      return detail ? `every week on ${detail}` : 'every week';
     }
 
     if (head.startsWith('monthly')) {
       let detail = tail || clean.replace(/^monthly\b/i, '').trim();
       if (detail && /^\d/.test(detail)) detail = `the ${detail}`;
-      return detail ? `Every month on ${detail}` : 'Every month';
+      return detail ? `every month on ${detail}` : 'every month';
     }
 
     return clean;
