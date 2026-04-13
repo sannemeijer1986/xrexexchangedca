@@ -2012,11 +2012,7 @@
 
         </div>
         <footer class="my-plans-detail-panel__footer">
-            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--primary" type="button">Pre-fund</button>
-            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--secondary" type="button" data-my-plans-detail-pause>Pause</button>
-            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--icon" type="button" aria-label="More actions">
-                <img src="assets/icon_n_more.svg" alt="" width="24" height="24" />
-            </button>
+            <button class="my-plans-detail-panel__footer-btn my-plans-detail-panel__footer-btn--secondary" type="button" data-my-plans-detail-manage-trigger>Manage plan</button>
         </footer>
     </section>
 
@@ -2098,6 +2094,34 @@
             </div>
         </div>
     </section>
+
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-my-plans-manage-sheet hidden aria-modal="true" role="dialog" aria-label="Manage plan">
+        <button class="currency-sheet__backdrop" type="button" data-my-plans-manage-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Manage plan</h2>
+                <div class="currency-sheet__list">
+                    <button class="currency-sheet__item" type="button" data-my-plans-manage-action="pause">
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">Pause plan</span>
+                        </div>
+                    </button>
+                    <div class="currency-sheet__divider"></div>
+                    <button class="currency-sheet__item" type="button" data-my-plans-manage-action="end">
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">End plan</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-my-plans-manage-sheet-close>Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Allocation picker panel (slides from right; opened from plan-detail Add assets buttons) -->
     <section class="alloc-picker-panel" data-alloc-picker-panel hidden aria-label="Allocation">

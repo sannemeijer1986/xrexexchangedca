@@ -3109,6 +3109,7 @@
     const panel = document.querySelector('[data-my-plans-panel]');
     const detailPanel = document.querySelector('[data-my-plans-detail-panel]');
     const activityDetailPanel = document.querySelector('[data-my-plans-activity-detail-panel]');
+    const manageSheet = document.querySelector('[data-my-plans-manage-sheet]');
     const detailHeader = detailPanel?.querySelector('.my-plans-detail-panel__header');
     const detailScroller = detailPanel?.querySelector('.my-plans-detail-panel__scroller');
     const container = document.querySelector('.phone-container');
@@ -3592,8 +3593,7 @@
         if (dataAttr) b.setAttribute(dataAttr, '');
         return b;
       };
-      leftActions.appendChild(btn('Add funds', 'secondary', 'data-plan-card-add-funds'));
-      leftActions.appendChild(btn(statusKey === 'paused' ? 'Resume' : 'Pause', 'secondary', 'data-plan-card-pause'));
+      leftActions.appendChild(btn('Manage plan', 'secondary', 'data-plan-card-manage'));
       actions.appendChild(leftActions);
       actions.appendChild(btn('View details', 'primary', 'data-plan-card-view-detail'));
       card.appendChild(actions);
@@ -4041,6 +4041,41 @@
 
     activityDetailPanel?.querySelector('[data-my-plans-activity-detail-close]')?.addEventListener('click', () => {
       closeActivityDetail(false);
+    });
+
+    const closeManageSheet = () => {
+      if (!manageSheet) return;
+      const panelEl = manageSheet.querySelector('.currency-sheet__panel');
+      manageSheet.classList.remove('is-open');
+      if (!panelEl) {
+        manageSheet.hidden = true;
+        return;
+      }
+      const onEnd = () => {
+        if (!manageSheet.classList.contains('is-open')) manageSheet.hidden = true;
+        panelEl.removeEventListener('transitionend', onEnd);
+      };
+      panelEl.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const openManageSheet = () => {
+      if (!manageSheet) return;
+      sheetOpenWithInstantBackdrop(manageSheet);
+    };
+    detailPanel?.querySelector('[data-my-plans-detail-manage-trigger]')?.addEventListener('click', openManageSheet);
+    panel.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-plan-card-manage]');
+      if (!trigger || !panel.contains(trigger)) return;
+      openManageSheet();
+    });
+    manageSheet?.querySelectorAll('[data-my-plans-manage-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', closeManageSheet);
+    });
+    manageSheet?.querySelectorAll('[data-my-plans-manage-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        closeManageSheet();
+      });
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
