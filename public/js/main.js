@@ -2158,46 +2158,10 @@
     });
   };
 
-  /** My plans detail: funding line info (matches Figma info + bottom sheet). */
-  const initMyPlansFundingInfoSheet = () => {
-    const sheet = document.querySelector('[data-my-plans-funding-info-sheet]');
-    if (!sheet) return;
-    const panel = sheet.querySelector('.currency-sheet__panel');
-    const titleEl = sheet.querySelector('[data-my-plans-funding-info-sheet-title]');
-    if (!panel) return;
-
-    const close = () => {
-      sheet.classList.remove('is-open');
-      const onEnd = () => {
-        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
-        panel.removeEventListener('transitionend', onEnd);
-      };
-      panel.addEventListener('transitionend', onEnd);
-      setTimeout(onEnd, 290);
-    };
-
-    const open = () => {
-      const main = document.querySelector('[data-my-plans-detail-funding-main]');
-      const text = String(main?.textContent || '').trim() || 'Paid from balance';
-      if (titleEl) titleEl.textContent = text;
-      sheet.setAttribute('aria-label', text);
-      sheetOpenWithInstantBackdrop(sheet);
-    };
-
-    document.querySelectorAll('[data-my-plans-funding-info-trigger]').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        open();
-      });
-    });
-
-    sheet.querySelectorAll('[data-my-plans-funding-info-sheet-close]').forEach((b) => {
-      b.addEventListener('click', () => close());
-    });
-  };
-
-  /** Plan overview: funding method info bottom sheet. */
+  /**
+   * Plan overview + My plans detail: one funding-method bottom sheet
+   * (`data-plan-overview-funding-info-sheet`).
+   */
   const initPlanOverviewFundingInfoSheet = () => {
     const sheet = document.querySelector('[data-plan-overview-funding-info-sheet]');
     if (!sheet) return;
@@ -2205,6 +2169,10 @@
     const titleEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-title]');
     const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
     if (!panel) return;
+
+    const paygoTitle = 'Pay as you go';
+    const paygoDesc =
+      'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Assets are automatically purchased at market price.';
 
     const closeSheet = () => {
       sheet.classList.remove('is-open');
@@ -2216,15 +2184,22 @@
       setTimeout(onEnd, 290);
     };
 
-    const open = () => {
-      const method = document.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || '';
-      const isReserved = /set aside/i.test(method);
-      const title = isReserved ? 'Set aside funds' : 'Pay as you go';
+    /** @param {'overview' | 'my-plans-detail'} source */
+    const open = (source) => {
+      let isReserved = false;
+      if (source === 'my-plans-detail') {
+        const main = document.querySelector('[data-my-plans-detail-funding-main]')?.textContent?.trim() || '';
+        isReserved = /\bset aside funds\b/i.test(main);
+      } else {
+        const method = document.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || '';
+        isReserved = /\bset aside/i.test(method);
+      }
+      const title = isReserved ? 'Set aside funds' : paygoTitle;
       if (titleEl) titleEl.textContent = title;
       if (descEl) {
         descEl.textContent = isReserved
           ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds anytime.'
-          : 'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.';
+          : paygoDesc;
       }
       sheet.setAttribute('aria-label', title);
       sheetOpenWithInstantBackdrop(sheet);
@@ -2234,9 +2209,18 @@
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        open();
+        open('overview');
       });
     });
+
+    document.querySelectorAll('[data-my-plans-funding-info-trigger]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open('my-plans-detail');
+      });
+    });
+
     sheet.querySelectorAll('[data-plan-overview-funding-info-sheet-close]').forEach((b) => {
       b.addEventListener('click', () => closeSheet());
     });
@@ -3186,6 +3170,29 @@
       return [];
     };
 
+    /** Curated / empty-state hero art — not valid as a per-asset allocation chip icon. */
+    const COMPOSITE_HERO_ICONS_FOR_ALLOC = new Set([
+      'assets/icon_bigthree.svg',
+      'assets/icon_digitalgold.svg',
+      'assets/icon_aiessentials.svg',
+      'assets/icon_noallocation.svg',
+    ]);
+
+    const resolveMyPlansAllocTickerIcon = (ticker) => {
+      const t = String(ticker || '').trim().toUpperCase();
+      if (!t) return '';
+      if (t === 'BTC') return 'assets/icon_currency_btc.svg';
+      if (t === 'ETH') return 'assets/icon_currency_eth.svg';
+      if (t === 'SOL' || t === 'SOLANA') return 'assets/icon_solana.svg';
+      if (t === 'USDT') return 'assets/icon_currency_usdt.svg';
+      if (t === 'XAUT') return 'assets/icon_currency_xaut.svg';
+      if (t === 'RENDER') return 'assets/icon_currency_render.svg';
+      if (t === 'NEAR') return 'assets/icon_currency_near.svg';
+      if (t === 'LINK') return 'assets/icon_currency_link.svg';
+      if (t === 'XRP') return 'assets/icon_currency_xrp.svg';
+      return '';
+    };
+
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'Your plan';
@@ -3198,6 +3205,12 @@
         .querySelector('[data-plan-detail-icon-wrap] img')
         ?.getAttribute('src')
         || 'assets/icon_currency_btc.svg';
+      const tickerKeysForAllocIcons = tickerLineRaw
+        ? tickerLineRaw.split(/[·,]/g).map((x) => x.trim().toUpperCase()).filter(Boolean)
+        : [];
+      const assetIconsFromTickerLine = tickerKeysForAllocIcons
+        .map((ticker) => ({ ticker, icon: resolveMyPlansAllocTickerIcon(ticker) }))
+        .filter((a) => a.icon);
       const amountRaw = parseInt(
         String(document.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
         10,
@@ -3239,7 +3252,7 @@
         tickers: tickers || 'BTC',
         assetMix,
         iconSrc: detailSingleIconSrc,
-        assetIcons: [{ ticker: tickers.split(' · ')[0] || 'BTC', icon: detailSingleIconSrc }],
+        assetIcons: assetIconsFromTickerLine,
         investLine,
         repeats,
         firstBuy: nextBuyDisplay,
@@ -3530,13 +3543,21 @@
         : (Number.isFinite(per) ? formatMoney(per * completedN, cur) : formatMoney(0, normalizeFxCurrency(cur)));
       list.appendChild(row('Total invested', totalInv));
 
-      // Pay-as-you-go only: "Uses your balance each buy" row.
+      // Pay-as-you-go only: matches plan detail Funding line (method · currency balance).
       if (!planRecord.isReserved) {
-        const balanceRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
-        balanceRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Paid from your balance'));
-        const bal = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive', 'Sufficient balance');
-        balanceRow.appendChild(bal);
-        list.appendChild(balanceRow);
+        const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
+        fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
+        fundRow.appendChild(
+          el(
+            'div',
+            'my-plans-position-card__row-value my-plans-position-card__row-value--positive',
+            `Pay as you go · ${cur} balance`,
+          ),
+        );
+        list.appendChild(fundRow);
+        list.appendChild(
+          el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', 'Sufficient balance'),
+        );
       }
 
       if (planRecord.isReserved) {
@@ -3704,6 +3725,8 @@
         const explicit = Array.isArray(rec.assetIcons)
           ? rec.assetIcons.find((a) => String(a?.ticker || '').trim().toUpperCase() === t && String(a?.icon || '').trim())
           : null;
+        const exIcon = String(explicit?.icon || '').trim();
+        const useExplicit = exIcon && !COMPOSITE_HERO_ICONS_FOR_ALLOC.has(exIcon);
         const names = {
           BTC: 'Bitcoin',
           ETH: 'Ethereum',
@@ -3714,16 +3737,13 @@
           LINK: 'Chainlink',
           XRP: 'XRP',
         };
-        const icon = explicit?.icon
-          || (t === 'BTC' ? 'assets/icon_currency_btc.svg'
-            : t === 'ETH' ? 'assets/icon_currency_eth.svg'
-              : t === 'SOL' ? 'assets/icon_solana.svg'
-                : t === 'XAUT' ? 'assets/icon_currency_xaut.svg'
-                  : t === 'RENDER' ? 'assets/icon_currency_render.svg'
-                    : t === 'NEAR' ? 'assets/icon_currency_near.svg'
-                      : t === 'LINK' ? 'assets/icon_currency_link.svg'
-                        : t === 'XRP' ? 'assets/icon_currency_xrp.svg'
-                          : (rec.iconSrc || 'assets/icon_currency_btc.svg'));
+        const recSrc = String(rec.iconSrc || '').trim();
+        const fallbackPlanIcon = recSrc && !COMPOSITE_HERO_ICONS_FOR_ALLOC.has(recSrc) ? recSrc : '';
+        const icon =
+          (useExplicit ? exIcon : '')
+          || resolveMyPlansAllocTickerIcon(t)
+          || fallbackPlanIcon
+          || 'assets/icon_currency_btc.svg';
         return { ticker: t, name: names[t] || t, icon };
       };
       if (allocationEl) {
@@ -3748,7 +3768,9 @@
       const totalAmt = inferredMoney?.amount || 0;
       const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
       if (totalInvestedEl) totalInvestedEl.textContent = rec.totalInvested || '—';
-      if (fundingMainEl) fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Paid from ${cur} balance`;
+      if (fundingMainEl) {
+        fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`;
+      }
       if (fundingSubEl) {
         const sub = rec.isReserved
           ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
@@ -3964,7 +3986,6 @@
   initSmartAllocInfoSheet();
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
-  initMyPlansFundingInfoSheet();
   initPlanOverviewFundingInfoSheet();
   initTopupSheet();
   initScheduleSheet();

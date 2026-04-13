@@ -11249,7 +11249,7 @@ div.currency-sheet__item-icon::before {
   border-radius: 30px;
   padding: 4px 8px;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.06);
+  background: #09441C;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -11322,6 +11322,10 @@ div.currency-sheet__item-icon::before {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.phone-container .my-plans-detail-panel__hero p.my-plans-detail-panel__status {
+  margin-top: 8px;
 }
 
 .my-plans-detail-panel__icons {
@@ -11445,7 +11449,6 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__ov-sub {
-  margin-top: 2px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -11455,7 +11458,6 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   gap: 3px;
-  margin-top: 2px;
 }
 
 .my-plans-detail-panel__ov-funding-line .my-plans-detail-panel__ov-sub {
@@ -11534,7 +11536,6 @@ div.currency-sheet__item-icon::before {
   border-radius: 0;
   background: transparent;
   padding: 0;
-  border-bottom: 1px solid #252627;
 }
 
 .my-plans-detail-panel__asset-card:last-child {
@@ -11557,7 +11558,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-detail-panel__asset-head {
-  padding: 16px 0px;
+  padding: 16px 0px 12px 0;
 }
 
 .my-plans-detail-panel__asset-left {
@@ -11598,7 +11599,7 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-detail-panel__asset-name {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 600;
   color: #9b9c9c;
 }
 
@@ -11611,14 +11612,16 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-detail-panel__asset-row {
   margin-top: 0;
-  padding: 6px 0px 0 40px;
+  padding: 6px 0px 0 0px;
   color: #9b9c9c;
   font-size: 12px;
+  font-weight: 600;
 }
 
 .my-plans-detail-panel__asset-rows {
   border-top: 1px solid #252627;
-  padding: 8px 0 14px 0;
+  padding: 4px 0 14px 0px;
+  margin-left: 40px;
 }
 
 .my-plans-detail-panel__asset-row strong {
