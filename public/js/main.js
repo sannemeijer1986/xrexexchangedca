@@ -3876,13 +3876,25 @@
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
           return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_green.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">Invested ${formatMoney(perBuyAmount, cur)}</span></div></div><button class="my-plans-detail-panel__act-toggle" type="button" data-my-plans-activity-toggle aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_green.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><button class="my-plans-detail-panel__act-toggle" type="button" data-my-plans-activity-toggle aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
         const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
           return buildCard(d, idx === 0);
         }).join('');
         activityEl.innerHTML = cards;
+        const renderedCards = Array.from(activityEl.querySelectorAll('[data-my-plans-activity-card]'));
+        renderedCards.forEach((rowCard, idx) => {
+          const expanded = idx === 0;
+          rowCard.classList.toggle('is-expanded', expanded);
+          rowCard.classList.toggle('is-collapsed', !expanded);
+          const rowToggle = rowCard.querySelector('[data-my-plans-activity-toggle]');
+          if (!rowToggle) return;
+          rowToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          rowToggle.setAttribute('aria-label', expanded ? 'Collapse activity' : 'Expand activity');
+          const icon = rowToggle.querySelector('img');
+          if (icon) icon.setAttribute('src', `assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg`);
+        });
       }
     };
 
@@ -3928,12 +3940,19 @@
       const card = toggleBtn.closest('[data-my-plans-activity-card]');
       if (!card) return;
       const nextExpanded = !card.classList.contains('is-expanded');
-      card.classList.toggle('is-expanded', nextExpanded);
-      card.classList.toggle('is-collapsed', !nextExpanded);
-      toggleBtn.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
-      toggleBtn.setAttribute('aria-label', nextExpanded ? 'Collapse activity' : 'Expand activity');
-      const icon = toggleBtn.querySelector('img');
-      if (icon) icon.setAttribute('src', `assets/icon_n_${nextExpanded ? 'collapse' : 'expand'}.svg`);
+      const cards = Array.from(detailPanel.querySelectorAll('[data-my-plans-activity-card]'));
+      cards.forEach((rowCard) => {
+        const isTarget = rowCard === card;
+        const shouldExpand = isTarget ? nextExpanded : false;
+        rowCard.classList.toggle('is-expanded', shouldExpand);
+        rowCard.classList.toggle('is-collapsed', !shouldExpand);
+        const rowToggle = rowCard.querySelector('[data-my-plans-activity-toggle]');
+        if (!rowToggle) return;
+        rowToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+        rowToggle.setAttribute('aria-label', shouldExpand ? 'Collapse activity' : 'Expand activity');
+        const icon = rowToggle.querySelector('img');
+        if (icon) icon.setAttribute('src', `assets/icon_n_${shouldExpand ? 'collapse' : 'expand'}.svg`);
+      });
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
