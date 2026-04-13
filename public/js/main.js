@@ -3770,7 +3770,10 @@
       const flowState = states.flow ?? 1;
       const recCompletedBuys = Number.isFinite(rec.completedBuys) ? Math.max(0, Math.floor(rec.completedBuys)) : 0;
       const completedN = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
-      if (completedEl) completedEl.textContent = `${completedN} buys`;
+      if (completedEl) {
+        completedEl.textContent = `${completedN} buys`;
+        completedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', completedN <= 0);
+      }
       const parsedTotalInvested = parseMoneyWithCurrency(rec.totalInvested || '');
       const perBuyMoney = parsePerBuyFromInvestLine(rec.investLine || '');
       const cur = parsedTotalInvested?.currency || perBuyMoney?.currency || currencyState.plan || 'TWD';
@@ -3780,7 +3783,10 @@
         else if (perBuyMoney && perBuyMoney.amount > 0) totalAmt = perBuyMoney.amount * completedN;
       }
       const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
-      if (totalInvestedEl) totalInvestedEl.textContent = formatMoney(totalAmt, cur);
+      if (totalInvestedEl) {
+        totalInvestedEl.textContent = formatMoney(totalAmt, cur);
+        totalInvestedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', totalAmt <= 0);
+      }
       if (fundingMainEl) {
         fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`;
       }
@@ -3822,9 +3828,11 @@
           const qty = amount > 0 ? amount / price : 0;
           const qtyTone = qty > 0 ? 'positive' : 'zero';
           const avgBuyPriceText = completedN > 0 ? formatMoney(price, cur) : '--';
+          const investedZeroClass = amount <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
+          const avgZeroClass = completedN <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${avgBuyPriceText}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong class="${avgZeroClass.trim()}">${avgBuyPriceText}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
