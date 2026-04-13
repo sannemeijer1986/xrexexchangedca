@@ -2152,6 +2152,51 @@
     });
   };
 
+  /** Plan overview: funding method info bottom sheet. */
+  const initPlanOverviewFundingInfoSheet = () => {
+    const sheet = document.querySelector('[data-plan-overview-funding-info-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const titleEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-title]');
+    const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
+    if (!panel) return;
+
+    const closeSheet = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const open = () => {
+      const method = document.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || '';
+      const isReserved = /set aside/i.test(method);
+      const title = isReserved ? 'Set aside funds' : 'Pay as you go';
+      if (titleEl) titleEl.textContent = title;
+      if (descEl) {
+        descEl.textContent = isReserved
+          ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds anytime.'
+          : 'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.';
+      }
+      sheet.setAttribute('aria-label', title);
+      sheetOpenWithInstantBackdrop(sheet);
+    };
+
+    document.querySelectorAll('[data-plan-overview-funding-info-open]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    });
+    sheet.querySelectorAll('[data-plan-overview-funding-info-sheet-close]').forEach((b) => {
+      b.addEventListener('click', () => closeSheet());
+    });
+  };
+
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
   const initScheduleSheet = () => {
     const sheet = document.querySelector('[data-schedule-sheet]');
@@ -3886,6 +3931,7 @@
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
   initMyPlansFundingInfoSheet();
+  initPlanOverviewFundingInfoSheet();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
@@ -6695,6 +6741,7 @@
         const prefundSubEl = overviewPanel.querySelector('[data-plan-overview-prefund-sub]');
         const firstBuyEl = overviewPanel.querySelector('[data-plan-overview-first-buy]');
         const deductSubEl = overviewPanel.querySelector('[data-plan-overview-deduct-sub]');
+        const deductValueEl = overviewPanel.querySelector('[data-plan-overview-deduct-value]');
 
         const multiItems = getActiveAllocMultiItems();
         const singleItems = panel.querySelectorAll('.plan-detail-panel__alloc-item');
@@ -6962,6 +7009,7 @@
         const balCur = currencyState.plan || 'TWD';
         const bal = BALANCES[balCur] ?? BALANCES.TWD;
         if (deductSubEl) deductSubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
+        if (deductValueEl) deductValueEl.textContent = `${cur} balance`;
       };
 
       const syncOverviewHeaderCollapse = () => {
