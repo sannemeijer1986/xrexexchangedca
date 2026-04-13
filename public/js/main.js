@@ -3862,25 +3862,27 @@
           return;
         }
         const now = new Date();
-        const mkStamp = (date) => `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}`;
-        const mkTime = (date) => `${date.getFullYear()} - ${date.toLocaleTimeString('en-US', { hour12: false })}`;
-        const spendBlock = () => `<div class="my-plans-detail-panel__activity-spend-col"><span class="my-plans-detail-panel__activity-spend-amt">- ${formatMoney(totalAmt || 5000, cur)}</span><span class="my-plans-detail-panel__activity-spend-src">From wallet</span></div>`;
-        const activityHead = (d, expanded) => `<div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><span class="my-plans-detail-panel__activity-date">${mkStamp(d)}</span><span class="my-plans-detail-panel__activity-time">${mkTime(d)}</span></div>${spendBlock()}<button class="my-plans-detail-panel__act-toggle" type="button" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div>`;
+        const perBuyAmount = perBuyMoney?.amount && perBuyMoney.amount > 0
+          ? perBuyMoney.amount
+          : (totalAmt > 0 && completedN > 0 ? totalAmt / completedN : 5000);
+        const mkDate = (date) =>
+          `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}, ${date.getFullYear()}`;
+        const mkTime = (date) => date.toLocaleTimeString('en-US', { hour12: false });
         const lines = mix.map((m) => {
           const meta = tickerMeta(m.ticker);
-          const amount = totalAmt > 0 ? (totalAmt * (m.pct / 100)) : 0;
+          const amount = perBuyAmount > 0 ? (perBuyAmount * (m.pct / 100)) : 0;
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
-          const qtyStr = String(qty.toFixed(8)).replace(/\.?0+$/, '') || '0';
-          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
+          const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const currentHead = `<article class="my-plans-detail-panel__activity-card">${activityHead(now, true)}<div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}<div class="my-plans-detail-panel__act-list-divider" aria-hidden="true"></div></div></article>`;
-        const older = [1, 2].map((idx) => {
+        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_green.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">Invested ${formatMoney(perBuyAmount, cur)}</span></div></div><button class="my-plans-detail-panel__act-toggle" type="button" data-my-plans-activity-toggle aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse' : 'Expand'} activity"><img src="assets/icon_n_${expanded ? 'collapse' : 'expand'}.svg" alt="" width="16" height="16" /></button></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
-          return `<article class="my-plans-detail-panel__activity-card my-plans-detail-panel__activity-card--compact">${activityHead(d, false)}</article>`;
+          return buildCard(d, idx === 0);
         }).join('');
-        activityEl.innerHTML = `${currentHead}${older}`;
+        activityEl.innerHTML = cards;
       }
     };
 
@@ -3918,6 +3920,20 @@
 
     detailPanel?.querySelector('[data-my-plans-detail-close]')?.addEventListener('click', () => {
       closePlanDetail(false);
+    });
+
+    detailPanel?.addEventListener('click', (e) => {
+      const toggleBtn = e.target.closest('[data-my-plans-activity-toggle]');
+      if (!toggleBtn || !detailPanel.contains(toggleBtn)) return;
+      const card = toggleBtn.closest('[data-my-plans-activity-card]');
+      if (!card) return;
+      const nextExpanded = !card.classList.contains('is-expanded');
+      card.classList.toggle('is-expanded', nextExpanded);
+      card.classList.toggle('is-collapsed', !nextExpanded);
+      toggleBtn.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
+      toggleBtn.setAttribute('aria-label', nextExpanded ? 'Collapse activity' : 'Expand activity');
+      const icon = toggleBtn.querySelector('img');
+      if (icon) icon.setAttribute('src', `assets/icon_n_${nextExpanded ? 'collapse' : 'expand'}.svg`);
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
