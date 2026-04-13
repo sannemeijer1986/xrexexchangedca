@@ -11325,7 +11325,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container .my-plans-detail-panel__hero p.my-plans-detail-panel__status {
-  margin-top: 8px;
+  margin-bottom: 4px;
 }
 
 .my-plans-detail-panel__icons {
@@ -11547,6 +11547,16 @@ div.currency-sheet__item-icon::before {
   border-radius: 16px;
   background: #151718;
   padding: 0;
+}
+
+.my-plans-detail-panel__activity-empty {
+  border-radius: 16px;
+  background: #151718;
+  padding: 16px;
+  color: #9b9c9c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .my-plans-detail-panel__asset-head,

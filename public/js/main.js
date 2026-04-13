@@ -3626,6 +3626,12 @@
 
     const syncMyPlansFromFlow = () => {
       renderMyPlansViews();
+      if (detailPanel?.classList.contains('is-open')) {
+        const activeId = String(detailPanel.getAttribute('data-my-plans-detail-plan-id') || '').trim();
+        const recs = getMyPlansRecords();
+        const rec = activeId ? recs.find((r) => String(r?.id || '') === activeId) : recs[0];
+        if (rec) populateMyPlansPlanDetail(rec);
+      }
     };
 
     syncMyPlansFlowUi = syncMyPlansFromFlow;
@@ -3761,13 +3767,20 @@
 
       const nextBuyText = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
       if (nextBuyEl) nextBuyEl.textContent = nextBuyText;
-      const completedN = Number.isFinite(rec.completedBuys) ? rec.completedBuys : 0;
+      const flowState = states.flow ?? 1;
+      const recCompletedBuys = Number.isFinite(rec.completedBuys) ? Math.max(0, Math.floor(rec.completedBuys)) : 0;
+      const completedN = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
       if (completedEl) completedEl.textContent = `${completedN} buys`;
-      const inferredMoney = parseMoneyWithCurrency(rec.totalInvested || '') || parsePerBuyFromInvestLine(rec.investLine || '');
-      const cur = inferredMoney?.currency || currencyState.plan || 'TWD';
-      const totalAmt = inferredMoney?.amount || 0;
+      const parsedTotalInvested = parseMoneyWithCurrency(rec.totalInvested || '');
+      const perBuyMoney = parsePerBuyFromInvestLine(rec.investLine || '');
+      const cur = parsedTotalInvested?.currency || perBuyMoney?.currency || currencyState.plan || 'TWD';
+      let totalAmt = 0;
+      if (flowState >= 3) {
+        if (parsedTotalInvested && parsedTotalInvested.amount > 0) totalAmt = parsedTotalInvested.amount;
+        else if (perBuyMoney && perBuyMoney.amount > 0) totalAmt = perBuyMoney.amount * completedN;
+      }
       const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
-      if (totalInvestedEl) totalInvestedEl.textContent = rec.totalInvested || '—';
+      if (totalInvestedEl) totalInvestedEl.textContent = formatMoney(totalAmt, cur);
       if (fundingMainEl) {
         fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`;
       }
@@ -3808,14 +3821,19 @@
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
           const qtyTone = qty > 0 ? 'positive' : 'zero';
+          const avgBuyPriceText = completedN > 0 ? formatMoney(price, cur) : '--';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${formatMoney(price, cur)}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)} ${m.ticker}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong>${formatMoney(amount, cur)}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong>${avgBuyPriceText}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
 
       if (activityEl) {
+        if (completedN <= 0) {
+          activityEl.innerHTML = '<div class="my-plans-detail-panel__activity-empty">No activity yet</div>';
+          return;
+        }
         const now = new Date();
         const mkStamp = (date) => `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}`;
         const mkTime = (date) => `${date.getFullYear()} - ${date.toLocaleTimeString('en-US', { hour12: false })}`;
@@ -3841,6 +3859,8 @@
 
     const openPlanDetail = (rec) => {
       if (!detailPanel || !rec) return;
+      if (rec.id) detailPanel.setAttribute('data-my-plans-detail-plan-id', String(rec.id));
+      else detailPanel.removeAttribute('data-my-plans-detail-plan-id');
       populateMyPlansPlanDetail(rec);
       detailPanel.hidden = false;
       if (detailScroller) detailScroller.scrollTop = 0;
