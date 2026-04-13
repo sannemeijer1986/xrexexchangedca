@@ -6635,6 +6635,7 @@
       const overviewPanel = panel.querySelector('[data-plan-overview-panel]');
       if (!overviewPanel) return { open: () => {}, close: () => {}, sync: () => {} };
       const overviewScroller = overviewPanel.querySelector('.plan-overview-panel__scroller');
+      const overviewHeader = overviewPanel.querySelector('.plan-overview-panel__header');
       const overviewConfirmBtn = overviewPanel.querySelector('[data-plan-overview-confirm]');
       const overviewConsentToggle = overviewPanel.querySelector('[data-plan-overview-consent-toggle]');
       const overviewConsentIcon = overviewPanel.querySelector('.plan-overview-panel__consent-icon');
@@ -6672,7 +6673,7 @@
       const syncFromPlanDetail = () => {
         const chipsEl = overviewPanel.querySelector('[data-plan-overview-chips]');
         const headingEl = overviewPanel.querySelector('[data-plan-overview-alloc-heading]');
-        const planNameEl = overviewPanel.querySelector('[data-plan-overview-plan-name]');
+        const headerTitleEl = overviewPanel.querySelector('[data-plan-overview-header-title]');
         const planAmountEl = overviewPanel.querySelector('[data-plan-overview-plan-amount]');
         const planMetaEl = overviewPanel.querySelector('[data-plan-overview-plan-meta]');
         const planIconWrap = overviewPanel.querySelector('[data-plan-overview-plan-icon-wrap]');
@@ -6747,10 +6748,8 @@
         const n = chips.length;
         if (headingEl) headingEl.textContent = `Allocation (${n})`;
 
-        if (planNameEl) {
-          const name = panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || '—';
-          planNameEl.textContent = name;
-        }
+        const planName = panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || '—';
+        if (headerTitleEl) headerTitleEl.textContent = planName;
 
         const amount = parseInt(String(amountInput?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
@@ -6772,8 +6771,8 @@
         const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
         const scheduleLine = formatScheduleNaturalLine(sched) || `Every ${freqUnit === 'day' ? 'day' : freqUnit}`;
         if (planAmountEl) {
-          planAmountEl.innerHTML = amount > 0
-            ? `Invest ${amount.toLocaleString('en-US')} ${cur}<br aria-hidden="true" /> ${scheduleLine}`
+          planAmountEl.textContent = amount > 0
+            ? `Invest ${amount.toLocaleString('en-US')} ${cur}`
             : '—';
         }
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
@@ -6785,9 +6784,9 @@
           repeatsEl.textContent = repeatsText || freqText;
         }
         if (planMetaEl) {
-          planMetaEl.textContent = timingDetail === '—'
-            ? `Repeats ${freqText}`
-            : `Repeats ${freqText} · ${timingDetail}`;
+          const schedText = scheduleLine || '';
+          planMetaEl.textContent = schedText;
+          planMetaEl.hidden = !schedText;
         }
 
         const fallbackPlanIcon =
@@ -6965,6 +6964,15 @@
         if (deductSubEl) deductSubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
       };
 
+      const syncOverviewHeaderCollapse = () => {
+        if (!overviewPanel || !overviewHeader || !overviewScroller) return;
+        const hero = overviewPanel.querySelector('.plan-overview-panel__gradient-wrap');
+        const threshold = Math.max(24, (hero?.offsetHeight || 100) - 20);
+        overviewHeader.classList.toggle('is-collapsed', overviewScroller.scrollTop >= threshold);
+      };
+
+      overviewScroller?.addEventListener('scroll', syncOverviewHeaderCollapse, { passive: true });
+
       const open = (openOpts = {}) => {
         planBreakdownApi.close();
         closeReserveInfo({ instant: true });
@@ -6972,6 +6980,7 @@
         overviewConsentChecked = false;
         syncOverviewConsentUI();
         if (overviewScroller) overviewScroller.scrollTop = 0;
+        overviewHeader?.classList.remove('is-collapsed');
         openedFromBuffer = !!openOpts.fromBuffer;
         panel.classList.add('is-plan-overview-open');
         overviewPanel.hidden = false;
@@ -6981,6 +6990,7 @@
       const close = (closeOpts = {}) => {
         if (closeOpts.instant) {
           closeReserveInfo({ instant: true });
+          overviewHeader?.classList.remove('is-collapsed');
           overviewPanel.style.transition = 'none';
           overviewPanel.classList.remove('is-open');
           void overviewPanel.offsetHeight;
@@ -6998,6 +7008,7 @@
           return;
         }
         closeReserveInfo({ instant: true });
+        overviewHeader?.classList.remove('is-collapsed');
         overviewPanel.classList.remove('is-open');
         const onEnd = () => {
           if (!overviewPanel.classList.contains('is-open')) {

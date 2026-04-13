@@ -7752,6 +7752,23 @@ div.currency-sheet__item-icon::before {
   background: #0d0e0f;
   position: relative;
   z-index: 2;
+  transition: background 0.25s ease;
+}
+
+.plan-overview-panel__header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #252627;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.plan-overview-panel__header.is-collapsed::after {
+  opacity: 1;
 }
 
 .plan-overview-panel__icon-btn {
@@ -7794,6 +7811,9 @@ div.currency-sheet__item-icon::before {
   color: #ffffff;
   line-height: 1.25;
   letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .plan-overview-panel__divider {
@@ -7891,11 +7911,14 @@ div.currency-sheet__item-icon::before {
 .plan-overview-panel__plan-meta {
   display: block;
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  display: none;
-  color: #8FB8FF;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
   line-height: 1.2;
+}
+
+.plan-overview-panel__plan-meta[hidden] {
+  display: none !important;
 }
 
 .plan-overview-panel__plan-icon-wrap {
