@@ -7796,7 +7796,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container p.plan-overview-panel__header-kicker {
-  margin: 0 0 2px;
+  margin: 0px;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
@@ -7868,7 +7868,7 @@ div.currency-sheet__item-icon::before {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px 0 0 0;
+  padding: 28px 0 0 0;
 }
 
 .plan-overview-panel__summary {
