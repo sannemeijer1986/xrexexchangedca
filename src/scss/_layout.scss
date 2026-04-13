@@ -12013,6 +12013,11 @@ div.currency-sheet__item-icon {
   margin-bottom: 24px;
 }
 
+// Flow progress "State 2" (build badge): no recent-activity block on plan detail.
+html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-stack {
+  display: none !important;
+}
+
 .my-plans-detail-panel__activity-stack .my-plans-detail-panel__cards[data-my-plans-detail-activity] {
   margin-top: 0;
   gap: 16px;

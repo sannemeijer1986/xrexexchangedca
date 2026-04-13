@@ -27,6 +27,11 @@
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const states = {};
 
+  /** Exposes flow progress on `<html>` so prototype-only SCSS can key off it. */
+  const syncPrototypeFlowToDocument = () => {
+    document.documentElement.dataset.prototypeFlow = String(states.flow ?? 1);
+  };
+
   /** Set by initMyPlansPanel — refreshes plan cards when Flow progress changes */
   let syncMyPlansFlowUi = () => {};
 
@@ -111,6 +116,7 @@
     }
     updateGroupUI(group);
     if (group === 'flow') {
+      syncPrototypeFlowToDocument();
       const fiCfg = STATE_CONFIGS.financeIntro;
       const introEffective =
         states.financeIntro
@@ -144,6 +150,7 @@
       }
       updateGroupUI(group);
     });
+    syncPrototypeFlowToDocument();
     syncFinanceSummaryVisibility();
     syncFinanceIntroState();
   };
