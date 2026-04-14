@@ -3656,7 +3656,13 @@
         return b;
       };
       const secondaryLabel = statusKey === 'ended' ? 'Re-create plan' : 'Manage plan';
-      leftActions.appendChild(btn(secondaryLabel, 'secondary', statusKey === 'ended' ? '' : 'data-plan-card-manage'));
+      leftActions.appendChild(
+        btn(
+          secondaryLabel,
+          'secondary',
+          statusKey === 'ended' ? 'data-plan-card-recreate' : 'data-plan-card-manage',
+        ),
+      );
       actions.appendChild(leftActions);
       actions.appendChild(btn('View detail', 'primary', 'data-plan-card-view-detail'));
       card.appendChild(actions);
@@ -4298,6 +4304,27 @@
       }, 360);
     };
 
+    const startRecreatePlanFlow = (sourceEl) => {
+      const rec = resolveManagePlanRecord(sourceEl);
+      if (rec) {
+        recreatePlanPrefillRecord = {
+          ...rec,
+          assetMix: Array.isArray(rec.assetMix) ? rec.assetMix.map((m) => ({ ...m })) : [],
+          assetIcons: Array.isArray(rec.assetIcons) ? rec.assetIcons.map((a) => ({ ...a })) : [],
+        };
+      }
+      closeManageSheet(true);
+      goFinance();
+      skipPlanAmountAutofocusOnce = true;
+      const planPanel = document.querySelector('[data-plan-detail-panel]');
+      planPanel?.classList.add('plan-detail-panel--handoff-top');
+      document.querySelector('[data-finance-new-plan]')?.click();
+      window.setTimeout(() => {
+        closeMyPlans(true);
+        planPanel?.classList.remove('plan-detail-panel--handoff-top');
+      }, 380);
+    };
+
     const openManageSheet = (sourceEl) => {
       if (!manageSheet) return;
       const rec = resolveManagePlanRecord(sourceEl);
@@ -4371,12 +4398,22 @@
     };
 
     detailPanel?.querySelector('[data-my-plans-detail-manage-trigger]')?.addEventListener('click', (e) => {
+      const rec = resolveManagePlanRecord(e.currentTarget);
+      if (rec?.status === 'ended') {
+        startRecreatePlanFlow(e.currentTarget);
+        return;
+      }
       openManageSheet(e.currentTarget);
     });
     panel.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-plan-card-manage]');
       if (!trigger || !panel.contains(trigger)) return;
       openManageSheet(trigger);
+    });
+    panel.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-plan-card-recreate]');
+      if (!trigger || !panel.contains(trigger)) return;
+      startRecreatePlanFlow(trigger);
     });
     manageSheet?.querySelectorAll('[data-my-plans-manage-sheet-close]').forEach((btn) => {
       btn.addEventListener('click', closeManageSheet);
@@ -4389,24 +4426,7 @@
           return;
         }
         if (action === 'recreate') {
-          const rec = resolveManagePlanRecord(btn);
-          if (rec) {
-            recreatePlanPrefillRecord = {
-              ...rec,
-              assetMix: Array.isArray(rec.assetMix) ? rec.assetMix.map((m) => ({ ...m })) : [],
-              assetIcons: Array.isArray(rec.assetIcons) ? rec.assetIcons.map((a) => ({ ...a })) : [],
-            };
-          }
-          closeManageSheet(true);
-          goFinance();
-          skipPlanAmountAutofocusOnce = true;
-          const planPanel = document.querySelector('[data-plan-detail-panel]');
-          planPanel?.classList.add('plan-detail-panel--handoff-top');
-          document.querySelector('[data-finance-new-plan]')?.click();
-          window.setTimeout(() => {
-            closeMyPlans(true);
-            planPanel?.classList.remove('plan-detail-panel--handoff-top');
-          }, 380);
+          startRecreatePlanFlow(btn);
           return;
         }
         if (action === 'pause' || action === 'resume' || action === 'end') {
