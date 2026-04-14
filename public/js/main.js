@@ -3,12 +3,13 @@
     flow: {
       storageKey: 'xrexexchange.dcaFlowState.v1',
       min: 1,
-      max: 4,
+      max: 5,
       labels: {
         1: 'No plans',
         2: 'Plan active',
         3: 'Plan bought assets',
         4: 'Plan paused',
+        5: 'Plan ended',
       },
     },
     financeIntro: {
@@ -3211,15 +3212,15 @@
       const t = String(ticker || '').trim().toUpperCase();
       const c = normalizeFxCurrency(cur || currencyState.plan || 'TWD');
       const avgByTickerTwd = {
-        BTC: 60000,
-        ETH: 3000,
-        SOL: 130,
-        XAUT: 2400,
-        RENDER: 7,
-        NEAR: 6,
-        LINK: 17,
-        XRP: 0.6,
-        USDT: 1,
+        BTC: 2831426,
+        ETH: 127438,
+        SOL: 4873,
+        XAUT: 103782,
+        RENDER: 217,
+        NEAR: 163,
+        LINK: 547,
+        XRP: 71.28,
+        USDT: 32.18,
         TWD: 1,
       };
       const twdValue = Number.isFinite(avgByTickerTwd[t]) ? avgByTickerTwd[t] : 100;
@@ -3306,9 +3307,9 @@
       }
       const applyFlowStatusOverride = (records) => {
         const flowState = states.flow ?? 1;
-        if (flowState !== 4) return records;
+        if (flowState !== 4 && flowState !== 5) return records;
         return records.map((rec) => {
-          const statusKey = rec?.status === 'ended' ? 'ended' : 'paused';
+          const statusKey = flowState === 5 ? 'ended' : rec?.status === 'ended' ? 'ended' : 'paused';
           return { ...rec, status: statusKey };
         });
       };
@@ -3618,27 +3619,29 @@
         else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
       }
       const totalInv = formatMoney(totalInvAmount, cur);
-      if (flowState !== 4) {
+      if (flowState !== 4 && flowState !== 5) {
         list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
       }
       list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
-      const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
-      fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
-      const fundValue = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive my-plans-position-card__row-value--with-check');
-      const check = document.createElement('img');
-      check.src = 'assets/icon_check_green.svg';
-      check.alt = '';
-      check.className = 'my-plans-position-card__row-check';
-      check.setAttribute('aria-hidden', 'true');
-      fundValue.appendChild(check);
-      fundValue.appendChild(
-        document.createTextNode(
-          planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
-        ),
-      );
-      fundRow.appendChild(fundValue);
-      list.appendChild(fundRow);
+      if (flowState !== 5) {
+        const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
+        fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
+        const fundValue = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive my-plans-position-card__row-value--with-check');
+        const check = document.createElement('img');
+        check.src = 'assets/icon_check_green.svg';
+        check.alt = '';
+        check.className = 'my-plans-position-card__row-check';
+        check.setAttribute('aria-hidden', 'true');
+        fundValue.appendChild(check);
+        fundValue.appendChild(
+          document.createTextNode(
+            planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
+          ),
+        );
+        fundRow.appendChild(fundValue);
+        list.appendChild(fundRow);
+      }
 
       body.appendChild(list);
       card.appendChild(body);
@@ -3652,7 +3655,8 @@
         if (dataAttr) b.setAttribute(dataAttr, '');
         return b;
       };
-      leftActions.appendChild(btn('Manage plan', 'secondary', 'data-plan-card-manage'));
+      const secondaryLabel = statusKey === 'ended' ? 'Re-create plan' : 'Manage plan';
+      leftActions.appendChild(btn(secondaryLabel, 'secondary', statusKey === 'ended' ? '' : 'data-plan-card-manage'));
       actions.appendChild(leftActions);
       actions.appendChild(btn('View detail', 'primary', 'data-plan-card-view-detail'));
       card.appendChild(actions);
@@ -3800,6 +3804,7 @@
       const nextBuyEl = detailPanel.querySelector('[data-my-plans-detail-next-buy]');
       const completedEl = detailPanel.querySelector('[data-my-plans-detail-completed]');
       const totalInvestedEl = detailPanel.querySelector('[data-my-plans-detail-total-invested]');
+      const fundingWrapEl = detailPanel.querySelector('[data-my-plans-detail-funding-wrap]');
       const fundingMainEl = detailPanel.querySelector('[data-my-plans-detail-funding-main]');
       const fundingSubEl = detailPanel.querySelector('[data-my-plans-detail-funding-sub]');
       const fundingCheckEl = detailPanel.querySelector('[data-my-plans-detail-funding-check]');
@@ -3809,8 +3814,10 @@
 
       const statusKey = rec.status === 'paused' ? 'paused' : rec.status === 'ended' ? 'ended' : 'active';
       detailPanel.setAttribute('data-plan-status', statusKey);
-      const statusText = statusKey === 'paused' ? 'Plan is paused' : statusKey === 'ended' ? 'Plan is ended' : 'Plan is active';
+      const statusText = statusKey === 'paused' ? 'Plan is paused' : statusKey === 'ended' ? 'Plan ended' : 'Plan is active';
       if (statusLabelEl) statusLabelEl.textContent = statusText;
+      const manageTriggerEl = detailPanel.querySelector('[data-my-plans-detail-manage-trigger]');
+      if (manageTriggerEl) manageTriggerEl.textContent = statusKey === 'ended' ? 'Re-create plan' : 'Manage plan';
       if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
       if (investLineEl) {
         const investLine = String(rec.investLine || '').trim();
@@ -3899,7 +3906,8 @@
 
       const nextBuyText = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
       const flowState = states.flow ?? 1;
-      if (nextBuyEl) nextBuyEl.textContent = flowState === 4 ? '- -' : nextBuyText;
+      if (nextBuyEl) nextBuyEl.textContent = (flowState === 4 || flowState === 5) ? '- -' : nextBuyText;
+      if (fundingWrapEl) fundingWrapEl.hidden = flowState === 5;
       const recCompletedBuys = Number.isFinite(rec.completedBuys) ? Math.max(0, Math.floor(rec.completedBuys)) : 0;
       const completedN = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
       if (completedEl) {
@@ -4292,7 +4300,11 @@
 
     const openManageSheet = (sourceEl) => {
       if (!manageSheet) return;
-      syncManageSheetUi(resolveManagePlanRecord(sourceEl));
+      const rec = resolveManagePlanRecord(sourceEl);
+      const statusKey =
+        rec?.status === 'paused' ? 'paused' : rec?.status === 'ended' ? 'ended' : 'active';
+      if (statusKey === 'ended') return;
+      syncManageSheetUi(rec);
       sheetOpenWithInstantBackdrop(manageSheet);
     };
 
@@ -4425,6 +4437,9 @@
         } else if (action === 'resume') {
           setState('flow', 3, { force: true });
           showMyPlansSnackbar('Plan resumed');
+        } else if (action === 'end') {
+          setState('flow', 5, { force: true });
+          showMyPlansSnackbar('Plan ended');
         }
         closeManageConfirmSheet(sheetEl, null, { stackPopDismiss: getBottomSheetStacking() });
         if (getBottomSheetStacking()) {

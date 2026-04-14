@@ -11177,15 +11177,15 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-position-card--ended .my-plans-position-card__tag-dot {
-  background: #c4c5c5;
+  background: #a3a3a3;
 }
 
 .my-plans-position-card--ended .my-plans-position-card__tag-text {
-  color: #c4c5c5;
+  color: #a3a3a3;
 }
 
 .my-plans-position-card--ended .my-plans-position-card__tag {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .my-plans-position-card__hero {
@@ -11834,7 +11834,6 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-detail-panel__ov-card--full {
   grid-column: 1/span 2;
-  min-height: 132px;
 }
 
 .my-plans-detail-panel__ov-label {
