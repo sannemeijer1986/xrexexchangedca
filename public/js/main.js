@@ -4201,6 +4201,8 @@
       if (!manageSheet || !rec) return;
       const statusKey =
         rec.status === 'paused' ? 'paused' : rec.status === 'ended' ? 'ended' : 'active';
+      const kickerEl = manageSheet.querySelector('[data-my-plans-manage-kicker]');
+      const statusEl = manageSheet.querySelector('[data-my-plans-manage-status]');
       const pauseRow = manageSheet.querySelector('[data-my-plans-manage-pause-row]');
       const endRow = manageSheet.querySelector('[data-my-plans-manage-end-row]');
       const d0 = manageSheet.querySelector('[data-my-plans-manage-divider="0"]');
@@ -4208,6 +4210,18 @@
       const pauseIcon = manageSheet.querySelector('[data-my-plans-manage-pause-icon]');
       const pauseLabel = manageSheet.querySelector('[data-my-plans-manage-pause-label]');
       const pauseBtn = manageSheet.querySelector('[data-my-plans-manage-pause-row]');
+      const planName = String(rec.kicker || rec.name || 'Your plan').trim();
+
+      manageSheet.setAttribute('data-plan-status', statusKey);
+      if (kickerEl) kickerEl.textContent = planName;
+      if (statusEl) {
+        statusEl.textContent =
+          statusKey === 'paused'
+            ? 'Plan is paused'
+            : statusKey === 'ended'
+              ? 'Plan is ended'
+              : 'Plan is active';
+      }
 
       if (statusKey === 'ended') {
         if (pauseRow) pauseRow.hidden = true;

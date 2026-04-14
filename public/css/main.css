@@ -3843,6 +3843,51 @@ div.currency-sheet__item-icon::before {
   margin-top: 0;
 }
 
+.currency-sheet__manage-plan-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+}
+
+.phone-container p.currency-sheet__manage-plan-kicker {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.phone-container p.currency-sheet__manage-plan-status {
+  margin: 0;
+  border-radius: 30px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5ac47d;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+[data-my-plans-manage-sheet][data-plan-status=paused] .currency-sheet__manage-plan-status {
+  color: #f1b347;
+  background: rgba(241, 179, 71, 0.16);
+}
+
+[data-my-plans-manage-sheet][data-plan-status=ended] .currency-sheet__manage-plan-status {
+  color: #9b9c9c;
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .currency-sheet__item--manage-plan {
   gap: 8px;
 }
