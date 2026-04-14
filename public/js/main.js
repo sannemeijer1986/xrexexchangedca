@@ -4146,6 +4146,69 @@
       syncManageSheetUi(resolveManagePlanRecord(sourceEl));
       sheetOpenWithInstantBackdrop(manageSheet);
     };
+
+    const manageConfirmSheets = {
+      pause: document.querySelector('[data-my-plans-manage-confirm-sheet="pause"]'),
+      resume: document.querySelector('[data-my-plans-manage-confirm-sheet="resume"]'),
+      end: document.querySelector('[data-my-plans-manage-confirm-sheet="end"]'),
+    };
+
+    const closeManageConfirmSheet = (sheetEl, onDone, opts = {}) => {
+      if (!sheetEl) {
+        onDone?.();
+        return;
+      }
+      const panelEl = sheetEl.querySelector('.currency-sheet__panel');
+      if (!panelEl) {
+        sheetEl.hidden = true;
+        onDone?.();
+        return;
+      }
+      const suppressNestedScrim = Boolean(opts.stackPopDismiss);
+      sheetCloseWithBackdropHandoff(sheetEl, panelEl, onDone, { suppressNestedScrim });
+    };
+
+    const setManageConfirmSheetContent = (sheetEl, action, rec) => {
+      if (!sheetEl || !rec) return;
+      const kickerEl = sheetEl.querySelector('[data-my-plans-manage-confirm-kicker]');
+      const titleEl = sheetEl.querySelector('[data-my-plans-manage-confirm-title]');
+      const descEl = sheetEl.querySelector('[data-my-plans-manage-confirm-desc]');
+      const submitEl = sheetEl.querySelector('[data-my-plans-manage-confirm-submit]');
+      const planName = String(rec.kicker || rec.name || 'Your plan').trim();
+      if (kickerEl) kickerEl.textContent = planName;
+      const actionLabel = action === 'resume' ? 'Resume' : action === 'end' ? 'End' : 'Pause';
+      if (titleEl) titleEl.textContent = `${actionLabel} this plan?`;
+      if (submitEl) submitEl.textContent = `${actionLabel} plan`;
+      if (descEl) {
+        if (action === 'resume') {
+          const nextBuy = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
+          descEl.textContent = `This will resume your automated buys: The next buy will be on ${nextBuy}.`;
+        } else if (action === 'end') {
+          descEl.textContent = 'Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet.';
+        } else {
+          descEl.textContent = 'Your automated buys will be put on hold. No new investments will be made until you resume.';
+        }
+      }
+    };
+
+    const openManageActionConfirmSheet = (action, sourceEl) => {
+      const sheetEl = manageConfirmSheets[action];
+      if (!sheetEl || !manageSheet) {
+        closeManageSheet();
+        return;
+      }
+      const rec = resolveManagePlanRecord(sourceEl);
+      if (rec) setManageConfirmSheetContent(sheetEl, action, rec);
+      const managePanelEl = manageSheet.querySelector('.currency-sheet__panel');
+      if (getBottomSheetStacking()) {
+        sheetOpenWithInstantBackdrop(sheetEl);
+        return;
+      }
+      sheetCloseWithBackdropHandoff(manageSheet, managePanelEl, () => {
+        sheetOpenWithInstantBackdrop(sheetEl);
+      });
+    };
+
     detailPanel?.querySelector('[data-my-plans-detail-manage-trigger]')?.addEventListener('click', (e) => {
       openManageSheet(e.currentTarget);
     });
@@ -4167,8 +4230,34 @@
           }, 320);
           return;
         }
+        if (action === 'pause' || action === 'resume' || action === 'end') {
+          openManageActionConfirmSheet(action, btn);
+          return;
+        }
         closeManageSheet();
       });
+    });
+
+    Object.entries(manageConfirmSheets).forEach(([action, sheetEl]) => {
+      if (!sheetEl) return;
+      sheetEl.querySelectorAll('[data-my-plans-manage-confirm-close]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (getBottomSheetStacking()) {
+            closeManageConfirmSheet(sheetEl, null, { stackPopDismiss: true });
+            return;
+          }
+          closeManageConfirmSheet(sheetEl, () => {
+            openManageSheet();
+          });
+        });
+      });
+      sheetEl.querySelector('[data-my-plans-manage-confirm-submit]')?.addEventListener('click', () => {
+        closeManageConfirmSheet(sheetEl, null, { stackPopDismiss: getBottomSheetStacking() });
+        if (getBottomSheetStacking()) {
+          closeManageSheet();
+        }
+      });
+      sheetEl.setAttribute('aria-label', `${action} plan`);
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {

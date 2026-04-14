@@ -3923,6 +3923,66 @@ div.currency-sheet__item-icon {
   background: #275cfd;
 }
 
+[data-my-plans-manage-confirm-sheet] {
+  z-index: 48;
+}
+
+.currency-sheet__body--manage-confirm {
+  gap: 8px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.currency-sheet__manage-confirm-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 8px;
+}
+
+.phone-container p.currency-sheet__manage-confirm-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
+.currency-sheet__title--manage-confirm {
+  margin-top: 0;
+}
+
+.phone-container p.currency-sheet__manage-confirm-desc {
+  margin: 0;
+  width: 100%;
+  color: #9b9c9c;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.currency-sheet__footer--manage-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-my-plans-manage-confirm-sheet] .currency-sheet__cancel--manage-confirm-secondary {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+
+[data-my-plans-manage-confirm-sheet] .currency-sheet__cancel--manage-confirm-primary {
+  background: #275cfd;
+  color: #ffffff;
+}
+
+[data-my-plans-manage-confirm-sheet] .currency-sheet__cancel--manage-confirm-danger {
+  background: #eb5347;
+  color: #ffffff;
+}
+
 [data-my-plans-manage-sheet] .currency-sheet__cancel--manage-back {
   background: #275cfd;
   color: #ffffff;
