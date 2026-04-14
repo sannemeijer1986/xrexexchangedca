@@ -1237,6 +1237,8 @@
   let myPlansPrefillPlan = null;
   /** One-shot handoff: "Re-create this plan" -> open Plan with prefill. */
   let recreatePlanPrefillRecord = null;
+  /** One-shot UI override: skip amount autofocus when entering Plan via Re-create. */
+  let skipPlanAmountAutofocusOnce = false;
 
   // Static FX for prototype: 1 USD ≈ 32 TWD
   const FX_USD_TWD = 32;
@@ -4301,9 +4303,15 @@
             };
           }
           closeManageSheet(true);
-          closeMyPlans(true);
           goFinance();
+          skipPlanAmountAutofocusOnce = true;
+          const planPanel = document.querySelector('[data-plan-detail-panel]');
+          planPanel?.classList.add('plan-detail-panel--handoff-top');
           document.querySelector('[data-finance-new-plan]')?.click();
+          window.setTimeout(() => {
+            closeMyPlans(true);
+            planPanel?.classList.remove('plan-detail-panel--handoff-top');
+          }, 380);
           return;
         }
         if (action === 'pause' || action === 'resume' || action === 'end') {
@@ -9112,11 +9120,15 @@
       newPlanBtn.addEventListener('click', () => {
         // Always reset custom title when starting a fresh New plan flow.
         customPlanTitle = '';
+        const shouldAutofocusAmount = !skipPlanAmountAutofocusOnce;
+        skipPlanAmountAutofocusOnce = false;
         setOpen(true, { source: 'newplan' });
-        setTimeout(() => {
-          const inp = panel.querySelector('[data-plan-detail-amount-input]');
-          inp?.focus();
-        }, 380);
+        if (shouldAutofocusAmount) {
+          setTimeout(() => {
+            const inp = panel.querySelector('[data-plan-detail-amount-input]');
+            inp?.focus();
+          }, 380);
+        }
       });
     }
     closeButtons.forEach((btn) => {
