@@ -4677,6 +4677,7 @@
     let snackbarTimer = null;
     let snackbarEl = null;
     let funding2PanelEl = null;
+    let funding2SyncFromOriginal = null;
     const funding2ExitSheet = document.querySelector('[data-funding2-exit-sheet]');
     const funding2ExitSheetPanel = funding2ExitSheet?.querySelector('.currency-sheet__panel');
 
@@ -4749,14 +4750,110 @@
       const headerCloseBtn = clone.querySelector('[data-plan-buffer-back]');
       if (headerCloseBtn) {
         headerCloseBtn.setAttribute('data-plan-buffer2-exit-open', 'true');
-        headerCloseBtn.setAttribute('aria-label', 'Close');
+        headerCloseBtn.setAttribute('aria-label', 'Back');
         const icon = headerCloseBtn.querySelector('img');
-        if (icon) icon.setAttribute('src', 'assets/icon_close.svg');
+        if (icon) icon.setAttribute('src', 'assets/icon_back.svg');
       }
       clone.querySelector('[data-plan-buffer-back-bottom]')?.setAttribute('data-plan-buffer2-close', 'true');
       container.appendChild(clone);
       clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
       clone.querySelector('[data-plan-buffer2-close]')?.addEventListener('click', closeFunding2Panel);
+
+      const originalNodes = Array.from(baseFundingPanel.querySelectorAll('*'));
+      const cloneNodes = Array.from(clone.querySelectorAll('*'));
+      const bindCount = Math.min(originalNodes.length, cloneNodes.length);
+      for (let i = 0; i < bindCount; i += 1) {
+        originalNodes[i].setAttribute('data-funding2-sync-id', String(i));
+        cloneNodes[i].setAttribute('data-funding2-sync-id', String(i));
+      }
+      const getOriginalBySyncId = (syncId) =>
+        baseFundingPanel.querySelector(`[data-funding2-sync-id="${syncId}"]`);
+
+      const syncOneNode = (origNode, cloneNode) => {
+        if (!origNode || !cloneNode) return;
+        cloneNode.className = origNode.className;
+        cloneNode.hidden = origNode.hidden;
+        if ('disabled' in cloneNode && 'disabled' in origNode) {
+          cloneNode.disabled = !!origNode.disabled;
+        }
+        if (origNode.hasAttribute('aria-pressed')) {
+          cloneNode.setAttribute('aria-pressed', origNode.getAttribute('aria-pressed') || 'false');
+        }
+        if (origNode.hasAttribute('aria-selected')) {
+          cloneNode.setAttribute('aria-selected', origNode.getAttribute('aria-selected') || 'false');
+        }
+        if (cloneNode instanceof HTMLInputElement && origNode instanceof HTMLInputElement) {
+          cloneNode.value = origNode.value;
+          cloneNode.checked = origNode.checked;
+        } else if (
+          cloneNode.childElementCount === 0
+          && origNode.childElementCount === 0
+          && cloneNode.textContent !== origNode.textContent
+        ) {
+          cloneNode.textContent = origNode.textContent;
+        }
+      };
+
+      const syncFromOriginal = () => {
+        clone.querySelectorAll('[data-funding2-sync-id]').forEach((node) => {
+          const syncId = node.getAttribute('data-funding2-sync-id');
+          if (!syncId) return;
+          const origNode = getOriginalBySyncId(syncId);
+          if (!origNode) return;
+          if (node.hasAttribute('data-plan-buffer2-exit-open') || node.hasAttribute('data-plan-buffer2-close')) return;
+          syncOneNode(origNode, node);
+        });
+      };
+
+      const handleCloneClick = (e) => {
+        const target = e.target.closest('[data-funding2-sync-id]');
+        if (!target || !clone.contains(target)) return;
+        if (target.hasAttribute('data-plan-buffer2-exit-open') || target.hasAttribute('data-plan-buffer2-close')) return;
+        const syncId = target.getAttribute('data-funding2-sync-id');
+        if (!syncId) return;
+        const origTarget = getOriginalBySyncId(syncId);
+        if (!origTarget) return;
+        if (origTarget instanceof HTMLElement) {
+          origTarget.click();
+          requestAnimationFrame(syncFromOriginal);
+        }
+      };
+
+      const handleCloneInput = (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        const syncId = target.getAttribute('data-funding2-sync-id');
+        if (!syncId) return;
+        const origTarget = getOriginalBySyncId(syncId);
+        if (!(origTarget instanceof HTMLInputElement)) return;
+        origTarget.value = target.value;
+        if (target.type === 'checkbox' || target.type === 'radio') origTarget.checked = target.checked;
+        origTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        requestAnimationFrame(syncFromOriginal);
+      };
+
+      const handleCloneChange = (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
+        const syncId = target.getAttribute('data-funding2-sync-id');
+        if (!syncId) return;
+        const origTarget = getOriginalBySyncId(syncId);
+        if (!origTarget) return;
+        if (origTarget instanceof HTMLInputElement || origTarget instanceof HTMLSelectElement) {
+          origTarget.value = target.value;
+          if (origTarget instanceof HTMLInputElement && target instanceof HTMLInputElement) {
+            origTarget.checked = target.checked;
+          }
+          origTarget.dispatchEvent(new Event('change', { bubbles: true }));
+          requestAnimationFrame(syncFromOriginal);
+        }
+      };
+
+      clone.addEventListener('click', handleCloneClick);
+      clone.addEventListener('input', handleCloneInput);
+      clone.addEventListener('change', handleCloneChange);
+      funding2SyncFromOriginal = syncFromOriginal;
+      syncFromOriginal();
       funding2PanelEl = clone;
       return funding2PanelEl;
     };
@@ -4765,6 +4862,7 @@
       const teardownPlanFlow = opts.teardownPlanFlow !== false;
       const funding2 = ensureFunding2Panel();
       if (!funding2) return;
+      funding2SyncFromOriginal?.();
       if (funding2.querySelector('.plan-buffer-panel__scroller')) {
         funding2.querySelector('.plan-buffer-panel__scroller').scrollTop = 0;
       }
