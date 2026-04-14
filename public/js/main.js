@@ -3206,6 +3206,26 @@
       return '';
     };
 
+    /** Static prototype average prices (authored in TWD), converted for display currency when needed. */
+    const getPrototypeAveragePrice = (ticker, cur) => {
+      const t = String(ticker || '').trim().toUpperCase();
+      const c = normalizeFxCurrency(cur || currencyState.plan || 'TWD');
+      const avgByTickerTwd = {
+        BTC: 60000,
+        ETH: 3000,
+        SOL: 130,
+        XAUT: 2400,
+        RENDER: 7,
+        NEAR: 6,
+        LINK: 17,
+        XRP: 0.6,
+        USDT: 1,
+        TWD: 1,
+      };
+      const twdValue = Number.isFinite(avgByTickerTwd[t]) ? avgByTickerTwd[t] : 100;
+      return convertFx(twdValue, 'TWD', c);
+    };
+
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan';
@@ -3930,9 +3950,10 @@
           const flow2ZeroPlaceholder = '- -';
           const investedRowText =
             amount <= 0 && flowState === 2 ? flow2ZeroPlaceholder : formatMoney(amount, cur);
+          const avgPrice = getPrototypeAveragePrice(m.ticker, cur);
           const avgRowText =
             completedN > 0
-              ? formatMoney(price, cur)
+              ? formatMoney(avgPrice, cur)
               : flowState === 2
                 ? flow2ZeroPlaceholder
                 : '--';
@@ -4119,7 +4140,8 @@
       const parentAvgPrice = getParentAverageBuyPrice();
       setText('[data-my-plans-activity-detail-pair]', `${ticker} / ${payCur}`);
       setText('[data-my-plans-activity-detail-amount]', `≈ ${gainNum} ${ticker} / ${gainNum} ${ticker}`);
-      setText('[data-my-plans-activity-detail-avg-price]', parentAvgPrice || `${payAmt} ${payCur}`);
+      const fallbackAvg = formatMoney(getPrototypeAveragePrice(ticker, payCur), payCur);
+      setText('[data-my-plans-activity-detail-avg-price]', parentAvgPrice || fallbackAvg);
       setText('[data-my-plans-activity-detail-total]', `${payAmt} ${payCur}`);
       setText('[data-my-plans-activity-detail-actual-amount]', `${gainNum} ${ticker}`);
       setText('[data-my-plans-activity-detail-actual-total]', `${payAmt} ${payCur}`);

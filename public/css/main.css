@@ -10498,9 +10498,9 @@ div.currency-sheet__item-icon::before {
 }
 
 .plan-success-panel__body {
-  flex: 1;
   min-height: 0;
   padding: 32px 16px 16px;
+  margin-top: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10672,6 +10672,17 @@ div.currency-sheet__item-icon::before {
 .plan-success-panel__btn--secondary {
   background: #2d2f2f;
   color: #ffffff;
+}
+
+.plan-success-panel__btn--skip {
+  width: auto;
+  height: auto;
+  align-self: center;
+  border-radius: 0;
+  background: transparent;
+  color: #3f78ff;
+  font-size: 14px;
+  padding: 0;
 }
 
 .plan-buffer-panel[data-plan-buffer-panel-2] {
