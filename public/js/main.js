@@ -3677,8 +3677,12 @@
     const closeActivityDetail = (instant = false) => {
       if (!activityDetailPanel) return;
       if (instant) {
+        const prevTransition = activityDetailPanel.style.transition;
+        activityDetailPanel.style.transition = 'none';
         activityDetailPanel.classList.remove('is-open');
         activityDetailPanel.hidden = true;
+        void activityDetailPanel.offsetHeight;
+        activityDetailPanel.style.transition = prevTransition;
         return;
       }
       activityDetailPanel.classList.remove('is-open');
@@ -3693,11 +3697,15 @@
     const closePlanDetail = (instant = false) => {
       if (!detailPanel) return;
       if (instant) {
+        const prevTransition = detailPanel.style.transition;
+        detailPanel.style.transition = 'none';
         detailPanel.classList.remove('is-open');
         detailHeader?.classList.remove('is-collapsed');
         closeActivityDetail(true);
         if (detailScroller) detailScroller.scrollTop = 0;
         detailPanel.hidden = true;
+        void detailPanel.offsetHeight;
+        detailPanel.style.transition = prevTransition;
         return;
       }
       detailPanel.classList.remove('is-open');
@@ -4293,16 +4301,9 @@
             };
           }
           closeManageSheet(true);
+          closeMyPlans(true);
           goFinance();
-          const planPanel = document.querySelector('[data-plan-detail-panel]');
-          planPanel?.classList.add('plan-detail-panel--handoff-top');
-          requestAnimationFrame(() => {
-            document.querySelector('[data-finance-new-plan]')?.click();
-            window.setTimeout(() => {
-              closeMyPlans(true);
-              planPanel?.classList.remove('plan-detail-panel--handoff-top');
-            }, 380);
-          });
+          document.querySelector('[data-finance-new-plan]')?.click();
           return;
         }
         if (action === 'pause' || action === 'resume' || action === 'end') {
@@ -4388,9 +4389,13 @@
 
     const closeMyPlans = (instant = false) => {
       if (instant) {
+        const prevTransition = panel.style.transition;
+        panel.style.transition = 'none';
         closePlanDetail(true);
         panel.classList.remove('is-open');
         panel.hidden = true;
+        void panel.offsetHeight;
+        panel.style.transition = prevTransition;
         if (container) {
           container.classList.remove('is-my-plans-open');
           container.classList.remove('is-my-plans-fading');
@@ -8651,13 +8656,32 @@
       };
 
       const mixRaw = Array.isArray(rec.assetMix) ? rec.assetMix : [];
-      const mix = mixRaw
+      let mix = mixRaw
         .map((m) => ({
           ticker: String(m?.ticker || '').trim().toUpperCase(),
           pct: Number.isFinite(Number(m?.pct)) ? Math.max(0, Math.round(Number(m.pct))) : 0,
         }))
         .filter((m) => m.ticker)
         .slice(0, 3);
+
+      if (!mix.length) {
+        const tickers = String(rec.tickers || '')
+          .split(/[·,]/g)
+          .map((t) => String(t || '').trim().toUpperCase())
+          .filter(Boolean)
+          .slice(0, 3);
+        if (tickers.length === 1) {
+          mix = [{ ticker: tickers[0], pct: 100 }];
+        } else if (tickers.length > 1) {
+          const base = Math.floor(100 / tickers.length);
+          let rem = 100 - (base * tickers.length);
+          mix = tickers.map((ticker) => {
+            const pct = base + (rem > 0 ? 1 : 0);
+            if (rem > 0) rem -= 1;
+            return { ticker, pct };
+          });
+        }
+      }
 
       if (mix.length) {
         const items = mix.map((m) => {
