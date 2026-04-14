@@ -11666,8 +11666,8 @@ div.currency-sheet__item-icon::before {
 }
 
 .phone-container .my-plans-detail-panel[data-plan-status=paused] p.my-plans-detail-panel__status {
-  color: #f1b347;
-  background: rgba(241, 179, 71, 0.16);
+  color: #9b9c9c;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .phone-container .my-plans-detail-panel[data-plan-status=ended] p.my-plans-detail-panel__status {

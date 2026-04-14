@@ -3694,9 +3694,6 @@
 
     const syncMyPlansFromFlow = () => {
       renderMyPlansViews();
-      if ((states.flow ?? 1) === 4 && activeFilter === 'active') {
-        setFilter('paused');
-      }
       if (detailPanel?.classList.contains('is-open')) {
         const activeId = String(detailPanel.getAttribute('data-my-plans-detail-plan-id') || '').trim();
         const recs = getMyPlansRecords();
@@ -3710,7 +3707,7 @@
     let backFromPlanSuccessView = false;
     let myPlansCopySnackbarTimer = null;
 
-    const showMyPlansCopySnackbar = (message) => {
+    const showMyPlansSnackbar = (message) => {
       if (!container) return;
       let el = container.querySelector('[data-my-plans-copy-snackbar]');
       if (!el) {
@@ -3721,7 +3718,7 @@
         el.setAttribute('aria-live', 'polite');
         el.innerHTML = `
           <span class="snackbar__icon" aria-hidden="true">
-            <img src="assets/icon_timeline_activewarning.svg" alt="" />
+            <img src="assets/icon_success_screen.svg" alt="" />
           </span>
           <span data-my-plans-copy-snackbar-text></span>
         `;
@@ -3740,6 +3737,10 @@
       myPlansCopySnackbarTimer = window.setTimeout(() => {
         el.classList.remove('is-visible');
       }, 1800);
+    };
+
+    const showMyPlansCopySnackbar = (message) => {
+      showMyPlansSnackbar(message);
     };
 
     const closeActivityDetail = (instant = false) => {
@@ -4420,8 +4421,10 @@
       sheetEl.querySelector('[data-my-plans-manage-confirm-submit]')?.addEventListener('click', () => {
         if (action === 'pause') {
           setState('flow', 4, { force: true });
+          showMyPlansSnackbar('Plan paused');
         } else if (action === 'resume') {
           setState('flow', 3, { force: true });
+          showMyPlansSnackbar('Plan resumed');
         }
         closeManageConfirmSheet(sheetEl, null, { stackPopDismiss: getBottomSheetStacking() });
         if (getBottomSheetStacking()) {
@@ -4462,7 +4465,7 @@
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       closePlanDetail(true);
       syncMyPlansFromFlow();
-      setFilter((states.flow ?? 1) === 4 ? 'paused' : 'active');
+      setFilter(activeFilter || 'active');
       panel.hidden = false;
       if (container) {
         container.classList.remove('is-my-plans-open');
