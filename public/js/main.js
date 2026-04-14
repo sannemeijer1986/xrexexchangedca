@@ -3596,7 +3596,7 @@
       fundValue.appendChild(check);
       fundValue.appendChild(
         document.createTextNode(
-          planRecord.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`,
+          planRecord.isReserved ? 'Pre-fund' : `Pay as you go`,
         ),
       );
       fundRow.appendChild(fundValue);
@@ -3837,7 +3837,7 @@
         totalInvestedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', totalAmt <= 0);
       }
       if (fundingMainEl) {
-        fundingMainEl.textContent = rec.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`;
+        fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Pay as you go`;
       }
       if (fundingSubEl) {
         const sub = rec.isReserved
