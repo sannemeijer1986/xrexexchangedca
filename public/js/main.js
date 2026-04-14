@@ -2181,9 +2181,9 @@
     const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
     if (!panel) return;
 
-    const paygoTitle = 'Pay as you go';
+    const paygoTitle = 'Deduct from balance';
     const paygoDesc =
-      'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Assets are automatically purchased at market price.';
+      'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.' + '\n\n' + 'Orders execute between 08:00 AM and 10:00 AM. Assets are automatically purchased at market price.';
 
     const closeSheet = () => {
       sheet.classList.remove('is-open');
@@ -3604,7 +3604,7 @@
       fundValue.appendChild(check);
       fundValue.appendChild(
         document.createTextNode(
-          planRecord.isReserved ? 'Pre-fund' : `Pay as you go`,
+          planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
         ),
       );
       fundRow.appendChild(fundValue);
@@ -3853,12 +3853,12 @@
         totalInvestedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', totalAmt <= 0);
       }
       if (fundingMainEl) {
-        fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Pay as you go`;
+        fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from ${cur} balance`;
       }
       if (fundingSubEl) {
         const sub = rec.isReserved
           ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
-          : `Sufficient ${cur} balance`;
+          : `Sufficient balance`;
         fundingSubEl.textContent = sub;
         const subTrim = String(sub || '').trim();
         if (fundingCheckEl) fundingCheckEl.hidden = !subTrim;
@@ -7547,7 +7547,7 @@
 
         const selectedMethod = planBufferOverviewState.mode === 'reserved' ? 'reserved' : 'flexible';
         if (paymentMethodEl) {
-          paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Set aside funds' : 'Pay as you go';
+          paymentMethodEl.textContent = selectedMethod === 'reserved' ? 'Pre-fund' : '${cur} balance';
         }
         if (paymentMethodSubEl) {
           const showPaymentMethodSub = selectedMethod === 'reserved';

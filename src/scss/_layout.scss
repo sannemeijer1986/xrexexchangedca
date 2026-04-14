@@ -3696,6 +3696,10 @@ button.finance-summary__stat-value--chevron {
   line-height: 1.35;
 }
 
+[data-plan-overview-funding-info-sheet] .currency-sheet__desc {
+  white-space: pre-line;
+}
+
 .phone-container p.currency-sheet__subtitle {
   margin: -8px 0 0;
   padding: 0 8px;
