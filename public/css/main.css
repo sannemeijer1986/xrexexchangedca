@@ -12003,7 +12003,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 .my-plans-detail-panel__activity-invested-line {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
 }
 
 .my-plans-detail-panel__activity-invested-icon {
