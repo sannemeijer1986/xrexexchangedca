@@ -3395,29 +3395,71 @@
       if (!target) return;
       target.innerHTML = '';
       const mixRaw = Array.isArray(planRecord?.assetMix) ? planRecord.assetMix : [];
-      const mix = mixRaw
+      let mix = mixRaw
         .map((x) => ({
           ticker: String(x?.ticker || '').trim().toUpperCase(),
           pct: Number.isFinite(Number(x?.pct)) ? Math.max(0, Math.round(Number(x.pct))) : NaN,
         }))
         .filter((x) => x.ticker);
-      if (mix.length > 1) {
-        mix.forEach((x) => {
-          const seg = document.createElement('span');
-          seg.className = 'my-plans-position-card__ticker-seg';
-          const tk = document.createElement('span');
-          tk.className = 'my-plans-position-card__ticker-symbol';
-          tk.textContent = x.ticker;
-          const pct = document.createElement('span');
-          pct.className = 'my-plans-position-card__ticker-pct';
-          pct.textContent = Number.isFinite(x.pct) ? `${x.pct}%` : '';
-          seg.appendChild(tk);
-          if (pct.textContent) seg.appendChild(pct);
-          target.appendChild(seg);
-        });
-        return;
+
+      const tickerList = String(planRecord?.tickers || '')
+        .split(/[·,]/g)
+        .map((x) => x.trim().toUpperCase())
+        .filter(Boolean);
+      if (!mix.length && tickerList.length) {
+        if (tickerList.length === 1) {
+          mix = [{ ticker: tickerList[0], pct: 100 }];
+        } else {
+          const base = Math.floor(100 / tickerList.length);
+          let rem = 100 - (base * tickerList.length);
+          mix = tickerList.map((ticker) => {
+            const pct = base + (rem > 0 ? 1 : 0);
+            if (rem > 0) rem -= 1;
+            return { ticker, pct };
+          });
+        }
       }
-      target.textContent = planRecord?.tickers || 'BTC · ETH · SOL';
+
+      const fallbackPlanIcon = (() => {
+        const src = String(planRecord?.iconSrc || '').trim();
+        return src && !COMPOSITE_HERO_ICONS_FOR_ALLOC.has(src) ? src : '';
+      })();
+      const resolveTickerIcon = (ticker) => {
+        const t = String(ticker || '').trim().toUpperCase();
+        const explicit = Array.isArray(planRecord?.assetIcons)
+          ? planRecord.assetIcons.find((a) => (
+            String(a?.ticker || '').trim().toUpperCase() === t
+              && String(a?.icon || '').trim()
+              && !COMPOSITE_HERO_ICONS_FOR_ALLOC.has(String(a?.icon || '').trim())
+          ))
+          : null;
+        return String(explicit?.icon || '').trim() || resolveMyPlansAllocTickerIcon(t) || fallbackPlanIcon || 'assets/icon_currency_btc.svg';
+      };
+
+      mix.forEach((x) => {
+        const seg = document.createElement('span');
+        seg.className = 'my-plans-position-card__ticker-seg';
+
+        const icon = document.createElement('img');
+        icon.className = 'my-plans-position-card__ticker-icon';
+        icon.src = resolveTickerIcon(x.ticker);
+        icon.alt = '';
+        icon.setAttribute('aria-hidden', 'true');
+        seg.appendChild(icon);
+
+        const meta = document.createElement('span');
+        meta.className = 'my-plans-position-card__ticker-meta';
+        const tk = document.createElement('span');
+        tk.className = 'my-plans-position-card__ticker-symbol';
+        tk.textContent = x.ticker;
+        meta.appendChild(tk);
+        const pct = document.createElement('span');
+        pct.className = 'my-plans-position-card__ticker-pct';
+        pct.textContent = Number.isFinite(x.pct) ? `${x.pct}%` : '';
+        if (pct.textContent) meta.appendChild(pct);
+        seg.appendChild(meta);
+        target.appendChild(seg);
+      });
     };
 
     const syncMyPlansLabels = () => {
@@ -3462,27 +3504,13 @@
       card.setAttribute('data-plan-status', statusKey);
       if (planRecord.id) card.setAttribute('data-my-plans-plan-id', String(planRecord.id));
 
-      // Header: product row + auto-investing (divider below via CSS)
+      // Header: product row
       const head = el('div', 'my-plans-position-card__head');
       const headRow = el('div', 'my-plans-position-card__head-row');
       const left = el('div', 'my-plans-position-card__head-left');
 
-      // Icon stack: reuse plan-detail-panel__icon-stack CSS/logic (supports single asset).
-      const icons = el('div', 'my-plans-position-card__icons');
-      renderMyPlansHeaderIcons(
-        icons,
-        planRecord.tickers || 'BTC · ETH · SOL',
-        planRecord.iconSrc || 'assets/icon_currency_btc.svg',
-        planRecord.assetIcons || [],
-      );
-      left.appendChild(icons);
-
       const titleWrap = el('div', 'my-plans-position-card__title-wrap');
-      // Figma: small label + tickers line
       titleWrap.appendChild(el('div', 'my-plans-position-card__kicker', planRecord.kicker || 'Big Three'));
-      const tickersLine = el('div', 'my-plans-position-card__tickers');
-      renderMyPlansTickers(tickersLine, planRecord);
-      titleWrap.appendChild(tickersLine);
       left.appendChild(titleWrap);
 
       headRow.appendChild(left);
@@ -3493,50 +3521,41 @@
       tag.appendChild(el('span', 'my-plans-position-card__tag-text', statusLabel));
       headRow.appendChild(tag);
       head.appendChild(headRow);
-
-      const auto = el('div', 'my-plans-position-card__auto');
-      auto.appendChild(el('div', 'my-plans-position-card__auto-label', 'Auto-investing'));
-      auto.appendChild(el('div', 'my-plans-position-card__auto-value', planRecord.investLine || '—'));
-      head.appendChild(auto);
       card.appendChild(head);
 
       // Body
       const body = el('div', 'my-plans-position-card__body');
 
-      const twoCol = el('div', 'my-plans-position-card__two-col');
-      const nextCard = el('div', 'my-plans-position-card__kv-card');
-      const next = el('div', 'my-plans-position-card__kv');
-      next.appendChild(el('div', 'my-plans-position-card__kv-label', 'Next buy'));
-      next.appendChild(el(
-        'div',
-        'my-plans-position-card__kv-value',
-        shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK),
-      ));
-      nextCard.appendChild(next);
-      twoCol.appendChild(nextCard);
+      const investLine = String(planRecord.investLine || '').trim();
+      const money = investLine.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+      const moneyPart = money ? `${money[1]} ${String(money[2] || '').toUpperCase()}` : '';
+      const schedulePart = formatScheduleNaturalLine(planRecord.repeats || '');
 
-      const completedCard = el('div', 'my-plans-position-card__kv-card');
-      const completed = el('div', 'my-plans-position-card__kv my-plans-position-card__kv--right');
-      completed.appendChild(el('div', 'my-plans-position-card__kv-label', 'Completed'));
-      const compLine = el('div', 'my-plans-position-card__completed-line');
-      const check = document.createElement('img');
-      check.src = 'assets/icon_check_green.svg';
-      check.alt = '';
-      check.setAttribute('aria-hidden', 'true');
-      check.className = 'my-plans-position-card__completed-icon';
-      // compLine.appendChild(check);
-      const flowState = states.flow ?? 1;
-      const recCompletedBuys = Number.isFinite(planRecord.completedBuys)
-        ? Math.max(0, Math.floor(planRecord.completedBuys))
-        : 0;
-      const completedCount = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
-      compLine.appendChild(el('div', 'my-plans-position-card__kv-value', `${completedCount} buys`));
-      completed.appendChild(compLine);
-      completedCard.appendChild(completed);
-      twoCol.appendChild(completedCard);
-      body.appendChild(twoCol);
-
-      body.appendChild(el('div', 'my-plans-position-card__divider'));
+      const hero = el('div', 'my-plans-position-card__hero');
+      const heroRow = el('div', 'my-plans-position-card__hero-row');
+      const heroValue = el('div', 'my-plans-position-card__hero-value');
+      if (moneyPart) {
+        heroValue.textContent = '';
+        heroValue.append(`Invest ${moneyPart}`);
+        heroValue.appendChild(document.createElement('br'));
+        heroValue.append(schedulePart || '—');
+      } else {
+        heroValue.textContent = investLine || '—';
+      }
+      heroRow.appendChild(heroValue);
+      const heroIcons = el('div', 'my-plans-position-card__hero-icons');
+      renderMyPlansHeaderIcons(
+        heroIcons,
+        planRecord.tickers || 'BTC · ETH · SOL',
+        planRecord.iconSrc || 'assets/icon_currency_btc.svg',
+        planRecord.assetIcons || [],
+      );
+      heroRow.appendChild(heroIcons);
+      hero.appendChild(heroRow);
+      const tickersLine = el('div', 'my-plans-position-card__tickers');
+      renderMyPlansTickers(tickersLine, planRecord);
+      hero.appendChild(tickersLine);
+      body.appendChild(hero);
 
       const list = el('div', 'my-plans-position-card__list');
       const row = (label, value, opts = {}) => {
@@ -3552,41 +3571,32 @@
       const parsedTotalInvested = parseMoneyWithCurrency(planRecord.totalInvested || '');
       const cur = parsedTotalInvested?.currency
         || (parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary);
+      const flowState = states.flow ?? 1;
+      const recCompletedBuys = Number.isFinite(planRecord.completedBuys)
+        ? Math.max(0, Math.floor(planRecord.completedBuys))
+        : 0;
+      const completedCount = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
       let totalInvAmount = 0;
       if (flowState >= 3) {
         if (parsedTotalInvested && parsedTotalInvested.amount > 0) totalInvAmount = parsedTotalInvested.amount;
         else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
       }
       const totalInv = formatMoney(totalInvAmount, cur);
-      list.appendChild(row('Total invested', totalInv));
+      list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
+      list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
-      // Pay-as-you-go only: matches plan detail Funding line (method · currency balance).
-      if (!planRecord.isReserved) {
-        const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
-        fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
-        fundRow.appendChild(
-          el(
-            'div',
-            'my-plans-position-card__row-value my-plans-position-card__row-value--positive',
-            `Pay as you go · ${cur} balance`,
-          ),
-        );
-        list.appendChild(fundRow);
-        list.appendChild(
-          el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', 'Sufficient balance'),
-        );
-      }
-
-      if (planRecord.isReserved) {
-        const reservedRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split my-plans-position-card__row--tight');
-        reservedRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Reserved funds remaining'));
-        reservedRow.appendChild(el('div', 'my-plans-position-card__row-value', planRecord.reservedFunds || '—'));
-        list.appendChild(reservedRow);
-        const coversText = computeCoversBuysText(planRecord);
-        if (coversText) {
-          list.appendChild(el('div', 'my-plans-position-card__subvalue my-plans-position-card__subvalue--positive', coversText));
-        }
-      }
+      const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
+      fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
+      const fundValue = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive my-plans-position-card__row-value--with-check');
+      const check = document.createElement('img');
+      check.src = 'assets/icon_check_green.svg';
+      check.alt = '';
+      check.className = 'my-plans-position-card__row-check';
+      check.setAttribute('aria-hidden', 'true');
+      fundValue.appendChild(check);
+      fundValue.appendChild(document.createTextNode(planRecord.isReserved ? 'Set aside funds' : 'Pay as you go'));
+      fundRow.appendChild(fundValue);
+      list.appendChild(fundRow);
 
       body.appendChild(list);
       card.appendChild(body);
@@ -3602,7 +3612,7 @@
       };
       leftActions.appendChild(btn('Manage plan', 'secondary', 'data-plan-card-manage'));
       actions.appendChild(leftActions);
-      actions.appendChild(btn('View details', 'primary', 'data-plan-card-view-detail'));
+      actions.appendChild(btn('View detail', 'primary', 'data-plan-card-view-detail'));
       card.appendChild(actions);
 
       target.appendChild(card);
