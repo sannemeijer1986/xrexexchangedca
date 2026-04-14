@@ -3874,13 +3874,13 @@ div.currency-sheet__item-icon::before {
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
-  margin-top: 4px;
+  margin-top: 6px;
   flex-shrink: 0;
 }
 
 [data-my-plans-manage-sheet][data-plan-status=paused] .currency-sheet__manage-plan-status {
-  color: #f1b347;
-  background: rgba(241, 179, 71, 0.16);
+  color: #a3a3a3;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 [data-my-plans-manage-sheet][data-plan-status=ended] .currency-sheet__manage-plan-status {
@@ -11165,15 +11165,15 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-position-card--paused .my-plans-position-card__tag-dot {
-  background: #ffa48a;
+  background: #a3a3a3;
 }
 
 .my-plans-position-card--paused .my-plans-position-card__tag-text {
-  color: #ffa48a;
+  color: #a3a3a3;
 }
 
 .my-plans-position-card--paused .my-plans-position-card__tag {
-  background: rgba(255, 164, 138, 0.16);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .my-plans-position-card--ended .my-plans-position-card__tag-dot {

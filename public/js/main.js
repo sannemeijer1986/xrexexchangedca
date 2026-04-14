@@ -3304,11 +3304,19 @@
         myPlansPrefillPlan = null;
         return [];
       }
-      if (myPlansSubmittedPlan) return [myPlansSubmittedPlan];
+      const applyFlowStatusOverride = (records) => {
+        const flowState = states.flow ?? 1;
+        if (flowState !== 4) return records;
+        return records.map((rec) => {
+          const statusKey = rec?.status === 'ended' ? 'ended' : 'paused';
+          return { ...rec, status: statusKey };
+        });
+      };
+      if (myPlansSubmittedPlan) return applyFlowStatusOverride([myPlansSubmittedPlan]);
       if (!myPlansPrefillPlan) {
         myPlansPrefillPlan = buildFallbackPlanSnapshot();
       }
-      return myPlansPrefillPlan ? [myPlansPrefillPlan] : [];
+      return myPlansPrefillPlan ? applyFlowStatusOverride([myPlansPrefillPlan]) : [];
     };
 
     const parsePerBuyFromInvestLine = (investLine) => {
@@ -3610,7 +3618,9 @@
         else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
       }
       const totalInv = formatMoney(totalInvAmount, cur);
-      list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
+      if (flowState !== 4) {
+        list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
+      }
       list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
       const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
@@ -3684,6 +3694,9 @@
 
     const syncMyPlansFromFlow = () => {
       renderMyPlansViews();
+      if ((states.flow ?? 1) === 4 && activeFilter === 'active') {
+        setFilter('paused');
+      }
       if (detailPanel?.classList.contains('is-open')) {
         const activeId = String(detailPanel.getAttribute('data-my-plans-detail-plan-id') || '').trim();
         const recs = getMyPlansRecords();
@@ -4405,6 +4418,11 @@
         });
       });
       sheetEl.querySelector('[data-my-plans-manage-confirm-submit]')?.addEventListener('click', () => {
+        if (action === 'pause') {
+          setState('flow', 4, { force: true });
+        } else if (action === 'resume') {
+          setState('flow', 3, { force: true });
+        }
         closeManageConfirmSheet(sheetEl, null, { stackPopDismiss: getBottomSheetStacking() });
         if (getBottomSheetStacking()) {
           closeManageSheet();
@@ -4444,7 +4462,7 @@
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       closePlanDetail(true);
       syncMyPlansFromFlow();
-      setFilter('active');
+      setFilter((states.flow ?? 1) === 4 ? 'paused' : 'active');
       panel.hidden = false;
       if (container) {
         container.classList.remove('is-my-plans-open');
