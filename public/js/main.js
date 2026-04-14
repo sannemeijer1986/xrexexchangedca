@@ -3675,6 +3675,39 @@
     syncMyPlansFlowUi = syncMyPlansFromFlow;
 
     let backFromPlanSuccessView = false;
+    let myPlansCopySnackbarTimer = null;
+
+    const showMyPlansCopySnackbar = (message) => {
+      if (!container) return;
+      let el = container.querySelector('[data-my-plans-copy-snackbar]');
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'snackbar';
+        el.setAttribute('data-my-plans-copy-snackbar', 'true');
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        el.innerHTML = `
+          <span class="snackbar__icon" aria-hidden="true">
+            <img src="assets/icon_timeline_activewarning.svg" alt="" />
+          </span>
+          <span data-my-plans-copy-snackbar-text></span>
+        `;
+        container.appendChild(el);
+      }
+      const textEl = el.querySelector('[data-my-plans-copy-snackbar-text]');
+      if (textEl) textEl.textContent = String(message || '');
+      if (myPlansCopySnackbarTimer) clearTimeout(myPlansCopySnackbarTimer);
+      el.classList.remove('is-visible');
+      void el.offsetWidth;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.classList.add('is-visible');
+        });
+      });
+      myPlansCopySnackbarTimer = window.setTimeout(() => {
+        el.classList.remove('is-visible');
+      }, 1800);
+    };
 
     const closeActivityDetail = (instant = false) => {
       if (!activityDetailPanel) return;
@@ -4364,6 +4397,7 @@
           document.body.removeChild(ta);
         }
       }
+      showMyPlansCopySnackbar('Copied to clipboard');
     });
 
     detailPanel?.querySelector('.my-plans-detail-panel__prefund-chip')?.addEventListener('click', () => {
