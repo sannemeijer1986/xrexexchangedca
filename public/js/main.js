@@ -1235,6 +1235,8 @@
   let myPlansSubmittedPlan = null;
   /** Frozen pre-submit snapshot used by "My plans" until a plan is submitted. */
   let myPlansPrefillPlan = null;
+  /** One-shot handoff: "Re-create this plan" -> open Plan with prefill. */
+  let recreatePlanPrefillRecord = null;
 
   // Static FX for prototype: 1 USD ≈ 32 TWD
   const FX_USD_TWD = 32;
@@ -4227,6 +4229,23 @@
           closeManageSheet();
           window.setTimeout(() => {
             document.querySelector('[data-plan-detail-topup-trigger]')?.click();
+          }, 320);
+          return;
+        }
+        if (action === 'recreate') {
+          const rec = resolveManagePlanRecord(btn);
+          if (rec) {
+            recreatePlanPrefillRecord = {
+              ...rec,
+              assetMix: Array.isArray(rec.assetMix) ? rec.assetMix.map((m) => ({ ...m })) : [],
+              assetIcons: Array.isArray(rec.assetIcons) ? rec.assetIcons.map((a) => ({ ...a })) : [],
+            };
+          }
+          closeManageSheet();
+          closeMyPlans();
+          goFinance();
+          window.setTimeout(() => {
+            document.querySelector('[data-finance-new-plan]')?.click();
           }, 320);
           return;
         }
@@ -8534,6 +8553,73 @@
 
     planEndConditionApi = initPlanEndConditionPanel();
 
+    const applyRecreatePlanPrefill = (rec) => {
+      if (!rec || !panel) return;
+
+      const toTickerIcon = (ticker) => {
+        const t = String(ticker || '').trim().toUpperCase();
+        if (t === 'BTC') return 'assets/icon_currency_btc.svg';
+        if (t === 'ETH') return 'assets/icon_currency_eth.svg';
+        if (t === 'SOL' || t === 'SOLANA') return 'assets/icon_solana.svg';
+        if (t === 'USDT') return 'assets/icon_currency_usdt.svg';
+        if (t === 'XAUT') return 'assets/icon_currency_xaut.svg';
+        if (t === 'RENDER') return 'assets/icon_currency_render.svg';
+        if (t === 'NEAR') return 'assets/icon_currency_near.svg';
+        if (t === 'LINK') return 'assets/icon_currency_link.svg';
+        if (t === 'XRP') return 'assets/icon_currency_xrp.svg';
+        return '';
+      };
+
+      const mixRaw = Array.isArray(rec.assetMix) ? rec.assetMix : [];
+      const mix = mixRaw
+        .map((m) => ({
+          ticker: String(m?.ticker || '').trim().toUpperCase(),
+          pct: Number.isFinite(Number(m?.pct)) ? Math.max(0, Math.round(Number(m.pct))) : 0,
+        }))
+        .filter((m) => m.ticker)
+        .slice(0, 3);
+
+      if (mix.length) {
+        const items = mix.map((m) => {
+          const explicit = Array.isArray(rec.assetIcons)
+            ? rec.assetIcons.find((a) => String(a?.ticker || '').trim().toUpperCase() === m.ticker)
+            : null;
+          const icon =
+            String(explicit?.icon || '').trim()
+            || toTickerIcon(m.ticker)
+            || String(rec.iconSrc || '').trim()
+            || 'assets/icon_currency_btc.svg';
+          return { name: m.ticker, ticker: m.ticker, icon };
+        });
+        detailAllocOverride = { kind: 'coins', items };
+      }
+
+      customPlanTitle = String(rec.kicker || rec.name || '').trim();
+      populatePanel({ preserveAmount: true });
+
+      const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+      const amountMatch = String(rec.investLine || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*[A-Za-z]{3,5}\s+each\b/i);
+      if (amountInput && amountMatch) {
+        const amountNum = parseFloat(String(amountMatch[1] || '').replace(/,/g, ''));
+        if (Number.isFinite(amountNum) && amountNum > 0) {
+          amountInput.value = Math.round(amountNum).toLocaleString('en-US');
+          amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+
+      const repeatsText = String(rec.repeats || '').trim();
+      const lowerRepeats = repeatsText.toLowerCase();
+      const freq =
+        lowerRepeats.startsWith('daily') ? 'daily'
+          : lowerRepeats.startsWith('weekly') ? 'weekly'
+            : 'monthly';
+      const freqBtn = panel.querySelector(`[data-plan-freq-item="${freq}"]`);
+      freqBtn?.click();
+
+      const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
+      if (scheduleEl && repeatsText) scheduleEl.textContent = repeatsText;
+    };
+
     // ── Open / close ──────────────────────────────────────────────────────────
     const setOpen = (nextOpen, openCtx = null) => {
       if (nextOpen) {
@@ -8571,6 +8657,10 @@
         scheduleSheetApi.planDetailRepeatsEndLimitText = '';
         syncPlanDetailSetLimitDetailRowsVisibility();
         populatePanel();
+        if (openCtx?.source === 'newplan' && recreatePlanPrefillRecord) {
+          applyRecreatePlanPrefill(recreatePlanPrefillRecord);
+          recreatePlanPrefillRecord = null;
+        }
         resetScrollState();
         // Always start with the Repeats "Details" disclosure collapsed (instant, no animation).
         // This avoids reopening the panel in an expanded state from a previous visit.
