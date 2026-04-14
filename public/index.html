@@ -2106,7 +2106,18 @@
             </div>
             <div class="currency-sheet__body currency-sheet__body--manage-plan">
                 <h2 class="currency-sheet__title">Manage plan</h2>
-                <div class="currency-sheet__list">
+                <div class="currency-sheet__list currency-sheet__list--manage-plan-main">
+                    <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan currency-sheet__item--manage-prefund" type="button" data-my-plans-manage-action="prefund">
+                        <div class="currency-sheet__item-icon currency-sheet__item-icon--manage-img" aria-hidden="true">
+                            <img src="assets/icon_prefund.svg" alt="" width="20" height="20" />
+                        </div>
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">Pre-fund this plan</span>
+                            <span class="currency-sheet__item-desc currency-sheet__item-desc--manage-prefund">Recommended for long-term investing</span>
+                        </div>
+                        <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
+                    </button>
+                    <div class="currency-sheet__divider" data-my-plans-manage-divider="0"></div>
                     <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button" data-my-plans-manage-action="pause" data-my-plans-manage-pause-row>
                         <div class="currency-sheet__item-icon currency-sheet__item-icon--manage-img" aria-hidden="true">
                             <img src="assets/icon_pause.svg" alt="" width="20" height="20" data-my-plans-manage-pause-icon />
@@ -2116,7 +2127,7 @@
                         </div>
                         <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
-                    <div class="currency-sheet__divider" data-my-plans-manage-divider="0"></div>
+                    <div class="currency-sheet__divider" data-my-plans-manage-divider="1"></div>
                     <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button" data-my-plans-manage-action="end" data-my-plans-manage-end-row>
                         <div class="currency-sheet__item-icon currency-sheet__item-icon--manage-img" aria-hidden="true">
                             <img src="assets/icon_close.svg" alt="" width="20" height="20" />
@@ -2126,13 +2137,14 @@
                         </div>
                         <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
-                    <div class="currency-sheet__divider" data-my-plans-manage-divider="1"></div>
-                    <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button" data-my-plans-manage-action="prefund">
+                </div>
+                <div class="currency-sheet__list currency-sheet__list--manage-plan-secondary">
+                    <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button" data-my-plans-manage-action="recreate">
                         <div class="currency-sheet__item-icon currency-sheet__item-icon--manage-img" aria-hidden="true">
-                            <img src="assets/icon_prefund.svg" alt="" width="20" height="20" />
+                            <img src="assets/icon_n_copy.svg" alt="" width="16" height="16" />
                         </div>
                         <div class="currency-sheet__item-content">
-                            <span class="currency-sheet__item-name">Pre-fund plan</span>
+                            <span class="currency-sheet__item-name">Re-create this plan</span>
                         </div>
                         <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
