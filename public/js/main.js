@@ -5,10 +5,10 @@
       min: 1,
       max: 4,
       labels: {
-        1: 'State 1',
-        2: 'State 2',
-        3: 'State 3',
-        4: 'State 4',
+        1: 'No plans',
+        2: 'Plan active',
+        3: 'Plan bought assets',
+        4: 'Plan paused',
       },
     },
     financeIntro: {
@@ -18,8 +18,8 @@
       /** Default on load (build badge can still switch to state 1). */
       initial: 1,
       labels: {
-        1: 'State 1 (first view)',
-        2: 'State 2 (compact)',
+        1: 'First view',
+        2: 'Compact view',
       },
     },
   };
@@ -3898,8 +3898,8 @@
       }
 
       const nextBuyText = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
-      if (nextBuyEl) nextBuyEl.textContent = nextBuyText;
       const flowState = states.flow ?? 1;
+      if (nextBuyEl) nextBuyEl.textContent = flowState === 4 ? '- -' : nextBuyText;
       const recCompletedBuys = Number.isFinite(rec.completedBuys) ? Math.max(0, Math.floor(rec.completedBuys)) : 0;
       const completedN = flowState >= 3 ? Math.max(5, recCompletedBuys) : 0;
       if (completedEl) {
