@@ -11274,6 +11274,10 @@ div.currency-sheet__item-icon {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
+.my-plans-position-card[data-plan-card-open-detail] {
+  cursor: pointer;
+}
+
 .my-plans-position-card__head {
   padding: 0;
   margin: 0;

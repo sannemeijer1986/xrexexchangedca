@@ -3504,6 +3504,10 @@
 
       const card = el('article', `my-plans-position-card my-plans-position-card--${statusKey}`);
       card.setAttribute('data-plan-status', statusKey);
+      card.setAttribute('data-plan-card-open-detail', '');
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Open ${statusLabel.toLowerCase()} plan details`);
       if (planRecord.id) card.setAttribute('data-my-plans-plan-id', String(planRecord.id));
 
       // Header: product row
@@ -3964,6 +3968,28 @@
     };
 
     detailScroller?.addEventListener('scroll', syncMyPlansDetailHeaderCollapse, { passive: true });
+
+    panel.addEventListener('click', (e) => {
+      const cardEl = e.target.closest('.my-plans-position-card');
+      if (!cardEl || !panel.contains(cardEl)) return;
+      const interactiveEl = e.target.closest('button, a, input, textarea, select, [role="button"]');
+      if (interactiveEl && interactiveEl !== cardEl) return;
+      const id = cardEl.getAttribute('data-my-plans-plan-id');
+      const list = getMyPlansRecords();
+      const rec = id ? list.find((r) => String(r.id) === id) : list[0];
+      if (rec) openPlanDetail(rec);
+    });
+
+    panel.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const cardEl = e.target.closest('.my-plans-position-card[data-plan-card-open-detail]');
+      if (!cardEl || !panel.contains(cardEl)) return;
+      e.preventDefault();
+      const id = cardEl.getAttribute('data-my-plans-plan-id');
+      const list = getMyPlansRecords();
+      const rec = id ? list.find((r) => String(r.id) === id) : list[0];
+      if (rec) openPlanDetail(rec);
+    });
 
     panel.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-plan-card-view-detail]');
