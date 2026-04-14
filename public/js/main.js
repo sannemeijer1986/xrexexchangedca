@@ -4532,9 +4532,14 @@
 
     // "+" button: go back to Finance and open "New plan".
     panel.querySelector('[data-my-plans-add]')?.addEventListener('click', () => {
-      closeMyPlans();
       goFinance();
+      const planPanel = document.querySelector('[data-plan-detail-panel]');
+      planPanel?.classList.add('plan-detail-panel--handoff-top');
       document.querySelector('[data-finance-new-plan]')?.click();
+      window.setTimeout(() => {
+        closeMyPlans(true);
+        planPanel?.classList.remove('plan-detail-panel--handoff-top');
+      }, 380);
     });
 
     document.querySelectorAll('[data-open-my-plans]').forEach((btn) => {
