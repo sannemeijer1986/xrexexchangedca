@@ -3893,7 +3893,7 @@
           const avgZeroClass = completedN <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${investedRowText}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average buy price</span><strong class="${avgZeroClass.trim()}">${avgRowText}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${investedRowText}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average price</span><strong class="${avgZeroClass.trim()}">${avgRowText}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
@@ -4034,9 +4034,23 @@
         const el = activityDetailPanel.querySelector(sel);
         if (el) el.textContent = val;
       };
+      const getParentAverageBuyPrice = () => {
+        const cards = Array.from(detailPanel?.querySelectorAll('.my-plans-detail-panel__asset-card') || []);
+        const matchingCard = cards.find((assetCard) => {
+          const tk = String(assetCard.querySelector('.my-plans-detail-panel__asset-ticker')?.textContent || '').trim().toUpperCase();
+          return tk === String(ticker || '').trim().toUpperCase();
+        });
+        if (!matchingCard) return '';
+        const avgRow = Array.from(matchingCard.querySelectorAll('.my-plans-detail-panel__asset-row')).find((assetRow) => {
+          const label = String(assetRow.querySelector('span')?.textContent || '').trim().toLowerCase();
+          return label === 'average buy price';
+        });
+        return String(avgRow?.querySelector('strong')?.textContent || '').trim();
+      };
+      const parentAvgPrice = getParentAverageBuyPrice();
       setText('[data-my-plans-activity-detail-pair]', `${ticker} / ${payCur}`);
       setText('[data-my-plans-activity-detail-amount]', `≈ ${gainNum} ${ticker} / ${gainNum} ${ticker}`);
-      setText('[data-my-plans-activity-detail-avg-price]', `${payAmt} ${payCur}`);
+      setText('[data-my-plans-activity-detail-avg-price]', parentAvgPrice || `${payAmt} ${payCur}`);
       setText('[data-my-plans-activity-detail-total]', `${payAmt} ${payCur}`);
       setText('[data-my-plans-activity-detail-actual-amount]', `${gainNum} ${ticker}`);
       setText('[data-my-plans-activity-detail-actual-total]', `${payAmt} ${payCur}`);
@@ -4143,6 +4157,16 @@
       setTimeout(onEnd, 290);
     };
 
+    const openFunding2FromMyPlans = () => {
+      closeManageSheet();
+      closePlanDetail(true);
+      closeMyPlans();
+      goFinance();
+      window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('open-funding2-flow'));
+      }, 320);
+    };
+
     const openManageSheet = (sourceEl) => {
       if (!manageSheet) return;
       syncManageSheetUi(resolveManagePlanRecord(sourceEl));
@@ -4226,10 +4250,7 @@
       btn.addEventListener('click', () => {
         const action = btn.getAttribute('data-my-plans-manage-action');
         if (action === 'prefund') {
-          closeManageSheet();
-          window.setTimeout(() => {
-            document.querySelector('[data-plan-detail-topup-trigger]')?.click();
-          }, 320);
+          openFunding2FromMyPlans();
           return;
         }
         if (action === 'recreate') {
@@ -4299,6 +4320,10 @@
           document.body.removeChild(ta);
         }
       }
+    });
+
+    detailPanel?.querySelector('.my-plans-detail-panel__prefund-chip')?.addEventListener('click', () => {
+      openFunding2FromMyPlans();
     });
 
     const open = (openOpts = {}) => {
@@ -4678,7 +4703,8 @@
       return funding2PanelEl;
     };
 
-    const openFunding2FromSuccess = () => {
+    const openFunding2Flow = (opts = {}) => {
+      const teardownPlanFlow = opts.teardownPlanFlow !== false;
       const funding2 = ensureFunding2Panel();
       if (!funding2) return;
       if (funding2.querySelector('.plan-buffer-panel__scroller')) {
@@ -4686,6 +4712,7 @@
       }
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));
+      if (!teardownPlanFlow) return;
       let cleaned = false;
       const cleanupPlanFlow = () => {
         if (cleaned) return;
@@ -4700,6 +4727,14 @@
       funding2.addEventListener('transitionend', cleanupPlanFlow);
       setTimeout(cleanupPlanFlow, 380);
     };
+
+    const openFunding2FromSuccess = () => {
+      openFunding2Flow({ teardownPlanFlow: true });
+    };
+
+    document.addEventListener('open-funding2-flow', () => {
+      openFunding2Flow({ teardownPlanFlow: false });
+    });
 
     const ensureTopSnackbar = () => {
       if (snackbarEl && snackbarEl.isConnected) return snackbarEl;
