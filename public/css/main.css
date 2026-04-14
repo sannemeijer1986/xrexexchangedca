@@ -5712,6 +5712,10 @@ div.currency-sheet__item-icon::before {
   transform: translateX(0);
 }
 
+.plan-detail-panel.plan-detail-panel--handoff-top {
+  z-index: 37;
+}
+
 .plan-detail-panel.is-plan-breakdown-open .plan-detail-panel__scroller {
   overflow: hidden;
 }

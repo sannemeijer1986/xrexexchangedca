@@ -4167,9 +4167,14 @@
       }
     };
 
-    const closeManageSheet = () => {
+    const closeManageSheet = (instant = false) => {
       if (!manageSheet) return;
       const panelEl = manageSheet.querySelector('.currency-sheet__panel');
+      if (instant) {
+        manageSheet.classList.remove('is-open');
+        manageSheet.hidden = true;
+        return;
+      }
       manageSheet.classList.remove('is-open');
       if (!panelEl) {
         manageSheet.hidden = true;
@@ -4184,13 +4189,12 @@
     };
 
     const openFunding2FromMyPlans = () => {
-      closeManageSheet();
-      closePlanDetail(true);
-      closeMyPlans();
+      closeManageSheet(true);
       goFinance();
+      document.dispatchEvent(new CustomEvent('open-funding2-flow'));
       window.setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('open-funding2-flow'));
-      }, 320);
+        closeMyPlans(true);
+      }, 360);
     };
 
     const openManageSheet = (sourceEl) => {
@@ -4288,12 +4292,17 @@
               assetIcons: Array.isArray(rec.assetIcons) ? rec.assetIcons.map((a) => ({ ...a })) : [],
             };
           }
-          closeManageSheet();
-          closeMyPlans();
+          closeManageSheet(true);
           goFinance();
-          window.setTimeout(() => {
+          const planPanel = document.querySelector('[data-plan-detail-panel]');
+          planPanel?.classList.add('plan-detail-panel--handoff-top');
+          requestAnimationFrame(() => {
             document.querySelector('[data-finance-new-plan]')?.click();
-          }, 320);
+            window.setTimeout(() => {
+              closeMyPlans(true);
+              planPanel?.classList.remove('plan-detail-panel--handoff-top');
+            }, 380);
+          });
           return;
         }
         if (action === 'pause' || action === 'resume' || action === 'end') {
@@ -4377,7 +4386,17 @@
       }, 350);
     };
 
-    const closeMyPlans = () => {
+    const closeMyPlans = (instant = false) => {
+      if (instant) {
+        closePlanDetail(true);
+        panel.classList.remove('is-open');
+        panel.hidden = true;
+        if (container) {
+          container.classList.remove('is-my-plans-open');
+          container.classList.remove('is-my-plans-fading');
+        }
+        return;
+      }
       closePlanDetail(true);
       panel.classList.remove('is-open');
       if (container) {
