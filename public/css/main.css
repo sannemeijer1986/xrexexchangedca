@@ -11176,7 +11176,7 @@ div.currency-sheet__item-icon::before {
 .my-plans-position-card__list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .my-plans-position-card__row {
@@ -11234,7 +11234,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .my-plans-position-card__actions {
-  padding: 12px 16px 16px;
+  padding: 4px 16px 16px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -11785,6 +11785,20 @@ div.currency-sheet__item-icon::before {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.my-plans-detail-panel__ov-funding-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  min-height: 16px;
+}
+
+.my-plans-detail-panel__ov-funding-check {
+  display: block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
 }
 
 .my-plans-detail-panel__ov-sub--positive {

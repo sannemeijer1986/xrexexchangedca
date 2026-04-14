@@ -3594,7 +3594,11 @@
       check.className = 'my-plans-position-card__row-check';
       check.setAttribute('aria-hidden', 'true');
       fundValue.appendChild(check);
-      fundValue.appendChild(document.createTextNode(planRecord.isReserved ? 'Set aside funds' : 'Pay as you go'));
+      fundValue.appendChild(
+        document.createTextNode(
+          planRecord.isReserved ? 'Set aside funds' : `Pay as you go · ${cur} balance`,
+        ),
+      );
       fundRow.appendChild(fundValue);
       list.appendChild(fundRow);
 
@@ -3715,6 +3719,7 @@
       const totalInvestedEl = detailPanel.querySelector('[data-my-plans-detail-total-invested]');
       const fundingMainEl = detailPanel.querySelector('[data-my-plans-detail-funding-main]');
       const fundingSubEl = detailPanel.querySelector('[data-my-plans-detail-funding-sub]');
+      const fundingCheckEl = detailPanel.querySelector('[data-my-plans-detail-funding-check]');
       const accumulatedEl = detailPanel.querySelector('[data-my-plans-detail-accumulated]');
       const activityEl = detailPanel.querySelector('[data-my-plans-detail-activity]');
       const pauseBtn = detailPanel.querySelector('[data-my-plans-detail-pause]');
@@ -3837,8 +3842,10 @@
       if (fundingSubEl) {
         const sub = rec.isReserved
           ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
-          : 'Sufficient balance';
+          : `Sufficient ${cur} balance`;
         fundingSubEl.textContent = sub;
+        const subTrim = String(sub || '').trim();
+        if (fundingCheckEl) fundingCheckEl.hidden = !subTrim;
       }
 
       if (createdAtEl) {
@@ -3912,7 +3919,7 @@
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
           return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
         const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
