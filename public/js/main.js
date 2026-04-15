@@ -5759,6 +5759,7 @@
       };
 
       const leaveFunding2SuccessDone = () => {
+        setState('funding', 3);
         planSuccessApi.forceClose();
         planOverviewApi.close({ instant: true });
         closeFunding2Panel({ resetFinanceScroll: true });
@@ -5774,6 +5775,7 @@
       };
 
       const leaveFunding2SuccessDismiss = () => {
+        setState('funding', 3);
         planSuccessApi.forceClose();
         planOverviewApi.close({ instant: true });
         closeFunding2Panel({ resetFinanceScroll: true });
