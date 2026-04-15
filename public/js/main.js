@@ -5034,15 +5034,19 @@
           funding2LearnMoreVisualEl.setAttribute('src', slide.visual);
         }
         funding2LearnMoreStepEls.forEach((el, idx) => el.classList.toggle('is-active', idx === safe));
-        if (funding2LearnMoreBackBtn) funding2LearnMoreBackBtn.hidden = safe === 0;
+        if (funding2LearnMoreBackBtn) {
+          funding2LearnMoreBackBtn.hidden = false;
+          funding2LearnMoreBackBtn.textContent = safe === 0 ? 'Cancel' : 'Back';
+        }
         if (funding2LearnMoreNextBtn) {
           funding2LearnMoreNextBtn.textContent = safe >= funding2LearnMoreSlides.length - 1 ? 'Done' : 'Next';
-          funding2LearnMoreNextBtn.classList.toggle('plan-buffer-funding2-learn-more-next--full', safe === 0);
+          funding2LearnMoreNextBtn.classList.remove('plan-buffer-funding2-learn-more-next--full');
         }
       };
-      const openFunding2LearnMore = () => {
+      const openFunding2LearnMore = (initialStep = 0) => {
         if (!learnMorePanel) return;
-        funding2LearnMoreStep = 0;
+        const nextStep = Number.isFinite(Number(initialStep)) ? Math.floor(Number(initialStep)) : 0;
+        funding2LearnMoreStep = Math.max(0, Math.min(funding2LearnMoreSlides.length - 1, nextStep));
         renderFunding2LearnMore();
         learnMorePanel.hidden = false;
         requestAnimationFrame(() => learnMorePanel.classList.add('is-open'));
@@ -5062,7 +5066,7 @@
         learnMorePanel.addEventListener('transitionend', onEnd);
         setTimeout(onEnd, 380);
       };
-      funding2ExplainedBtn?.addEventListener('click', openFunding2LearnMore);
+      funding2ExplainedBtn?.addEventListener('click', () => openFunding2LearnMore(0));
       funding2LearnMoreBackBtn?.addEventListener('click', () => {
         if (funding2LearnMoreStep <= 0) {
           closeFunding2LearnMore();
@@ -5230,6 +5234,17 @@
           if (planLine) headerTitleEl.setAttribute('data-funding2-plan-line', planLine);
           else headerTitleEl.removeAttribute('data-funding2-plan-line');
         }
+        const confirmTitleEl = clone.querySelector('[data-funding2-confirm-title]');
+        if (confirmTitleEl) {
+          confirmTitleEl.textContent = 'Auto-refill funds';
+          const planLine = planName ? `Plan: ${planName}` : '';
+          if (planLine) confirmTitleEl.setAttribute('data-funding2-plan-line', planLine);
+          else confirmTitleEl.removeAttribute('data-funding2-plan-line');
+        }
+        const confirmHeroTitleEl = clone.querySelector('[data-funding2-confirm-hero-title]');
+        if (confirmHeroTitleEl) {
+          confirmHeroTitleEl.textContent = 'When your reserved funds run low, we’ll automatically pre-fund again to keep your plan running.';
+        }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
           if (perBuy > 0) {
@@ -5337,6 +5352,16 @@
         requestAnimationFrame(syncFromOriginal);
       };
 
+      const reserveInputRow = clone.querySelector('.plan-buffer-funding-input__row');
+      reserveInputRow?.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        if (!(reserveInput instanceof HTMLInputElement)) return;
+        reserveInput.focus();
+        const endPos = reserveInput.value.length;
+        reserveInput.setSelectionRange(endPos, endPos);
+      });
+
       const maxBtn = clone.querySelector('[data-plan-buffer-reserve-max]');
       maxBtn?.addEventListener('click', () => {
         const { perBuyData, availBalance } = resolveFunding2Numbers();
@@ -5382,13 +5407,25 @@
             <button type="button" class="plan-buffer-panel__icon-btn" data-funding2-confirm-step-back aria-label="Back">
               <img src="assets/icon_back.svg" alt="" width="24" height="24" />
             </button>
-            <h1 class="plan-buffer-panel__title">Pre-fund</h1>
+            <h1 class="plan-buffer-panel__title" data-funding2-confirm-title>Auto-refill funds</h1>
             <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
           </header>
-          <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
-          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Pre-fund confirmation"></div>
+          
+          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Auto-refill funds confirmation">
+            <div class="plan-buffer-funding-hero plan-buffer-funding2-confirm-hero">
+              <div class="plan-buffer-funding-hero__top">
+                <p class="plan-buffer-funding-hero__title" data-funding2-confirm-hero-title>When your reserved funds run low, we’ll automatically pre-fund again to keep your plan running.</p>
+              </div>
+              <div class="plan-buffer-funding2-hero-explained">
+                <button type="button" class="plan-buffer-funding2-explained-link" data-funding2-confirm-howitworks>How it works</button>
+              </div>
+            </div>
+          </div>
         `;
         clone.appendChild(step);
+        step.querySelector('[data-funding2-confirm-howitworks]')?.addEventListener('click', () => {
+          openFunding2LearnMore(1);
+        });
         step.querySelector('[data-funding2-confirm-step-back]')?.addEventListener('click', () => {
           step.classList.remove('is-open');
           const onEnd = () => {
@@ -10364,9 +10401,12 @@
       if (descEl) descEl.textContent = slide.desc;
       if (visualEl && slide.visual) visualEl.setAttribute('src', slide.visual);
       stepEls.forEach((el, idx) => el.classList.toggle('is-active', idx === safe));
-      if (backBtn) backBtn.hidden = safe === 0;
-      if (backBtn) backBtn.disabled = false;
-      if (nextBtn) nextBtn.classList.toggle('finance-intro-learn-more-panel__btn--full', safe === 0);
+      if (backBtn) {
+        backBtn.hidden = false;
+        backBtn.disabled = false;
+        backBtn.textContent = safe === 0 ? 'Cancel' : 'Back';
+      }
+      if (nextBtn) nextBtn.classList.remove('finance-intro-learn-more-panel__btn--full');
       if (nextBtn) nextBtn.textContent = safe === slides.length - 1 ? 'Done' : 'Next';
     };
 

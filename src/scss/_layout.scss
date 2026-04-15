@@ -9546,8 +9546,13 @@ div.currency-sheet__item-icon {
   .plan-buffer-funding2-confirm-step__body {
     flex: 1;
     min-height: 0;
-    padding: 24px 16px;
+    padding: 16px 16px;
     box-sizing: border-box;
+  }
+
+  // Keep learn-more sheet above the Auto-refill confirm overlay.
+  .plan-buffer-learn-more-panel {
+    z-index: 10;
   }
 
   .plan-buffer-funding2-options {
