@@ -4900,7 +4900,7 @@
     const ensureFunding2Panel = () => {
       if (funding2PanelEl && funding2PanelEl.isConnected) {
         const structureVersion = funding2PanelEl.getAttribute('data-funding2-structure');
-        if (structureVersion === 'v5') return funding2PanelEl;
+        if (structureVersion === 'v7') return funding2PanelEl;
         funding2PanelEl.remove();
         funding2PanelEl = null;
       }
@@ -4909,7 +4909,7 @@
       const clone = baseFundingPanel.cloneNode(true);
       clone.removeAttribute('data-plan-buffer-panel');
       clone.setAttribute('data-plan-buffer-panel-2', 'true');
-      clone.setAttribute('data-funding2-structure', 'v5');
+      clone.setAttribute('data-funding2-structure', 'v7');
       clone.classList.add('plan-buffer-panel--funding2');
       clone.classList.remove('is-open');
       clone.hidden = true;
@@ -4932,34 +4932,98 @@
       clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
 
       const scrollerEl = clone.querySelector('.plan-buffer-panel__scroller');
-      const footerEl = clone.querySelector('.plan-buffer-panel__footer');
-      if (scrollerEl && footerEl && !scrollerEl.querySelector('[data-funding2-explained-wrap]')) {
+      scrollerEl?.querySelector('[data-funding2-explained-wrap]')?.remove();
+      const fundingHero = clone.querySelector('.plan-buffer-funding-hero');
+      const heroTop = clone.querySelector('.plan-buffer-funding-hero__top');
+      const heroSub = clone.querySelector('.plan-buffer-funding-hero__sub');
+      if (fundingHero && heroTop && heroSub && !fundingHero.querySelector('[data-funding2-explained-wrap]')) {
         const explainedWrap = document.createElement('div');
-        explainedWrap.className = 'plan-buffer-funding2-footer-pretext';
+        explainedWrap.className = 'plan-buffer-funding2-hero-explained';
         explainedWrap.setAttribute('data-funding2-explained-wrap', 'true');
         explainedWrap.innerHTML =
-          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>Pre-funding explained</button>';
-        scrollerEl.insertBefore(explainedWrap, footerEl);
+          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>How it works</button>';
+        const head = document.createElement('div');
+        head.className = 'plan-buffer-funding2-hero-head';
+        heroTop.replaceWith(head);
+        head.appendChild(heroTop);
+        head.appendChild(heroSub);
+        head.appendChild(explainedWrap);
       }
       const funding2ExplainedBtn = clone.querySelector('[data-funding2-explained]');
       const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');
-      const learnMoreTabButtons = Array.from(clone.querySelectorAll('[data-plan-buffer-learn-more-tab]'));
-      const learnMoreViews = Array.from(clone.querySelectorAll('[data-plan-buffer-learn-more-view]'));
-      const setFunding2LearnMoreTab = (tabKey) => {
-        const activeTab = tabKey === 'reserved' ? 'reserved' : 'flexible';
-        learnMoreTabButtons.forEach((btn) => {
-          const on = (btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible') === activeTab;
-          btn.classList.toggle('is-active', on);
-          btn.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-        learnMoreViews.forEach((view) => {
-          const on = (view.getAttribute('data-plan-buffer-learn-more-view') || 'flexible') === activeTab;
-          view.hidden = !on;
-        });
+      const learnMoreHeaderEl = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__header');
+      const learnMoreTitleEl = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__title');
+      const learnMoreDescEl = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__desc');
+      const learnMoreVisualEl = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__visual');
+      const learnMoreHeaderMiddle = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__header-middle');
+      const learnMoreFooterEl = learnMorePanel?.querySelector('.plan-buffer-learn-more-panel__footer');
+      const learnMoreCloseBtn = learnMorePanel?.querySelector('[data-plan-buffer-learn-more-close]');
+      const funding2LearnMoreSlides = [
+        {
+          title: 'How pre-funding works',
+          desc: 'Text',
+        },
+        {
+          title: 'How auto-refill works',
+          desc: 'Text',
+        },
+      ];
+      let funding2LearnMoreStep = 0;
+      if (learnMoreCloseBtn) {
+        learnMoreCloseBtn.classList.add('finance-intro-learn-more-panel__close');
+      }
+      if (learnMoreHeaderEl) {
+        learnMoreHeaderEl.classList.add('finance-intro-learn-more-panel__header');
+      }
+      if (learnMoreHeaderEl && !learnMoreHeaderEl.querySelector('[data-funding2-learn-more-help]')) {
+        const spacer = learnMoreHeaderEl.querySelector('.plan-buffer-panel__header-spacer');
+        const helpBtn = document.createElement('button');
+        helpBtn.type = 'button';
+        helpBtn.className = 'finance-intro-learn-more-panel__help';
+        helpBtn.setAttribute('data-funding2-learn-more-help', 'true');
+        helpBtn.setAttribute('aria-label', 'Help');
+        helpBtn.innerHTML = '<img src="assets/icon_intercom.svg" alt="" width="24" height="24" />';
+        if (spacer) spacer.replaceWith(helpBtn);
+        else learnMoreHeaderEl.appendChild(helpBtn);
+      }
+      if (learnMoreHeaderMiddle && !learnMoreHeaderMiddle.querySelector('[data-funding2-learn-more-stepper]')) {
+        learnMoreHeaderMiddle.innerHTML = `
+          <div class="finance-intro-learn-more-panel__stepper" data-funding2-learn-more-stepper aria-hidden="true">
+            <span class="finance-intro-learn-more-panel__step is-active" data-funding2-learn-more-step="0"></span>
+            <span class="finance-intro-learn-more-panel__step" data-funding2-learn-more-step="1"></span>
+          </div>
+        `;
+      }
+      if (learnMoreFooterEl && !learnMoreFooterEl.querySelector('[data-funding2-learn-more-next]')) {
+        learnMoreFooterEl.classList.remove('plan-buffer-panel__footer--single');
+        learnMoreFooterEl.innerHTML = `
+          <button class="plan-buffer-panel__btn plan-buffer-panel__btn--secondary" type="button" data-funding2-learn-more-back>Back</button>
+          <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-funding2-learn-more-next>Next</button>
+        `;
+      }
+      const funding2LearnMoreStepEls = Array.from(
+        learnMorePanel?.querySelectorAll('[data-funding2-learn-more-step]') || [],
+      );
+      const funding2LearnMoreBackBtn = learnMorePanel?.querySelector('[data-funding2-learn-more-back]');
+      const funding2LearnMoreNextBtn = learnMorePanel?.querySelector('[data-funding2-learn-more-next]');
+      const renderFunding2LearnMore = () => {
+        const safe = Math.max(0, Math.min(funding2LearnMoreSlides.length - 1, funding2LearnMoreStep));
+        funding2LearnMoreStep = safe;
+        const slide = funding2LearnMoreSlides[safe];
+        if (learnMoreTitleEl) learnMoreTitleEl.textContent = slide.title;
+        if (learnMoreDescEl) learnMoreDescEl.textContent = slide.desc;
+        if (learnMoreVisualEl) learnMoreVisualEl.hidden = true;
+        funding2LearnMoreStepEls.forEach((el, idx) => el.classList.toggle('is-active', idx === safe));
+        if (funding2LearnMoreBackBtn) funding2LearnMoreBackBtn.hidden = safe === 0;
+        if (funding2LearnMoreNextBtn) {
+          funding2LearnMoreNextBtn.textContent = safe >= funding2LearnMoreSlides.length - 1 ? 'Done' : 'Next';
+          funding2LearnMoreNextBtn.classList.toggle('plan-buffer-funding2-learn-more-next--full', safe === 0);
+        }
       };
       const openFunding2LearnMore = () => {
         if (!learnMorePanel) return;
-        setFunding2LearnMoreTab('reserved');
+        funding2LearnMoreStep = 0;
+        renderFunding2LearnMore();
         learnMorePanel.hidden = false;
         requestAnimationFrame(() => learnMorePanel.classList.add('is-open'));
       };
@@ -4979,11 +5043,21 @@
         setTimeout(onEnd, 380);
       };
       funding2ExplainedBtn?.addEventListener('click', openFunding2LearnMore);
-      learnMoreTabButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const key = btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible';
-          setFunding2LearnMoreTab(key);
-        });
+      funding2LearnMoreBackBtn?.addEventListener('click', () => {
+        if (funding2LearnMoreStep <= 0) {
+          closeFunding2LearnMore();
+          return;
+        }
+        funding2LearnMoreStep -= 1;
+        renderFunding2LearnMore();
+      });
+      funding2LearnMoreNextBtn?.addEventListener('click', () => {
+        if (funding2LearnMoreStep >= funding2LearnMoreSlides.length - 1) {
+          closeFunding2LearnMore();
+          return;
+        }
+        funding2LearnMoreStep += 1;
+        renderFunding2LearnMore();
       });
       learnMorePanel?.querySelectorAll('[data-plan-buffer-learn-more-close]')
         .forEach((btn) => btn.addEventListener('click', () => closeFunding2LearnMore()));
@@ -5076,6 +5150,21 @@
         reserveInput.value = n > 0 ? formatWithCommas(n) : '';
       };
 
+      const resolveFunding2FreqKey = () => {
+        const fromDom = String(
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || '',
+        ).toLowerCase();
+        if (fromDom === 'daily' || fromDom === 'weekly' || fromDom === 'monthly') return fromDom;
+        const inv = String(funding2ContextRecord?.investLine || '').toLowerCase();
+        if (/\beach\s+day\b/.test(inv)) return 'daily';
+        if (/\beach\s+week\b/.test(inv)) return 'weekly';
+        if (/\beach\s+month\b/.test(inv)) return 'monthly';
+        const rep = String(funding2ContextRecord?.repeats || '').toLowerCase();
+        if (/\bday\b|daily\b/.test(rep)) return 'daily';
+        if (/\bweek\b|weekly\b/.test(rep)) return 'weekly';
+        return 'monthly';
+      };
+
       const syncFromOriginal = () => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
@@ -5105,16 +5194,15 @@
             || 'My plan',
         ).trim();
         const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
-        const freqKey = (
-          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
-        ).toLowerCase();
+        const freqKey = resolveFunding2FreqKey();
+        const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
         const coverUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
         const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
 
         const headTitle = clone.querySelector('.plan-buffer-funding-input__title');
         if (headTitle) headTitle.textContent = 'Amount';
         const heroTitle = clone.querySelector('.plan-buffer-funding-hero__title');
-        if (heroTitle) heroTitle.textContent = 'How much would you like to set aside for your plan?';
+        if (heroTitle) heroTitle.textContent = 'How much would you like to reserve for your plan?';
         const headerTitleEl = clone.querySelector('.plan-buffer-panel__title');
         if (headerTitleEl) {
           headerTitleEl.textContent = 'Pre-fund';
@@ -5125,10 +5213,10 @@
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
           if (perBuy > 0) {
-            perBuySub.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each monthly buy is </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${perBuyData.currency}</span>`;
+            perBuySub.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${buyCadenceWord} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${perBuyData.currency}</span>`;
           } else {
             perBuySub.innerHTML =
-              '<span class="plan-buffer-funding-hero__subtitle-prefix">Each monthly buy is </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>';
+              `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${buyCadenceWord} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
           }
         }
 
@@ -10255,7 +10343,7 @@
       if (titleEl) titleEl.textContent = slide.title;
       if (descEl) descEl.textContent = slide.desc;
       if (visualEl && slide.visual) visualEl.setAttribute('src', slide.visual);
-      stepEls.forEach((el, idx) => el.classList.toggle('is-active', idx <= safe));
+      stepEls.forEach((el, idx) => el.classList.toggle('is-active', idx === safe));
       if (backBtn) backBtn.hidden = safe === 0;
       if (backBtn) backBtn.disabled = false;
       if (nextBtn) nextBtn.classList.toggle('finance-intro-learn-more-panel__btn--full', safe === 0);
