@@ -5213,8 +5213,12 @@
         if (!target.matches('[data-plan-buffer-reserve-input]')) return;
         funding2SelectedAmount = null;
         const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
-        funding2OptionBaseAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-        target.value = Number.isFinite(parsed) && parsed > 0 ? formatWithCommas(parsed) : '';
+        const { availBalance } = resolveFunding2Numbers();
+        const clamped = Number.isFinite(parsed) && parsed > 0
+          ? Math.min(parsed, Math.max(0, availBalance))
+          : 0;
+        funding2OptionBaseAmount = clamped > 0 ? clamped : null;
+        target.value = clamped > 0 ? formatWithCommas(clamped) : '';
         requestAnimationFrame(syncFromOriginal);
       };
 
@@ -5338,6 +5342,15 @@
       }
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const reserveInput = funding2.querySelector('[data-plan-buffer-reserve-input]');
+          if (!(reserveInput instanceof HTMLInputElement)) return;
+          reserveInput.focus();
+          const endPos = reserveInput.value.length;
+          reserveInput.setSelectionRange(endPos, endPos);
+        });
+      });
       if (!teardownPlanFlow) return;
       let cleaned = false;
       const cleanupPlanFlow = () => {
@@ -5355,7 +5368,7 @@
     };
 
     const openFunding2FromSuccess = () => {
-      if (!funding2ContextRecord && myPlansSubmittedPlan) {
+      if (myPlansSubmittedPlan) {
         funding2ContextRecord = { ...myPlansSubmittedPlan };
       }
       openFunding2Flow({ teardownPlanFlow: true });
