@@ -3276,6 +3276,33 @@
       return convertFx(twdValue, 'TWD', c);
     };
 
+    /** My plans UI should preserve entered display code (e.g. keep USDT, not USD). */
+    const toDisplayCurrencyCode = (cur, fallback = 'TWD') => {
+      const c = String(cur || '').trim().toUpperCase();
+      return c || String(fallback || 'TWD').trim().toUpperCase();
+    };
+
+    const formatMoneyDisplayCurrency = (amount, cur) => {
+      const n = Number.isFinite(amount) ? amount : 0;
+      const c = toDisplayCurrencyCode(cur, 'USD');
+      return `${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${c}`;
+    };
+
+    const getPlanRecordDisplayCurrency = (planRecord) => {
+      const totalRaw = String(planRecord?.totalInvested || '').trim();
+      const totalCurMatch = totalRaw.match(/([A-Za-z]{3,5})\s*$/);
+      const investRaw = String(planRecord?.investLine || '').trim();
+      const investCurMatch = investRaw.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+      return toDisplayCurrencyCode(
+        totalCurMatch?.[1]
+          || investCurMatch?.[2]
+          || currencyState.plan
+          || currencyState.summary
+          || 'TWD',
+        'TWD',
+      );
+    };
+
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan';
@@ -3341,7 +3368,7 @@
         firstBuy: nextBuyDisplay,
         nextBuy: nextBuyDisplay,
         completedBuys: 0,
-        totalInvested: formatMoney(0, cur),
+        totalInvested: formatMoneyDisplayCurrency(0, cur),
         fundingMethod,
         isReserved,
         reservedFunds,
@@ -3655,8 +3682,7 @@
       const parsed = String(planRecord.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/);
       const per = parsed ? parseFloat(parsed[1].replace(/,/g, '')) : NaN;
       const parsedTotalInvested = parseMoneyWithCurrency(planRecord.totalInvested || '');
-      const cur = parsedTotalInvested?.currency
-        || (parsed ? normalizeFxCurrency(parsed[2]) : currencyState.plan || currencyState.summary);
+      const cur = getPlanRecordDisplayCurrency(planRecord);
       const flowState = states.flow ?? 1;
       const recCompletedBuys = Number.isFinite(planRecord.completedBuys)
         ? Math.max(0, Math.floor(planRecord.completedBuys))
@@ -3667,7 +3693,7 @@
         if (parsedTotalInvested && parsedTotalInvested.amount > 0) totalInvAmount = parsedTotalInvested.amount;
         else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
       }
-      const totalInv = formatMoney(totalInvAmount, cur);
+      const totalInv = formatMoneyDisplayCurrency(totalInvAmount, cur);
       if (flowState !== 4 && flowState !== 5) {
         list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
       }
@@ -3971,7 +3997,7 @@
       }
       const parsedTotalInvested = parseMoneyWithCurrency(rec.totalInvested || '');
       const perBuyMoney = parsePerBuyFromInvestLine(rec.investLine || '');
-      const cur = parsedTotalInvested?.currency || perBuyMoney?.currency || currencyState.plan || 'TWD';
+      const cur = getPlanRecordDisplayCurrency(rec);
       let totalAmt = 0;
       if (flowState >= 3) {
         if (parsedTotalInvested && parsedTotalInvested.amount > 0) totalAmt = parsedTotalInvested.amount;
@@ -3979,7 +4005,7 @@
       }
       const px = { BTC: 60000, ETH: 3000, SOL: 130, XAUT: 2400, RENDER: 7, NEAR: 6, LINK: 17, XRP: 0.6 };
       if (totalInvestedEl) {
-        totalInvestedEl.textContent = formatMoney(totalAmt, cur);
+        totalInvestedEl.textContent = formatMoneyDisplayCurrency(totalAmt, cur);
         totalInvestedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', totalAmt <= 0);
       }
       if (fundingMainEl) {
@@ -4026,11 +4052,11 @@
           const qtyTone = qty > 0 ? 'positive' : 'zero';
           const flow2ZeroPlaceholder = '- -';
           const investedRowText =
-            amount <= 0 && flowState === 2 ? flow2ZeroPlaceholder : formatMoney(amount, cur);
+            amount <= 0 && flowState === 2 ? flow2ZeroPlaceholder : formatMoneyDisplayCurrency(amount, cur);
           const avgPrice = getPrototypeAveragePrice(m.ticker, cur);
           const avgRowText =
             completedN > 0
-              ? formatMoney(avgPrice, cur)
+              ? formatMoneyDisplayCurrency(avgPrice, cur)
               : flowState === 2
                 ? flow2ZeroPlaceholder
                 : '--';
@@ -4038,7 +4064,7 @@
           const avgZeroClass = completedN <= 0 ? 'my-plans-detail-panel__asset-row__value--zero' : '';
           const card = document.createElement('article');
           card.className = 'my-plans-detail-panel__asset-card';
-          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoney(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${investedRowText}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average price</span><strong class="${avgZeroClass.trim()}">${avgRowText}</strong></div></div>`;
+          card.innerHTML = `<div class="my-plans-detail-panel__asset-head"><div class="my-plans-detail-panel__asset-left"><img class="my-plans-detail-panel__asset-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__asset-copy"><div class="my-plans-detail-panel__asset-ticker">${m.ticker}</div><div class="my-plans-detail-panel__asset-name">${meta.name}</div></div></div><div class="my-plans-detail-panel__asset-right"><div class="my-plans-detail-panel__asset-qty my-plans-detail-panel__asset-qty--${qtyTone}">${qty.toFixed(5)}</div><div class="my-plans-detail-panel__asset-sub">≈ ${formatMoneyDisplayCurrency(amount, cur)}</div></div></div><div class="my-plans-detail-panel__asset-rows"><div class="my-plans-detail-panel__asset-row"><span>Invested</span><strong class="${investedZeroClass.trim()}">${investedRowText}</strong></div><div class="my-plans-detail-panel__asset-row"><span>Average price</span><strong class="${avgZeroClass.trim()}">${avgRowText}</strong></div></div>`;
           accumulatedEl.appendChild(card);
         });
       }
@@ -4064,9 +4090,9 @@
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
-          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoney(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoney(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
         const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
@@ -4217,7 +4243,7 @@
       const parentAvgPrice = getParentAverageBuyPrice();
       setText('[data-my-plans-activity-detail-pair]', `${ticker} / ${payCur}`);
       setText('[data-my-plans-activity-detail-amount]', `≈ ${gainNum} ${ticker} / ${gainNum} ${ticker}`);
-      const fallbackAvg = formatMoney(getPrototypeAveragePrice(ticker, payCur), payCur);
+      const fallbackAvg = formatMoneyDisplayCurrency(getPrototypeAveragePrice(ticker, payCur), payCur);
       setText('[data-my-plans-activity-detail-avg-price]', parentAvgPrice || fallbackAvg);
       setText('[data-my-plans-activity-detail-total]', `${payAmt} ${payCur}`);
       setText('[data-my-plans-activity-detail-actual-amount]', `${gainNum} ${ticker}`);
@@ -4890,6 +4916,7 @@
       openLearnMorePreview: () => {},
     };
     let funding2PreviewSheetBound = false;
+    let funding2PreviewReturnAfterLearnMore = false;
 
     const closeFunding2PreviewSheet = () => {
       if (!funding2PreviewSheet || !funding2PreviewSheetPanel) return;
@@ -4950,6 +4977,7 @@
 
     const closeFunding2Panel = (opts = {}) => {
       const shouldResetFinanceScroll = !!opts.resetFinanceScroll;
+      funding2PreviewReturnAfterLearnMore = false;
       if (shouldResetFinanceScroll) {
         // Reset before unmasking Finance so users never see a scroll jump.
         resetFinanceAutoInvestScrollInstant();
@@ -5167,15 +5195,19 @@
       };
       const closeFunding2LearnMore = (opts = {}) => {
         if (!learnMorePanel) return;
+        const shouldRestorePreview = funding2PreviewReturnAfterLearnMore;
+        funding2PreviewReturnAfterLearnMore = false;
         if (opts.instant) {
           learnMorePanel.classList.remove('is-open');
           learnMorePanel.hidden = true;
+          if (shouldRestorePreview) requestAnimationFrame(() => openFunding2PreviewSheet());
           return;
         }
         learnMorePanel.classList.remove('is-open');
         const onEnd = () => {
           if (!learnMorePanel.classList.contains('is-open')) learnMorePanel.hidden = true;
           learnMorePanel.removeEventListener('transitionend', onEnd);
+          if (shouldRestorePreview) requestAnimationFrame(() => openFunding2PreviewSheet());
         };
         learnMorePanel.addEventListener('transitionend', onEnd);
         setTimeout(onEnd, 380);
@@ -5706,6 +5738,7 @@
 
       funding2PreviewSheetApi.openOverview = openFunding2OverviewAfterPreview;
       funding2PreviewSheetApi.openLearnMorePreview = () => {
+        funding2PreviewReturnAfterLearnMore = true;
         closeFunding2PreviewSheet();
         requestAnimationFrame(() => openFunding2LearnMore(1));
       };
@@ -10210,7 +10243,7 @@
             firstBuy: resolvedNextBuy,
             nextBuy: resolvedNextBuy,
             completedBuys: 0,
-            totalInvested: formatMoney(0, cur),
+            totalInvested: formatMoneyDisplayCurrency(0, cur),
             fundingMethod: paymentMethod,
             isReserved: isReservedPlan,
             reservedFunds: overviewReserved || '—',
