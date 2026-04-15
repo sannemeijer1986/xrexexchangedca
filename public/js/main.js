@@ -3703,6 +3703,7 @@
       if (flowState !== 5) {
         const fundingState = states.funding ?? 1;
         const isFundingInsufficient = fundingState === 2 && !planRecord.isReserved;
+        const isFundingPrefundLeft = fundingState === 3;
         const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
         fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
         const fundValue = el(
@@ -3723,16 +3724,21 @@
           fundValue.appendChild(chevron);
         } else {
           const check = document.createElement('img');
-          check.src = 'assets/icon_check_green.svg';
+          check.src = 'assets/icon_check_green_s.svg';
           check.alt = '';
           check.className = 'my-plans-position-card__row-check';
           check.setAttribute('aria-hidden', 'true');
           fundValue.appendChild(check);
-          fundValue.appendChild(
-            document.createTextNode(
-              planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
-            ),
-          );
+          if (isFundingPrefundLeft) {
+            const prefundAmount = String(planRecord.reservedFunds || '').trim() || `— ${cur}`;
+            fundValue.appendChild(document.createTextNode(`Pre-fund: ${prefundAmount} left`));
+          } else {
+            fundValue.appendChild(
+              document.createTextNode(
+                planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
+              ),
+            );
+          }
         }
         fundRow.appendChild(fundValue);
         list.appendChild(fundRow);
