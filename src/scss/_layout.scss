@@ -3523,6 +3523,106 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(0);
 }
 
+// Funding 2 pre-fund preview bottom sheet (Figma 8946:114672)
+.currency-sheet--funding2-preview {
+  .currency-sheet__panel {
+    background: #1b1d1d;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding-bottom: 16px;
+  }
+
+  .currency-sheet__handle-wrap {
+    padding: 16px 156px;
+  }
+
+  .currency-sheet__handle {
+    width: 48px;
+    height: 6px;
+    background: #47494a;
+    border-radius: 12px;
+  }
+
+  .currency-sheet__body--funding2-preview {
+    padding: 16px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .funding2-preview-sheet__top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .phone-container p.funding2-preview-sheet__kicker {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9b9c9c;
+    line-height: normal;
+  }
+
+  .phone-container p.funding2-preview-sheet__amount {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: normal;
+  }
+
+  .funding2-preview-sheet__middle {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .phone-container p.funding2-preview-sheet__hero {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: normal;
+  }
+
+  .funding2-preview-sheet__hl {
+    color: #8fb8ff;
+  }
+
+  .funding2-preview-sheet__how {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #3f78ff;
+    cursor: pointer;
+  }
+
+  .currency-sheet__footer--funding2-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    background: #1b1d1d;
+    box-sizing: border-box;
+  }
+
+  .currency-sheet__footer--funding2-preview .plan-buffer-panel__btn {
+    margin: 0;
+  }
+}
+
 .currency-sheet__handle-wrap {
   display: flex;
   justify-content: center;
@@ -3703,6 +3803,11 @@ button.finance-summary__stat-value--chevron {
 
 [data-plan-overview-funding-info-sheet] .currency-sheet__desc {
   white-space: pre-line;
+}
+
+[data-plan-overview-funding-info-sheet] .currency-sheet__desc .currency-sheet__desc-highlight {
+  color: #5ac47d;
+  font-weight: 600;
 }
 
 .phone-container p.currency-sheet__subtitle {
@@ -4119,9 +4224,9 @@ div.currency-sheet__item-icon {
 }
 
 .phone-container p.schedule-sheet__execution-window {
-  margin: 8px;
+  margin: 4px;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   color: #9b9c9c;
   line-height: 1.35;
@@ -8969,7 +9074,7 @@ div.currency-sheet__item-icon {
   gap: 0;
   border-radius: 16px;
   background: #151718;
-  padding: 16px;
+  padding: 8px 16px 16px 16px;
   box-sizing: border-box;
 }
 
@@ -9079,7 +9184,7 @@ div.currency-sheet__item-icon {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 16px;
+  padding-top: 2px;
 }
 
 .plan-buffer-funding-input__max-btn {
@@ -9458,7 +9563,7 @@ div.currency-sheet__item-icon {
   }
 
   .plan-buffer-funding-hero__subtitle-amount {
-    color: #F6B656;
+    color: #8FB8FF;
   }
 
   // Figma 8934:126307 — title + link block, then per-buy line (gap 12 between blocks)
@@ -9538,6 +9643,141 @@ div.currency-sheet__item-icon {
     display: none !important;
   }
 
+  // Pre-fund set up success (Figma 8946:36485) — stacked over overview
+  .plan-buffer-funding2-success-step {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    background: #0d0e0f;
+    border-radius: inherit;
+    overflow: hidden;
+    transform: translateX(100%);
+    transition: transform 0.32s ease;
+  }
+
+  .plan-buffer-funding2-success-step.is-open {
+    transform: translateX(0);
+  }
+
+  .plan-buffer-funding2-success-step[hidden] {
+    display: none !important;
+  }
+
+  .plan-buffer-funding2-success-step__header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 24px 16px 0;
+    box-sizing: border-box;
+    min-height: 48px;
+  }
+
+  .plan-buffer-funding2-success-step__icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+  }
+
+  .plan-buffer-funding2-success-step__header-spacer {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .plan-buffer-funding2-success-step__scroller {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .plan-buffer-funding2-success-step__body {
+    flex: 1;
+    min-height: 0;
+    padding: 24px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .plan-buffer-funding2-success-step__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 328px;
+  }
+
+  .plan-buffer-funding2-success-step__icon {
+    width: 60px;
+    height: 60px;
+    display: block;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .plan-buffer-funding2-success-step__headline {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    line-height: normal;
+  }
+
+  .phone-container p.plan-buffer-funding2-success-step__reserved, .plan-buffer-panel p.plan-buffer-funding2-success-step__reserved {
+    margin: 0;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    color: #5AC47D;
+    text-align: center;
+    line-height: normal;
+  }
+
+  .plan-buffer-funding2-success-step__footer {
+    flex-shrink: 0;
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+
+  .plan-buffer-funding2-success-step__btn {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .plan-buffer-funding2-success-step__btn--done {
+    background: #2d2f2f;
+    color: #ffffff;
+  }
+
   .plan-buffer-funding2-confirm-step__header {
     flex-shrink: 0;
   }
@@ -9583,6 +9823,15 @@ div.currency-sheet__item-icon {
   // Keep learn-more sheet above the Auto-refill confirm overlay.
   .plan-buffer-learn-more-panel {
     z-index: 10;
+  }
+
+  // When closing Funding 2 entirely: snap stacked steps off without animating each layer.
+  &.plan-buffer-funding2--instant-inner-close {
+    .plan-buffer-funding2-confirm-step,
+    .plan-buffer-funding2-success-step,
+    .plan-buffer-learn-more-panel {
+      transition: none !important;
+    }
   }
 
   .plan-buffer-funding2-options {

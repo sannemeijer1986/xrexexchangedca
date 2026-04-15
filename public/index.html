@@ -1019,7 +1019,7 @@
                 <img class="plan-detail-panel__header-icon" src="assets/icon_currency_btc.svg" alt="" />
             </div>
             <!-- Divider — fades in when collapsed -->
-            <div class="plan-detail-panel__header-divider"></div>
+            <!-- <div class="plan-detail-panel__header-divider"></div> -->
         </div>
 
         <!-- Single scrollable container: product area + content body -->
@@ -1698,7 +1698,7 @@
                 </button>
                 <div class="plan-success-panel__header-spacer" aria-hidden="true"></div>
             </header>
-            <div class="plan-success-panel__divider" aria-hidden="true"></div>
+            <!-- <div class="plan-success-panel__divider" aria-hidden="true"></div> -->
             <div class="plan-success-panel__scroller">
                 <div class="plan-success-panel__body">
                     <div class="plan-success-panel__hero">
@@ -2602,6 +2602,30 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-topup-sheet-close>Not now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funding 2: pre-fund preview (auto-refill summary) Figma 8946:114672 -->
+    <div class="currency-sheet currency-sheet--funding2-preview" data-funding2-preview-sheet hidden aria-modal="true" role="dialog" aria-label="Pre-fund preview">
+        <button class="currency-sheet__backdrop" type="button" data-funding2-preview-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--funding2-preview">
+                <div class="funding2-preview-sheet__top">
+                    <p class="funding2-preview-sheet__kicker">Pre-fund</p>
+                    <p class="funding2-preview-sheet__amount" data-funding2-preview-amount>—</p>
+                </div>
+                <div class="funding2-preview-sheet__middle">
+                    <p class="funding2-preview-sheet__hero" data-funding2-preview-hero></p>
+                    <button type="button" class="funding2-preview-sheet__how" data-funding2-preview-how>How it works</button>
+                </div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--funding2-preview">
+                <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-funding2-preview-continue>Understood, continue</button>
+                <button class="plan-buffer-panel__btn plan-buffer-panel__btn--secondary" type="button" data-funding2-preview-back>Back</button>
             </div>
         </div>
     </div>

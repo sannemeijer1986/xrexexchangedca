@@ -2180,8 +2180,24 @@
     const titleEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-title]');
     const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
     const nextTitle = String(title || '').trim() || 'Deduct from balance';
+    const emphasizeLine = 'You can change or turn off pre-funding anytime.';
+    const rawDesc = String(desc || '');
+    const escapeHtml = (str) => str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    const highlightedDescHtml = escapeHtml(rawDesc)
+      .replace(
+        /You can change or turn off pre-funding anytime\.?/g,
+        '<span class="currency-sheet__desc-highlight">You can change or turn off pre-funding anytime.</span>',
+      )
+      .replace(/\n/g, '<br>');
     if (titleEl) titleEl.textContent = nextTitle;
-    if (descEl) descEl.textContent = String(desc || '');
+    if (descEl) {
+      descEl.innerHTML = highlightedDescHtml || escapeHtml(emphasizeLine);
+    }
     sheet.setAttribute('aria-label', nextTitle);
     sheetOpenWithInstantBackdrop(sheet);
   };
@@ -4839,8 +4855,45 @@
     let snackbarEl = null;
     let funding2PanelEl = null;
     let funding2ContextRecord = null;
+    let funding2PrefundSuccessLoaderGen = 0;
+    const FUNDING2_PREFUND_SUCCESS_LOADER_MS = 1400;
     const funding2ExitSheet = document.querySelector('[data-funding2-exit-sheet]');
     const funding2ExitSheetPanel = funding2ExitSheet?.querySelector('.currency-sheet__panel');
+    const funding2PreviewSheet = document.querySelector('[data-funding2-preview-sheet]');
+    const funding2PreviewSheetPanel = funding2PreviewSheet?.querySelector('.currency-sheet__panel');
+
+    let funding2PreviewSheetApi = {
+      openOverview: () => {},
+      openLearnMorePreview: () => {},
+    };
+    let funding2PreviewSheetBound = false;
+
+    const closeFunding2PreviewSheet = () => {
+      if (!funding2PreviewSheet || !funding2PreviewSheetPanel) return;
+      funding2PreviewSheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!funding2PreviewSheet.classList.contains('is-open')) funding2PreviewSheet.hidden = true;
+        funding2PreviewSheetPanel.removeEventListener('transitionend', onEnd);
+      };
+      funding2PreviewSheetPanel.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const bindFunding2PreviewSheetOnce = () => {
+      if (funding2PreviewSheetBound || !funding2PreviewSheet) return;
+      funding2PreviewSheetBound = true;
+      const onClose = () => closeFunding2PreviewSheet();
+      funding2PreviewSheet.querySelectorAll('[data-funding2-preview-close]').forEach((b) => {
+        b.addEventListener('click', onClose);
+      });
+      funding2PreviewSheet.querySelector('[data-funding2-preview-back]')?.addEventListener('click', onClose);
+      funding2PreviewSheet.querySelector('[data-funding2-preview-continue]')?.addEventListener('click', () => {
+        funding2PreviewSheetApi.openOverview();
+      });
+      funding2PreviewSheet.querySelector('[data-funding2-preview-how]')?.addEventListener('click', () => {
+        funding2PreviewSheetApi.openLearnMorePreview();
+      });
+    };
 
     const closeFunding2ExitSheet = () => {
       if (!funding2ExitSheet || !funding2ExitSheetPanel) return;
@@ -4878,8 +4931,15 @@
         // Reset before unmasking Finance so users never see a scroll jump.
         resetFinanceAutoInvestScrollInstant();
       }
+      closeFunding2PreviewSheet();
       const clone = funding2PanelEl;
       if (!clone) return;
+      funding2PrefundSuccessLoaderGen += 1;
+      const funding2Loader = clone.querySelector('[data-funding2-submit-loader]');
+      if (funding2Loader) funding2Loader.hidden = true;
+      // Collapse stacked inner steps without sliding each one (avoids multi-layer glitch).
+      clone.classList.add('plan-buffer-funding2--instant-inner-close');
+      void clone.offsetWidth;
       const confirmStep = clone.querySelector('[data-funding2-confirm-step]');
       if (confirmStep) {
         confirmStep.hidden = true;
@@ -4890,11 +4950,17 @@
         overviewStep.hidden = true;
         overviewStep.classList.remove('is-open');
       }
+      const successStep = clone.querySelector('[data-funding2-success-step]');
+      if (successStep) {
+        successStep.hidden = true;
+        successStep.classList.remove('is-open');
+      }
       const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');
       if (learnMorePanel) {
         learnMorePanel.classList.remove('is-open');
         learnMorePanel.hidden = true;
       }
+      clone.classList.remove('plan-buffer-funding2--instant-inner-close');
       clone.classList.remove('is-open');
       const onEnd = () => {
         if (!clone.classList.contains('is-open')) clone.hidden = true;
@@ -4915,7 +4981,7 @@
     const ensureFunding2Panel = () => {
       if (funding2PanelEl && funding2PanelEl.isConnected) {
         const structureVersion = funding2PanelEl.getAttribute('data-funding2-structure');
-        if (structureVersion === 'v7') return funding2PanelEl;
+        if (structureVersion === 'v8') return funding2PanelEl;
         funding2PanelEl.remove();
         funding2PanelEl = null;
       }
@@ -4924,7 +4990,7 @@
       const clone = baseFundingPanel.cloneNode(true);
       clone.removeAttribute('data-plan-buffer-panel');
       clone.setAttribute('data-plan-buffer-panel-2', 'true');
-      clone.setAttribute('data-funding2-structure', 'v7');
+      clone.setAttribute('data-funding2-structure', 'v8');
       clone.classList.add('plan-buffer-panel--funding2');
       clone.classList.remove('is-open');
       clone.hidden = true;
@@ -5260,13 +5326,6 @@
           if (planLine) headerTitleEl.setAttribute('data-funding2-plan-line', planLine);
           else headerTitleEl.removeAttribute('data-funding2-plan-line');
         }
-        const confirmTitleEl = clone.querySelector('[data-funding2-confirm-title]');
-        if (confirmTitleEl) {
-          confirmTitleEl.textContent = 'Auto-refill funds';
-          const planLine = planName ? `Plan: ${planName}` : '';
-          if (planLine) confirmTitleEl.setAttribute('data-funding2-plan-line', planLine);
-          else confirmTitleEl.removeAttribute('data-funding2-plan-line');
-        }
         const overviewTitleEl = clone.querySelector('[data-funding2-overview-title]');
         if (overviewTitleEl) {
           overviewTitleEl.textContent = 'Pre-fund overview';
@@ -5294,11 +5353,6 @@
         if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
         const overviewDeductEl = clone.querySelector('[data-funding2-overview-deduct-value]');
         if (overviewDeductEl) overviewDeductEl.textContent = `${reserveCur} balance`;
-        const confirmHeroTitleEl = clone.querySelector('[data-funding2-confirm-hero-title]');
-        if (confirmHeroTitleEl) {
-          const amountToken = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : `0 ${reserveCur}`;
-          confirmHeroTitleEl.innerHTML = `When your reserved funds run out, we’ll automatically pre-fund <span class="plan-buffer-funding2-confirm-hero__amount">${amountToken}</span> again to keep your plan running.`;
-        }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
           if (perBuy > 0) {
@@ -5372,7 +5426,7 @@
 
         const ctaBtn = clone.querySelector('[data-plan-buffer-confirm]');
         if (ctaBtn) {
-          ctaBtn.textContent = `Pre-fund ${hasActiveSelection ? fmt(activeAmount) : 0} ${reserveCur}`;
+          ctaBtn.textContent = 'Preview';
           const isDisabled = !hasActiveSelection;
           ctaBtn.disabled = isDisabled;
           ctaBtn.classList.toggle('is-disabled', isDisabled);
@@ -5469,66 +5523,6 @@
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         if (reserveInput instanceof HTMLInputElement) reserveInput.blur();
         requestAnimationFrame(syncFromOriginal);
-      };
-
-      const ensureFunding2ConfirmStep = () => {
-        let step = clone.querySelector('[data-funding2-confirm-step]');
-        if (step) return step;
-        step = document.createElement('div');
-        step.className = 'plan-buffer-funding2-confirm-step';
-        step.setAttribute('data-funding2-confirm-step', 'true');
-        step.hidden = true;
-        step.innerHTML = `
-          <header class="plan-buffer-funding2-confirm-step__header plan-buffer-panel__header plan-buffer-panel__header--funding">
-            <button type="button" class="plan-buffer-panel__icon-btn" data-funding2-confirm-step-back aria-label="Back">
-              <img src="assets/icon_back.svg" alt="" width="24" height="24" />
-            </button>
-            <h1 class="plan-buffer-panel__title" data-funding2-confirm-title>Auto-refill funds</h1>
-            <button type="button" class="my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right" aria-label="Support">
-              <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
-            </button>
-          </header>
-          
-          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Auto-refill funds confirmation">
-            <div class="plan-buffer-funding-hero plan-buffer-funding2-confirm-hero">
-              <div class="plan-buffer-funding-hero__top">
-                <p class="plan-buffer-funding-hero__title" data-funding2-confirm-hero-title>When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.</p>
-              </div>
-              <div class="plan-buffer-funding2-hero-explained">
-                <button type="button" class="plan-buffer-funding2-explained-link" data-funding2-confirm-howitworks>How it works</button>
-              </div>
-            </div>
-          </div>
-          <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single plan-buffer-funding2-confirm-step__footer">
-            <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-funding2-confirm-continue>Understood, continue</button>
-          </div>
-        `;
-        clone.appendChild(step);
-        step.querySelector('[data-funding2-confirm-howitworks]')?.addEventListener('click', () => {
-          openFunding2LearnMore(1);
-        });
-        step.querySelector('[data-funding2-confirm-continue]')?.addEventListener('click', () => {
-          const overviewStep = ensureFunding2OverviewStep();
-          funding2OverviewConsentChecked = false;
-          syncFromOriginal();
-          syncFunding2OverviewConsentUI();
-          overviewStep.hidden = false;
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              overviewStep.classList.add('is-open');
-            });
-          });
-        });
-        step.querySelector('[data-funding2-confirm-step-back]')?.addEventListener('click', () => {
-          step.classList.remove('is-open');
-          const onEnd = () => {
-            if (!step.classList.contains('is-open')) step.hidden = true;
-            step.removeEventListener('transitionend', onEnd);
-          };
-          step.addEventListener('transitionend', onEnd);
-          setTimeout(onEnd, 320);
-        });
-        return step;
       };
 
       const ensureFunding2OverviewStep = () => {
@@ -5644,6 +5638,129 @@
         return step;
       };
 
+      const openFunding2OverviewAfterPreview = () => {
+        closeFunding2PreviewSheet();
+        const confirmStepEl = clone.querySelector('[data-funding2-confirm-step]');
+        if (confirmStepEl) {
+          confirmStepEl.hidden = true;
+          confirmStepEl.classList.remove('is-open');
+        }
+        const overviewStepEl = ensureFunding2OverviewStep();
+        funding2OverviewConsentChecked = false;
+        syncFromOriginal();
+        syncFunding2OverviewConsentUI();
+        overviewStepEl.hidden = false;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => overviewStepEl.classList.add('is-open'));
+        });
+      };
+
+      const syncFunding2PreviewCopy = () => {
+        if (!funding2PreviewSheet) return;
+        const amountEl = funding2PreviewSheet.querySelector('[data-funding2-preview-amount]');
+        const heroEl = funding2PreviewSheet.querySelector('[data-funding2-preview-hero]');
+        const { reserveCur } = resolveFunding2Numbers();
+        const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
+        const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
+        const amountToken = activeAmount > 0 ? `${fmt(activeAmount)} ${reserveCur}` : `0 ${reserveCur}`;
+        if (amountEl) amountEl.textContent = amountToken;
+        if (heroEl) {
+          const esc = (s) => String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+          const t = esc(amountToken);
+          heroEl.innerHTML = `When these funds run out, we’ll automatically pre-fund <span class="funding2-preview-sheet__hl">${t}</span> <span class="funding2-preview-sheet__hl">again</span> to keep your plan running.`;
+        }
+      };
+
+      const openFunding2PreviewSheet = () => {
+        syncFunding2PreviewCopy();
+        if (!funding2PreviewSheet) return;
+        sheetOpenWithInstantBackdrop(funding2PreviewSheet);
+      };
+
+      funding2PreviewSheetApi.openOverview = openFunding2OverviewAfterPreview;
+      funding2PreviewSheetApi.openLearnMorePreview = () => {
+        closeFunding2PreviewSheet();
+        requestAnimationFrame(() => openFunding2LearnMore(1));
+      };
+      bindFunding2PreviewSheetOnce();
+
+      const syncFunding2SuccessCopy = () => {
+        const successStepEl = clone.querySelector('[data-funding2-success-step]');
+        if (!successStepEl) return;
+        const reservedEl = successStepEl.querySelector('[data-funding2-success-reserved]');
+        const { reserveCur } = resolveFunding2Numbers();
+        const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
+        const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
+        if (reservedEl) {
+          reservedEl.textContent = activeAmount > 0
+            ? `Reserved ${fmt(activeAmount)} ${reserveCur}`
+            : `Reserved — ${reserveCur}`;
+        }
+      };
+
+      const leaveFunding2SuccessDone = () => {
+        planSuccessApi.forceClose();
+        planOverviewApi.close({ instant: true });
+        closeFunding2Panel({ resetFinanceScroll: true });
+        setOpen(false);
+        tabNavApi.setActiveTab('finance');
+        financeHeaderApi.setFinancePage('auto');
+        window.setTimeout(() => {
+          const content = document.querySelector('[data-content]');
+          if (content) content.scrollTop = 0;
+          const autoPageEl = document.querySelector('[data-finance-page="auto"]');
+          if (autoPageEl && 'scrollTop' in autoPageEl) autoPageEl.scrollTop = 0;
+        }, 180);
+      };
+
+      const leaveFunding2SuccessDismiss = () => {
+        planSuccessApi.forceClose();
+        planOverviewApi.close({ instant: true });
+        closeFunding2Panel({ resetFinanceScroll: true });
+        setOpen(false);
+        goFinanceAutoInvestFromSuccess();
+      };
+
+      const ensureFunding2SuccessStep = () => {
+        let successStep = clone.querySelector('[data-funding2-success-step]');
+        if (successStep) return successStep;
+        successStep = document.createElement('div');
+        successStep.className = 'plan-buffer-funding2-success-step';
+        successStep.setAttribute('data-funding2-success-step', 'true');
+        successStep.hidden = true;
+        successStep.setAttribute('aria-label', 'Pre-fund set up success');
+        successStep.innerHTML = `
+          <header class="plan-buffer-funding2-success-step__header">
+            <button type="button" class="plan-buffer-funding2-success-step__icon-btn" data-funding2-success-dismiss aria-label="Close">
+              <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+            </button>
+            <div class="plan-buffer-funding2-success-step__header-spacer" aria-hidden="true"></div>
+          </header>
+          <div class="plan-buffer-funding2-success-step__scroller">
+            <div class="plan-buffer-funding2-success-step__body">
+              <div class="plan-buffer-funding2-success-step__hero">
+                <img class="plan-buffer-funding2-success-step__icon" src="assets/icon_success_screen.svg" alt="" width="60" height="60" aria-hidden="true" />
+                <div class="plan-buffer-funding2-success-step__headline">You’ve successfully <br aria-hidden="true" />pre-funded your plan</div>
+                <p class="plan-buffer-funding2-success-step__reserved" data-funding2-success-reserved>Reserved —</p>
+              </div>
+            </div>
+            <div class="plan-buffer-funding2-success-step__footer">
+              <button class="plan-buffer-funding2-success-step__btn plan-buffer-funding2-success-step__btn--done" type="button" data-funding2-success-done>Done</button>
+            </div>
+          </div>
+        `;
+        clone.appendChild(successStep);
+
+        successStep.querySelector('[data-funding2-success-dismiss]')?.addEventListener('click', leaveFunding2SuccessDismiss);
+
+        successStep.querySelector('[data-funding2-success-done]')?.addEventListener('click', leaveFunding2SuccessDone);
+
+        return successStep;
+      };
+
       const resetFunding2State = () => {
         funding2SelectedAmount = null;
         funding2OptionBaseAmount = null;
@@ -5657,17 +5774,58 @@
         e.preventDefault();
         e.stopPropagation();
         if (funding2ConfirmBtn.disabled) return;
-        const step = ensureFunding2ConfirmStep();
-        step.hidden = false;
-        requestAnimationFrame(() => step.classList.add('is-open'));
+        openFunding2PreviewSheet();
       });
 
       clone.addEventListener('click', handleFunding2OptionClick);
       clone.addEventListener('mousedown', handleFunding2OptionMouseDown);
       clone.addEventListener('input', handleCloneInput);
       clone.addEventListener('change', handleCloneChange);
+
+      const ensureFunding2SubmitLoader = () => {
+        let el = clone.querySelector('[data-funding2-submit-loader]');
+        if (el) return el;
+        el = document.createElement('div');
+        el.className = 'plan-submit-loader';
+        el.setAttribute('data-funding2-submit-loader', 'true');
+        el.hidden = true;
+        el.innerHTML = `
+          <div class="plan-submit-loader__backdrop" aria-hidden="true"></div>
+          <div class="plan-submit-loader__card" role="status" aria-live="polite" aria-label="Submitting">
+            <img class="plan-submit-loader__icon" src="assets/icon-loading.svg" alt="" width="40" height="40" aria-hidden="true" />
+          </div>
+        `;
+        clone.appendChild(el);
+        return el;
+      };
+
+      clone.addEventListener('click', (e) => {
+        const overviewConfirm = e.target.closest('[data-funding2-overview-confirm]');
+        if (!overviewConfirm || !clone.contains(overviewConfirm)) return;
+        if (overviewConfirm.disabled) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const loaderEl = ensureFunding2SubmitLoader();
+        funding2PrefundSuccessLoaderGen += 1;
+        const gen = funding2PrefundSuccessLoaderGen;
+        overviewConfirm.disabled = true;
+        loaderEl.hidden = false;
+        window.setTimeout(() => {
+          if (gen !== funding2PrefundSuccessLoaderGen) {
+            loaderEl.hidden = true;
+            syncFunding2OverviewConsentUI();
+            return;
+          }
+          loaderEl.hidden = true;
+          const successStep = ensureFunding2SuccessStep();
+          syncFunding2SuccessCopy();
+          successStep.hidden = false;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => successStep.classList.add('is-open'));
+          });
+        }, FUNDING2_PREFUND_SUCCESS_LOADER_MS);
+      });
       resetFunding2State();
-      ensureFunding2ConfirmStep();
       clone._funding2Reset = resetFunding2State;
       funding2PanelEl = clone;
       return funding2PanelEl;
@@ -5677,6 +5835,7 @@
       const teardownPlanFlow = opts.teardownPlanFlow !== false;
       const funding2 = ensureFunding2Panel();
       if (!funding2) return;
+      closeFunding2PreviewSheet();
       funding2._funding2Reset?.();
       if (funding2.querySelector('.plan-buffer-panel__scroller')) {
         funding2.querySelector('.plan-buffer-panel__scroller').scrollTop = 0;
@@ -5691,6 +5850,14 @@
         overviewStep.hidden = true;
         overviewStep.classList.remove('is-open');
       }
+      const funding2SuccessStep = funding2.querySelector('[data-funding2-success-step]');
+      if (funding2SuccessStep) {
+        funding2SuccessStep.hidden = true;
+        funding2SuccessStep.classList.remove('is-open');
+      }
+      funding2PrefundSuccessLoaderGen += 1;
+      const openFl = funding2.querySelector('[data-funding2-submit-loader]');
+      if (openFl) openFl.hidden = true;
       const learnMorePanel = funding2.querySelector('[data-plan-buffer-learn-more-panel]');
       if (learnMorePanel) {
         learnMorePanel.hidden = true;
