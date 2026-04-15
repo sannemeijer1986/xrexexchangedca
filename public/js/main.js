@@ -5150,9 +5150,15 @@
           ctaBtn.disabled = isDisabled;
           ctaBtn.classList.toggle('is-disabled', isDisabled);
         }
+
+        // Keep Pre-fund in a true empty visual state on open / zero amount.
+        if (reserveInput instanceof HTMLInputElement && !hasActiveSelection && rawAmount === 0) {
+          reserveInput.value = '';
+        }
       };
 
       const handleCloneClick = (e) => {
+        if (e.target.closest('[data-funding2-option-btn]')) return;
         const target = e.target.closest('[data-funding2-sync-id]');
         if (!target || !clone.contains(target)) return;
         if (target.hasAttribute('data-plan-buffer2-exit-open') || target.hasAttribute('data-plan-buffer2-close')) return;
@@ -5210,8 +5216,21 @@
         requestAnimationFrame(syncFromOriginal);
       };
 
+      const handleFunding2OptionMouseDown = (e) => {
+        const optionBtn = e.target.closest('[data-funding2-option-btn]');
+        if (!optionBtn || !clone.contains(optionBtn)) return;
+        // When amount input is focused, first click can be consumed by blur.
+        // Apply on mousedown so one click always selects immediately.
+        e.preventDefault();
+        const n = parseInt(String(optionBtn.getAttribute('data-funding2-option-amount') || ''), 10);
+        if (!Number.isFinite(n) || n <= 0) return;
+        applyFunding2Amount(n);
+        requestAnimationFrame(syncFromOriginal);
+      };
+
       clone.addEventListener('click', handleCloneClick);
       clone.addEventListener('click', handleFunding2OptionClick);
+      clone.addEventListener('mousedown', handleFunding2OptionMouseDown);
       clone.addEventListener('input', handleCloneInput);
       clone.addEventListener('change', handleCloneChange);
       funding2SyncFromOriginal = syncFromOriginal;

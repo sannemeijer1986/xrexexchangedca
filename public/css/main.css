@@ -9190,7 +9190,8 @@ div.currency-sheet__item-icon::before {
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-option.is-active {
   background: #47494a;
-  border: 2px solid #ffffff;
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-option__main {
   font-size: 16px;

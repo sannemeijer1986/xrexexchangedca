@@ -9472,7 +9472,8 @@ div.currency-sheet__item-icon {
 
   .plan-buffer-funding2-option.is-active {
     background: #47494a;
-    border: 2px solid #ffffff;
+    outline: 2px solid #ffffff;
+    outline-offset: -2px;
   }
 
   .plan-buffer-funding2-option__main {
