@@ -3707,8 +3707,11 @@
         else if (Number.isFinite(per) && per > 0) totalInvAmount = per * completedCount;
       }
       const totalInv = formatMoneyDisplayCurrency(totalInvAmount, cur);
-      if (flowState !== 4 && flowState !== 5) {
-        list.appendChild(row('Next buy', shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK)));
+      if (flowState !== 5) {
+        const nextBuyValue = flowState === 4
+          ? '- -'
+          : shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
+        list.appendChild(row('Next buy', nextBuyValue));
       }
       list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
