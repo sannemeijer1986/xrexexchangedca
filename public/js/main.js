@@ -4875,6 +4875,11 @@
         confirmStep.hidden = true;
         confirmStep.classList.remove('is-open');
       }
+      const overviewStep = clone.querySelector('[data-funding2-overview-step]');
+      if (overviewStep) {
+        overviewStep.hidden = true;
+        overviewStep.classList.remove('is-open');
+      }
       const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');
       if (learnMorePanel) {
         learnMorePanel.classList.remove('is-open');
@@ -4921,6 +4926,16 @@
         headerCloseBtn.setAttribute('aria-label', 'Back');
         const icon = headerCloseBtn.querySelector('img');
         if (icon) icon.setAttribute('src', 'assets/icon_back.svg');
+      }
+      const headerSpacer = clone.querySelector('.plan-buffer-panel__header .plan-buffer-panel__header-spacer');
+      if (headerSpacer && !clone.querySelector('[data-funding2-header-help]')) {
+        const helpBtn = document.createElement('button');
+        helpBtn.type = 'button';
+        helpBtn.className = 'my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right';
+        helpBtn.setAttribute('data-funding2-header-help', 'true');
+        helpBtn.setAttribute('aria-label', 'Support');
+        helpBtn.innerHTML = '<img src="assets/icon_intercom.svg" alt="" width="24" height="24" />';
+        headerSpacer.replaceWith(helpBtn);
       }
       const bottomBackBtn = clone.querySelector('[data-plan-buffer-back-bottom]');
       if (bottomBackBtn) {
@@ -5241,9 +5256,17 @@
           if (planLine) confirmTitleEl.setAttribute('data-funding2-plan-line', planLine);
           else confirmTitleEl.removeAttribute('data-funding2-plan-line');
         }
+        const overviewTitleEl = clone.querySelector('[data-funding2-overview-title]');
+        if (overviewTitleEl) {
+          overviewTitleEl.textContent = 'Pre-fund overview';
+          const planLine = planName ? `Plan: ${planName}` : '';
+          if (planLine) overviewTitleEl.setAttribute('data-funding2-plan-line', planLine);
+          else overviewTitleEl.removeAttribute('data-funding2-plan-line');
+        }
         const confirmHeroTitleEl = clone.querySelector('[data-funding2-confirm-hero-title]');
         if (confirmHeroTitleEl) {
-          confirmHeroTitleEl.textContent = 'When your reserved funds run low, we’ll automatically pre-fund again to keep your plan running.';
+          const amountToken = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : `0 ${reserveCur}`;
+          confirmHeroTitleEl.innerHTML = `When your reserved funds run low, we’ll automatically pre-fund <span class="plan-buffer-funding2-confirm-hero__amount">${amountToken}</span> again to keep your plan running.`;
         }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
@@ -5380,6 +5403,8 @@
         const n = parseInt(String(optionBtn.getAttribute('data-funding2-option-amount') || ''), 10);
         if (!Number.isFinite(n) || n <= 0) return;
         applyFunding2Amount(n);
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        if (reserveInput instanceof HTMLInputElement) reserveInput.blur();
         requestAnimationFrame(syncFromOriginal);
       };
 
@@ -5392,6 +5417,8 @@
         const n = parseInt(String(optionBtn.getAttribute('data-funding2-option-amount') || ''), 10);
         if (!Number.isFinite(n) || n <= 0) return;
         applyFunding2Amount(n);
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        if (reserveInput instanceof HTMLInputElement) reserveInput.blur();
         requestAnimationFrame(syncFromOriginal);
       };
 
@@ -5408,7 +5435,9 @@
               <img src="assets/icon_back.svg" alt="" width="24" height="24" />
             </button>
             <h1 class="plan-buffer-panel__title" data-funding2-confirm-title>Auto-refill funds</h1>
-            <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
+            <button type="button" class="my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right" aria-label="Support">
+              <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
+            </button>
           </header>
           
           <div class="plan-buffer-funding2-confirm-step__body" aria-label="Auto-refill funds confirmation">
@@ -5421,12 +5450,57 @@
               </div>
             </div>
           </div>
+          <div class="plan-buffer-panel__footer plan-buffer-panel__footer--single plan-buffer-funding2-confirm-step__footer">
+            <button class="plan-buffer-panel__btn plan-buffer-panel__btn--primary" type="button" data-funding2-confirm-continue>Understood, continue</button>
+          </div>
         `;
         clone.appendChild(step);
         step.querySelector('[data-funding2-confirm-howitworks]')?.addEventListener('click', () => {
           openFunding2LearnMore(1);
         });
+        step.querySelector('[data-funding2-confirm-continue]')?.addEventListener('click', () => {
+          const overviewStep = ensureFunding2OverviewStep();
+          overviewStep.hidden = false;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              overviewStep.classList.add('is-open');
+            });
+          });
+        });
         step.querySelector('[data-funding2-confirm-step-back]')?.addEventListener('click', () => {
+          step.classList.remove('is-open');
+          const onEnd = () => {
+            if (!step.classList.contains('is-open')) step.hidden = true;
+            step.removeEventListener('transitionend', onEnd);
+          };
+          step.addEventListener('transitionend', onEnd);
+          setTimeout(onEnd, 320);
+        });
+        return step;
+      };
+
+      const ensureFunding2OverviewStep = () => {
+        let step = clone.querySelector('[data-funding2-overview-step]');
+        if (step) return step;
+        step = document.createElement('div');
+        step.className = 'plan-buffer-funding2-confirm-step';
+        step.setAttribute('data-funding2-overview-step', 'true');
+        step.hidden = true;
+        step.innerHTML = `
+          <header class="plan-buffer-funding2-confirm-step__header plan-buffer-panel__header plan-buffer-panel__header--funding">
+            <button type="button" class="plan-buffer-panel__icon-btn" data-funding2-overview-step-back aria-label="Back">
+              <img src="assets/icon_back.svg" alt="" width="24" height="24" />
+            </button>
+            <h1 class="plan-buffer-panel__title" data-funding2-overview-title>Pre-fund overview</h1>
+            <button type="button" class="my-plans-detail-panel__icon-btn my-plans-detail-panel__icon-btn--right" aria-label="Support">
+              <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
+            </button>
+          </header>
+          <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
+          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Pre-fund overview"></div>
+        `;
+        clone.appendChild(step);
+        step.querySelector('[data-funding2-overview-step-back]')?.addEventListener('click', () => {
           step.classList.remove('is-open');
           const onEnd = () => {
             if (!step.classList.contains('is-open')) step.hidden = true;
@@ -5479,6 +5553,11 @@
       if (confirmStep) {
         confirmStep.hidden = true;
         confirmStep.classList.remove('is-open');
+      }
+      const overviewStep = funding2.querySelector('[data-funding2-overview-step]');
+      if (overviewStep) {
+        overviewStep.hidden = true;
+        overviewStep.classList.remove('is-open');
       }
       const learnMorePanel = funding2.querySelector('[data-plan-buffer-learn-more-panel]');
       if (learnMorePanel) {

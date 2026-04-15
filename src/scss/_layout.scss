@@ -9472,7 +9472,6 @@ div.currency-sheet__item-icon {
     align-items: flex-start;
     gap: 8px;
     width: 100%;
-    padding-bottom: 8px;
     box-sizing: border-box;
   }
 
@@ -9550,6 +9549,10 @@ div.currency-sheet__item-icon {
     box-sizing: border-box;
   }
 
+  .plan-buffer-funding2-confirm-hero__amount {
+    color: #f6b656;
+  }
+
   // Keep learn-more sheet above the Auto-refill confirm overlay.
   .plan-buffer-learn-more-panel {
     z-index: 10;
@@ -9567,7 +9570,7 @@ div.currency-sheet__item-icon {
   }
 
   .plan-buffer-funding2-options__title {
-    margin: 0;
+    margin: 8px 0 0 0;
     font-size: 16px;
     font-weight: 700;
     color: #ffffff;
