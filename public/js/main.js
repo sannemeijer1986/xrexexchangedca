@@ -4875,6 +4875,11 @@
         confirmStep.hidden = true;
         confirmStep.classList.remove('is-open');
       }
+      const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');
+      if (learnMorePanel) {
+        learnMorePanel.classList.remove('is-open');
+        learnMorePanel.hidden = true;
+      }
       clone.classList.remove('is-open');
       const onEnd = () => {
         if (!clone.classList.contains('is-open')) clone.hidden = true;
@@ -4936,6 +4941,52 @@
           '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>Pre-funding explained</button>';
         scrollerEl.insertBefore(explainedWrap, footerEl);
       }
+      const funding2ExplainedBtn = clone.querySelector('[data-funding2-explained]');
+      const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');
+      const learnMoreTabButtons = Array.from(clone.querySelectorAll('[data-plan-buffer-learn-more-tab]'));
+      const learnMoreViews = Array.from(clone.querySelectorAll('[data-plan-buffer-learn-more-view]'));
+      const setFunding2LearnMoreTab = (tabKey) => {
+        const activeTab = tabKey === 'reserved' ? 'reserved' : 'flexible';
+        learnMoreTabButtons.forEach((btn) => {
+          const on = (btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible') === activeTab;
+          btn.classList.toggle('is-active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        learnMoreViews.forEach((view) => {
+          const on = (view.getAttribute('data-plan-buffer-learn-more-view') || 'flexible') === activeTab;
+          view.hidden = !on;
+        });
+      };
+      const openFunding2LearnMore = () => {
+        if (!learnMorePanel) return;
+        setFunding2LearnMoreTab('reserved');
+        learnMorePanel.hidden = false;
+        requestAnimationFrame(() => learnMorePanel.classList.add('is-open'));
+      };
+      const closeFunding2LearnMore = (opts = {}) => {
+        if (!learnMorePanel) return;
+        if (opts.instant) {
+          learnMorePanel.classList.remove('is-open');
+          learnMorePanel.hidden = true;
+          return;
+        }
+        learnMorePanel.classList.remove('is-open');
+        const onEnd = () => {
+          if (!learnMorePanel.classList.contains('is-open')) learnMorePanel.hidden = true;
+          learnMorePanel.removeEventListener('transitionend', onEnd);
+        };
+        learnMorePanel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 380);
+      };
+      funding2ExplainedBtn?.addEventListener('click', openFunding2LearnMore);
+      learnMoreTabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-plan-buffer-learn-more-tab') || 'flexible';
+          setFunding2LearnMoreTab(key);
+        });
+      });
+      learnMorePanel?.querySelectorAll('[data-plan-buffer-learn-more-close]')
+        .forEach((btn) => btn.addEventListener('click', () => closeFunding2LearnMore()));
       const parseMoneyText = (text) => {
         const m = String(text || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
         if (!m) return null;
@@ -5010,6 +5061,7 @@
 
       let funding2SelectedAmount = null;
       let funding2OptionBaseAmount = null;
+      const formatWithCommas = (n) => Number(n).toLocaleString('en-US');
       const resolveFunding2Numbers = () => {
         const perBuyData = getFunding2PerBuy('TWD');
         const reserveCur = String(perBuyData.currency || 'TWD').trim().toUpperCase();
@@ -5021,7 +5073,7 @@
         if (!(reserveInput instanceof HTMLInputElement)) return;
         const n = Number.isFinite(Number(nextAmount)) ? Math.max(0, Math.floor(Number(nextAmount))) : 0;
         funding2SelectedAmount = n > 0 ? n : null;
-        reserveInput.value = n > 0 ? String(n) : '';
+        reserveInput.value = n > 0 ? formatWithCommas(n) : '';
       };
 
       const syncFromOriginal = () => {
@@ -5162,6 +5214,7 @@
         funding2SelectedAmount = null;
         const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
         funding2OptionBaseAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        target.value = Number.isFinite(parsed) && parsed > 0 ? formatWithCommas(parsed) : '';
         requestAnimationFrame(syncFromOriginal);
       };
 
@@ -5277,6 +5330,11 @@
       if (confirmStep) {
         confirmStep.hidden = true;
         confirmStep.classList.remove('is-open');
+      }
+      const learnMorePanel = funding2.querySelector('[data-plan-buffer-learn-more-panel]');
+      if (learnMorePanel) {
+        learnMorePanel.hidden = true;
+        learnMorePanel.classList.remove('is-open');
       }
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));

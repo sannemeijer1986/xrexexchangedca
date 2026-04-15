@@ -9487,13 +9487,11 @@ div.currency-sheet__item-icon {
     border-radius: inherit;
     overflow: hidden;
     transform: translateX(100%);
-    opacity: 0;
-    transition: transform 0.32s ease, opacity 0.32s ease;
+    transition: transform 0.32s ease;
   }
 
   .plan-buffer-funding2-confirm-step.is-open {
     transform: translateX(0);
-    opacity: 1;
   }
 
   .plan-buffer-funding2-confirm-step[hidden] {
