@@ -5452,6 +5452,22 @@
         const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
         const coverUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
         const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
+        const resolveFunding2CoversDate = () => {
+          const fromContext = String(
+            funding2ContextRecord?.nextBuy
+              || funding2ContextRecord?.firstBuy
+              || '',
+          ).trim();
+          if (fromContext && fromContext !== '- -' && fromContext !== '—') return fromContext;
+          const fromOverview = String(panel.querySelector('[data-plan-overview-first-buy]')?.textContent || '').trim();
+          if (fromOverview && fromOverview !== '- -' && fromOverview !== '—') return shortenWeekdayLabel(fromOverview);
+          const fromSummary = String(document.querySelector('[data-finance-summary-next-buy]')?.textContent || '').trim();
+          if (fromSummary && fromSummary !== '- -' && fromSummary !== '—') return shortenWeekdayLabel(fromSummary);
+          const schedText = String(panel.querySelector('[data-plan-detail-schedule]')?.textContent || '').trim();
+          const fromSchedule = formatFinanceNextBuyCompact(schedText);
+          if (fromSchedule && fromSchedule !== '- -' && fromSchedule !== '—') return shortenWeekdayLabel(fromSchedule);
+          return FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+        };
 
         const headTitle = clone.querySelector('.plan-buffer-funding-input__title');
         if (headTitle) headTitle.textContent = 'Amount';
@@ -5480,11 +5496,7 @@
         }
         const overviewCoversSubEl = clone.querySelector('[data-funding2-overview-covers-sub]');
         if (overviewCoversSubEl) {
-          const coversDate = String(
-            funding2ContextRecord?.nextBuy
-              || funding2ContextRecord?.firstBuy
-              || '- -',
-          ).trim() || '- -';
+          const coversDate = resolveFunding2CoversDate();
           overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 ? `Until ${coversDate}` : '';
         }
         const overviewAutorefillAmountEl = clone.querySelector('[data-funding2-overview-autorefill-amount]');
@@ -5554,11 +5566,7 @@
           const amountEl = meta.querySelector('[data-funding2-meta-amount]');
           const coversEl = meta.querySelector('[data-funding2-meta-covers]');
           const untilEl = meta.querySelector('[data-funding2-meta-until]');
-          const coversDate = String(
-            funding2ContextRecord?.nextBuy
-              || funding2ContextRecord?.firstBuy
-              || '- -',
-          ).trim() || '- -';
+          const coversDate = resolveFunding2CoversDate();
           meta.hidden = !hasActiveSelection;
           if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
           if (coversEl) coversEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
