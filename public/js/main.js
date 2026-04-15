@@ -1235,6 +1235,8 @@
   // Feature flag: keep the "Set end condition" step implemented but bypass it for this prototype iteration.
   // Flip to true to restore flow: Plan -> Set end condition -> Funding.
   const ENABLE_PLAN_END_CONDITION_STEP = false;
+  // Temporary flag: disable "Not enough ... for one buy" amount-input error messaging.
+  const ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR = false;
 
   const FINANCE_SUMMARY_NEXT_BUY_FALLBACK = 'Wed, Apr 15';
 
@@ -6084,6 +6086,7 @@
       const noAssets = allocCount < 1;
       const noAmount = !amount || amount <= 0;
       const exceedsBalance = amount > balance;
+      const shouldBlockOneBuyBalance = ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR && exceedsBalance;
 
       let allocationOutOfBalance = false;
       const allocRoot = getActiveAllocMultiRoot();
@@ -6109,7 +6112,7 @@
         }
       }
 
-      continueBtn.disabled = noAssets || noAmount || exceedsBalance || allocationOutOfBalance;
+      continueBtn.disabled = noAssets || noAmount || shouldBlockOneBuyBalance || allocationOutOfBalance;
 
       const isPctAllocInvalid =
         allocRoot
@@ -6283,7 +6286,7 @@
 
       if (amount > balance) {
         coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
-        setError(true, 'Not enough balance for one buy');
+        setError(ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR, ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR ? 'Not enough balance for one buy' : null);
         syncCoveragePlaceholderTone(coverageValueEl);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
@@ -6296,7 +6299,10 @@
 
       if (buys === 0) {
         coverageValueEl.textContent = formatCoverageBuysValue(0, endT);
-        setError(true, `Not enough <span data-plan-detail-error-currency>${cur}</span> for one buy`);
+        setError(
+          ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR,
+          ENABLE_PLAN_AMOUNT_ONE_BUY_ERROR ? `Not enough <span data-plan-detail-error-currency>${cur}</span> for one buy` : null,
+        );
         syncCoveragePlaceholderTone(coverageValueEl);
         refillTotalPlannedForSetLimit();
         syncPlanDetailSetLimitDetailRowsVisibility();
