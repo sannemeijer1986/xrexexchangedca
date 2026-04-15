@@ -9364,7 +9364,7 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 24px 16px 0;
+  padding: 52px 16px 12px;
   box-sizing: border-box;
   min-height: 48px;
 }
@@ -9432,12 +9432,12 @@ div.currency-sheet__item-icon::before {
   text-align: center;
   line-height: normal;
 }
-[data-plan-buffer-panel-2] .phone-container p.plan-buffer-funding2-success-step__reserved, [data-plan-buffer-panel-2] .plan-buffer-panel p.plan-buffer-funding2-success-step__reserved {
+[data-plan-buffer-panel-2] p.plan-buffer-funding2-success-step__reserved {
   margin: 0;
   width: 100%;
   font-size: 16px;
   font-weight: 600;
-  color: #5AC47D;
+  color: #5ac47d;
   text-align: center;
   line-height: normal;
 }

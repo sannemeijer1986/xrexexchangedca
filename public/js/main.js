@@ -5697,8 +5697,8 @@
         const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
         if (reservedEl) {
           reservedEl.textContent = activeAmount > 0
-            ? `Reserved ${fmt(activeAmount)} ${reserveCur}`
-            : `Reserved — ${reserveCur}`;
+            ? `Pre-funded ${fmt(activeAmount)} ${reserveCur}`
+            : `Pre-funded — ${reserveCur}`;
         }
       };
 
@@ -5745,7 +5745,7 @@
               <div class="plan-buffer-funding2-success-step__hero">
                 <img class="plan-buffer-funding2-success-step__icon" src="assets/icon_success_screen.svg" alt="" width="60" height="60" aria-hidden="true" />
                 <div class="plan-buffer-funding2-success-step__headline">You’ve successfully <br aria-hidden="true" />pre-funded your plan</div>
-                <p class="plan-buffer-funding2-success-step__reserved" data-funding2-success-reserved>Reserved —</p>
+                <p class="plan-buffer-funding2-success-step__reserved" data-funding2-success-reserved>Pre-funded —</p>
               </div>
             </div>
             <div class="plan-buffer-funding2-success-step__footer">
