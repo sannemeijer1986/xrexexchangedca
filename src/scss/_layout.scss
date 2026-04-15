@@ -3525,25 +3525,26 @@ button.finance-summary__stat-value--chevron {
 
 // Funding 2 pre-fund preview bottom sheet (Figma 8946:114672)
 .currency-sheet--funding2-preview {
-  .currency-sheet__panel {
+  .currency-sheet__panel.funding2-preview-sheet__panel {
     background: #1b1d1d;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    padding-bottom: 16px;
+    padding-bottom: 0;
+    overflow: hidden;
   }
 
-  .currency-sheet__handle-wrap {
+  .funding2-preview-sheet__handle-wrap {
     padding: 16px 156px;
   }
 
-  .currency-sheet__handle {
+  .funding2-preview-sheet__handle {
     width: 48px;
     height: 6px;
     background: #47494a;
     border-radius: 12px;
   }
 
-  .currency-sheet__body--funding2-preview {
+  .funding2-preview-sheet__body {
     padding: 16px 16px 24px;
     display: flex;
     flex-direction: column;
@@ -3555,11 +3556,10 @@ button.finance-summary__stat-value--chevron {
   .funding2-preview-sheet__top {
     display: flex;
     flex-direction: column;
-    gap: 8px;
     width: 100%;
   }
 
-  .phone-container p.funding2-preview-sheet__kicker {
+  p.funding2-preview-sheet__kicker {
     margin: 0;
     font-family: 'Manrope', sans-serif;
     font-size: 14px;
@@ -3568,7 +3568,7 @@ button.finance-summary__stat-value--chevron {
     line-height: normal;
   }
 
-  .phone-container p.funding2-preview-sheet__amount {
+  p.funding2-preview-sheet__amount {
     margin: 0;
     font-family: 'Manrope', sans-serif;
     font-size: 26px;
@@ -3585,7 +3585,7 @@ button.finance-summary__stat-value--chevron {
     width: 100%;
   }
 
-  .phone-container p.funding2-preview-sheet__hero {
+  p.funding2-preview-sheet__hero {
     margin: 0;
     font-family: 'Manrope', sans-serif;
     font-size: 18px;
@@ -3612,7 +3612,7 @@ button.finance-summary__stat-value--chevron {
     cursor: pointer;
   }
 
-  .currency-sheet__footer--funding2-preview {
+  .funding2-preview-sheet__footer {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -3622,8 +3622,10 @@ button.finance-summary__stat-value--chevron {
     box-sizing: border-box;
   }
 
-  .currency-sheet__footer--funding2-preview .plan-buffer-panel__btn {
+  .funding2-preview-sheet__btn {
     margin: 0;
+    width: 100%;
+    flex: auto;
     font-family: 'Manrope', sans-serif;
   }
 }

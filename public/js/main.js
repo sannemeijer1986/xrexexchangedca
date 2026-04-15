@@ -5399,8 +5399,9 @@
                 optionBtn.setAttribute('data-funding2-option-btn', 'true');
                 optionBtn.setAttribute('data-funding2-option-amount', String(amountValue));
                 optionBtn.innerHTML = `
-                  <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : `${coverUnit}s`}</span>
                   <span class="plan-buffer-funding2-option__sub">${fmt(amountValue)}</span>
+                <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : `${coverUnit}s`}</span>
+
                 `;
                 optionsList.appendChild(optionBtn);
               });
