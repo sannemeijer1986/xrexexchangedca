@@ -11821,6 +11821,10 @@ div.currency-sheet__item-icon::before {
   color: #eb5347;
 }
 
+.my-plans-position-card__row-value--warning {
+  color: #ff6d47;
+}
+
 .my-plans-position-card__row-value--with-check {
   display: inline-flex;
   align-items: center;

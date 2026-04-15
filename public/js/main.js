@@ -3716,6 +3716,7 @@
         const fundingState = states.funding ?? 1;
         const isFundingInsufficient = fundingState === 2 && !planRecord.isReserved;
         const isFundingPrefundLeft = fundingState === 3;
+        const isFundingPrefundLow = fundingState === 4;
         const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
         fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
         const fundValue = el(
@@ -3723,13 +3724,28 @@
           `my-plans-position-card__row-value my-plans-position-card__row-value--with-check ${
             isFundingInsufficient
               ? 'my-plans-position-card__row-value--negative my-plans-position-card__row-value--with-chevron'
-              : 'my-plans-position-card__row-value--positive'
+              : isFundingPrefundLow
+                ? 'my-plans-position-card__row-value--warning my-plans-position-card__row-value--with-chevron'
+                : 'my-plans-position-card__row-value--positive'
           }`,
         );
         if (isFundingInsufficient) {
           fundValue.appendChild(document.createTextNode(`Insufficient ${cur} balance`));
           const chevron = document.createElement('img');
           chevron.src = 'assets/icon_chevron_right_red.svg';
+          chevron.alt = '';
+          chevron.className = 'my-plans-position-card__row-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          fundValue.appendChild(chevron);
+        } else if (isFundingPrefundLow) {
+          const oneBuyAmount = Number.isFinite(per) && per > 0 ? per : 0;
+          const oneBuyAmountText = oneBuyAmount.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          });
+          fundValue.appendChild(document.createTextNode(`Pre-funded: ${oneBuyAmountText} ${cur} left`));
+          const chevron = document.createElement('img');
+          chevron.src = 'assets/icon_chevron_right_orange.svg';
           chevron.alt = '';
           chevron.className = 'my-plans-position-card__row-chevron';
           chevron.setAttribute('aria-hidden', 'true');
@@ -3742,8 +3758,15 @@
           check.setAttribute('aria-hidden', 'true');
           fundValue.appendChild(check);
           if (isFundingPrefundLeft) {
-            const prefundAmount = String(planRecord.reservedFunds || '').trim() || `— ${cur}`;
-            fundValue.appendChild(document.createTextNode(`Pre-funded: ${prefundAmount} left`));
+            const parsedReserved = parseMoneyWithCurrency(planRecord.reservedFunds || '');
+            const fallbackPrefundAmount = Number.isFinite(per) && per > 0 ? per * 4 : 0;
+            const prefundAmountText = parsedReserved && parsedReserved.amount > 0
+              ? String(planRecord.reservedFunds || '').trim()
+              : `${fallbackPrefundAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              })} ${cur}`;
+            fundValue.appendChild(document.createTextNode(`Pre-funded: ${prefundAmountText} left`));
           } else {
             fundValue.appendChild(
               document.createTextNode(
