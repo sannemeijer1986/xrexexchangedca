@@ -4295,7 +4295,27 @@
       setTimeout(onEnd, 290);
     };
 
-    const openFunding2FromMyPlans = () => {
+    const openFunding2FromMyPlans = (sourceEl) => {
+      const rec = resolveManagePlanRecord(sourceEl);
+      funding2ContextRecord = rec ? { ...rec } : null;
+      if (rec) {
+        const investLine = String(rec.investLine || '').trim();
+        const perBuyMatch = investLine.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+        const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
+        const planCurEl = panel.querySelector('[data-plan-detail-currency]');
+        const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
+        if (perBuyMatch && amountInput) {
+          const n = parseInt(String(perBuyMatch[1] || '').replace(/,/g, ''), 10);
+          if (Number.isFinite(n) && n > 0) amountInput.value = String(n);
+        }
+        if (perBuyMatch && planCurEl) {
+          planCurEl.textContent = String(perBuyMatch[2] || '').toUpperCase();
+        }
+        const repeats = String(rec.repeats || '').trim();
+        if (repeats && repeats !== '—' && scheduleEl) {
+          scheduleEl.textContent = repeats;
+        }
+      }
       closeManageSheet(true);
       goFinance();
       document.dispatchEvent(new CustomEvent('open-funding2-flow'));
@@ -4422,7 +4442,7 @@
       btn.addEventListener('click', () => {
         const action = btn.getAttribute('data-my-plans-manage-action');
         if (action === 'prefund') {
-          openFunding2FromMyPlans();
+          openFunding2FromMyPlans(btn);
           return;
         }
         if (action === 'recreate') {
@@ -4493,7 +4513,7 @@
     });
 
     detailPanel?.querySelector('.my-plans-detail-panel__prefund-chip')?.addEventListener('click', () => {
-      openFunding2FromMyPlans();
+      openFunding2FromMyPlans(detailPanel);
     });
 
     const open = (openOpts = {}) => {
@@ -4809,6 +4829,7 @@
     let snackbarEl = null;
     let funding2PanelEl = null;
     let funding2SyncFromOriginal = null;
+    let funding2ContextRecord = null;
     const funding2ExitSheet = document.querySelector('[data-funding2-exit-sheet]');
     const funding2ExitSheetPanel = funding2ExitSheet?.querySelector('.currency-sheet__panel');
 
@@ -4868,16 +4889,23 @@
     });
 
     const ensureFunding2Panel = () => {
-      if (funding2PanelEl && funding2PanelEl.isConnected) return funding2PanelEl;
+      if (funding2PanelEl && funding2PanelEl.isConnected) {
+        const structureVersion = funding2PanelEl.getAttribute('data-funding2-structure');
+        if (structureVersion === 'v2') return funding2PanelEl;
+        funding2PanelEl.remove();
+        funding2PanelEl = null;
+      }
       const baseFundingPanel = panel.querySelector('[data-plan-buffer-panel]');
       if (!baseFundingPanel || !container) return null;
       const clone = baseFundingPanel.cloneNode(true);
       clone.removeAttribute('data-plan-buffer-panel');
       clone.setAttribute('data-plan-buffer-panel-2', 'true');
+      clone.setAttribute('data-funding2-structure', 'v2');
+      clone.classList.add('plan-buffer-panel--funding2');
       clone.classList.remove('is-open');
       clone.hidden = true;
       const titleEl = clone.querySelector('.plan-buffer-panel__title');
-      if (titleEl) titleEl.textContent = 'Funding 2';
+      if (titleEl) titleEl.textContent = 'Pre-fund';
       const headerCloseBtn = clone.querySelector('[data-plan-buffer-back]');
       if (headerCloseBtn) {
         headerCloseBtn.setAttribute('data-plan-buffer2-exit-open', 'true');
@@ -4885,10 +4913,14 @@
         const icon = headerCloseBtn.querySelector('img');
         if (icon) icon.setAttribute('src', 'assets/icon_back.svg');
       }
-      clone.querySelector('[data-plan-buffer-back-bottom]')?.setAttribute('data-plan-buffer2-close', 'true');
+      const bottomBackBtn = clone.querySelector('[data-plan-buffer-back-bottom]');
+      if (bottomBackBtn) {
+        bottomBackBtn.setAttribute('data-plan-buffer2-close', 'true');
+        bottomBackBtn.hidden = true;
+        bottomBackBtn.style.display = 'none';
+      }
       container.appendChild(clone);
       clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
-      clone.querySelector('[data-plan-buffer2-close]')?.addEventListener('click', closeFunding2Panel);
 
       const originalNodes = Array.from(baseFundingPanel.querySelectorAll('*'));
       const cloneNodes = Array.from(clone.querySelectorAll('*'));
@@ -4899,6 +4931,67 @@
       }
       const getOriginalBySyncId = (syncId) =>
         baseFundingPanel.querySelector(`[data-funding2-sync-id="${syncId}"]`);
+
+      const parseMoneyText = (text) => {
+        const m = String(text || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+        if (!m) return null;
+        const amount = parseFloat(String(m[1] || '').replace(/,/g, ''));
+        const currency = String(m[2] || '').toUpperCase();
+        if (!Number.isFinite(amount) || !currency) return null;
+        return { amount, currency };
+      };
+
+      const getFunding2PerBuy = (curFallback) => {
+        const fromPlan = parseMoneyText(funding2ContextRecord?.investLine || '');
+        if (fromPlan && fromPlan.amount > 0) return fromPlan;
+        const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]')?.textContent || '';
+        const fromSub = parseMoneyText(perBuySub);
+        if (fromSub && fromSub.amount > 0) return fromSub;
+        return { amount: 0, currency: String(curFallback || 'TWD').toUpperCase() };
+      };
+
+      const ensureFunding2Meta = () => {
+        let meta = clone.querySelector('[data-funding2-meta]');
+        if (meta) return meta;
+        const stack = clone.querySelector('.plan-buffer-funding-stack');
+        if (!stack || !stack.parentElement) return null;
+        meta = document.createElement('div');
+        meta.className = 'plan-buffer-funding2-meta';
+        meta.setAttribute('data-funding2-meta', 'true');
+        meta.innerHTML = `
+          <div class="plan-buffer-funding2-meta__row">
+            <span class="plan-buffer-funding2-meta__label">You will pre-fund</span>
+            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-amount>—</span>
+          </div>
+          <div class="plan-buffer-funding2-meta__row">
+            <span class="plan-buffer-funding2-meta__label">Covers</span>
+            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-covers>—</span>
+          </div>
+          <div class="plan-buffer-funding2-meta__row">
+            <span class="plan-buffer-funding2-meta__label">Covers until</span>
+            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-until>—</span>
+          </div>
+        `;
+        stack.parentElement.appendChild(meta);
+        return meta;
+      };
+
+      const ensureFunding2Options = () => {
+        let wrap = clone.querySelector('[data-funding2-options]');
+        if (wrap) return wrap;
+        const stack = clone.querySelector('.plan-buffer-funding-stack');
+        if (!stack || !stack.parentElement) return null;
+        wrap = document.createElement('div');
+        wrap.className = 'plan-buffer-funding2-options';
+        wrap.setAttribute('data-funding2-options', 'true');
+        wrap.hidden = true;
+        wrap.innerHTML = `
+          <p class="plan-buffer-funding2-options__title">Select an option</p>
+          <div class="plan-buffer-funding2-options__list" data-funding2-options-list></div>
+        `;
+        stack.parentElement.appendChild(wrap);
+        return wrap;
+      };
 
       const syncOneNode = (origNode, cloneNode) => {
         if (!origNode || !cloneNode) return;
@@ -4925,6 +5018,22 @@
         }
       };
 
+      let funding2SelectedAmount = null;
+      let funding2OptionBaseAmount = null;
+      const applyFunding2Amount = (nextAmount) => {
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        if (!(reserveInput instanceof HTMLInputElement)) return;
+        const syncId = reserveInput.getAttribute('data-funding2-sync-id');
+        if (!syncId) return;
+        const origTarget = getOriginalBySyncId(syncId);
+        if (!(origTarget instanceof HTMLInputElement)) return;
+        const n = Number.isFinite(Number(nextAmount)) ? Math.max(0, Math.floor(Number(nextAmount))) : 0;
+        funding2SelectedAmount = n > 0 ? n : null;
+        origTarget.value = String(n);
+        origTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        origTarget.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
       const syncFromOriginal = () => {
         clone.querySelectorAll('[data-funding2-sync-id]').forEach((node) => {
           const syncId = node.getAttribute('data-funding2-sync-id');
@@ -4934,6 +5043,113 @@
           if (node.hasAttribute('data-plan-buffer2-exit-open') || node.hasAttribute('data-plan-buffer2-close')) return;
           syncOneNode(origNode, node);
         });
+
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        const reserveCur = String(clone.querySelector('[data-plan-buffer-reserve-cur]')?.textContent || 'TWD')
+          .trim()
+          .toUpperCase();
+        const parsedRaw = parseInt(String(reserveInput?.value || '').replace(/[^0-9]/g, ''), 10);
+        const rawAmount = Number.isFinite(parsedRaw) ? Math.max(0, parsedRaw) : 0;
+        if (!(rawAmount > 0)) funding2OptionBaseAmount = null;
+        const perBuyData = getFunding2PerBuy(reserveCur);
+        const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
+        const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
+        if (isExactBuyMultiple) funding2SelectedAmount = rawAmount;
+        const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
+        const hasActiveSelection = activeAmount > 0;
+        const completeBuys = perBuy > 0 && hasActiveSelection ? Math.max(0, Math.floor(activeAmount / perBuy)) : 0;
+        const planName = String(
+          funding2ContextRecord?.kicker
+            || funding2ContextRecord?.name
+            || 'My plan',
+        ).trim();
+        const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
+        const freqKey = (
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+        ).toLowerCase();
+        const coverUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
+
+        const headTitle = clone.querySelector('.plan-buffer-funding-input__title');
+        if (headTitle) headTitle.textContent = 'Amount';
+        const heroTitle = clone.querySelector('.plan-buffer-funding-hero__title');
+        if (heroTitle) heroTitle.textContent = 'How much would you like to set aside for your plan?';
+        const headerTitleWrap = clone.querySelector('.plan-buffer-panel__title')?.parentElement;
+        if (headerTitleWrap && !headerTitleWrap.querySelector('[data-funding2-plan-name]')) {
+          const p = document.createElement('p');
+          p.className = 'plan-buffer-funding2-plan-name';
+          p.setAttribute('data-funding2-plan-name', 'true');
+          headerTitleWrap.appendChild(p);
+        }
+        const planNameEl = clone.querySelector('[data-funding2-plan-name]');
+        if (planNameEl) planNameEl.textContent = `Plan: ${planName || '—'}`;
+        const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
+        if (perBuySub) {
+          perBuySub.textContent = perBuy > 0 ? `Each monthly buy is ${fmt(perBuy)} ${perBuyData.currency}` : 'Each monthly buy is —';
+        }
+
+        const roundWrap = clone.querySelector('[data-plan-buffer-rounding]');
+        if (roundWrap) roundWrap.hidden = true;
+        const actionWrap = clone.querySelector('[data-plan-buffer-plan-action]');
+        if (actionWrap) actionWrap.hidden = true;
+        const autoRefill = clone.querySelector('[data-plan-buffer-autorefill]');
+        if (autoRefill) autoRefill.hidden = true;
+        const summaryDivider = clone.querySelector('.plan-buffer-funding-summary-autorefill-divider');
+        if (summaryDivider) summaryDivider.hidden = true;
+        const summaryCard = clone.querySelector('.plan-buffer-funding-summary');
+        if (summaryCard) summaryCard.hidden = true;
+
+        const optionsWrap = ensureFunding2Options();
+        if (optionsWrap) {
+          const optionsList = optionsWrap.querySelector('[data-funding2-options-list]');
+          const showOptions = rawAmount > 0 && perBuy > 0;
+          optionsWrap.hidden = !showOptions;
+          if (optionsList) {
+            optionsList.textContent = '';
+            if (showOptions) {
+              const optionsBaseAmount = Number.isFinite(funding2OptionBaseAmount) && funding2OptionBaseAmount > 0
+                ? funding2OptionBaseAmount
+                : rawAmount;
+              const center = Math.max(1, Math.round(optionsBaseAmount / perBuy));
+              const uniqBuys = Array.from(new Set([Math.max(1, center - 1), center, center + 1])).sort((a, b) => a - b);
+              while (uniqBuys.length < 3) uniqBuys.push((uniqBuys[uniqBuys.length - 1] || 1) + 1);
+              uniqBuys.slice(0, 3).forEach((buyCount) => {
+                const amountValue = buyCount * perBuy;
+                const optionBtn = document.createElement('button');
+                optionBtn.type = 'button';
+                optionBtn.className = 'plan-buffer-funding2-option';
+                if (amountValue === activeAmount) optionBtn.classList.add('is-active');
+                optionBtn.setAttribute('data-funding2-option-btn', 'true');
+                optionBtn.setAttribute('data-funding2-option-amount', String(amountValue));
+                optionBtn.innerHTML = `
+                  <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : `${coverUnit}s`}</span>
+                  <span class="plan-buffer-funding2-option__sub">${fmt(amountValue)}</span>
+                `;
+                optionsList.appendChild(optionBtn);
+              });
+            }
+          }
+        }
+
+        const meta = ensureFunding2Meta();
+        if (meta) {
+          const amountEl = meta.querySelector('[data-funding2-meta-amount]');
+          const coversEl = meta.querySelector('[data-funding2-meta-covers]');
+          const untilEl = meta.querySelector('[data-funding2-meta-until]');
+          const coversDate = String(clone.querySelector('[data-plan-buffer-sum-covers-date]')?.textContent || '- -').trim() || '- -';
+          meta.hidden = !hasActiveSelection;
+          if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
+          if (coversEl) coversEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
+          if (untilEl) untilEl.textContent = hasActiveSelection && completeBuys > 0 ? coversDate : '- -';
+        }
+
+        const ctaBtn = clone.querySelector('[data-plan-buffer-confirm]');
+        if (ctaBtn) {
+          ctaBtn.textContent = `Pre-fund ${hasActiveSelection ? fmt(activeAmount) : 0} ${reserveCur}`;
+          const isDisabled = !hasActiveSelection;
+          ctaBtn.disabled = isDisabled;
+          ctaBtn.classList.toggle('is-disabled', isDisabled);
+        }
       };
 
       const handleCloneClick = (e) => {
@@ -4955,6 +5171,11 @@
         if (!(target instanceof HTMLInputElement)) return;
         const syncId = target.getAttribute('data-funding2-sync-id');
         if (!syncId) return;
+        if (target.matches('[data-plan-buffer-reserve-input]')) {
+          funding2SelectedAmount = null;
+          const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
+          funding2OptionBaseAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        }
         const origTarget = getOriginalBySyncId(syncId);
         if (!(origTarget instanceof HTMLInputElement)) return;
         origTarget.value = target.value;
@@ -4980,7 +5201,17 @@
         }
       };
 
+      const handleFunding2OptionClick = (e) => {
+        const optionBtn = e.target.closest('[data-funding2-option-btn]');
+        if (!optionBtn || !clone.contains(optionBtn)) return;
+        const n = parseInt(String(optionBtn.getAttribute('data-funding2-option-amount') || ''), 10);
+        if (!Number.isFinite(n) || n <= 0) return;
+        applyFunding2Amount(n);
+        requestAnimationFrame(syncFromOriginal);
+      };
+
       clone.addEventListener('click', handleCloneClick);
+      clone.addEventListener('click', handleFunding2OptionClick);
       clone.addEventListener('input', handleCloneInput);
       clone.addEventListener('change', handleCloneChange);
       funding2SyncFromOriginal = syncFromOriginal;
@@ -4991,6 +5222,7 @@
 
     const openFunding2Flow = (opts = {}) => {
       const teardownPlanFlow = opts.teardownPlanFlow !== false;
+      planBufferApi.sync?.();
       const funding2 = ensureFunding2Panel();
       if (!funding2) return;
       funding2SyncFromOriginal?.();
@@ -7660,8 +7892,7 @@
           endSubEl.textContent = endSub;
           endSubEl.hidden = !endSub;
         }
-        const isContinuousEnd = /\bcontinuous\b|\bContinuous\b/i.test(endRaw);
-        const showTotalPlanned = isPlanDetailSetLimitEnd(endRaw) && !isContinuousEnd;
+        const showTotalPlanned = false;
         if (totalPlannedRowEl) {
           totalPlannedRowEl.hidden = !showTotalPlanned;
           totalPlannedRowEl.style.display = showTotalPlanned ? '' : 'none';
@@ -7686,17 +7917,15 @@
           paymentMethodSubEl.hidden = !showPaymentMethodSub;
           paymentMethodSubEl.style.display = showPaymentMethodSub ? '' : 'none';
         }
-        const showPrefund = selectedMethod === 'reserved';
+        const showPrefund = false;
         if (prefundRowEl) {
           prefundRowEl.hidden = !showPrefund;
           prefundRowEl.style.display = showPrefund ? '' : 'none';
         }
-        // Keep divider below "Funding method" visible in both modes:
-        // - reserved: divider sits above "Amount to reserve"
-        // - pay as you go: it becomes the divider above "Deduct from"
+        // Plan overview summary should only keep Duration, Deduct from, and First buy rows.
         if (prefundDividerEl) {
-          prefundDividerEl.hidden = false;
-          prefundDividerEl.style.display = '';
+          prefundDividerEl.hidden = true;
+          prefundDividerEl.style.display = 'none';
         }
         if (runoutDividerEl) {
           runoutDividerEl.hidden = !showPrefund;
