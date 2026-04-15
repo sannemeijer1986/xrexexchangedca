@@ -5670,7 +5670,7 @@
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
           const t = esc(amountToken);
-          heroEl.innerHTML = `When these funds run out, we’ll automatically pre-fund <span class="funding2-preview-sheet__hl">${t}</span> <span class="funding2-preview-sheet__hl">again</span> to keep your plan running.`;
+          heroEl.innerHTML = `When these reserved funds run out, we’ll automatically pre-fund <span class="funding2-preview-sheet__hl">${t}</span> <span class="funding2-preview-sheet__hl">again</span> to keep your plan running.`;
         }
       };
 
