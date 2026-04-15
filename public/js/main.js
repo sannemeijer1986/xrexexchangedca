@@ -23,6 +23,18 @@
         2: 'Compact view',
       },
     },
+    funding: {
+      storageKey: 'xrexexchange.fundingState.v1',
+      min: 1,
+      max: 5,
+      labels: {
+        1: 'Default: Bal Ok',
+        2: 'Default: Bal 0',
+        3: 'Pre-fund: Funds Ok',
+        4: 'Pre-fund: Funds Low',
+        5: 'Pre-fund: Funds 0',
+      },
+    },
   };
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -31,6 +43,11 @@
   /** Exposes flow progress on `<html>` so prototype-only SCSS can key off it. */
   const syncPrototypeFlowToDocument = () => {
     document.documentElement.dataset.prototypeFlow = String(states.flow ?? 1);
+  };
+
+  /** Exposes funding state on `<html>` for prototype-only logic/styles. */
+  const syncPrototypeFundingToDocument = () => {
+    document.documentElement.dataset.prototypeFunding = String(states.funding ?? 1);
   };
 
   /** Set by initMyPlansPanel — refreshes plan cards when Flow progress changes */
@@ -131,6 +148,9 @@
     if (group === 'financeIntro') {
       syncFinanceIntroState();
     }
+    if (group === 'funding') {
+      syncPrototypeFundingToDocument();
+    }
     return clamped;
   };
 
@@ -152,6 +172,7 @@
       updateGroupUI(group);
     });
     syncPrototypeFlowToDocument();
+    syncPrototypeFundingToDocument();
     syncFinanceSummaryVisibility();
     syncFinanceIntroState();
   };
