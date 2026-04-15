@@ -12213,13 +12213,27 @@ div.currency-sheet__item-icon {
   color: #5ac47d;
 }
 
+.my-plans-position-card__row-value--negative {
+  color: #eb5347;
+}
+
 .my-plans-position-card__row-value--with-check {
   display: inline-flex;
   align-items: center;
   gap: 2px;
 }
 
+.my-plans-position-card__row-value--with-chevron {
+  gap: 0px;
+}
+
 .my-plans-position-card__row-check {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.my-plans-position-card__row-chevron {
   width: 16px;
   height: 16px;
   display: block;

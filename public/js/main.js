@@ -150,6 +150,7 @@
     }
     if (group === 'funding') {
       syncPrototypeFundingToDocument();
+      syncMyPlansFlowUi();
     }
     return clamped;
   };
@@ -3700,20 +3701,39 @@
       list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
       if (flowState !== 5) {
+        const fundingState = states.funding ?? 1;
+        const isFundingInsufficient = fundingState === 2 && !planRecord.isReserved;
         const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
         fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
-        const fundValue = el('div', 'my-plans-position-card__row-value my-plans-position-card__row-value--positive my-plans-position-card__row-value--with-check');
-        const check = document.createElement('img');
-        check.src = 'assets/icon_check_green.svg';
-        check.alt = '';
-        check.className = 'my-plans-position-card__row-check';
-        check.setAttribute('aria-hidden', 'true');
-        fundValue.appendChild(check);
-        fundValue.appendChild(
-          document.createTextNode(
-            planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
-          ),
+        const fundValue = el(
+          'div',
+          `my-plans-position-card__row-value my-plans-position-card__row-value--with-check ${
+            isFundingInsufficient
+              ? 'my-plans-position-card__row-value--negative my-plans-position-card__row-value--with-chevron'
+              : 'my-plans-position-card__row-value--positive'
+          }`,
         );
+        if (isFundingInsufficient) {
+          fundValue.appendChild(document.createTextNode(`Insufficient ${cur} balance`));
+          const chevron = document.createElement('img');
+          chevron.src = 'assets/icon_chevron_right_red.svg';
+          chevron.alt = '';
+          chevron.className = 'my-plans-position-card__row-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          fundValue.appendChild(chevron);
+        } else {
+          const check = document.createElement('img');
+          check.src = 'assets/icon_check_green.svg';
+          check.alt = '';
+          check.className = 'my-plans-position-card__row-check';
+          check.setAttribute('aria-hidden', 'true');
+          fundValue.appendChild(check);
+          fundValue.appendChild(
+            document.createTextNode(
+              planRecord.isReserved ? 'Pre-fund' : `${cur} balance`,
+            ),
+          );
+        }
         fundRow.appendChild(fundValue);
         list.appendChild(fundRow);
       }
