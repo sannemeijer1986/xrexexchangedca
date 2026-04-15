@@ -4828,7 +4828,6 @@
     let snackbarTimer = null;
     let snackbarEl = null;
     let funding2PanelEl = null;
-    let funding2SyncFromOriginal = null;
     let funding2ContextRecord = null;
     const funding2ExitSheet = document.querySelector('[data-funding2-exit-sheet]');
     const funding2ExitSheetPanel = funding2ExitSheet?.querySelector('.currency-sheet__panel');
@@ -4871,6 +4870,11 @@
       }
       const clone = funding2PanelEl;
       if (!clone) return;
+      const confirmStep = clone.querySelector('[data-funding2-confirm-step]');
+      if (confirmStep) {
+        confirmStep.hidden = true;
+        confirmStep.classList.remove('is-open');
+      }
       clone.classList.remove('is-open');
       const onEnd = () => {
         if (!clone.classList.contains('is-open')) clone.hidden = true;
@@ -4891,7 +4895,7 @@
     const ensureFunding2Panel = () => {
       if (funding2PanelEl && funding2PanelEl.isConnected) {
         const structureVersion = funding2PanelEl.getAttribute('data-funding2-structure');
-        if (structureVersion === 'v2') return funding2PanelEl;
+        if (structureVersion === 'v5') return funding2PanelEl;
         funding2PanelEl.remove();
         funding2PanelEl = null;
       }
@@ -4900,7 +4904,7 @@
       const clone = baseFundingPanel.cloneNode(true);
       clone.removeAttribute('data-plan-buffer-panel');
       clone.setAttribute('data-plan-buffer-panel-2', 'true');
-      clone.setAttribute('data-funding2-structure', 'v2');
+      clone.setAttribute('data-funding2-structure', 'v5');
       clone.classList.add('plan-buffer-panel--funding2');
       clone.classList.remove('is-open');
       clone.hidden = true;
@@ -4922,16 +4926,16 @@
       container.appendChild(clone);
       clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
 
-      const originalNodes = Array.from(baseFundingPanel.querySelectorAll('*'));
-      const cloneNodes = Array.from(clone.querySelectorAll('*'));
-      const bindCount = Math.min(originalNodes.length, cloneNodes.length);
-      for (let i = 0; i < bindCount; i += 1) {
-        originalNodes[i].setAttribute('data-funding2-sync-id', String(i));
-        cloneNodes[i].setAttribute('data-funding2-sync-id', String(i));
+      const scrollerEl = clone.querySelector('.plan-buffer-panel__scroller');
+      const footerEl = clone.querySelector('.plan-buffer-panel__footer');
+      if (scrollerEl && footerEl && !scrollerEl.querySelector('[data-funding2-explained-wrap]')) {
+        const explainedWrap = document.createElement('div');
+        explainedWrap.className = 'plan-buffer-funding2-footer-pretext';
+        explainedWrap.setAttribute('data-funding2-explained-wrap', 'true');
+        explainedWrap.innerHTML =
+          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>Pre-funding explained</button>';
+        scrollerEl.insertBefore(explainedWrap, footerEl);
       }
-      const getOriginalBySyncId = (syncId) =>
-        baseFundingPanel.querySelector(`[data-funding2-sync-id="${syncId}"]`);
-
       const parseMoneyText = (text) => {
         const m = String(text || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
         if (!m) return null;
@@ -4944,10 +4948,21 @@
       const getFunding2PerBuy = (curFallback) => {
         const fromPlan = parseMoneyText(funding2ContextRecord?.investLine || '');
         if (fromPlan && fromPlan.amount > 0) return fromPlan;
+        const detailAmountRaw = String(panel.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, '');
+        const detailAmount = parseInt(detailAmountRaw, 10);
+        const detailCur = String(
+          panel.querySelector('[data-plan-detail-currency]')?.textContent
+            || currencyState.plan
+            || curFallback
+            || 'TWD',
+        ).trim().toUpperCase();
+        if (Number.isFinite(detailAmount) && detailAmount > 0) {
+          return { amount: detailAmount, currency: detailCur };
+        }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]')?.textContent || '';
         const fromSub = parseMoneyText(perBuySub);
         if (fromSub && fromSub.amount > 0) return fromSub;
-        return { amount: 0, currency: String(curFallback || 'TWD').toUpperCase() };
+        return { amount: 0, currency: detailCur || String(curFallback || 'TWD').toUpperCase() };
       };
 
       const ensureFunding2Meta = () => {
@@ -4986,72 +5001,39 @@
         wrap.setAttribute('data-funding2-options', 'true');
         wrap.hidden = true;
         wrap.innerHTML = `
-          <p class="plan-buffer-funding2-options__title">Select an option</p>
+          <p class="plan-buffer-funding2-options__title">Select nearest option</p>
           <div class="plan-buffer-funding2-options__list" data-funding2-options-list></div>
         `;
         stack.parentElement.appendChild(wrap);
         return wrap;
       };
 
-      const syncOneNode = (origNode, cloneNode) => {
-        if (!origNode || !cloneNode) return;
-        cloneNode.className = origNode.className;
-        cloneNode.hidden = origNode.hidden;
-        if ('disabled' in cloneNode && 'disabled' in origNode) {
-          cloneNode.disabled = !!origNode.disabled;
-        }
-        if (origNode.hasAttribute('aria-pressed')) {
-          cloneNode.setAttribute('aria-pressed', origNode.getAttribute('aria-pressed') || 'false');
-        }
-        if (origNode.hasAttribute('aria-selected')) {
-          cloneNode.setAttribute('aria-selected', origNode.getAttribute('aria-selected') || 'false');
-        }
-        if (cloneNode instanceof HTMLInputElement && origNode instanceof HTMLInputElement) {
-          cloneNode.value = origNode.value;
-          cloneNode.checked = origNode.checked;
-        } else if (
-          cloneNode.childElementCount === 0
-          && origNode.childElementCount === 0
-          && cloneNode.textContent !== origNode.textContent
-        ) {
-          cloneNode.textContent = origNode.textContent;
-        }
-      };
-
       let funding2SelectedAmount = null;
       let funding2OptionBaseAmount = null;
+      const resolveFunding2Numbers = () => {
+        const perBuyData = getFunding2PerBuy('TWD');
+        const reserveCur = String(perBuyData.currency || 'TWD').trim().toUpperCase();
+        const availBalance = Number(BALANCES[reserveCur] ?? BALANCES.TWD ?? 0);
+        return { perBuyData, reserveCur, availBalance };
+      };
       const applyFunding2Amount = (nextAmount) => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         if (!(reserveInput instanceof HTMLInputElement)) return;
-        const syncId = reserveInput.getAttribute('data-funding2-sync-id');
-        if (!syncId) return;
-        const origTarget = getOriginalBySyncId(syncId);
-        if (!(origTarget instanceof HTMLInputElement)) return;
         const n = Number.isFinite(Number(nextAmount)) ? Math.max(0, Math.floor(Number(nextAmount))) : 0;
         funding2SelectedAmount = n > 0 ? n : null;
-        origTarget.value = String(n);
-        origTarget.dispatchEvent(new Event('input', { bubbles: true }));
-        origTarget.dispatchEvent(new Event('change', { bubbles: true }));
+        reserveInput.value = n > 0 ? String(n) : '';
       };
 
       const syncFromOriginal = () => {
-        clone.querySelectorAll('[data-funding2-sync-id]').forEach((node) => {
-          const syncId = node.getAttribute('data-funding2-sync-id');
-          if (!syncId) return;
-          const origNode = getOriginalBySyncId(syncId);
-          if (!origNode) return;
-          if (node.hasAttribute('data-plan-buffer2-exit-open') || node.hasAttribute('data-plan-buffer2-close')) return;
-          syncOneNode(origNode, node);
-        });
-
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
-        const reserveCur = String(clone.querySelector('[data-plan-buffer-reserve-cur]')?.textContent || 'TWD')
-          .trim()
-          .toUpperCase();
+        const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
+        const reserveCurEl = clone.querySelector('[data-plan-buffer-reserve-cur]');
+        if (reserveCurEl) reserveCurEl.textContent = reserveCur;
+        const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
+        if (availEl) availEl.textContent = `Avail. ${Number(availBalance).toLocaleString('en-US')} ${reserveCur}`;
         const parsedRaw = parseInt(String(reserveInput?.value || '').replace(/[^0-9]/g, ''), 10);
         const rawAmount = Number.isFinite(parsedRaw) ? Math.max(0, parsedRaw) : 0;
         if (!(rawAmount > 0)) funding2OptionBaseAmount = null;
-        const perBuyData = getFunding2PerBuy(reserveCur);
         const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
         if (isExactBuyMultiple) funding2SelectedAmount = rawAmount;
@@ -5074,18 +5056,21 @@
         if (headTitle) headTitle.textContent = 'Amount';
         const heroTitle = clone.querySelector('.plan-buffer-funding-hero__title');
         if (heroTitle) heroTitle.textContent = 'How much would you like to set aside for your plan?';
-        const headerTitleWrap = clone.querySelector('.plan-buffer-panel__title')?.parentElement;
-        if (headerTitleWrap && !headerTitleWrap.querySelector('[data-funding2-plan-name]')) {
-          const p = document.createElement('p');
-          p.className = 'plan-buffer-funding2-plan-name';
-          p.setAttribute('data-funding2-plan-name', 'true');
-          headerTitleWrap.appendChild(p);
+        const headerTitleEl = clone.querySelector('.plan-buffer-panel__title');
+        if (headerTitleEl) {
+          headerTitleEl.textContent = 'Pre-fund';
+          const planLine = planName ? `Plan: ${planName}` : '';
+          if (planLine) headerTitleEl.setAttribute('data-funding2-plan-line', planLine);
+          else headerTitleEl.removeAttribute('data-funding2-plan-line');
         }
-        const planNameEl = clone.querySelector('[data-funding2-plan-name]');
-        if (planNameEl) planNameEl.textContent = `Plan: ${planName || '—'}`;
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
-          perBuySub.textContent = perBuy > 0 ? `Each monthly buy is ${fmt(perBuy)} ${perBuyData.currency}` : 'Each monthly buy is —';
+          if (perBuy > 0) {
+            perBuySub.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each monthly buy is </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${perBuyData.currency}</span>`;
+          } else {
+            perBuySub.innerHTML =
+              '<span class="plan-buffer-funding-hero__subtitle-prefix">Each monthly buy is </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>';
+          }
         }
 
         const roundWrap = clone.querySelector('[data-plan-buffer-rounding]');
@@ -5101,6 +5086,8 @@
 
         const optionsWrap = ensureFunding2Options();
         if (optionsWrap) {
+          const optionsTitle = optionsWrap.querySelector('.plan-buffer-funding2-options__title');
+          if (optionsTitle) optionsTitle.textContent = 'Select nearest option';
           const optionsList = optionsWrap.querySelector('[data-funding2-options-list]');
           const showOptions = rawAmount > 0 && perBuy > 0;
           optionsWrap.hidden = !showOptions;
@@ -5136,7 +5123,11 @@
           const amountEl = meta.querySelector('[data-funding2-meta-amount]');
           const coversEl = meta.querySelector('[data-funding2-meta-covers]');
           const untilEl = meta.querySelector('[data-funding2-meta-until]');
-          const coversDate = String(clone.querySelector('[data-plan-buffer-sum-covers-date]')?.textContent || '- -').trim() || '- -';
+          const coversDate = String(
+            funding2ContextRecord?.nextBuy
+              || funding2ContextRecord?.firstBuy
+              || '- -',
+          ).trim() || '- -';
           meta.hidden = !hasActiveSelection;
           if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
           if (coversEl) coversEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
@@ -5157,55 +5148,34 @@
         }
       };
 
-      const handleCloneClick = (e) => {
-        if (e.target.closest('[data-funding2-option-btn]')) return;
-        const target = e.target.closest('[data-funding2-sync-id]');
-        if (!target || !clone.contains(target)) return;
-        if (target.hasAttribute('data-plan-buffer2-exit-open') || target.hasAttribute('data-plan-buffer2-close')) return;
-        const syncId = target.getAttribute('data-funding2-sync-id');
-        if (!syncId) return;
-        const origTarget = getOriginalBySyncId(syncId);
-        if (!origTarget) return;
-        if (origTarget instanceof HTMLElement) {
-          origTarget.click();
-          requestAnimationFrame(syncFromOriginal);
-        }
-      };
-
       const handleCloneInput = (e) => {
         const target = e.target;
         if (!(target instanceof HTMLInputElement)) return;
-        const syncId = target.getAttribute('data-funding2-sync-id');
-        if (!syncId) return;
-        if (target.matches('[data-plan-buffer-reserve-input]')) {
-          funding2SelectedAmount = null;
-          const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
-          funding2OptionBaseAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-        }
-        const origTarget = getOriginalBySyncId(syncId);
-        if (!(origTarget instanceof HTMLInputElement)) return;
-        origTarget.value = target.value;
-        if (target.type === 'checkbox' || target.type === 'radio') origTarget.checked = target.checked;
-        origTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        if (!target.matches('[data-plan-buffer-reserve-input]')) return;
+        funding2SelectedAmount = null;
+        const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
+        funding2OptionBaseAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
         requestAnimationFrame(syncFromOriginal);
       };
 
       const handleCloneChange = (e) => {
         const target = e.target;
-        if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
-        const syncId = target.getAttribute('data-funding2-sync-id');
-        if (!syncId) return;
-        const origTarget = getOriginalBySyncId(syncId);
-        if (!origTarget) return;
-        if (origTarget instanceof HTMLInputElement || origTarget instanceof HTMLSelectElement) {
-          origTarget.value = target.value;
-          if (origTarget instanceof HTMLInputElement && target instanceof HTMLInputElement) {
-            origTarget.checked = target.checked;
-          }
-          origTarget.dispatchEvent(new Event('change', { bubbles: true }));
-          requestAnimationFrame(syncFromOriginal);
-        }
+        if (!(target instanceof HTMLInputElement)) return;
+        if (!target.matches('[data-plan-buffer-reserve-input]')) return;
+        requestAnimationFrame(syncFromOriginal);
       };
+
+      const maxBtn = clone.querySelector('[data-plan-buffer-reserve-max]');
+      maxBtn?.addEventListener('click', () => {
+        const { perBuyData, availBalance } = resolveFunding2Numbers();
+        const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
+        const maxAmount = perBuy > 0
+          ? Math.floor(availBalance / perBuy) * perBuy
+          : availBalance;
+        applyFunding2Amount(maxAmount);
+        funding2OptionBaseAmount = maxAmount > 0 ? maxAmount : null;
+        requestAnimationFrame(syncFromOriginal);
+      });
 
       const handleFunding2OptionClick = (e) => {
         const optionBtn = e.target.closest('[data-funding2-option-btn]');
@@ -5228,25 +5198,78 @@
         requestAnimationFrame(syncFromOriginal);
       };
 
-      clone.addEventListener('click', handleCloneClick);
+      const ensureFunding2ConfirmStep = () => {
+        let step = clone.querySelector('[data-funding2-confirm-step]');
+        if (step) return step;
+        step = document.createElement('div');
+        step.className = 'plan-buffer-funding2-confirm-step';
+        step.setAttribute('data-funding2-confirm-step', 'true');
+        step.hidden = true;
+        step.innerHTML = `
+          <header class="plan-buffer-funding2-confirm-step__header plan-buffer-panel__header plan-buffer-panel__header--funding">
+            <button type="button" class="plan-buffer-panel__icon-btn" data-funding2-confirm-step-back aria-label="Back">
+              <img src="assets/icon_back.svg" alt="" width="24" height="24" />
+            </button>
+            <h1 class="plan-buffer-panel__title">Pre-fund</h1>
+            <div class="plan-buffer-panel__header-spacer" aria-hidden="true"></div>
+          </header>
+          <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
+          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Pre-fund confirmation"></div>
+        `;
+        clone.appendChild(step);
+        step.querySelector('[data-funding2-confirm-step-back]')?.addEventListener('click', () => {
+          step.classList.remove('is-open');
+          const onEnd = () => {
+            if (!step.classList.contains('is-open')) step.hidden = true;
+            step.removeEventListener('transitionend', onEnd);
+          };
+          step.addEventListener('transitionend', onEnd);
+          setTimeout(onEnd, 320);
+        });
+        return step;
+      };
+
+      const resetFunding2State = () => {
+        funding2SelectedAmount = null;
+        funding2OptionBaseAmount = null;
+        const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
+        if (reserveInput instanceof HTMLInputElement) reserveInput.value = '';
+        syncFromOriginal();
+      };
+
+      const funding2ConfirmBtn = clone.querySelector('[data-plan-buffer-confirm]');
+      funding2ConfirmBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (funding2ConfirmBtn.disabled) return;
+        const step = ensureFunding2ConfirmStep();
+        step.hidden = false;
+        requestAnimationFrame(() => step.classList.add('is-open'));
+      });
+
       clone.addEventListener('click', handleFunding2OptionClick);
       clone.addEventListener('mousedown', handleFunding2OptionMouseDown);
       clone.addEventListener('input', handleCloneInput);
       clone.addEventListener('change', handleCloneChange);
-      funding2SyncFromOriginal = syncFromOriginal;
-      syncFromOriginal();
+      resetFunding2State();
+      ensureFunding2ConfirmStep();
+      clone._funding2Reset = resetFunding2State;
       funding2PanelEl = clone;
       return funding2PanelEl;
     };
 
     const openFunding2Flow = (opts = {}) => {
       const teardownPlanFlow = opts.teardownPlanFlow !== false;
-      planBufferApi.sync?.();
       const funding2 = ensureFunding2Panel();
       if (!funding2) return;
-      funding2SyncFromOriginal?.();
+      funding2._funding2Reset?.();
       if (funding2.querySelector('.plan-buffer-panel__scroller')) {
         funding2.querySelector('.plan-buffer-panel__scroller').scrollTop = 0;
+      }
+      const confirmStep = funding2.querySelector('[data-funding2-confirm-step]');
+      if (confirmStep) {
+        confirmStep.hidden = true;
+        confirmStep.classList.remove('is-open');
       }
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));
@@ -5267,6 +5290,9 @@
     };
 
     const openFunding2FromSuccess = () => {
+      if (!funding2ContextRecord && myPlansSubmittedPlan) {
+        funding2ContextRecord = { ...myPlansSubmittedPlan };
+      }
       openFunding2Flow({ teardownPlanFlow: true });
     };
 

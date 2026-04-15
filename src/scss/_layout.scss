@@ -8656,7 +8656,7 @@ div.currency-sheet__item-icon {
   gap: 12px;
   padding: 12px;
   text-align: left;
-  background-color: #1B1D1D;
+  background-color: transparent;
   cursor: pointer;
   margin-bottom: 24px;
 }
@@ -9399,6 +9399,11 @@ div.currency-sheet__item-icon {
 
 // Funding 2 redesign (clone panel only): simplified pre-fund UX
 [data-plan-buffer-panel-2] {
+  .plan-buffer-panel__details {
+    gap: 24px;
+    margin-top: 0;
+  }
+
   .plan-buffer-panel__body--funding {
     gap: 32px;
   }
@@ -9419,12 +9424,91 @@ div.currency-sheet__item-icon {
     display: none !important;
   }
 
-  .plan-buffer-funding2-plan-name {
-    margin: 0;
+  .plan-buffer-panel__header {
+    align-items: center;
+  }
+
+  h1.plan-buffer-panel__title[data-funding2-plan-line]::after {
+    content: attr(data-funding2-plan-line);
+    display: block;
+    margin-top: 2px;
     font-size: 14px;
     font-weight: 600;
     color: #9b9c9c;
     line-height: normal;
+    letter-spacing: 0;
+  }
+
+  p.plan-buffer-funding-hero__subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #9b9c9c;
+  }
+
+  .plan-buffer-funding-hero__subtitle-prefix {
+    color: #9b9c9c;
+  }
+
+  .plan-buffer-funding-hero__subtitle-amount {
+    color: #ffffff;
+  }
+
+  .plan-buffer-funding2-footer-pretext {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 16px 8px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .plan-buffer-funding2-explained-link {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #3f78ff;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .plan-buffer-funding2-confirm-step {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    background: #0d0e0f;
+    border-radius: inherit;
+    overflow: hidden;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.32s ease, opacity 0.32s ease;
+  }
+
+  .plan-buffer-funding2-confirm-step.is-open {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .plan-buffer-funding2-confirm-step[hidden] {
+    display: none !important;
+  }
+
+  .plan-buffer-funding2-confirm-step__header {
+    flex-shrink: 0;
+  }
+
+  .plan-buffer-funding2-confirm-step__body {
+    flex: 1;
+    min-height: 0;
+    padding: 24px 16px;
+    box-sizing: border-box;
   }
 
   .plan-buffer-funding2-options {
@@ -9492,7 +9576,7 @@ div.currency-sheet__item-icon {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
   }
 
   .plan-buffer-funding2-meta[hidden] {
