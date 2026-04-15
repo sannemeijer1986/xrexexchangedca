@@ -8271,7 +8271,7 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__body {
   flex: 1;
   min-height: 0;
-  padding: 0 16px 16px 16px;
+  padding: 24px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -8487,7 +8487,7 @@ div.currency-sheet__item-icon {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 2px;
   max-width: 100%;
 }
 
@@ -9547,6 +9547,33 @@ div.currency-sheet__item-icon {
     min-height: 0;
     padding: 16px 16px;
     box-sizing: border-box;
+  }
+
+  .plan-buffer-funding2-overview-step__body {
+    padding: 0;
+    overflow: auto;
+  }
+
+  .plan-buffer-funding2-overview-note-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .plan-buffer-funding2-overview-note {
+    margin: 0;
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #5ac47d;
+  }
+
+  .plan-buffer-funding2-overview-note-icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
   }
 
   .plan-buffer-funding2-confirm-hero__amount {
@@ -11099,7 +11126,7 @@ div.currency-sheet__item-icon {
   // flex: 1;
   min-height: 0;
   padding: 32px 16px 16px;
-  margin-top: 80px;
+  margin-top: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11209,7 +11236,7 @@ div.currency-sheet__item-icon {
   margin: 0;
   padding: 0;
   width: 100%;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #ffffff;
   text-align: center;
@@ -11245,7 +11272,7 @@ div.currency-sheet__item-icon {
 
 .plan-success-panel__footer {
   flex-shrink: 0;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 16px;

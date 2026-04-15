@@ -2174,6 +2174,18 @@
    * Plan overview + My plans detail: one funding-method bottom sheet
    * (`data-plan-overview-funding-info-sheet`).
    */
+  const openPlanOverviewFundingInfoSheet = ({ title, desc } = {}) => {
+    const sheet = document.querySelector('[data-plan-overview-funding-info-sheet]');
+    if (!sheet) return;
+    const titleEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-title]');
+    const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
+    const nextTitle = String(title || '').trim() || 'Deduct from balance';
+    if (titleEl) titleEl.textContent = nextTitle;
+    if (descEl) descEl.textContent = String(desc || '');
+    sheet.setAttribute('aria-label', nextTitle);
+    sheetOpenWithInstantBackdrop(sheet);
+  };
+
   const initPlanOverviewFundingInfoSheet = () => {
     const sheet = document.querySelector('[data-plan-overview-funding-info-sheet]');
     if (!sheet) return;
@@ -2207,14 +2219,12 @@
         isReserved = /\bset aside/i.test(method);
       }
       const title = isReserved ? 'Set aside funds' : paygoTitle;
+      const desc = isReserved
+        ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds anytime.'
+        : paygoDesc;
       if (titleEl) titleEl.textContent = title;
-      if (descEl) {
-        descEl.textContent = isReserved
-          ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds anytime.'
-          : paygoDesc;
-      }
-      sheet.setAttribute('aria-label', title);
-      sheetOpenWithInstantBackdrop(sheet);
+      if (descEl) descEl.textContent = desc;
+      openPlanOverviewFundingInfoSheet({ title, desc });
     };
 
     document.querySelectorAll('[data-plan-overview-funding-info-open]').forEach((btn) => {
@@ -5174,6 +5184,7 @@
 
       let funding2SelectedAmount = null;
       let funding2OptionBaseAmount = null;
+      let funding2OverviewConsentChecked = false;
       const formatWithCommas = (n) => Number(n).toLocaleString('en-US');
       const resolveFunding2Numbers = () => {
         const perBuyData = getFunding2PerBuy('TWD');
@@ -5263,10 +5274,30 @@
           if (planLine) overviewTitleEl.setAttribute('data-funding2-plan-line', planLine);
           else overviewTitleEl.removeAttribute('data-funding2-plan-line');
         }
+        const overviewAmountText = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
+        const overviewAmountEl = clone.querySelector('[data-funding2-overview-prefund-amount]');
+        if (overviewAmountEl) overviewAmountEl.textContent = overviewAmountText;
+        const overviewCoversMainEl = clone.querySelector('[data-funding2-overview-covers-main]');
+        if (overviewCoversMainEl) {
+          overviewCoversMainEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
+        }
+        const overviewCoversSubEl = clone.querySelector('[data-funding2-overview-covers-sub]');
+        if (overviewCoversSubEl) {
+          const coversDate = String(
+            funding2ContextRecord?.nextBuy
+              || funding2ContextRecord?.firstBuy
+              || '- -',
+          ).trim() || '- -';
+          overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 ? `Until ${coversDate}` : '';
+        }
+        const overviewAutorefillAmountEl = clone.querySelector('[data-funding2-overview-autorefill-amount]');
+        if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
+        const overviewDeductEl = clone.querySelector('[data-funding2-overview-deduct-value]');
+        if (overviewDeductEl) overviewDeductEl.textContent = `${reserveCur} balance`;
         const confirmHeroTitleEl = clone.querySelector('[data-funding2-confirm-hero-title]');
         if (confirmHeroTitleEl) {
           const amountToken = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : `0 ${reserveCur}`;
-          confirmHeroTitleEl.innerHTML = `When your reserved funds run low, we’ll automatically pre-fund <span class="plan-buffer-funding2-confirm-hero__amount">${amountToken}</span> again to keep your plan running.`;
+          confirmHeroTitleEl.innerHTML = `When your reserved funds run out, we’ll automatically pre-fund <span class="plan-buffer-funding2-confirm-hero__amount">${amountToken}</span> again to keep your plan running.`;
         }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
@@ -5351,6 +5382,24 @@
         if (reserveInput instanceof HTMLInputElement && !hasActiveSelection && rawAmount === 0) {
           reserveInput.value = '';
         }
+      };
+
+      const syncFunding2OverviewConsentUI = () => {
+        const overviewStep = clone.querySelector('[data-funding2-overview-step]');
+        if (!overviewStep) return;
+        const consentToggle = overviewStep.querySelector('[data-funding2-overview-consent-toggle]');
+        const consentIcon = overviewStep.querySelector('[data-funding2-overview-consent-icon]');
+        const confirmBtn = overviewStep.querySelector('[data-funding2-overview-confirm]');
+        if (consentToggle) {
+          consentToggle.setAttribute('aria-pressed', funding2OverviewConsentChecked ? 'true' : 'false');
+        }
+        if (consentIcon) {
+          consentIcon.setAttribute(
+            'src',
+            funding2OverviewConsentChecked ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg',
+          );
+        }
+        if (confirmBtn) confirmBtn.disabled = !funding2OverviewConsentChecked;
       };
 
       const handleCloneInput = (e) => {
@@ -5443,7 +5492,7 @@
           <div class="plan-buffer-funding2-confirm-step__body" aria-label="Auto-refill funds confirmation">
             <div class="plan-buffer-funding-hero plan-buffer-funding2-confirm-hero">
               <div class="plan-buffer-funding-hero__top">
-                <p class="plan-buffer-funding-hero__title" data-funding2-confirm-hero-title>When your reserved funds run low, we’ll automatically pre-fund again to keep your plan running.</p>
+                <p class="plan-buffer-funding-hero__title" data-funding2-confirm-hero-title>When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.</p>
               </div>
               <div class="plan-buffer-funding2-hero-explained">
                 <button type="button" class="plan-buffer-funding2-explained-link" data-funding2-confirm-howitworks>How it works</button>
@@ -5460,6 +5509,9 @@
         });
         step.querySelector('[data-funding2-confirm-continue]')?.addEventListener('click', () => {
           const overviewStep = ensureFunding2OverviewStep();
+          funding2OverviewConsentChecked = false;
+          syncFromOriginal();
+          syncFunding2OverviewConsentUI();
           overviewStep.hidden = false;
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -5496,11 +5548,68 @@
               <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
             </button>
           </header>
-          <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div>
-          <div class="plan-buffer-funding2-confirm-step__body" aria-label="Pre-fund overview"></div>
+          <div class="plan-buffer-funding2-confirm-step__body plan-buffer-funding2-overview-step__body" aria-label="Pre-fund overview">
+            <div class="plan-overview-panel__body">
+              <div class="plan-overview-panel__summary">
+                <div class="plan-overview-panel__row">
+                  <span class="plan-overview-panel__row-label">Pre-fund amount</span>
+                  <span class="plan-overview-panel__row-value" data-funding2-overview-prefund-amount>- -</span>
+                </div>
+                <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                  <span class="plan-overview-panel__row-label">Covers</span>
+                  <div class="plan-overview-panel__row-value-col">
+                    <span class="plan-overview-panel__row-value" data-funding2-overview-covers-main>- -</span>
+                    <span class="plan-overview-panel__row-sub" data-funding2-overview-covers-sub></span>
+                  </div>
+                </div>
+                <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                <div class="plan-overview-panel__row">
+                  <span class="plan-overview-panel__row-label">Auto-refill</span>
+                  <div class="plan-overview-panel__row-value-col">
+                    <div class="plan-overview-panel__funding-value-row">
+                      <span class="plan-overview-panel__row-value" data-funding2-overview-autorefill-value>When funds run out</span>
+                      <button class="plan-overview-panel__funding-info-btn" type="button" data-funding2-overview-autorefill-info-open aria-label="About auto-refill when funds run out">
+                        <img src="assets/icon_info_circle_white.svg" alt="" class="plan-overview-panel__funding-info-icon" width="16" height="16" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                <div class="plan-overview-panel__row">
+                  <span class="plan-overview-panel__row-label">Auto-refill amount</span>
+                  <span class="plan-overview-panel__row-value" data-funding2-overview-autorefill-amount>- -</span>
+                </div>
+                <div class="plan-overview-panel__divider plan-overview-panel__divider--dark" aria-hidden="true"></div>
+                <div class="plan-overview-panel__row plan-overview-panel__row--stack">
+                  <span class="plan-overview-panel__row-label">Deduct from</span>
+                  <div class="plan-overview-panel__row-value-col">
+                    <div class="plan-overview-panel__funding-value-row">
+                      <span class="plan-overview-panel__row-value" data-funding2-overview-deduct-value>TWD balance</span>
+                      <button class="plan-overview-panel__funding-info-btn" type="button" data-funding2-overview-funding-info-open aria-label="About funding method">
+                        <img src="assets/icon_info_circle_white.svg" alt="" class="plan-overview-panel__funding-info-icon" width="16" height="16" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="plan-buffer-funding2-overview-note-row">
+                <p class="plan-buffer-funding2-overview-note" data-funding2-overview-note>You’re in control, you can change or turn off pre-funding anytime.</p>
+                <img class="plan-buffer-funding2-overview-note-icon" src="assets/icon_green_shield.svg" alt="" width="32" height="32" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+          <div class="plan-overview-panel__footer plan-buffer-funding2-overview-step__footer">
+            <button class="plan-overview-panel__consent" type="button" data-funding2-overview-consent-toggle aria-pressed="false">
+              <img class="plan-overview-panel__consent-icon" data-funding2-overview-consent-icon src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
+              <span class="plan-overview-panel__consent-text">I agree with the ... {$Terms and conditions footnote}</span>
+            </button>
+            <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-funding2-overview-confirm disabled>Confirm</button>
+            <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-funding2-overview-back>Back</button>
+          </div>
         `;
         clone.appendChild(step);
-        step.querySelector('[data-funding2-overview-step-back]')?.addEventListener('click', () => {
+        const closeOverview = () => {
           step.classList.remove('is-open');
           const onEnd = () => {
             if (!step.classList.contains('is-open')) step.hidden = true;
@@ -5508,7 +5617,30 @@
           };
           step.addEventListener('transitionend', onEnd);
           setTimeout(onEnd, 320);
+        };
+        step.querySelector('[data-funding2-overview-step-back]')?.addEventListener('click', closeOverview);
+        step.querySelector('[data-funding2-overview-back]')?.addEventListener('click', closeOverview);
+        step.querySelector('[data-funding2-overview-funding-info-open]')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openPlanOverviewFundingInfoSheet({
+            title: 'Deduct from balance',
+            desc: 'The pre-fund amount will be deducted from your balance and reserved for this plan. When the funds you reserved run out, future auto-refills will also be deducted from your balance.\n\nYou can change or turn off pre-funding anytime.',
+          });
         });
+        step.querySelector('[data-funding2-overview-autorefill-info-open]')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openPlanOverviewFundingInfoSheet({
+            title: 'Auto-refill when funds run out',
+            desc: 'When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.\n\nYou can change or turn off pre-funding anytime',
+          });
+        });
+        step.querySelector('[data-funding2-overview-consent-toggle]')?.addEventListener('click', () => {
+          funding2OverviewConsentChecked = !funding2OverviewConsentChecked;
+          syncFunding2OverviewConsentUI();
+        });
+        syncFunding2OverviewConsentUI();
         return step;
       };
 
