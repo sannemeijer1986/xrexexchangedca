@@ -9890,6 +9890,11 @@ div.currency-sheet__item-icon {
     outline-offset: -2px;
   }
 
+  .plan-buffer-funding2-option:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
   .plan-buffer-funding2-option__main {
     font-size: 14px;
     font-weight: 600;

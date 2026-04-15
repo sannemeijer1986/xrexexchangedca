@@ -9545,6 +9545,10 @@ div.currency-sheet__item-icon::before {
   outline: 2px solid #ffffff;
   outline-offset: -2px;
 }
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 [data-plan-buffer-panel-2] .plan-buffer-funding2-option__main {
   font-size: 14px;
   font-weight: 600;

@@ -5329,10 +5329,18 @@
         if (Number.isFinite(detailAmount) && detailAmount > 0) {
           return { amount: detailAmount, currency: detailCur };
         }
+        const sliderAmount = parseInt(
+          String(panel.querySelector('[data-plan-slider]')?.getAttribute('aria-valuenow') || '').replace(/[^0-9]/g, ''),
+          10,
+        );
+        if (Number.isFinite(sliderAmount) && sliderAmount > 0) {
+          return { amount: sliderAmount, currency: detailCur };
+        }
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]')?.textContent || '';
         const fromSub = parseMoneyText(perBuySub);
         if (fromSub && fromSub.amount > 0) return fromSub;
-        return { amount: 0, currency: detailCur || String(curFallback || 'TWD').toUpperCase() };
+        const safeFallbackAmount = detailCur === 'USDT' ? 300 : 10000;
+        return { amount: safeFallbackAmount, currency: detailCur || String(curFallback || 'TWD').toUpperCase() };
       };
 
       const ensureFunding2Meta = () => {
@@ -5522,12 +5530,14 @@
               while (uniqBuys.length < 3) uniqBuys.push((uniqBuys[uniqBuys.length - 1] || 1) + 1);
               uniqBuys.slice(0, 3).forEach((buyCount) => {
                 const amountValue = buyCount * perBuy;
+                const exceedsAvailBalance = amountValue > availBalance;
                 const optionBtn = document.createElement('button');
                 optionBtn.type = 'button';
                 optionBtn.className = 'plan-buffer-funding2-option';
-                if (amountValue === activeAmount) optionBtn.classList.add('is-active');
+                if (amountValue === activeAmount && !exceedsAvailBalance) optionBtn.classList.add('is-active');
                 optionBtn.setAttribute('data-funding2-option-btn', 'true');
                 optionBtn.setAttribute('data-funding2-option-amount', String(amountValue));
+                optionBtn.disabled = exceedsAvailBalance;
                 optionBtn.innerHTML = `
                   <span class="plan-buffer-funding2-option__sub">${fmt(amountValue)}</span>
                 <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : `${coverUnit}s`}</span>
