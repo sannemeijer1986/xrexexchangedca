@@ -3294,8 +3294,8 @@
       const investRaw = String(planRecord?.investLine || '').trim();
       const investCurMatch = investRaw.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
       return toDisplayCurrencyCode(
-        totalCurMatch?.[1]
-          || investCurMatch?.[2]
+        investCurMatch?.[2]
+          || totalCurMatch?.[1]
           || currencyState.plan
           || currencyState.summary
           || 'TWD',
@@ -10243,7 +10243,7 @@
             firstBuy: resolvedNextBuy,
             nextBuy: resolvedNextBuy,
             completedBuys: 0,
-            totalInvested: formatMoneyDisplayCurrency(0, cur),
+            totalInvested: formatMoney(0, cur),
             fundingMethod: paymentMethod,
             isReserved: isReservedPlan,
             reservedFunds: overviewReserved || '—',
