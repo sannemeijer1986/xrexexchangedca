@@ -5031,10 +5031,17 @@
         if (reserveCurEl) reserveCurEl.textContent = reserveCur;
         const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
         if (availEl) availEl.textContent = `Avail. ${Number(availBalance).toLocaleString('en-US')} ${reserveCur}`;
+        const rangeHintEl = clone.querySelector('[data-plan-buffer-reserve-range]');
         const parsedRaw = parseInt(String(reserveInput?.value || '').replace(/[^0-9]/g, ''), 10);
         const rawAmount = Number.isFinite(parsedRaw) ? Math.max(0, parsedRaw) : 0;
         if (!(rawAmount > 0)) funding2OptionBaseAmount = null;
         const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
+        if (rangeHintEl) {
+          const minText = perBuy > 0 ? perBuy.toLocaleString('en-US') : '—';
+          const maxText = availBalance > 0 ? availBalance.toLocaleString('en-US') : '—';
+          rangeHintEl.textContent = `Min ${minText} / Max ${maxText}`;
+          rangeHintEl.hidden = rawAmount > 0;
+        }
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
         if (isExactBuyMultiple) funding2SelectedAmount = rawAmount;
         const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
