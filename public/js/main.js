@@ -149,6 +149,18 @@
       syncFinanceIntroState();
     }
     if (group === 'funding') {
+      if (clamped < 3) {
+        const clearPrefundFromRecord = (rec) => {
+          if (!rec || typeof rec !== 'object') return rec;
+          return {
+            ...rec,
+            isReserved: false,
+            fundingMethod: 'Pay as you go',
+          };
+        };
+        if (myPlansSubmittedPlan) myPlansSubmittedPlan = clearPrefundFromRecord(myPlansSubmittedPlan);
+        if (myPlansPrefillPlan) myPlansPrefillPlan = clearPrefundFromRecord(myPlansPrefillPlan);
+      }
       syncPrototypeFundingToDocument();
       syncMyPlansFlowUi();
     }
@@ -3731,7 +3743,7 @@
           fundValue.appendChild(check);
           if (isFundingPrefundLeft) {
             const prefundAmount = String(planRecord.reservedFunds || '').trim() || `— ${cur}`;
-            fundValue.appendChild(document.createTextNode(`Pre-fund: ${prefundAmount} left`));
+            fundValue.appendChild(document.createTextNode(`Pre-funded: ${prefundAmount} left`));
           } else {
             fundValue.appendChild(
               document.createTextNode(
@@ -5784,7 +5796,28 @@
         }
       };
 
+      const commitFunding2PrefundAmount = () => {
+        const { reserveCur } = resolveFunding2Numbers();
+        const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
+        const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
+        const reservedFundsText = activeAmount > 0 ? `${fmt(activeAmount)} ${reserveCur}` : `— ${reserveCur}`;
+        const applyToRecord = (rec) => {
+          if (!rec || typeof rec !== 'object') return rec;
+          return {
+            ...rec,
+            isReserved: true,
+            fundingMethod: 'Set aside funds',
+            reservedFunds: reservedFundsText,
+          };
+        };
+        funding2ContextRecord = applyToRecord(funding2ContextRecord);
+        if (myPlansSubmittedPlan) myPlansSubmittedPlan = applyToRecord(myPlansSubmittedPlan);
+        if (myPlansPrefillPlan) myPlansPrefillPlan = applyToRecord(myPlansPrefillPlan);
+        syncMyPlansFlowUi();
+      };
+
       const leaveFunding2SuccessDone = () => {
+        commitFunding2PrefundAmount();
         setState('funding', 3);
         planSuccessApi.forceClose();
         planOverviewApi.close({ instant: true });
@@ -5801,6 +5834,7 @@
       };
 
       const leaveFunding2SuccessDismiss = () => {
+        commitFunding2PrefundAmount();
         setState('funding', 3);
         planSuccessApi.forceClose();
         planOverviewApi.close({ instant: true });
