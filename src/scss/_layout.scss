@@ -1976,6 +1976,10 @@ html[data-active-tab="finance"] {
   gap: 4px;
 }
 
+[data-funding2-learn-more-stepper] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .finance-intro-learn-more-panel__step {
   height: 4px;
   border-radius: 999px;
@@ -9454,7 +9458,7 @@ div.currency-sheet__item-icon {
   }
 
   .plan-buffer-funding-hero__subtitle-amount {
-    color: #8FB8FF;
+    color: #F6B656;
   }
 
   // Figma 8934:126307 — title + link block, then per-buy line (gap 12 between blocks)

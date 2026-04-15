@@ -4962,10 +4962,12 @@
         {
           title: 'How pre-funding works',
           desc: 'Text',
+          visual: 'assets/finance_intro_step_1.svg',
         },
         {
           title: 'How auto-refill works',
           desc: 'Text',
+          visual: 'assets/finance_intro_step_2.svg',
         },
       ];
       let funding2LearnMoreStep = 0;
@@ -5006,13 +5008,25 @@
       );
       const funding2LearnMoreBackBtn = learnMorePanel?.querySelector('[data-funding2-learn-more-back]');
       const funding2LearnMoreNextBtn = learnMorePanel?.querySelector('[data-funding2-learn-more-next]');
+      if (learnMoreVisualEl && !learnMoreVisualEl.querySelector('[data-funding2-learn-more-visual]')) {
+        const visualImg = document.createElement('img');
+        visualImg.className = 'plan-buffer-learn-more-panel__visual-img';
+        visualImg.setAttribute('data-funding2-learn-more-visual', 'true');
+        visualImg.setAttribute('alt', '');
+        learnMoreVisualEl.innerHTML = '';
+        learnMoreVisualEl.appendChild(visualImg);
+      }
+      const funding2LearnMoreVisualEl = learnMorePanel?.querySelector('[data-funding2-learn-more-visual]');
       const renderFunding2LearnMore = () => {
         const safe = Math.max(0, Math.min(funding2LearnMoreSlides.length - 1, funding2LearnMoreStep));
         funding2LearnMoreStep = safe;
         const slide = funding2LearnMoreSlides[safe];
         if (learnMoreTitleEl) learnMoreTitleEl.textContent = slide.title;
         if (learnMoreDescEl) learnMoreDescEl.textContent = slide.desc;
-        if (learnMoreVisualEl) learnMoreVisualEl.hidden = true;
+        if (learnMoreVisualEl) learnMoreVisualEl.hidden = !slide.visual;
+        if (funding2LearnMoreVisualEl && slide.visual) {
+          funding2LearnMoreVisualEl.setAttribute('src', slide.visual);
+        }
         funding2LearnMoreStepEls.forEach((el, idx) => el.classList.toggle('is-active', idx === safe));
         if (funding2LearnMoreBackBtn) funding2LearnMoreBackBtn.hidden = safe === 0;
         if (funding2LearnMoreNextBtn) {
