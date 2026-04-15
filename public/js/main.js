@@ -3717,6 +3717,7 @@
         const isFundingInsufficient = fundingState === 2 && !planRecord.isReserved;
         const isFundingPrefundLeft = fundingState === 3;
         const isFundingPrefundLow = fundingState === 4;
+        const isFundingPrefundEmpty = fundingState === 5;
         const fundRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--split');
         fundRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Funding'));
         const fundValue = el(
@@ -3724,6 +3725,8 @@
           `my-plans-position-card__row-value my-plans-position-card__row-value--with-check ${
             isFundingInsufficient
               ? 'my-plans-position-card__row-value--negative my-plans-position-card__row-value--with-chevron'
+              : isFundingPrefundEmpty
+                ? 'my-plans-position-card__row-value--negative my-plans-position-card__row-value--with-chevron'
               : isFundingPrefundLow
                 ? 'my-plans-position-card__row-value--warning my-plans-position-card__row-value--with-chevron'
                 : 'my-plans-position-card__row-value--positive'
@@ -3731,6 +3734,14 @@
         );
         if (isFundingInsufficient) {
           fundValue.appendChild(document.createTextNode(`Insufficient ${cur} balance`));
+          const chevron = document.createElement('img');
+          chevron.src = 'assets/icon_chevron_right_red.svg';
+          chevron.alt = '';
+          chevron.className = 'my-plans-position-card__row-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          fundValue.appendChild(chevron);
+        } else if (isFundingPrefundEmpty) {
+          fundValue.appendChild(document.createTextNode(`Pre-funded: 0.00 ${cur} left`));
           const chevron = document.createElement('img');
           chevron.src = 'assets/icon_chevron_right_red.svg';
           chevron.alt = '';
