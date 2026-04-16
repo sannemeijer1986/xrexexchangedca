@@ -4477,6 +4477,76 @@ div.currency-sheet__item-icon {
   min-height: 120px;
 }
 
+// Schedule: flexible days picker (Figma 9005:156146)
+.currency-sheet__body--schedule-flex-days {
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 24px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.currency-sheet__title--schedule-flex-days {
+  margin-top: 0;
+}
+
+.phone-container p.schedule-flex-days__sub {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #9b9c9c;
+}
+
+.phone-container p.schedule-flex-days__sub.schedule-flex-days__sub--max {
+  color: #ff6d47;
+  font-weight: 600;
+}
+
+.schedule-flex-days__grid {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 44px);
+  justify-content: space-between;
+  row-gap: 12px;
+}
+
+.schedule-flex-days__day {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: #2d2f2f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.schedule-flex-days__day.is-selected {
+  background: #47494a;
+  border: 2px solid #ffffff;
+}
+
+.schedule-flex-days__day.is-dimmed {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.phone-container p.schedule-flex-days__summary {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
 // .currency-sheet__body--schedule-followup .currency-sheet__title {
 //   text-align: center;
 //   font-size: 18px;

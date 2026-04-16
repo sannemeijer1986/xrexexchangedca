@@ -2538,6 +2538,10 @@
       const isFlexUnset = freq === 'flexible' && (!timingText || timingText === defaultTimingDetail.flexible);
       confirmBtn.disabled = isFlexUnset;
       confirmBtn.classList.toggle('is-disabled', isFlexUnset);
+      if (timingValueEl) {
+        const isPlaceholder = freq === 'flexible' && (timingText === defaultTimingDetail.flexible || !timingText);
+        timingValueEl.classList.toggle('schedule-sheet__timing-value--placeholder', isPlaceholder);
+      }
     };
 
     const setBuyNowUI = (enabled) => {
@@ -3114,6 +3118,13 @@
     const timingRow = scheduleSheet.querySelector('.schedule-sheet__timing-row');
     const timingValueEl = scheduleSheet.querySelector('[data-schedule-timing-value]');
 
+    const flexDaysSheet = document.querySelector('[data-schedule-flex-days-sheet]');
+    const flexDaysPanel = flexDaysSheet?.querySelector('.currency-sheet__panel');
+    const flexDaysGrid = flexDaysSheet?.querySelector('[data-schedule-flex-days-grid]');
+    const flexDaysSub = flexDaysSheet?.querySelector('[data-schedule-flex-days-sub]');
+    const flexDaysSummary = flexDaysSheet?.querySelector('[data-schedule-flex-days-summary]');
+    const flexDaysConfirmBtn = flexDaysSheet?.querySelector('[data-schedule-flex-days-confirm]');
+
     const ITEM_H = 44;
     const SPACER_H = 86;
 
@@ -3142,6 +3153,98 @@
       if (j === 2) return `${n}nd`;
       if (j === 3) return `${n}rd`;
       return `${n}th`;
+    };
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // Flexible: multi-day picker (nested sheet)
+
+    let flexSelectedDays = [];
+    const FLEX_MAX = 5;
+
+    const parseFlexibleDaysFromTimingText = (text) => {
+      const t = String(text || '').trim();
+      if (!t || t === 'Select days' || t === '- -') return [];
+      const out = [];
+      const re = /(\d{1,2})(?:st|nd|rd|th)/gi;
+      let m;
+      while ((m = re.exec(t))) {
+        const d = Math.max(1, Math.min(28, parseInt(m[1], 10)));
+        if (!out.includes(d)) out.push(d);
+      }
+      return out.sort((a, b) => a - b).slice(0, FLEX_MAX);
+    };
+
+    const ensureFlexDaysGrid = () => {
+      if (!flexDaysGrid) return;
+      if (flexDaysGrid.childElementCount > 0) return;
+      const frag = document.createDocumentFragment();
+      for (let d = 1; d <= 28; d += 1) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'schedule-flex-days__day';
+        btn.textContent = String(d);
+        btn.setAttribute('data-schedule-flex-day', String(d));
+        btn.setAttribute('aria-pressed', 'false');
+        frag.appendChild(btn);
+      }
+      flexDaysGrid.appendChild(frag);
+    };
+
+    const syncFlexDaysUI = () => {
+      if (!flexDaysSheet) return;
+      const count = flexSelectedDays.length;
+      const maxed = count >= FLEX_MAX;
+
+      if (flexDaysSub) {
+        flexDaysSub.textContent = maxed ? 'Maximum reached' : 'Select up to 5';
+        flexDaysSub.classList.toggle('schedule-flex-days__sub--max', maxed);
+      }
+
+      if (flexDaysSummary) {
+        flexDaysSummary.textContent = count
+          ? `every ${flexSelectedDays.map((d) => ordinalSuffix(d)).join(' · ')}`
+          : '- -';
+      }
+
+      if (flexDaysConfirmBtn instanceof HTMLButtonElement) {
+        flexDaysConfirmBtn.disabled = count === 0;
+      }
+
+      if (flexDaysGrid) {
+        flexDaysGrid.querySelectorAll('[data-schedule-flex-day]').forEach((el) => {
+          const d = parseInt(el.getAttribute('data-schedule-flex-day'), 10);
+          const isSel = flexSelectedDays.includes(d);
+          el.classList.toggle('is-selected', isSel);
+          el.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+          const dim = maxed && !isSel;
+          el.classList.toggle('is-dimmed', dim);
+        });
+      }
+    };
+
+    const closeFlexDaysAndReopenSchedule = () => {
+      const reopen = scheduleSheetApi.reopenFromChild;
+      const suppressNestedScrim = getSuppressNestedScrimForScheduleChildClose();
+      if (!flexDaysSheet || !flexDaysPanel) return;
+      sheetCloseWithBackdropHandoff(flexDaysSheet, flexDaysPanel, () => reopen?.(), { suppressNestedScrim });
+    };
+
+    const openFlexDaysSheet = () => {
+      if (!flexDaysSheet || !flexDaysPanel) return;
+      ensureFlexDaysGrid();
+      flexSelectedDays = parseFlexibleDaysFromTimingText(timingValueEl?.textContent || '');
+      syncFlexDaysUI();
+
+      const reveal = () => {
+        sheetOpenWithInstantBackdrop(flexDaysSheet);
+      };
+
+      const handoff = scheduleSheetApi.closeAnimatedForChild;
+      if (typeof handoff === 'function') {
+        handoff(() => reveal());
+      } else {
+        reveal();
+      }
     };
 
     const parseMonthlyDayIndex = (text) => {
@@ -3289,7 +3392,9 @@
     timingRow?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      openTimePicker();
+      const freq = getActiveScheduleFreq();
+      if (freq === 'flexible') openFlexDaysSheet();
+      else openTimePicker();
     });
 
     timeSheet.querySelectorAll('[data-schedule-time-sheet-close]').forEach((btn) => {
@@ -3297,6 +3402,38 @@
     });
     timeSheet.querySelector('[data-schedule-time-sheet-cancel]')?.addEventListener('click', closeTimePickerAndReopenSchedule);
     timeSheet.querySelector('[data-schedule-time-sheet-confirm]')?.addEventListener('click', confirmTimePicker);
+
+    if (flexDaysSheet && flexDaysGrid) {
+      const onFlexDayClick = (e) => {
+        const btn = e.target.closest('[data-schedule-flex-day]');
+        if (!btn || !flexDaysGrid.contains(btn)) return;
+        const d = parseInt(btn.getAttribute('data-schedule-flex-day'), 10);
+        if (!Number.isFinite(d)) return;
+        const isSel = flexSelectedDays.includes(d);
+        if (isSel) {
+          flexSelectedDays = flexSelectedDays.filter((x) => x !== d);
+        } else if (flexSelectedDays.length < FLEX_MAX) {
+          flexSelectedDays = [...flexSelectedDays, d].sort((a, b) => a - b);
+        }
+        syncFlexDaysUI();
+      };
+
+      flexDaysGrid.addEventListener('click', onFlexDayClick);
+
+      flexDaysSheet.querySelectorAll('[data-schedule-flex-days-sheet-close]').forEach((btn) => {
+        btn.addEventListener('click', closeFlexDaysAndReopenSchedule);
+      });
+      flexDaysSheet.querySelector('[data-schedule-flex-days-cancel]')?.addEventListener('click', closeFlexDaysAndReopenSchedule);
+      flexDaysSheet.querySelector('[data-schedule-flex-days-confirm]')?.addEventListener('click', () => {
+        if (timingValueEl) {
+          timingValueEl.textContent = flexSelectedDays.length
+            ? flexSelectedDays.map((d) => ordinalSuffix(d)).join(' · ')
+            : 'Select days';
+        }
+        scheduleSheetApi.refreshEndConditionSubtitles?.();
+        closeFlexDaysAndReopenSchedule();
+      });
+    }
   };
 
   // ─────────────────────────────────────────────────────────────────────────────

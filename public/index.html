@@ -2953,6 +2953,31 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
         </div>
     </div>
 
+    <!-- Schedule: flexible days picker (nested; same handoff as time picker) -->
+    <div class="currency-sheet currency-sheet--schedule-followup" data-schedule-flex-days-sheet hidden aria-modal="true"
+        role="dialog" aria-label="Buy on these days every month">
+        <button class="currency-sheet__backdrop" type="button" data-schedule-flex-days-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body currency-sheet__body--schedule-flex-days">
+                <div class="schedule-flex-days__head">
+                    <h2 class="currency-sheet__title currency-sheet__title--schedule-flex-days">Buy on these days every month</h2>
+                    <p class="schedule-flex-days__sub" data-schedule-flex-days-sub>Select up to 5</p>
+                </div>
+                <div class="schedule-flex-days__grid" data-schedule-flex-days-grid aria-label="Select days of month"></div>
+                <p class="schedule-flex-days__summary" data-schedule-flex-days-summary>- -</p>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary" type="button"
+                    data-schedule-flex-days-cancel>Cancel</button>
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button"
+                    data-schedule-flex-days-confirm disabled>Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Schedule: set a limit stepper (nested; same handoff as time picker) -->
     <div class="currency-sheet currency-sheet--schedule-followup" data-schedule-buys-sheet hidden aria-modal="true"
         role="dialog" aria-label="Set a limit">
