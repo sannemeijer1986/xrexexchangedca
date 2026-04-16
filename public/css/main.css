@@ -3578,6 +3578,7 @@ button.finance-summary__stat-value--chevron {
   font-weight: 600;
   line-height: normal;
   color: #3f78ff;
+  margin-top: 4px;
   cursor: pointer;
 }
 .currency-sheet--funding2-preview .funding2-preview-sheet__footer {
@@ -8941,7 +8942,7 @@ div.currency-sheet__item-icon::before {
   flex-shrink: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #9b9c9c;
+  color: #ffffff;
 }
 
 .plan-buffer-funding-input__divider {
@@ -9119,7 +9120,7 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   font-size: 14px;
   font-weight: 600;
-  color: #9b9c9c;
+  color: #ffffff;
   text-transform: lowercase;
 }
 
