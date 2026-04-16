@@ -4329,10 +4329,12 @@
           const failedClass = failed ? ' is-failed' : '';
           return `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></div></article>`;
         };
-        const cards = [0, 1, 2].map((idx) => {
+        const cardIndexes = [0, 1, 2];
+        const failedIndex = Math.max(0, cardIndexes.length - 2);
+        const cards = cardIndexes.map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
-          const failed = getPrototypeShowFailedBuy() && idx === 2;
+          const failed = getPrototypeShowFailedBuy() && idx === failedIndex;
           return buildCard(d, idx === 0, failed);
         }).join('');
         activityEl.innerHTML = cards;
