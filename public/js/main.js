@@ -4857,6 +4857,64 @@
       sheetEl.setAttribute('aria-label', `${action} plan`);
     });
 
+    // Edit pre-funding → End pre-fund confirm (Figma 8992:143933); stacks like manage confirm sheets.
+    const editPrefundSheet = document.querySelector('[data-my-plans-prefund-edit-sheet]');
+    const endPrefundConfirmSheet = document.querySelector('[data-my-plans-prefund-end-confirm-sheet]');
+    const editPrefundPanel = editPrefundSheet?.querySelector('.currency-sheet__panel');
+    const endPrefundConfirmPanel = endPrefundConfirmSheet?.querySelector('.currency-sheet__panel');
+
+    const openEndPrefundConfirmSheet = () => {
+      if (!editPrefundSheet || !endPrefundConfirmSheet || !editPrefundPanel || !endPrefundConfirmPanel) return;
+      if (getBottomSheetStacking()) {
+        sheetOpenWithInstantBackdrop(endPrefundConfirmSheet);
+        return;
+      }
+      sheetCloseWithBackdropHandoff(editPrefundSheet, editPrefundPanel, () => {
+        sheetOpenWithInstantBackdrop(endPrefundConfirmSheet);
+      });
+    };
+
+    const closeEndPrefundConfirmSheet = (onDone, opts = {}) => {
+      if (!endPrefundConfirmSheet || !endPrefundConfirmPanel) {
+        onDone?.();
+        return;
+      }
+      const suppressNestedScrim = Boolean(opts.stackPopDismiss);
+      sheetCloseWithBackdropHandoff(endPrefundConfirmSheet, endPrefundConfirmPanel, onDone, { suppressNestedScrim });
+    };
+
+    editPrefundSheet?.querySelector('[data-my-plans-prefund-edit-action="end-return"]')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openEndPrefundConfirmSheet();
+    });
+
+    endPrefundConfirmSheet?.querySelectorAll('[data-my-plans-prefund-end-confirm-close], [data-my-plans-prefund-end-confirm-dismiss]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (getBottomSheetStacking()) {
+          closeEndPrefundConfirmSheet(null, { stackPopDismiss: true });
+          return;
+        }
+        closeEndPrefundConfirmSheet(() => {
+          sheetOpenWithInstantBackdrop(editPrefundSheet);
+        });
+      });
+    });
+
+    endPrefundConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]')?.addEventListener('click', () => {
+      showMyPlansSnackbar('Pre-funding ended');
+      const stacking = getBottomSheetStacking();
+      if (stacking) {
+        closeEndPrefundConfirmSheet(() => {
+          sheetCloseWithBackdropHandoff(editPrefundSheet, editPrefundPanel, () => {
+            closeManageSheet();
+          }, { suppressNestedScrim: true });
+        }, { stackPopDismiss: true });
+      } else {
+        closeEndPrefundConfirmSheet();
+      }
+    });
+
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
       const idEl = detailPanel.querySelector('[data-my-plans-detail-plan-id]');
       const text = String(idEl?.textContent || '').trim();

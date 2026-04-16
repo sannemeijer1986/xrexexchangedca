@@ -4141,6 +4141,55 @@ div.currency-sheet__item-icon {
   z-index: 48;
 }
 
+// Stacks above edit pre-funding sheet (47) when “Bottom sheet stacking” is on.
+[data-my-plans-prefund-end-confirm-sheet] {
+  z-index: 49;
+}
+
+.currency-sheet__body--prefund-end-confirm {
+  gap: 8px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.currency-sheet__body--prefund-end-confirm .currency-sheet__title {
+  margin-top: 0;
+}
+
+.phone-container .currency-sheet__prefund-end-confirm-copy {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  color: #9b9c9c;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 23px;
+}
+
+.phone-container .currency-sheet__prefund-end-confirm-copy p {
+  margin: 0;
+}
+
+.phone-container .currency-sheet__prefund-end-confirm-copy p + p {
+  margin-top: 0;
+}
+
+.currency-sheet__footer--prefund-end-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-my-plans-prefund-end-confirm-sheet] .currency-sheet__cancel--prefund-end-secondary {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+
+[data-my-plans-prefund-end-confirm-sheet] .currency-sheet__cancel--prefund-end-danger {
+  background: #eb5347;
+  color: #ffffff;
+}
+
 .currency-sheet__body--manage-confirm {
   gap: 8px;
   padding-top: 16px;
