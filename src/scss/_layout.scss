@@ -13186,9 +13186,16 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   padding: 12px 16px;
   box-sizing: border-box;
+}
+
+.my-plans-detail-panel__activity-head-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .my-plans-detail-panel__activity-date-col {
