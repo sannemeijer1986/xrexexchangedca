@@ -9045,6 +9045,11 @@ div.currency-sheet__item-icon {
   margin: 8px 16px 8px 16px;
 }
 
+// Prototype control (checkbox): hide By amount / By period seg.
+html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffer-funding-seg--hero {
+  display: none !important;
+}
+
 .plan-buffer-funding-seg__btn {
   flex: 1;
   min-width: 0;

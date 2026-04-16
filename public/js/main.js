@@ -1454,6 +1454,11 @@
         firstBuyTodayToggle.checked = false;
         firstBuyTodayToggle.dispatchEvent(new Event('change'));
       }
+      const fundingAmountPeriodSegToggle = document.querySelector('[data-prototype-show-funding-amount-period]');
+      if (fundingAmountPeriodSegToggle) {
+        fundingAmountPeriodSegToggle.checked = true;
+        fundingAmountPeriodSegToggle.dispatchEvent(new Event('change'));
+      }
       const failedBuyToggle = document.querySelector('[data-prototype-show-failed-buy]');
       if (failedBuyToggle) {
         failedBuyToggle.checked = false;
@@ -1511,6 +1516,11 @@
       if (firstBuyTodayToggle) {
         firstBuyTodayToggle.checked = false;
         firstBuyTodayToggle.dispatchEvent(new Event('change'));
+      }
+      const fundingAmountPeriodSegToggle = document.querySelector('[data-prototype-show-funding-amount-period]');
+      if (fundingAmountPeriodSegToggle) {
+        fundingAmountPeriodSegToggle.checked = true;
+        fundingAmountPeriodSegToggle.dispatchEvent(new Event('change'));
       }
       const failedBuyToggle = document.querySelector('[data-prototype-show-failed-buy]');
       if (failedBuyToggle) {
@@ -2067,6 +2077,14 @@
     document.querySelectorAll('.schedule-sheet__buy-now-row').forEach((row) => {
       row.style.display = on ? '' : 'none';
     });
+  };
+
+  /** Prototype control: show/hide By amount / By period segmented control (plan buffer hero). */
+  const syncPrototypeFundingAmountPeriodSegVisible = () => {
+    const input = document.querySelector('[data-prototype-show-funding-amount-period]');
+    const on = input ? Boolean(input.checked) : true;
+    // Use `html` class so dynamically cloned panels (e.g. Funding2) stay in sync without per-node inline styles.
+    document.documentElement.classList.toggle('proto-hide-plan-buffer-funding-seg-hero', !on);
   };
 
   /** Prototype control: mark most recent-activity tail card as failed. */
@@ -4996,6 +5014,9 @@
   document.querySelector('[data-prototype-show-first-buy-today]')?.addEventListener('change', () => {
     syncPrototypeScheduleBuyNowRowVisible();
   });
+  document.querySelector('[data-prototype-show-funding-amount-period]')?.addEventListener('change', () => {
+    syncPrototypeFundingAmountPeriodSegVisible();
+  });
   document.querySelector('[data-prototype-show-failed-buy]')?.addEventListener('change', () => {
     syncMyPlansFlowUi();
   });
@@ -5003,6 +5024,7 @@
     document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));
   });
   syncPrototypeScheduleBuyNowRowVisible();
+  syncPrototypeFundingAmountPeriodSegVisible();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
