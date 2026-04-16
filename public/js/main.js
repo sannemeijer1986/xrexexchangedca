@@ -4179,10 +4179,10 @@
         }
 
         let prefundTone = 'ok';
-        let prefundBarPct = 70;
+        let prefundBarPct = 100;
         if (fundingState === 3) {
           prefundTone = 'ok';
-          prefundBarPct = 70;
+          prefundBarPct = 100;
         } else if (fundingState === 4) {
           prefundTone = 'low';
           prefundBarPct = 25;
@@ -4219,7 +4219,9 @@
           fundingPrefundMetaEl.textContent = `Covers ${buyN} buys • runs out around ${runShort}`;
         }
 
-        const topUpNum = Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0;
+        const topUpNum = reservedNum > 0
+          ? reservedNum
+          : (Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0);
         if (fundingPrefundAutorefEl) {
           fundingPrefundAutorefEl.textContent = topUpNum > 0
             ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when 0.00 ${cur} left`
@@ -4297,7 +4299,7 @@
           const price = px[m.ticker] || 100;
           const qty = amount > 0 ? amount / price : 0;
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
-          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
+          return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
         const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
         const cards = [0, 1, 2].map((idx) => {

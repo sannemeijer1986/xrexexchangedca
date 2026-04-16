@@ -13235,6 +13235,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   height: 16px;
   display: block;
   flex-shrink: 0;
+  display: none;
 }
 
 .my-plans-detail-panel__activity-invested-text {
@@ -13363,7 +13364,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 }
 
 .my-plans-detail-panel__act-gain {
-  margin-top: 2px;
+  margin-right: 3px;
   font-size: 14px;
   font-weight: 600;
   color: #5AC47D;
