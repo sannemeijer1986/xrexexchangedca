@@ -4199,7 +4199,11 @@
         };
         const covLine = computeCoversBuysText(rec) || '';
         const buyNMatch = covLine.match(/(\d+)/);
-        const buyN = buyNMatch ? buyNMatch[1] : '—';
+        /** `computeCoversBuysText` only runs when `isReserved`; prefund layout can show without that flag. */
+        let buyN = buyNMatch ? buyNMatch[1] : '—';
+        if (buyN === '—' && Number.isFinite(perNum) && perNum > 0 && amountLeftNum > 0) {
+          buyN = String(Math.max(0, Math.floor(amountLeftNum / perNum)));
+        }
         const runRaw = rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
         const runShort = formatRunsOutAround(shortenWeekdayLabel(runRaw));
         if (fundingPrefundMetaEl) {
