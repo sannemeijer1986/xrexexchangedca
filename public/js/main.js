@@ -1469,6 +1469,11 @@
         smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
+      const prefundLogSelect = document.querySelector('[data-prototype-prefund-log]');
+      if (prefundLogSelect) {
+        prefundLogSelect.value = 'none';
+        prefundLogSelect.dispatchEvent(new Event('change'));
+      }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       myPlansSubmittedPlan = null;
@@ -1531,6 +1536,11 @@
       if (smartAllocSelect) {
         smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
+      }
+      const prefundLogSelect = document.querySelector('[data-prototype-prefund-log]');
+      if (prefundLogSelect) {
+        prefundLogSelect.value = 'none';
+        prefundLogSelect.dispatchEvent(new Event('change'));
       }
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
@@ -2097,6 +2107,30 @@
   const getPrototypeSmartAllocationEnabled = () => {
     const sel = document.querySelector('[data-prototype-smart-allocation]');
     return String(sel?.value || 'smart') === 'smart';
+  };
+
+  /** Prototype control: pre-fund activity log scenario (none / pre-funded / funds returned). */
+  const syncPrototypePrefundLogToDocument = () => {
+    const sel = document.querySelector('[data-prototype-prefund-log]');
+    const v = String(sel?.value || 'none').toLowerCase();
+    const safe = v === 'prefunded' || v === 'returned' ? v : 'none';
+    document.documentElement.dataset.prototypePrefundLog = safe;
+  };
+
+  const getPrototypePrefundLog = () => {
+    const sel = document.querySelector('[data-prototype-prefund-log]');
+    const v = String(sel?.value || 'none').toLowerCase();
+    if (v === 'prefunded' || v === 'returned') return v;
+    return 'none';
+  };
+
+  const setPrototypePrefundLog = (next) => {
+    const sel = document.querySelector('[data-prototype-prefund-log]');
+    if (!sel) return;
+    const v = next === 'prefunded' || next === 'returned' ? next : 'none';
+    sel.value = v;
+    syncPrototypePrefundLogToDocument();
+    document.dispatchEvent(new CustomEvent('prototype-prefund-log-change'));
   };
 
   /**
@@ -4928,6 +4962,7 @@
 
     endPrefundConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]')?.addEventListener('click', () => {
       setState('funding', 1, { force: true });
+      setPrototypePrefundLog('returned');
       showMyPlansSnackbar('Pre-funding ended');
       closePrefundEndConfirmStackTogether();
     });
@@ -5098,8 +5133,13 @@
   document.querySelector('[data-prototype-smart-allocation]')?.addEventListener('change', () => {
     document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));
   });
+  document.querySelector('[data-prototype-prefund-log]')?.addEventListener('change', () => {
+    syncPrototypePrefundLogToDocument();
+    document.dispatchEvent(new CustomEvent('prototype-prefund-log-change'));
+  });
   syncPrototypeScheduleBuyNowRowVisible();
   syncPrototypeFundingAmountPeriodSegVisible();
+  syncPrototypePrefundLogToDocument();
 
   /** Fictional % delta from plan-detail allocation sliders (prototype feel). */
   let detailPanelAllocPctTweakFn = null;
@@ -6558,6 +6598,7 @@
         if (overviewConfirm.disabled) return;
         e.preventDefault();
         e.stopPropagation();
+        setPrototypePrefundLog('prefunded');
         const loaderEl = ensureFunding2SubmitLoader();
         funding2PrefundSuccessLoaderGen += 1;
         const gen = funding2PrefundSuccessLoaderGen;
