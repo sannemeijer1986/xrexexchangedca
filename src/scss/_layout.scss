@@ -4160,7 +4160,6 @@ div.currency-sheet__item-icon {
   margin: 0;
   width: 100%;
   text-align: center;
-  color: #9b9c9c;
   font-size: 16px;
   font-weight: 400;
   line-height: 23px;
@@ -4168,10 +4167,11 @@ div.currency-sheet__item-icon {
 
 .phone-container .currency-sheet__prefund-end-confirm-copy p {
   margin: 0;
+  color: #9b9c9c;
 }
 
 .phone-container .currency-sheet__prefund-end-confirm-copy p + p {
-  margin-top: 0;
+  margin-top: 16px;
 }
 
 .currency-sheet__footer--prefund-end-confirm {

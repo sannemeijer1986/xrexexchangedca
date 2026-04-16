@@ -4883,6 +4883,31 @@
       sheetCloseWithBackdropHandoff(endPrefundConfirmSheet, endPrefundConfirmPanel, onDone, { suppressNestedScrim });
     };
 
+    /** Close end-prefund confirm + edit + manage sheets in one motion (parallel panel slides). */
+    const closePrefundEndConfirmStackTogether = () => {
+      const stack = [endPrefundConfirmSheet, editPrefundSheet, manageSheet].filter(Boolean);
+      let anyClosing = false;
+      stack.forEach((sheetEl) => {
+        if (!sheetEl.classList.contains('is-open')) return;
+        anyClosing = true;
+        sheetEl.classList.remove(SHEET_BACKDROP_HANDOFF);
+        sheetEl.classList.remove(SHEET_STACK_POP_DISMISS);
+        sheetEl.classList.remove(SHEET_BACKDROP_INSTANT_IN);
+        sheetEl.classList.remove('is-open');
+      });
+      const finalize = () => {
+        stack.forEach((sheetEl) => {
+          if (!sheetEl.classList.contains('is-open')) sheetEl.hidden = true;
+        });
+        resetScheduleNestedScrimHard();
+      };
+      if (!anyClosing) {
+        finalize();
+        return;
+      }
+      window.setTimeout(finalize, 300);
+    };
+
     editPrefundSheet?.querySelector('[data-my-plans-prefund-edit-action="end-return"]')?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -4902,17 +4927,9 @@
     });
 
     endPrefundConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]')?.addEventListener('click', () => {
+      setState('funding', 2, { force: true });
       showMyPlansSnackbar('Pre-funding ended');
-      const stacking = getBottomSheetStacking();
-      if (stacking) {
-        closeEndPrefundConfirmSheet(() => {
-          sheetCloseWithBackdropHandoff(editPrefundSheet, editPrefundPanel, () => {
-            closeManageSheet();
-          }, { suppressNestedScrim: true });
-        }, { stackPopDismiss: true });
-      } else {
-        closeEndPrefundConfirmSheet();
-      }
+      closePrefundEndConfirmStackTogether();
     });
 
     detailPanel?.querySelector('[data-my-plans-detail-copy-id]')?.addEventListener('click', async () => {
