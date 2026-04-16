@@ -2007,7 +2007,7 @@
                                         </button>
                                         <button type="button" class="my-plans-detail-panel__funding-prefund-edit" data-my-plans-prefund-edit-sheet-open>Edit</button>
                                     </div>
-                                    <div class="my-plans-detail-panel__funding-prefund-amount-row">
+                                    <div class="my-plans-detail-panel__funding-prefund-amount-row my-plans-detail-panel__funding-prefund-amount-row--ok">
                                         <span class="my-plans-detail-panel__funding-prefund-amount-num" data-my-plans-detail-funding-prefund-amount>—</span>
                                         <span class="my-plans-detail-panel__funding-prefund-amount-suffix"> left</span>
                                     </div>
@@ -2134,7 +2134,7 @@
         </div>
     </section>
 
-    <div class="currency-sheet currency-sheet--schedule-buy-now-info currency-sheet--manage-plan" data-my-plans-manage-sheet hidden aria-modal="true" role="dialog" aria-label="Manage plan">
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info currency-sheet--manage-plan" data-my-plans-manage-sheet data-my-plans-manage-prefund-mode="prefund" hidden aria-modal="true" role="dialog" aria-label="Manage plan">
         <button class="currency-sheet__backdrop" type="button" data-my-plans-manage-sheet-close aria-label="Close"></button>
         <div class="currency-sheet__panel">
             <div class="currency-sheet__handle-wrap">
@@ -2563,7 +2563,11 @@
             </div>
             <div class="currency-sheet__body">
                 <h2 class="currency-sheet__title">Pre-funded</h2>
-                <p class="currency-sheet__desc">Text</p>
+                <p class="currency-sheet__desc">You've pre-funded this plan: pre-funding helps your plan run long-term without interruptions by reserving funds in advance.
+
+When your reserved funds run out, we'll automatically pre-fund again to keep your plan running.
+
+<span class="currency-sheet__desc-highlight">You can change or turn off pre-funding anytime.</span></p>
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-my-plans-prefund-funded-info-sheet-close>Understood</button>

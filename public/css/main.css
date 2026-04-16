@@ -3770,6 +3770,15 @@ button.finance-summary__stat-value--chevron {
   font-weight: 600;
 }
 
+[data-my-plans-prefund-funded-info-sheet] .currency-sheet__desc {
+  white-space: pre-line;
+}
+
+[data-my-plans-prefund-funded-info-sheet] .currency-sheet__desc .currency-sheet__desc-highlight {
+  color: #5ac47d;
+  font-weight: 600;
+}
+
 .phone-container p.currency-sheet__subtitle {
   margin: -8px 0 0;
   padding: 0 8px;
@@ -4002,6 +4011,10 @@ div.currency-sheet__item-icon::before {
   color: #8fb8ff;
 }
 
+.currency-sheet__item-desc--manage-prefund[hidden] {
+  display: none !important;
+}
+
 .currency-sheet__item-icon--manage-img {
   display: flex;
   align-items: center;
@@ -4026,6 +4039,10 @@ div.currency-sheet__item-icon::before {
 
 .currency-sheet__item--manage-prefund .currency-sheet__item-icon--manage-img {
   background: #275cfd;
+}
+
+[data-my-plans-manage-sheet][data-my-plans-manage-prefund-mode=edit] .currency-sheet__item--manage-prefund .currency-sheet__item-icon--manage-img {
+  background: #2f9752;
 }
 
 [data-my-plans-manage-confirm-sheet] {
@@ -12510,7 +12527,18 @@ div.currency-sheet__item-icon::before {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px;
-  color: #5AC47D;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-row--ok {
+  color: #5ac47d;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-row--low {
+  color: #ff6d47;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-row--empty {
+  color: #eb5347;
 }
 
 .my-plans-detail-panel__funding-prefund-amount-num {

@@ -3887,6 +3887,9 @@
       tab.addEventListener('click', () => setFilter(tab.getAttribute('data-my-plans-filter')));
     });
 
+    /** Set after `syncManageSheetUi` — reapplies prefund row when prototype funding changes while sheet is open. */
+    let refreshManageSheetIfOpen = () => {};
+
     const syncMyPlansFromFlow = () => {
       renderMyPlansViews();
       if (detailPanel?.classList.contains('is-open')) {
@@ -3895,6 +3898,7 @@
         const rec = activeId ? recs.find((r) => String(r?.id || '') === activeId) : recs[0];
         if (rec) populateMyPlansPlanDetail(rec);
       }
+      refreshManageSheetIfOpen();
     };
 
     syncMyPlansFlowUi = syncMyPlansFromFlow;
@@ -4122,6 +4126,7 @@
       const fundingClassicEl = detailPanel.querySelector('[data-my-plans-detail-funding-classic]');
       const fundingPrefundEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund]');
       const fundingPrefundAmountEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-amount]');
+      const fundingPrefundAmountRowEl = fundingPrefundAmountEl?.closest('.my-plans-detail-panel__funding-prefund-amount-row');
       const fundingPrefundBarFillEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-bar-fill]');
       const fundingPrefundMetaEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-meta]');
       const fundingPrefundAutorefEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-autoref]');
@@ -4173,21 +4178,25 @@
             : `${amountLeftNum.toLocaleString('en-US')} ${cur}`;
         }
 
+        let prefundTone = 'ok';
+        let prefundBarPct = 70;
+        if (fundingState === 3) {
+          prefundTone = 'ok';
+          prefundBarPct = 70;
+        } else if (fundingState === 4) {
+          prefundTone = 'low';
+          prefundBarPct = 25;
+        } else {
+          prefundTone = 'empty';
+          prefundBarPct = 0;
+        }
+        if (fundingPrefundAmountRowEl) {
+          fundingPrefundAmountRowEl.className =
+            `my-plans-detail-panel__funding-prefund-amount-row my-plans-detail-panel__funding-prefund-amount-row--${prefundTone}`;
+        }
         if (fundingPrefundBarFillEl) {
-          let pct = 0;
-          let tone = 'ok';
-          if (fundingState === 3) {
-            pct = 70;
-            tone = 'ok';
-          } else if (fundingState === 4) {
-            pct = 25;
-            tone = 'low';
-          } else {
-            pct = 0;
-            tone = 'empty';
-          }
-          fundingPrefundBarFillEl.style.width = `${pct}%`;
-          fundingPrefundBarFillEl.className = `my-plans-detail-panel__funding-prefund-bar-fill my-plans-detail-panel__funding-prefund-bar-fill--${tone}`;
+          fundingPrefundBarFillEl.style.width = `${prefundBarPct}%`;
+          fundingPrefundBarFillEl.className = `my-plans-detail-panel__funding-prefund-bar-fill my-plans-detail-panel__funding-prefund-bar-fill--${prefundTone}`;
         }
 
         const formatRunsOutAround = (label) => {
@@ -4201,7 +4210,7 @@
         const buyNMatch = covLine.match(/(\d+)/);
         /** `computeCoversBuysText` only runs when `isReserved`; prefund layout can show without that flag. */
         let buyN = buyNMatch ? buyNMatch[1] : '—';
-        if (buyN === '—' && Number.isFinite(perNum) && perNum > 0 && amountLeftNum > 0) {
+        if (buyN === '—' && Number.isFinite(perNum) && perNum > 0) {
           buyN = String(Math.max(0, Math.floor(amountLeftNum / perNum)));
         }
         const runRaw = rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
@@ -4211,10 +4220,9 @@
         }
 
         const topUpNum = Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0;
-        const belowNum = Number.isFinite(perNum) && perNum > 0 ? perNum : 0;
         if (fundingPrefundAutorefEl) {
-          fundingPrefundAutorefEl.textContent = topUpNum > 0 && belowNum > 0
-            ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when below ${belowNum.toLocaleString('en-US')} ${cur}`
+          fundingPrefundAutorefEl.textContent = topUpNum > 0
+            ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when 0.00 ${cur} left`
             : '—';
         }
       }
@@ -4546,6 +4554,25 @@
         if (pauseIcon) pauseIcon.src = 'assets/icon_pause.svg';
         if (pauseLabel) pauseLabel.textContent = 'Pause plan';
       }
+
+      const fundingState = states.funding ?? 1;
+      const prefundRowBtn = manageSheet.querySelector('[data-my-plans-manage-action="prefund"]');
+      const prefundNameEl = prefundRowBtn?.querySelector('.currency-sheet__item-name');
+      const prefundDescEl = prefundRowBtn?.querySelector('.currency-sheet__item-desc--manage-prefund');
+      const prefundEditMode = fundingState >= 3;
+      manageSheet.setAttribute('data-my-plans-manage-prefund-mode', prefundEditMode ? 'edit' : 'prefund');
+      if (prefundNameEl) {
+        prefundNameEl.textContent = prefundEditMode ? 'Edit pre-funding' : 'Pre-fund plan';
+      }
+      if (prefundDescEl) {
+        prefundDescEl.hidden = prefundEditMode;
+      }
+    };
+
+    refreshManageSheetIfOpen = () => {
+      if (!manageSheet || manageSheet.hidden || !manageSheet.classList.contains('is-open')) return;
+      const rec = resolveManagePlanRecord(manageSheet);
+      if (rec) syncManageSheetUi(rec);
     };
 
     const closeManageSheet = (instant = false) => {
@@ -4716,6 +4743,23 @@
       btn.addEventListener('click', () => {
         const action = btn.getAttribute('data-my-plans-manage-action');
         if (action === 'prefund') {
+          const fundingState = states.funding ?? 1;
+          if (fundingState >= 3) {
+            const editSheet = document.querySelector('[data-my-plans-prefund-edit-sheet]');
+            const managePanelEl = manageSheet.querySelector('.currency-sheet__panel');
+            if (!editSheet) {
+              closeManageSheet();
+              return;
+            }
+            if (getBottomSheetStacking()) {
+              sheetOpenWithInstantBackdrop(editSheet);
+              return;
+            }
+            sheetCloseWithBackdropHandoff(manageSheet, managePanelEl, () => {
+              sheetOpenWithInstantBackdrop(editSheet);
+            });
+            return;
+          }
           openFunding2FromMyPlans(btn);
           return;
         }
