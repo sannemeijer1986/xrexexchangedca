@@ -4321,7 +4321,10 @@
         const runRaw = rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
         const runShort = formatRunsOutAround(shortenWeekdayLabel(runRaw));
         if (fundingPrefundMetaEl) {
-          fundingPrefundMetaEl.textContent = `Covers ${buyN} buys • runs out around ${runShort}`;
+          fundingPrefundMetaEl.textContent = fundingState === 5
+            ? 'Funds have run out'
+            : `Covers ${buyN} buys • runs out around ${runShort}`;
+          fundingPrefundMetaEl.classList.toggle('my-plans-detail-panel__funding-prefund-meta--negative', fundingState === 5);
         }
 
         const topUpNum = reservedNum > 0
@@ -4332,13 +4335,16 @@
             ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when 0.00 ${cur} left`
             : '—';
         }
+        const alertTopUpText = topUpNum > 0
+          ? `${topUpNum.toLocaleString('en-US')} ${cur}`
+          : `0 ${cur}`;
         if (fundingState === 4) {
           applyFundingAlert(
             fundingPrefundAlertEl,
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'warning',
-            'Pre-funded balance is running low. Auto-refill will trigger soon, prepare 40,000 TWD in your wallet.',
+            `Pre-funded balance is running low. Auto-refill will trigger soon, prepare ${alertTopUpText} in your wallet.`,
           );
         } else if (fundingState === 5) {
           applyFundingAlert(
@@ -4346,7 +4352,7 @@
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'negative',
-            'Pre-funded balance is empty. Auto-refill will trigger soon, prepare 40,000 TWD in your wallet',
+            `Pre-funded balance is empty. Auto-refill will trigger soon, prepare ${alertTopUpText} in your wallet.`,
           );
         } else {
           applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
