@@ -9012,9 +9012,10 @@ div.currency-sheet__item-icon {
 
 .plan-buffer-funding-seg {
   display: flex;
+  align-items: stretch;
   width: 100%;
   height: 32px;
-  padding: 2px;
+  padding: 1px;
   box-sizing: border-box;
   border-radius: 12px;
   background: #1b1d1d;
@@ -9026,13 +9027,15 @@ div.currency-sheet__item-icon {
   min-width: 214px;
   align-self: flex-start;
   height: 32px;
+  /* Align with `.plan-buffer-panel__body--funding` horizontal padding; no extra top inset */
   margin: 8px 16px 8px 16px;
 }
 
 .plan-buffer-funding-seg__btn {
   flex: 1;
   min-width: 0;
-  height: 32px;
+  align-self: stretch;
+  min-height: 32px;
   border: 0;
   border-radius: 10px;
   background: transparent;
@@ -9040,7 +9043,12 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   color: #9b9c9c;
   cursor: pointer;
-  padding: 0 8px 2px 8px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-family: inherit;
 }
 
 .plan-buffer-funding-seg__btn.is-selected {
@@ -9312,6 +9320,85 @@ div.currency-sheet__item-icon {
 
 .plan-buffer-funding-summary__value--highlight {
   color: #8fb8ff;
+}
+
+.plan-buffer-funding-summary__value--right {
+  text-align: right;
+  white-space: normal;
+  max-width: 58%;
+}
+
+.plan-buffer-funding-summary__value--prefund {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.plan-buffer-funding-hero--period {
+  gap: 12px;
+}
+
+button.plan-buffer-funding-hero__how-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #3f78ff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.plan-buffer-funding-stack--period {
+  margin-top: 16px;
+}
+
+.plan-buffer-funding-input--period {
+  padding-top: 4px;
+}
+
+.plan-buffer-funding-input__row--period {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.plan-buffer-funding-input__left--period {
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-buffer-funding-input__field--period {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.plan-buffer-funding-input__unit-pill {
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #252627;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  text-transform: lowercase;
+}
+
+.plan-buffer-funding-period-summary {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #151718;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .plan-buffer-funding-round {

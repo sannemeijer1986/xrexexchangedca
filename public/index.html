@@ -1653,9 +1653,63 @@
                     </div>
                 </div>
                 <div class="plan-buffer-panel__body plan-buffer-panel__body--funding plan-buffer-panel__body--funding-period" data-plan-buffer-funding-view="period" hidden>
-                    <div class="plan-buffer-funding-hero">
+                    <div class="plan-buffer-funding-hero plan-buffer-funding-hero--period">
                         <div class="plan-buffer-funding-hero__top">
-                            <p class="plan-buffer-funding-hero__title">How many months would you like to pre-fund in advance?</p>
+                            <p class="plan-buffer-funding-hero__title" data-plan-buffer-period-hero-title>How many months would you like to pre-fund in advance?</p>
+                        </div>
+                        <div class="plan-buffer-funding-hero__sub">
+                            <p class="plan-buffer-funding-hero__subtitle" data-plan-buffer-period-perbuy-line>
+                                <span class="plan-buffer-funding-hero__subtitle-prefix">Each monthly buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>
+                            </p>
+                        </div>
+                        <button type="button" class="plan-buffer-funding-hero__how-link" data-plan-buffer-period-how-it-works>How it works</button>
+                    </div>
+                    <div class="plan-buffer-funding-stack plan-buffer-funding-stack--period">
+                        <div class="plan-buffer-funding-input__head">
+                            <div class="plan-buffer-funding-input__title">Period</div>
+                            <div class="plan-buffer-funding-input__avail">
+                                <span data-plan-buffer-period-avail-balance>Avail. —</span>
+                                <button class="plan-buffer-panel__avail-plus" type="button" aria-label="Top up balance" data-plan-detail-topup-trigger>
+                                    <img src="assets/icon_topup.svg" width="16" height="16" alt="" />
+                                </button>
+                            </div>
+                        </div>
+                        <div class="plan-buffer-funding-input plan-buffer-funding-input--period">
+                            <div class="plan-buffer-funding-input__row plan-buffer-funding-input__row--period">
+                                <div class="plan-buffer-funding-input__left plan-buffer-funding-input__left--period">
+                                    <input
+                                        class="plan-buffer-funding-input__field plan-buffer-funding-input__field--period"
+                                        type="text"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        autocomplete="off"
+                                        placeholder="0"
+                                        value=""
+                                        aria-label="Pre-fund period count"
+                                        data-plan-buffer-period-input
+                                    />
+                                    <span class="plan-buffer-funding-input__unit-pill" aria-hidden="true"><span data-plan-buffer-period-unit-label>months</span></span>
+                                </div>
+                            </div>
+                            <div class="plan-buffer-funding-input__divider"></div>
+                            <div class="plan-buffer-funding-input__max-row">
+                                <span aria-hidden="true"></span>
+                                <button class="plan-buffer-funding-input__max-btn" type="button" data-plan-buffer-period-max>Max</button>
+                            </div>
+                        </div>
+                        <div class="plan-buffer-funding-period-summary" aria-label="Period funding summary">
+                            <div class="plan-buffer-funding-summary__row">
+                                <span class="plan-buffer-funding-summary__label">Period</span>
+                                <span class="plan-buffer-funding-summary__value" data-plan-buffer-period-sum-period>—</span>
+                            </div>
+                            <div class="plan-buffer-funding-summary__row plan-buffer-funding-summary__row--covers">
+                                <span class="plan-buffer-funding-summary__label">Covers until ≈</span>
+                                <span class="plan-buffer-funding-summary__value plan-buffer-funding-summary__value--right" data-plan-buffer-period-sum-covers>—</span>
+                            </div>
+                            <div class="plan-buffer-funding-summary__row">
+                                <span class="plan-buffer-funding-summary__label">You will pre-fund</span>
+                                <span class="plan-buffer-funding-summary__value plan-buffer-funding-summary__value--prefund" data-plan-buffer-period-sum-amount>—</span>
+                            </div>
                         </div>
                     </div>
                 </div>
