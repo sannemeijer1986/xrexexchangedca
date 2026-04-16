@@ -4200,6 +4200,12 @@
       const fundingPrefundBarFillEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-bar-fill]');
       const fundingPrefundMetaEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-meta]');
       const fundingPrefundAutorefEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-autoref]');
+      const fundingClassicAlertEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-classic]');
+      const fundingClassicAlertTextEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-classic-text]');
+      const fundingClassicAlertIconEl = fundingClassicAlertEl?.querySelector('.my-plans-detail-panel__funding-alert-icon');
+      const fundingPrefundAlertEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund]');
+      const fundingPrefundAlertTextEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund-text]');
+      const fundingPrefundAlertIconEl = fundingPrefundAlertEl?.querySelector('.my-plans-detail-panel__funding-alert-icon');
       const fundingState = states.funding ?? 1;
       // Pre-funded Figma layout only for prototype funding state 3+; 1–2 use classic row.
       const usePrefundDetailLayout = fundingState >= 3 && flowState !== 5;
@@ -4210,19 +4216,48 @@
         fundingPrefundEl.setAttribute('aria-hidden', usePrefundDetailLayout ? 'false' : 'true');
       }
 
+      const applyFundingAlert = (el, textEl, iconEl, tone, text) => {
+        if (!el) return;
+        const hasText = String(text || '').trim().length > 0;
+        el.hidden = !hasText;
+        el.classList.toggle('my-plans-detail-panel__funding-alert--warning', tone === 'warning');
+        el.classList.toggle('my-plans-detail-panel__funding-alert--negative', tone === 'negative');
+        if (textEl) textEl.textContent = hasText ? String(text) : '';
+        if (iconEl) {
+          iconEl.setAttribute('src', tone === 'warning' ? 'assets/icon_warning.svg' : 'assets/icon_negative.svg');
+        }
+      };
+
       if (!usePrefundDetailLayout) {
+        applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
         if (fundingMainEl) {
           fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from ${cur} balance`;
         }
         if (fundingSubEl) {
-          const sub = rec.isReserved
-            ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
-            : `Sufficient balance`;
+          const sub = fundingState === 2
+            ? `Insufficient ${cur} balance`
+            : rec.isReserved
+              ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
+              : 'Sufficient balance';
           fundingSubEl.textContent = sub;
+          fundingSubEl.classList.toggle('my-plans-detail-panel__ov-sub--positive', fundingState !== 2);
+          fundingSubEl.classList.toggle('my-plans-detail-panel__ov-sub--negative', fundingState === 2);
           const subTrim = String(sub || '').trim();
-          if (fundingCheckEl) fundingCheckEl.hidden = !subTrim;
+          if (fundingCheckEl) fundingCheckEl.hidden = fundingState === 2 || !subTrim;
+        }
+        if (fundingState === 2) {
+          applyFundingAlert(
+            fundingClassicAlertEl,
+            fundingClassicAlertTextEl,
+            fundingClassicAlertIconEl,
+            'negative',
+            'Insufficient balance: top up your wallet to keep upcoming buys on schedule.',
+          );
+        } else {
+          applyFundingAlert(fundingClassicAlertEl, fundingClassicAlertTextEl, fundingClassicAlertIconEl, 'negative', '');
         }
       } else {
+        applyFundingAlert(fundingClassicAlertEl, fundingClassicAlertTextEl, fundingClassicAlertIconEl, 'negative', '');
         const investAmtMatch = String(rec.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
         const perNum = investAmtMatch
           ? parseFloat(String(investAmtMatch[1] || '').replace(/,/g, ''))
@@ -4296,6 +4331,25 @@
           fundingPrefundAutorefEl.textContent = topUpNum > 0
             ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when 0.00 ${cur} left`
             : '—';
+        }
+        if (fundingState === 4) {
+          applyFundingAlert(
+            fundingPrefundAlertEl,
+            fundingPrefundAlertTextEl,
+            fundingPrefundAlertIconEl,
+            'warning',
+            'Pre-funded balance is running low. Auto-refill will trigger soon.',
+          );
+        } else if (fundingState === 5) {
+          applyFundingAlert(
+            fundingPrefundAlertEl,
+            fundingPrefundAlertTextEl,
+            fundingPrefundAlertIconEl,
+            'negative',
+            'Pre-funded balance is empty. Return funds or top up to avoid interruptions.',
+          );
+        } else {
+          applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
         }
       }
 
