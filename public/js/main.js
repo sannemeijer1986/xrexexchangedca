@@ -2424,13 +2424,13 @@
       daily: 'Every day',
       weekly: 'Every week on',
       monthly: 'Every month on',
-      flexible: 'Every month on',
+      flexible: 'Buy on these days every month',
     };
     const defaultTimingDetail = {
       daily: '- -',
       weekly: 'Monday',
       monthly: '15th',
-      flexible: '15th',
+      flexible: 'Select days',
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', flexible: 'Flexible' };
     let buyNowEnabled = false;
@@ -2506,6 +2506,10 @@
         if (freq === 'daily') {
           return defaultTimingDetail.daily;
         }
+        if (freq === 'flexible') {
+          const v = stripTimeSuffix(detail);
+          return v ? v : defaultTimingDetail.flexible;
+        }
         return stripTimeSuffix(detail) || defaultTimingDetail[freq];
       }
       return defaultTimingDetail[freq];
@@ -2519,6 +2523,10 @@
       timingRowBtn.classList.toggle('schedule-sheet__timing-row--disabled', disabled);
       timingRowBtn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
       if (disabled && timingValueEl) timingValueEl.textContent = defaultTimingDetail.daily;
+      if (timingValueEl) {
+        const isPlaceholder = freq === 'flexible' && String(timingValueEl.textContent || '').trim() === defaultTimingDetail.flexible;
+        timingValueEl.classList.toggle('schedule-sheet__timing-value--placeholder', isPlaceholder);
+      }
     };
 
     const setBuyNowUI = (enabled) => {
