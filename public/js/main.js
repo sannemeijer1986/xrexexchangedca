@@ -1469,11 +1469,7 @@
         smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
-      const prefundLogSelect = document.querySelector('[data-prototype-prefund-log]');
-      if (prefundLogSelect) {
-        prefundLogSelect.value = 'none';
-        prefundLogSelect.dispatchEvent(new Event('change'));
-      }
+      setPrototypePrefundLog('none');
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       myPlansSubmittedPlan = null;
@@ -1537,11 +1533,7 @@
         smartAllocSelect.value = 'smart';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
-      const prefundLogSelect = document.querySelector('[data-prototype-prefund-log]');
-      if (prefundLogSelect) {
-        prefundLogSelect.value = 'none';
-        prefundLogSelect.dispatchEvent(new Event('change'));
-      }
+      setPrototypePrefundLog('none');
       financeSummaryConfirmedNextBuy = '';
       financeSummaryConfirmedReserved = null;
       myPlansSubmittedPlan = null;
@@ -2109,26 +2101,36 @@
     return String(sel?.value || 'smart') === 'smart';
   };
 
+  /** Prototype control: pre-fund activity log `<select id="prototype-prefund-log">` in build badge. */
+  const getPrototypePrefundLogSelectEl = () =>
+    document.getElementById('prototype-prefund-log')
+    || document.querySelector('select[data-prototype-prefund-log]');
+
   /** Prototype control: pre-fund activity log scenario (none / pre-funded / funds returned). */
   const syncPrototypePrefundLogToDocument = () => {
-    const sel = document.querySelector('[data-prototype-prefund-log]');
+    const sel = getPrototypePrefundLogSelectEl();
     const v = String(sel?.value || 'none').toLowerCase();
     const safe = v === 'prefunded' || v === 'returned' ? v : 'none';
     document.documentElement.dataset.prototypePrefundLog = safe;
   };
 
   const getPrototypePrefundLog = () => {
-    const sel = document.querySelector('[data-prototype-prefund-log]');
+    const sel = getPrototypePrefundLogSelectEl();
     const v = String(sel?.value || 'none').toLowerCase();
     if (v === 'prefunded' || v === 'returned') return v;
     return 'none';
   };
 
   const setPrototypePrefundLog = (next) => {
-    const sel = document.querySelector('[data-prototype-prefund-log]');
+    const sel = getPrototypePrefundLogSelectEl();
     if (!sel) return;
     const v = next === 'prefunded' || next === 'returned' ? next : 'none';
     sel.value = v;
+    const opt = Array.from(sel.options).find((o) => String(o.value) === v);
+    if (opt) sel.selectedIndex = Array.from(sel.options).indexOf(opt);
+    sel.setAttribute('data-prototype-prefund-log', v);
+    sel.dispatchEvent(new Event('input', { bubbles: true }));
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
     syncPrototypePrefundLogToDocument();
     document.dispatchEvent(new CustomEvent('prototype-prefund-log-change'));
   };
@@ -5133,7 +5135,7 @@
   document.querySelector('[data-prototype-smart-allocation]')?.addEventListener('change', () => {
     document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));
   });
-  document.querySelector('[data-prototype-prefund-log]')?.addEventListener('change', () => {
+  getPrototypePrefundLogSelectEl()?.addEventListener('change', () => {
     syncPrototypePrefundLogToDocument();
     document.dispatchEvent(new CustomEvent('prototype-prefund-log-change'));
   });
@@ -11982,6 +11984,8 @@
       set: (group, value) => setState(group, value),
       change: (group, delta) => changeState(group, delta),
       label: (group, value) => getLabel(group, value),
+      setPrefundLog: (v) => setPrototypePrefundLog(v),
+      getPrefundLog: () => getPrototypePrefundLog(),
     };
   } catch (_) {
     // ignore exposure errors
