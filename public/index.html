@@ -1461,7 +1461,12 @@
             <!-- <div class="plan-buffer-panel__divider plan-buffer-panel__divider--header" aria-hidden="true"></div> -->
 
             <div class="plan-buffer-panel__scroller">
-                <div class="plan-buffer-panel__body plan-buffer-panel__body--funding">
+                <div class="plan-buffer-funding-seg plan-buffer-funding-seg--hero" role="tablist" aria-label="Funding setup mode">
+                    <button class="plan-buffer-funding-seg__btn is-selected" type="button" role="tab" aria-selected="true" data-plan-buffer-funding-view-tab="amount">Amount</button>
+                    <button class="plan-buffer-funding-seg__btn" type="button" role="tab" aria-selected="false" data-plan-buffer-funding-view-tab="period">Period</button>
+                </div>
+
+                <div class="plan-buffer-panel__body plan-buffer-panel__body--funding" data-plan-buffer-funding-view="amount">
                     <div class="plan-buffer-panel__details" data-plan-buffer-details="reserved">
                         <div class="plan-buffer-funding-hero">
                             <div class="plan-buffer-funding-hero__top">
@@ -1644,6 +1649,13 @@
                             <span data-plan-buffer-covers-total></span>
                             <span data-plan-buffer-covers-slash></span>
                             <span data-plan-buffer-covers-amount-total></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="plan-buffer-panel__body plan-buffer-panel__body--funding plan-buffer-panel__body--funding-period" data-plan-buffer-funding-view="period" hidden>
+                    <div class="plan-buffer-funding-hero">
+                        <div class="plan-buffer-funding-hero__top">
+                            <p class="plan-buffer-funding-hero__title">How many months would you like to pre-fund in advance?</p>
                         </div>
                     </div>
                 </div>

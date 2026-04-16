@@ -6241,6 +6241,7 @@
         learnMorePanel.hidden = true;
         learnMorePanel.classList.remove('is-open');
       }
+      planBufferApi.applyFundingViewToRoot?.(funding2, 'amount');
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));
       requestAnimationFrame(() => {
@@ -9398,6 +9399,22 @@
       let isSetLimit = false;
       let autoRefillEnabled = true;
 
+      /** Amount / Period tabs exist on the base buffer panel and on the Funding2 clone (`data-plan-buffer-panel-2`). */
+      const applyFundingViewToRoot = (rootEl, nextView) => {
+        if (!rootEl) return;
+        const view = nextView === 'period' ? 'period' : 'amount';
+        rootEl.querySelectorAll('[data-plan-buffer-funding-view-tab]').forEach((btn) => {
+          const on = btn.getAttribute('data-plan-buffer-funding-view-tab') === view;
+          btn.classList.toggle('is-selected', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        rootEl.querySelectorAll('[data-plan-buffer-funding-view]').forEach((viewEl) => {
+          const show = viewEl.getAttribute('data-plan-buffer-funding-view') === view;
+          viewEl.hidden = !show;
+          viewEl.style.display = show ? '' : 'none';
+        });
+      };
+
       const setMethodUI = (next) => {
         method = next === 'reserved' ? 'reserved' : 'flexible';
         methodBtns.forEach((btn) => {
@@ -9816,6 +9833,7 @@
         }
 
         syncFromPlanDetail();
+        applyFundingViewToRoot(bufferPanel, 'amount');
 
         if (bufferScroller) bufferScroller.scrollTop = 0;
         bufferPanel.hidden = false;
@@ -9886,6 +9904,17 @@
           render();
         });
       });
+      const onFundingViewTabClick = (e) => {
+        const tab = e.target.closest('[data-plan-buffer-funding-view-tab]');
+        if (!tab || !container?.contains(tab)) return;
+        const root = tab.closest('[data-plan-buffer-panel], [data-plan-buffer-panel-2]');
+        if (!root || root.hidden) return;
+        e.preventDefault();
+        const nextView = tab.getAttribute('data-plan-buffer-funding-view-tab') || 'amount';
+        applyFundingViewToRoot(root, nextView);
+      };
+      container?.addEventListener('click', onFundingViewTabClick);
+      applyFundingViewToRoot(bufferPanel, 'amount');
 
       const applyReserveInputLiveFormat = () => {
         if (!reserveInputEl) return;
@@ -10031,7 +10060,7 @@
       learnMorePanel?.querySelectorAll('[data-plan-buffer-learn-more-close]')
         .forEach((btn) => btn.addEventListener('click', () => closeLearnMore()));
 
-      return { open, close, sync: syncFromPlanDetail };
+      return { open, close, sync: syncFromPlanDetail, applyFundingViewToRoot };
     };
 
     planBufferApi = initPlanBufferPanel();
