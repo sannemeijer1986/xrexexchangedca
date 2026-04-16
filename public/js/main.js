@@ -4927,7 +4927,7 @@
     });
 
     endPrefundConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]')?.addEventListener('click', () => {
-      setState('funding', 2, { force: true });
+      setState('funding', 1, { force: true });
       showMyPlansSnackbar('Pre-funding ended');
       closePrefundEndConfirmStackTogether();
     });
