@@ -12463,9 +12463,6 @@ div.currency-sheet__item-icon::before {
 .my-plans-detail-panel__funding-prefund-head {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 38px;
 }
 
 .my-plans-detail-panel__funding-prefund-head-label {
@@ -12477,6 +12474,7 @@ div.currency-sheet__item-icon::before {
 
 .my-plans-detail-panel__funding-prefund-edit {
   flex-shrink: 0;
+  margin-left: auto;
   height: 32px;
   padding: 4px 10px;
   border: 0;
@@ -12494,6 +12492,8 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   gap: 3px;
+  width: 100%;
+  min-width: 0;
 }
 
 .my-plans-detail-panel__funding-prefund-status {

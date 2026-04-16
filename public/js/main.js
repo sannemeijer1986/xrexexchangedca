@@ -2300,6 +2300,41 @@
     });
   };
 
+  /** My plans detail (prefund layout, funding state ≥3): pre-funded info + edit pre-funding sheets. */
+  const initMyPlansPrefundDetailSheets = () => {
+    const bindSheet = (sheetSelector, closeAttr, openSelector) => {
+      const sheet = document.querySelector(sheetSelector);
+      if (!sheet) return;
+      const panel = sheet.querySelector('.currency-sheet__panel');
+      if (!panel) return;
+
+      const closeSheet = () => {
+        sheet.classList.remove('is-open');
+        const onEnd = () => {
+          if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+          panel.removeEventListener('transitionend', onEnd);
+        };
+        panel.addEventListener('transitionend', onEnd);
+        setTimeout(onEnd, 290);
+      };
+
+      sheet.querySelectorAll(`[${closeAttr}]`).forEach((b) => {
+        b.addEventListener('click', () => closeSheet());
+      });
+
+      document.querySelectorAll(openSelector).forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          sheetOpenWithInstantBackdrop(sheet);
+        });
+      });
+    };
+
+    bindSheet('[data-my-plans-prefund-funded-info-sheet]', 'data-my-plans-prefund-funded-info-sheet-close', '[data-my-plans-prefund-funded-info-sheet-open]');
+    bindSheet('[data-my-plans-prefund-edit-sheet]', 'data-my-plans-prefund-edit-sheet-close', '[data-my-plans-prefund-edit-sheet-open]');
+  };
+
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
   const initScheduleSheet = () => {
     const sheet = document.querySelector('[data-schedule-sheet]');
@@ -4751,10 +4786,6 @@
       openFunding2FromMyPlans(detailPanel);
     });
 
-    detailPanel?.querySelector('[data-my-plans-detail-funding-edit]')?.addEventListener('click', () => {
-      openFunding2FromMyPlans(detailPanel);
-    });
-
     const open = (openOpts = {}) => {
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       closePlanDetail(true);
@@ -4867,6 +4898,7 @@
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
   initPlanOverviewFundingInfoSheet();
+  initMyPlansPrefundDetailSheets();
   initTopupSheet();
   initScheduleSheet();
   initScheduleTimePicker();
