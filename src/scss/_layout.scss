@@ -3564,7 +3564,7 @@ button.finance-summary__stat-value--chevron {
     font-family: 'Manrope', sans-serif;
     font-size: 14px;
     font-weight: 600;
-    color: #9b9c9c;
+    color: #ffffff;
     line-height: normal;
   }
 
@@ -3575,6 +3575,19 @@ button.finance-summary__stat-value--chevron {
     font-weight: 700;
     color: #ffffff;
     line-height: normal;
+  }
+
+  p.funding2-preview-sheet__covers-line {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #9b9c9c;
+  }
+
+  p.funding2-preview-sheet__covers-line[hidden] {
+    display: none !important;
   }
 
   .funding2-preview-sheet__middle {
@@ -9366,13 +9379,8 @@ button.plan-buffer-funding-hero__how-link {
   margin-top: 16px;
 }
 
-.plan-buffer-funding-input--period {
-  padding-top: 4px;
-}
-
 .plan-buffer-funding-input__row--period {
-  padding-top: 12px;
-  padding-bottom: 8px;
+  padding: 16px 0 4px;
 }
 
 .plan-buffer-funding-input__left--period {
@@ -9437,13 +9445,14 @@ button.plan-buffer-funding-hero__how-link {
   text-align: right;
 }
 
-// By period: hide until count > 0 (mirrors amount summary + `.plan-buffer-panel--has-positive`).
+// By period: show only when count is 1+ (`plan-buffer-panel--period-has-count` on panel).
 .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
   display: none;
   margin-bottom: 24px;
+  margin-top: 4px;
 }
 
-.plan-buffer-panel--has-positive .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
+.plan-buffer-panel--period-has-count .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
   display: flex;
 }
 

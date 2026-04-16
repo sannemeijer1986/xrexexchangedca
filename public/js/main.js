@@ -5658,6 +5658,25 @@
         return `${month} ${day}, ${year}`;
       };
 
+      /** Short date like "Oct 15" for preview subline ("runs out around …"). */
+      const computeFunding2RunsOutAroundLabel = (periods, unit) => {
+        if (!Number.isFinite(periods) || periods <= 0) return '';
+        const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const compact = formatFinanceNextBuyCompact(schedText);
+        const monthDay = compact.split('·')[0]?.trim();
+        if (!monthDay) return '';
+        const t = new Date();
+        const anchor = new Date(`${monthDay} ${t.getFullYear()}`);
+        if (Number.isNaN(anchor.getTime())) return '';
+        if (anchor.getTime() < Date.now() - 24 * 60 * 60 * 1000) anchor.setFullYear(anchor.getFullYear() + 1);
+        if (unit === 'day') anchor.setDate(anchor.getDate() + periods);
+        else if (unit === 'week') anchor.setDate(anchor.getDate() + periods * 7);
+        else anchor.setMonth(anchor.getMonth() + periods);
+        const mon = anchor.toLocaleDateString('en-US', { month: 'short' });
+        const day = anchor.getDate();
+        return `${mon} ${day}`;
+      };
+
       const syncFromOriginal = () => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
@@ -5762,17 +5781,10 @@
           }
           if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
 
-          const meta = ensureFunding2Meta();
-          if (meta) {
-            const amountEl = meta.querySelector('[data-funding2-meta-amount]');
-            const coversEl = meta.querySelector('[data-funding2-meta-covers]');
-            const untilEl = meta.querySelector('[data-funding2-meta-until]');
-            const coversDate = computeFunding2PeriodCoversDateText(funding2PeriodCount, unit);
-            meta.hidden = !hasActiveSelection;
-            if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
-            if (coversEl) coversEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
-            if (untilEl) untilEl.textContent = hasActiveSelection && completeBuys > 0 ? coversDate : '- -';
-          }
+          // By period: only the static `.plan-buffer-funding-period-summary` (Period / Covers / Amount rows).
+          // Hide the injected "By amount" meta strip so it does not stack or steal the layout.
+          const injectedMeta = clone.querySelector('[data-funding2-meta]');
+          if (injectedMeta) injectedMeta.hidden = true;
 
           const roundWrap = clone.querySelector('[data-plan-buffer-rounding]');
           if (roundWrap) roundWrap.hidden = true;
@@ -5794,10 +5806,15 @@
             ctaBtn.disabled = isDisabled;
             ctaBtn.classList.toggle('is-disabled', isDisabled);
           }
+          clone.classList.toggle(
+            'plan-buffer-panel--period-has-count',
+            funding2PeriodCount >= 1,
+          );
           const periodSummaryEl = clone.querySelector('.plan-buffer-funding-period-summary');
-          if (periodSummaryEl) periodSummaryEl.hidden = funding2PeriodCount <= 0;
+          if (periodSummaryEl) periodSummaryEl.hidden = funding2PeriodCount < 1;
           return;
         }
+        clone.classList.remove('plan-buffer-panel--period-has-count');
         if (rangeHintEl) {
           const minText = perBuy > 0 ? perBuy.toLocaleString('en-US') : '—';
           const maxText = availBalance > 0 ? availBalance.toLocaleString('en-US') : '—';
@@ -5805,7 +5822,16 @@
           rangeHintEl.hidden = rawAmount > 0;
         }
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
-        if (isExactBuyMultiple) funding2SelectedAmount = rawAmount;
+        // Amount tab: selection follows the reserve field (and option chips). The period tab sets
+        // funding2SelectedAmount to periods × perBuy without writing the reserve input; that value
+        // must not leak into this branch when rawAmount is empty or not an exact buy multiple.
+        if (rawAmount === 0) {
+          funding2SelectedAmount = null;
+        } else if (isExactBuyMultiple) {
+          funding2SelectedAmount = rawAmount;
+        } else if (perBuy > 0) {
+          funding2SelectedAmount = null;
+        }
         const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
         const hasActiveSelection = activeAmount > 0;
         const completeBuys = perBuy > 0 && hasActiveSelection ? Math.max(0, Math.floor(activeAmount / perBuy)) : 0;
@@ -6175,7 +6201,9 @@
         if (!funding2PreviewSheet) return;
         const amountEl = funding2PreviewSheet.querySelector('[data-funding2-preview-amount]');
         const heroEl = funding2PreviewSheet.querySelector('[data-funding2-preview-hero]');
-        const { reserveCur } = resolveFunding2Numbers();
+        const coversLineEl = funding2PreviewSheet.querySelector('[data-funding2-preview-covers-line]');
+        const { reserveCur, perBuyData } = resolveFunding2Numbers();
+        const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
         const activeAmount = Number.isFinite(funding2SelectedAmount) ? Math.max(0, Number(funding2SelectedAmount)) : 0;
         const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
         const amountToken = activeAmount > 0 ? `${fmt(activeAmount)} ${reserveCur}` : `0 ${reserveCur}`;
@@ -6187,6 +6215,33 @@
             .replace(/>/g, '&gt;');
           const t = esc(amountToken);
           heroEl.innerHTML = `When these reserved funds run out, we’ll automatically pre-fund <span class="funding2-preview-sheet__hl">${t}</span> <span class="funding2-preview-sheet__hl">again</span> to keep your plan running.`;
+        }
+        if (coversLineEl) {
+          const isPeriodView = !!clone.querySelector('[data-plan-buffer-funding-view-tab="period"].is-selected');
+          const freqKey = resolveFunding2FreqKey();
+          const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+          const unitPlural = `${unit}s`;
+          let periods = 0;
+          if (isPeriodView) {
+            periods = funding2PeriodCount > 0 ? funding2PeriodCount : 0;
+          } else if (perBuy > 0 && activeAmount > 0) {
+            periods = Math.floor(activeAmount / perBuy);
+          }
+          const around = computeFunding2RunsOutAroundLabel(periods, unit);
+          if (periods > 0 && activeAmount > 0 && around) {
+            const coverPhrase = `Covers ${periods} ${periods === 1 ? unit : unitPlural}`;
+            coversLineEl.textContent = `${coverPhrase} • runs out around ${around}`;
+            coversLineEl.hidden = false;
+            coversLineEl.setAttribute('aria-hidden', 'false');
+          } else if (periods > 0 && activeAmount > 0) {
+            coversLineEl.textContent = `Covers ${periods} ${periods === 1 ? unit : unitPlural}`;
+            coversLineEl.hidden = false;
+            coversLineEl.setAttribute('aria-hidden', 'false');
+          } else {
+            coversLineEl.textContent = '';
+            coversLineEl.hidden = true;
+            coversLineEl.setAttribute('aria-hidden', 'true');
+          }
         }
       };
 
@@ -6341,6 +6396,10 @@
         let n = parseInt(raw, 10);
         if (!Number.isFinite(n)) n = 0;
         n = Math.max(0, Math.min(n, maxPeriod));
+        if (n <= 0) {
+          target.value = '';
+          return;
+        }
         const formatted = formatWithCommas(n);
         target.value = formatted;
         let newCursor = 0;
@@ -6357,6 +6416,14 @@
         if (!(t instanceof HTMLInputElement)) return;
         if (!t.matches('[data-plan-buffer-period-input]')) return;
         applyFunding2PeriodInputLiveFormat(t);
+        requestAnimationFrame(syncFromOriginal);
+      });
+      clone.querySelector('[data-plan-buffer-period-input]')?.addEventListener('blur', () => {
+        const el = clone.querySelector('[data-plan-buffer-period-input]');
+        if (!(el instanceof HTMLInputElement)) return;
+        const digits = String(el.value || '').replace(/[^0-9]/g, '');
+        const raw = parseInt(digits, 10);
+        if (!Number.isFinite(raw) || raw <= 0) el.value = '';
         requestAnimationFrame(syncFromOriginal);
       });
       clone.querySelector('[data-plan-buffer-period-max]')?.addEventListener('click', (e) => {
@@ -10087,6 +10154,10 @@
         bufferPanel.classList.toggle('plan-buffer-panel--state-zero', isPeriodView ? false : isZeroInput);
         bufferPanel.classList.toggle('plan-buffer-panel--has-positive', isPeriodView ? periodInputCount > 0 : rawAmount > 0);
         bufferPanel.classList.toggle(
+          'plan-buffer-panel--period-has-count',
+          isPeriodView && periodInputCount >= 1,
+        );
+        bufferPanel.classList.toggle(
           'plan-buffer-panel--state-invalid',
           isPeriodView ? (periodInputCount > 0 && !isValidPeriod) : (rawAmount > 0 && !isMultiple),
         );
@@ -10291,7 +10362,12 @@
         const maxPeriod = getMaxPeriodCount();
         let n = Math.min(parseInt(raw, 10), MAX_RESERVE_INPUT);
         if (Number.isFinite(n) && maxPeriod >= 0) n = Math.min(n, maxPeriod);
-        periodInputCount = Number.isFinite(n) ? Math.max(0, n) : 0;
+        if (!Number.isFinite(n) || n <= 0) {
+          periodInputEl.value = '';
+          periodInputCount = 0;
+          return;
+        }
+        periodInputCount = n;
         const formatted = formatWithCommas(periodInputCount);
         periodInputEl.value = formatted;
         let newCursor = 0;
@@ -10317,7 +10393,7 @@
         if (maxPeriod >= 0) n = Math.min(n, maxPeriod);
         periodInputCount = n;
         if (periodInputEl) {
-          periodInputEl.value = digits ? formatWithCommas(periodInputCount) : '';
+          periodInputEl.value = periodInputCount > 0 ? formatWithCommas(periodInputCount) : '';
         }
         render();
       });
