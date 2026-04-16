@@ -4251,7 +4251,7 @@
             fundingClassicAlertTextEl,
             fundingClassicAlertIconEl,
             'negative',
-            'Insufficient balance: top up your wallet to keep upcoming buys on schedule.',
+            'Add funds to your wallet before the next buy date.',
           );
         } else {
           applyFundingAlert(fundingClassicAlertEl, fundingClassicAlertTextEl, fundingClassicAlertIconEl, 'negative', '');
@@ -4338,7 +4338,7 @@
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'warning',
-            'Pre-funded balance is running low. Auto-refill will trigger soon.',
+            'Pre-funded balance is running low. Auto-refill will trigger soon, prepare 40,000 TWD in your wallet.',
           );
         } else if (fundingState === 5) {
           applyFundingAlert(
@@ -4346,7 +4346,7 @@
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'negative',
-            'Pre-funded balance is empty. Return funds or top up to avoid interruptions.',
+            'Pre-funded balance is empty. Auto-refill will trigger soon, prepare 40,000 TWD in your wallet',
           );
         } else {
           applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
