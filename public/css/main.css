@@ -12480,6 +12480,7 @@ div.currency-sheet__item-icon::before {
   border: 0;
   border-radius: 12px;
   background: #2d2f2f;
+  margin-top: -4px;
   color: #ffffff;
   font-family: inherit;
   font-size: 12px;
