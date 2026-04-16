@@ -9322,30 +9322,41 @@ div.currency-sheet__item-icon {
   color: #8fb8ff;
 }
 
-.plan-buffer-funding-summary__value--right {
-  text-align: right;
-  white-space: normal;
-  max-width: 58%;
+// Match Funding2 `plan-buffer-funding2-hero-head` spacing + per-buy / link type (Figma 8934:126307).
+.plan-buffer-funding-hero.plan-buffer-funding-hero--period {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.plan-buffer-funding-summary__value--prefund {
-  font-weight: 700;
-  color: #ffffff;
+.plan-buffer-funding-hero--period p.plan-buffer-funding-hero__subtitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
 }
 
-.plan-buffer-funding-hero--period {
-  gap: 12px;
+.plan-buffer-funding-hero--period .plan-buffer-funding-hero__subtitle-prefix {
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding-hero--period .plan-buffer-funding-hero__subtitle-amount {
+  color: #8fb8ff;
 }
 
 button.plan-buffer-funding-hero__how-link {
   margin: 0;
   padding: 0;
   border: 0;
-  background: none;
-  font: inherit;
-  font-size: 16px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: normal;
   color: #3f78ff;
   cursor: pointer;
   text-align: left;
@@ -9389,16 +9400,45 @@ button.plan-buffer-funding-hero__how-link {
   text-transform: lowercase;
 }
 
-.plan-buffer-funding-period-summary {
+// Same layout as Funding2 amount meta strip: flat rows, no card (By period + clone).
+.plan-buffer-funding2-meta {
   width: 100%;
-  box-sizing: border-box;
-  border-radius: 16px;
-  background: #151718;
-  margin-bottom: 24px;
-  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+}
+
+.plan-buffer-funding2-meta[hidden] {
+  display: none !important;
+}
+
+.plan-buffer-funding2-meta__row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.plan-buffer-funding2-meta__label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
+}
+
+.plan-buffer-funding2-meta__value {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #ffffff;
+  text-align: right;
+}
+
+.plan-buffer-funding-period-summary {
+  margin-bottom: 24px;
 }
 
 .plan-buffer-funding-round {
@@ -9638,7 +9678,7 @@ button.plan-buffer-funding-hero__how-link {
   }
 
   .plan-buffer-panel__body--funding {
-    gap: 32px;
+    gap: 24px;
   }
 
   .plan-buffer-funding-stack {
@@ -9690,6 +9730,11 @@ button.plan-buffer-funding-hero__how-link {
   // Figma 8934:126307 — title + link block, then per-buy line (gap 12 between blocks)
   .plan-buffer-funding-hero {
     gap: 12px;
+  }
+
+  // By period: same vertical rhythm as `plan-buffer-funding2-hero-head` (8px), not the amount hero stack.
+  .plan-buffer-funding-hero.plan-buffer-funding-hero--period {
+    gap: 8px;
   }
 
   .plan-buffer-funding2-hero-head {
@@ -10019,42 +10064,6 @@ button.plan-buffer-funding-hero__how-link {
     font-size: 16px;
     font-weight: 600;
     line-height: normal;
-  }
-
-  .plan-buffer-funding2-meta {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .plan-buffer-funding2-meta[hidden] {
-    display: none !important;
-  }
-
-  .plan-buffer-funding2-meta__row {
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  .plan-buffer-funding2-meta__label {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #9b9c9c;
-  }
-
-  .plan-buffer-funding2-meta__value {
-    flex: 1;
-    min-width: 0;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #ffffff;
-    text-align: right;
   }
 
   .plan-buffer-panel__btn--primary.is-disabled,

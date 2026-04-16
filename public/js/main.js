@@ -6323,10 +6323,38 @@
       clone.addEventListener('mousedown', handleFunding2OptionMouseDown);
       clone.addEventListener('input', handleCloneInput);
       clone.addEventListener('change', handleCloneChange);
+      const applyFunding2PeriodInputLiveFormat = (target) => {
+        if (!(target instanceof HTMLInputElement)) return;
+        const { perBuyData, availBalance } = resolveFunding2Numbers();
+        const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
+        const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
+        const cursor = target.selectionStart || 0;
+        const oldVal = target.value || '';
+        const digitsBeforeCursor = oldVal.slice(0, cursor).replace(/[^0-9]/g, '').length;
+        const raw = oldVal.replace(/[^0-9]/g, '');
+        if (!raw) {
+          target.value = '';
+          return;
+        }
+        let n = parseInt(raw, 10);
+        if (!Number.isFinite(n)) n = 0;
+        n = Math.max(0, Math.min(n, maxPeriod));
+        const formatted = formatWithCommas(n);
+        target.value = formatted;
+        let newCursor = 0;
+        let digitsSeen = 0;
+        for (let i = 0; i < formatted.length; i += 1) {
+          if (digitsSeen === digitsBeforeCursor) { newCursor = i; break; }
+          if (formatted[i] !== ',') digitsSeen += 1;
+          newCursor = i + 1;
+        }
+        target.setSelectionRange(newCursor, newCursor);
+      };
       clone.addEventListener('input', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLInputElement)) return;
         if (!t.matches('[data-plan-buffer-period-input]')) return;
+        applyFunding2PeriodInputLiveFormat(t);
         requestAnimationFrame(syncFromOriginal);
       });
       clone.querySelector('[data-plan-buffer-period-max]')?.addEventListener('click', (e) => {
@@ -10258,8 +10286,10 @@
           periodInputCount = 0;
           return;
         }
-        const clamped = Math.min(parseInt(raw, 10), MAX_RESERVE_INPUT);
-        periodInputCount = Number.isFinite(clamped) ? clamped : 0;
+        const maxPeriod = getMaxPeriodCount();
+        let n = Math.min(parseInt(raw, 10), MAX_RESERVE_INPUT);
+        if (Number.isFinite(n) && maxPeriod >= 0) n = Math.min(n, maxPeriod);
+        periodInputCount = Number.isFinite(n) ? Math.max(0, n) : 0;
         const formatted = formatWithCommas(periodInputCount);
         periodInputEl.value = formatted;
         let newCursor = 0;
@@ -10280,7 +10310,10 @@
       periodInputEl?.addEventListener('blur', () => {
         const digits = String(periodInputEl.value || '').replace(/[^0-9]/g, '');
         const raw = parseInt(digits, 10);
-        periodInputCount = Number.isFinite(raw) ? Math.max(0, raw) : 0;
+        const maxPeriod = getMaxPeriodCount();
+        let n = Number.isFinite(raw) ? Math.max(0, raw) : 0;
+        if (maxPeriod >= 0) n = Math.min(n, maxPeriod);
+        periodInputCount = n;
         if (periodInputEl) {
           periodInputEl.value = digits ? formatWithCommas(periodInputCount) : '';
         }
