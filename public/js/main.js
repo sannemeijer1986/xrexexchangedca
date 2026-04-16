@@ -875,7 +875,8 @@
     const amount = opts.amount !== undefined
       ? opts.amount
       : parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
-    const freq = (opts.freq || freqActive?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+    const freqRaw = (opts.freq || freqActive?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+    const freq = freqRaw === 'flexible' ? 'monthly' : freqRaw;
     const activePlan = opts.planKey
       ? String(opts.planKey).toLowerCase()
       : (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
@@ -2318,7 +2319,7 @@
 
     const paygoTitle = 'Deduct from balance';
     const paygoDesc =
-      'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.' + '\n\n' + 'Orders execute between 08:00 AM and 10:00 AM. Assets are automatically purchased at market price.';
+      'We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.' + '\n\n' + 'Orders execute at 12:00 PM (GMT +8). Assets are automatically purchased at market price.';
 
     const closeSheet = () => {
       sheet.classList.remove('is-open');
@@ -2423,13 +2424,15 @@
       daily: 'Every day',
       weekly: 'Every week on',
       monthly: 'Every month on',
+      flexible: 'Every month on',
     };
     const defaultTimingDetail = {
       daily: '- -',
       weekly: 'Monday',
       monthly: '15th',
+      flexible: '15th',
     };
-    const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
+    const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', flexible: 'Flexible' };
     let buyNowEnabled = false;
 
     const setFreqUI = (freq) => {
@@ -2491,6 +2494,7 @@
       const head = (text || '').split('·')[0]?.trim().toLowerCase() || '';
       if (head.startsWith('daily')) return 'daily';
       if (head.startsWith('weekly')) return 'weekly';
+      if (head.startsWith('flexible')) return 'flexible';
       return 'monthly';
     };
 
@@ -5853,6 +5857,7 @@
         const fromDom = String(
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || '',
         ).toLowerCase();
+        if (fromDom === 'flexible') return 'monthly';
         if (fromDom === 'daily' || fromDom === 'weekly' || fromDom === 'monthly') return fromDom;
         const inv = String(funding2ContextRecord?.investLine || '').toLowerCase();
         if (/\beach\s+day\b/.test(inv)) return 'daily';
