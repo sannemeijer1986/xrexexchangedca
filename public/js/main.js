@@ -4083,16 +4083,101 @@
         totalInvestedEl.textContent = formatMoneyDisplayCurrency(totalAmt, cur);
         totalInvestedEl.classList.toggle('my-plans-detail-panel__ov-value--zero', totalAmt <= 0);
       }
-      if (fundingMainEl) {
-        fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from ${cur} balance`;
+
+      const fundingClassicEl = detailPanel.querySelector('[data-my-plans-detail-funding-classic]');
+      const fundingPrefundEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund]');
+      const fundingPrefundAmountEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-amount]');
+      const fundingPrefundBarFillEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-bar-fill]');
+      const fundingPrefundMetaEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-meta]');
+      const fundingPrefundAutorefEl = detailPanel.querySelector('[data-my-plans-detail-funding-prefund-autoref]');
+      const fundingState = states.funding ?? 1;
+      // Pre-funded Figma layout only for prototype funding state 3+; 1–2 use classic row.
+      const usePrefundDetailLayout = fundingState >= 3 && flowState !== 5;
+
+      if (fundingClassicEl) fundingClassicEl.hidden = usePrefundDetailLayout;
+      if (fundingPrefundEl) {
+        fundingPrefundEl.hidden = !usePrefundDetailLayout;
+        fundingPrefundEl.setAttribute('aria-hidden', usePrefundDetailLayout ? 'false' : 'true');
       }
-      if (fundingSubEl) {
-        const sub = rec.isReserved
-          ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
-          : `Sufficient balance`;
-        fundingSubEl.textContent = sub;
-        const subTrim = String(sub || '').trim();
-        if (fundingCheckEl) fundingCheckEl.hidden = !subTrim;
+
+      if (!usePrefundDetailLayout) {
+        if (fundingMainEl) {
+          fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from ${cur} balance`;
+        }
+        if (fundingSubEl) {
+          const sub = rec.isReserved
+            ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
+            : `Sufficient balance`;
+          fundingSubEl.textContent = sub;
+          const subTrim = String(sub || '').trim();
+          if (fundingCheckEl) fundingCheckEl.hidden = !subTrim;
+        }
+      } else {
+        const investAmtMatch = String(rec.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+        const perNum = investAmtMatch
+          ? parseFloat(String(investAmtMatch[1] || '').replace(/,/g, ''))
+          : (perBuyMoney && perBuyMoney.amount > 0 ? perBuyMoney.amount : 0);
+        const reservedRaw = String(rec.reservedFunds || '').trim();
+        const reservedAmtMatch = reservedRaw.match(/([\d,]+(?:\.\d+)?)\s*([A-Za-z]{3,5})\s*$/);
+        const reservedNum = reservedAmtMatch ? parseFloat(String(reservedAmtMatch[1] || '').replace(/,/g, '')) : 0;
+
+        let amountLeftNum = 0;
+        if (fundingState === 5) {
+          amountLeftNum = 0;
+        } else if (fundingState === 4) {
+          amountLeftNum = Number.isFinite(perNum) && perNum > 0 ? perNum : 0;
+        } else if (reservedNum > 0) {
+          amountLeftNum = reservedNum;
+        } else {
+          amountLeftNum = Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0;
+        }
+
+        if (fundingPrefundAmountEl) {
+          fundingPrefundAmountEl.textContent = fundingState === 5
+            ? `0.00 ${cur}`
+            : `${amountLeftNum.toLocaleString('en-US')} ${cur}`;
+        }
+
+        if (fundingPrefundBarFillEl) {
+          let pct = 0;
+          let tone = 'ok';
+          if (fundingState === 3) {
+            pct = 70;
+            tone = 'ok';
+          } else if (fundingState === 4) {
+            pct = 25;
+            tone = 'low';
+          } else {
+            pct = 0;
+            tone = 'empty';
+          }
+          fundingPrefundBarFillEl.style.width = `${pct}%`;
+          fundingPrefundBarFillEl.className = `my-plans-detail-panel__funding-prefund-bar-fill my-plans-detail-panel__funding-prefund-bar-fill--${tone}`;
+        }
+
+        const formatRunsOutAround = (label) => {
+          const t = String(label || '').trim();
+          if (!t || t === '- -' || t === '—') return '—';
+          const m = t.match(/^[A-Za-z]+,\s*(.+)$/);
+          if (m) return m[1].trim();
+          return t;
+        };
+        const covLine = computeCoversBuysText(rec) || '';
+        const buyNMatch = covLine.match(/(\d+)/);
+        const buyN = buyNMatch ? buyNMatch[1] : '—';
+        const runRaw = rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
+        const runShort = formatRunsOutAround(shortenWeekdayLabel(runRaw));
+        if (fundingPrefundMetaEl) {
+          fundingPrefundMetaEl.textContent = `Covers ${buyN} buys • runs out around ${runShort}`;
+        }
+
+        const topUpNum = Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0;
+        const belowNum = Number.isFinite(perNum) && perNum > 0 ? perNum : 0;
+        if (fundingPrefundAutorefEl) {
+          fundingPrefundAutorefEl.textContent = topUpNum > 0 && belowNum > 0
+            ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when below ${belowNum.toLocaleString('en-US')} ${cur}`
+            : '—';
+        }
       }
 
       if (createdAtEl) {
@@ -4663,6 +4748,10 @@
     });
 
     detailPanel?.querySelector('.my-plans-detail-panel__prefund-chip')?.addEventListener('click', () => {
+      openFunding2FromMyPlans(detailPanel);
+    });
+
+    detailPanel?.querySelector('[data-my-plans-detail-funding-edit]')?.addEventListener('click', () => {
       openFunding2FromMyPlans(detailPanel);
     });
 

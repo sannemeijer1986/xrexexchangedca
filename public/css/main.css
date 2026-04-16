@@ -12447,6 +12447,145 @@ div.currency-sheet__item-icon::before {
   padding: 0 10px;
 }
 
+.my-plans-detail-panel__funding-prefund {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.my-plans-detail-panel__funding-prefund[hidden] {
+  display: none !important;
+}
+
+.my-plans-detail-panel__funding-prefund-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 38px;
+}
+
+.my-plans-detail-panel__funding-prefund-head-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-edit {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: #2d2f2f;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.my-plans-detail-panel__funding-prefund-status-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.my-plans-detail-panel__funding-prefund-status {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  color: #5AC47D;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-amount-suffix {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-wrap {
+  width: 100%;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-track {
+  height: 5px;
+  width: 100%;
+  border-radius: 5px;
+  background: #2a2e34;
+  overflow: hidden;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  min-width: 0;
+  max-width: 100%;
+  transition: width 0.2s ease;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-fill--ok {
+  background: #5ac47d;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-fill--low {
+  background: #ff6d47;
+}
+
+.my-plans-detail-panel__funding-prefund-bar-fill--empty {
+  background: #eb5347;
+}
+
+.phone-container p.my-plans-detail-panel__funding-prefund-meta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-divider {
+  height: 1px;
+  width: 100%;
+  background: #252627;
+  margin: 4px 0;
+}
+
+.my-plans-detail-panel__funding-prefund-autoref-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+}
+
+.phone-container p.my-plans-detail-panel__funding-prefund-autoref-copy {
+  margin: 0;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
 .my-plans-detail-panel__cards {
   margin-top: 12px;
   display: flex;
