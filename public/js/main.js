@@ -4433,31 +4433,38 @@
         }).join('');
         const buildCard = (date, expanded, opts = {}) => {
           const failed = Boolean(opts.failed);
-          const prefunded = Boolean(opts.prefunded);
-          const prefundedAmtParsed = prefunded ? parseMoneyWithCurrency(rec.reservedFunds || '') : null;
-          const prefundedAmtNum = prefundedAmtParsed && prefundedAmtParsed.amount > 0
-            ? prefundedAmtParsed.amount
+          const prefundLogType = String(opts.prefundLogType || '').toLowerCase();
+          const isPrefundedLog = prefundLogType === 'prefunded';
+          const isReturnedLog = prefundLogType === 'returned';
+          const hasPrefundLog = isPrefundedLog || isReturnedLog;
+          const prefundAmtParsed = hasPrefundLog ? parseMoneyWithCurrency(rec.reservedFunds || '') : null;
+          const prefundAmtNum = prefundAmtParsed && prefundAmtParsed.amount > 0
+            ? prefundAmtParsed.amount
             : (perBuyAmount > 0 ? perBuyAmount * 4 : 0);
-          const prefundedCur = prefundedAmtParsed?.currency || cur;
-          const prefundedAmtText = `${prefundedAmtNum.toLocaleString('en-US', {
+          const prefundCur = prefundAmtParsed?.currency || cur;
+          const prefundAmtText = `${prefundAmtNum.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-          })} ${prefundedCur}`;
-          const headIcon = prefunded
-            ? 'assets/icon_prefunded.svg'
+          })} ${prefundCur}`;
+          const headIcon = hasPrefundLog
+            ? (isReturnedLog ? 'assets/icon_returned.svg' : 'assets/icon_prefunded.svg')
             : failed
               ? 'assets/icon_failed.svg'
               : 'assets/icon_success_screen.svg';
-          const investedText = prefunded
-            ? `${prefundedAmtText} pre-funded`
+          const investedText = hasPrefundLog
+            ? `${prefundAmtText} ${isReturnedLog ? 'returned' : 'pre-funded'}`
             : failed
               ? 'Investment failed'
               : `${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested`;
           const investedClass = failed
             ? 'my-plans-detail-panel__activity-invested-text my-plans-detail-panel__activity-invested-text--failed'
             : 'my-plans-detail-panel__activity-invested-text';
-          const bodyContent = prefunded
-            ? `<p class="my-plans-detail-panel__act-error">Reserved ${prefundedAmtText} from your wallet for this DCA plan</p>`
+          const bodyContent = hasPrefundLog
+            ? (
+              isReturnedLog
+                ? `<p class="my-plans-detail-panel__act-error">Returned ${prefundAmtText} from this plan to your wallet, auto-refill for pre-funding has been disabled.</p>`
+                : `<p class="my-plans-detail-panel__act-error">Reserved ${prefundAmtText} from your wallet for this plan, auto-refill for pre-funding has been enabled.</p>`
+            )
             : failed
               ? '<p class="my-plans-detail-panel__act-error">Buy order failed due to insufficient balance. Ensure balance is enough before next buy.</p>'
               : lines;
@@ -4465,9 +4472,9 @@
           return `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></div></article>`;
         };
         const prefundLog = getPrototypePrefundLog();
-        const showPrefundedLog = prefundLog === 'prefunded';
+        const showPrefundLogCard = prefundLog === 'prefunded' || prefundLog === 'returned';
         const baseCardIndexes = [0, 1, 2];
-        const cardIndexes = showPrefundedLog ? baseCardIndexes.slice(0, -1) : baseCardIndexes;
+        const cardIndexes = showPrefundLogCard ? baseCardIndexes.slice(0, -1) : baseCardIndexes;
         const failedIndex = Math.max(0, cardIndexes.length - 2);
         const cards = cardIndexes.map((idx) => {
           const d = new Date(now);
@@ -4475,9 +4482,9 @@
           const failed = getPrototypeShowFailedBuy() && idx === failedIndex;
           return buildCard(d, idx === 0, { failed });
         });
-        if (showPrefundedLog) {
+        if (showPrefundLogCard) {
           const d = new Date(now);
-          cards.unshift(buildCard(d, true, { prefunded: true }));
+          cards.unshift(buildCard(d, true, { prefundLogType: prefundLog }));
         }
         activityEl.innerHTML = cards.join('');
         const renderedCards = Array.from(activityEl.querySelectorAll('[data-my-plans-activity-card]'));
