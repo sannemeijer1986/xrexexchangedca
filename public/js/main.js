@@ -1454,6 +1454,11 @@
         firstBuyTodayToggle.checked = false;
         firstBuyTodayToggle.dispatchEvent(new Event('change'));
       }
+      const failedBuyToggle = document.querySelector('[data-prototype-show-failed-buy]');
+      if (failedBuyToggle) {
+        failedBuyToggle.checked = false;
+        failedBuyToggle.dispatchEvent(new Event('change'));
+      }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
         smartAllocSelect.value = 'smart';
@@ -1506,6 +1511,11 @@
       if (firstBuyTodayToggle) {
         firstBuyTodayToggle.checked = false;
         firstBuyTodayToggle.dispatchEvent(new Event('change'));
+      }
+      const failedBuyToggle = document.querySelector('[data-prototype-show-failed-buy]');
+      if (failedBuyToggle) {
+        failedBuyToggle.checked = false;
+        failedBuyToggle.dispatchEvent(new Event('change'));
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
@@ -2057,6 +2067,12 @@
     document.querySelectorAll('.schedule-sheet__buy-now-row').forEach((row) => {
       row.style.display = on ? '' : 'none';
     });
+  };
+
+  /** Prototype control: mark most recent-activity tail card as failed. */
+  const getPrototypeShowFailedBuy = () => {
+    const input = document.querySelector('[data-prototype-show-failed-buy]');
+    return Boolean(input?.checked);
   };
 
   /** Prototype control: plan detail allocation mode (manual vs smart). */
@@ -4301,11 +4317,23 @@
           const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, '') || '0';
           return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
         }).join('');
-        const buildCard = (date, expanded) => `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><img class="my-plans-detail-panel__activity-head-icon" src="assets/icon_success_screen.svg" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="my-plans-detail-panel__activity-invested-text">${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${lines}</div></div></article>`;
+        const buildCard = (date, expanded, failed = false) => {
+          const headIcon = failed ? 'assets/icon_failed.svg' : 'assets/icon_success_screen.svg';
+          const investedText = failed ? 'Investment failed' : `${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested`;
+          const investedClass = failed
+            ? 'my-plans-detail-panel__activity-invested-text my-plans-detail-panel__activity-invested-text--failed'
+            : 'my-plans-detail-panel__activity-invested-text';
+          const bodyContent = failed
+            ? '<p class="my-plans-detail-panel__act-error">Buy order failed due to insufficient balance. Ensure balance is enough before next buy.</p>'
+            : lines;
+          const failedClass = failed ? ' is-failed' : '';
+          return `<article class="my-plans-detail-panel__activity-card ${expanded ? 'is-expanded' : 'is-collapsed'}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? 'true' : 'false'}" aria-label="${expanded ? 'Collapse activity' : 'Expand activity'}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? 'up' : 'down'}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></div></article>`;
+        };
         const cards = [0, 1, 2].map((idx) => {
           const d = new Date(now);
           d.setMonth(d.getMonth() - idx);
-          return buildCard(d, idx === 0);
+          const failed = getPrototypeShowFailedBuy() && idx === 2;
+          return buildCard(d, idx === 0, failed);
         }).join('');
         activityEl.innerHTML = cards;
         const renderedCards = Array.from(activityEl.querySelectorAll('[data-my-plans-activity-card]'));
@@ -4965,6 +4993,9 @@
   });
   document.querySelector('[data-prototype-show-first-buy-today]')?.addEventListener('change', () => {
     syncPrototypeScheduleBuyNowRowVisible();
+  });
+  document.querySelector('[data-prototype-show-failed-buy]')?.addEventListener('change', () => {
+    syncMyPlansFlowUi();
   });
   document.querySelector('[data-prototype-smart-allocation]')?.addEventListener('change', () => {
     document.dispatchEvent(new CustomEvent('prototype-smart-allocation-toggle'));

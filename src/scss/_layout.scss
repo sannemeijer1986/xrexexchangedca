@@ -13253,6 +13253,10 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   white-space: nowrap;
 }
 
+.my-plans-detail-panel__activity-invested-text--failed {
+  color: #eb5347;
+}
+
 .my-plans-detail-panel__act-toggle {
   display: inline-flex;
   align-items: center;
@@ -13289,6 +13293,17 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   margin: 0 -16px;
   width: calc(100% + 32px);
   flex-shrink: 0;
+}
+
+.phone-container p.my-plans-detail-panel__act-error {
+  margin: 0;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: #9B9C9C;
 }
 
 .my-plans-detail-panel__act-row {
