@@ -2434,6 +2434,7 @@
     };
     const freqSchedulePrefix = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', flexible: 'Flexible' };
     let buyNowEnabled = false;
+    const confirmBtn = sheet.querySelector('[data-schedule-sheet-confirm]');
 
     const setFreqUI = (freq) => {
       freqButtons.forEach((btn) => {
@@ -2529,6 +2530,16 @@
       }
     };
 
+    const syncScheduleConfirmDisabled = () => {
+      if (!(confirmBtn instanceof HTMLButtonElement)) return;
+      const freqBtn = sheet.querySelector('[data-schedule-freq].is-active');
+      const freq = (freqBtn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
+      const timingText = String(timingValueEl?.textContent || '').trim();
+      const isFlexUnset = freq === 'flexible' && (!timingText || timingText === defaultTimingDetail.flexible);
+      confirmBtn.disabled = isFlexUnset;
+      confirmBtn.classList.toggle('is-disabled', isFlexUnset);
+    };
+
     const setBuyNowUI = (enabled) => {
       buyNowEnabled = !!enabled;
       if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
@@ -2559,6 +2570,7 @@
           : defaultTimingDetail[freq]);
       }
       syncTimingRowInteractivity(freq);
+      syncScheduleConfirmDisabled();
       setBuyNowUI(planDetail?.dataset?.scheduleBuyNow === '1');
 
       let end = 'continuous';
@@ -2679,7 +2691,6 @@
       btn.addEventListener('click', close);
     });
 
-    const confirmBtn = sheet.querySelector('[data-schedule-sheet-confirm]');
     if (confirmBtn) confirmBtn.addEventListener('click', applyAndClose);
 
     buyNowToggleEl?.addEventListener('click', () => {
@@ -2693,9 +2704,21 @@
         if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
         if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
         syncTimingRowInteractivity(freq);
+        syncScheduleConfirmDisabled();
         scheduleSheetApi.refreshEndConditionSubtitles?.();
       });
     });
+
+    // Enable Confirm once flexible days are selected (timing value changes from placeholder).
+    if (timingValueEl) {
+      const obs = new MutationObserver(() => {
+        syncScheduleConfirmDisabled();
+      });
+      obs.observe(timingValueEl, { childList: true, characterData: true, subtree: true });
+    }
+
+    // Ensure initial disabled state is correct on load.
+    syncScheduleConfirmDisabled();
 
     endButtons.forEach((btn) => {
       btn.addEventListener('click', () => {

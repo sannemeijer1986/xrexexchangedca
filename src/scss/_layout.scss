@@ -3978,6 +3978,12 @@ button.finance-summary__stat-value--chevron {
   cursor: pointer;
 }
 
+.currency-sheet__cancel:disabled,
+.currency-sheet__cancel.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 // img icons (display + investment currency sheets): no circle fill
 .currency-sheet__item-icon {
   width: 32px;
