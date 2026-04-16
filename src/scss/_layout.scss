@@ -4025,6 +4025,22 @@ div.currency-sheet__item-icon {
   margin-top: 0;
 }
 
+// My plans → Edit pre-funding (Figma 8992:143624)
+.currency-sheet__body--prefund-edit {
+  gap: 24px;
+  padding-top: 16px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.currency-sheet__body--prefund-edit .currency-sheet__title {
+  margin-top: 0;
+}
+
+[data-my-plans-prefund-edit-sheet] .currency-sheet__item--manage-plan .currency-sheet__item-name {
+  margin-bottom: 0;
+}
+
 .currency-sheet__manage-plan-header {
   width: 100%;
   display: flex;

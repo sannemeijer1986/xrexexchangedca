@@ -2649,19 +2649,33 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
         </div>
     </div>
 
-    <!-- My plans detail: edit pre-funding (prototype funding state ≥3) -->
-    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-my-plans-prefund-edit-sheet hidden aria-modal="true" role="dialog" aria-label="Edit your pre-funding">
+    <!-- My plans detail: edit pre-funding (Figma 8992:143624 — prototype funding state ≥3) -->
+    <div class="currency-sheet currency-sheet--schedule-buy-now-info" data-my-plans-prefund-edit-sheet hidden aria-modal="true" role="dialog" aria-label="Edit pre-funding">
         <button class="currency-sheet__backdrop" type="button" data-my-plans-prefund-edit-sheet-close aria-label="Close"></button>
         <div class="currency-sheet__panel">
             <div class="currency-sheet__handle-wrap">
                 <div class="currency-sheet__handle"></div>
             </div>
-            <div class="currency-sheet__body">
-                <h2 class="currency-sheet__title">Edit your pre-funding</h2>
-                <p class="currency-sheet__desc">TBD</p>
+            <div class="currency-sheet__body currency-sheet__body--prefund-edit">
+                <div class="currency-sheet__heading-block">
+                    <h2 class="currency-sheet__title">Edit pre-funding</h2>
+                </div>
+                <div class="currency-sheet__list">
+                    <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button"
+                        data-my-plans-prefund-edit-action="end-return" data-my-plans-prefund-edit-sheet-close>
+                        <div class="currency-sheet__item-icon currency-sheet__item-icon--manage-img" aria-hidden="true">
+                            <img src="assets/icon_close.svg" alt="" width="20" height="20" />
+                        </div>
+                        <div class="currency-sheet__item-content">
+                            <span class="currency-sheet__item-name">End pre-fund: return funds</span>
+                            <span class="currency-sheet__item-desc">Returns funds to your wallet and stops the pre-fund auto-fill mechanism</span>
+                        </div>
+                        <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
+                    </button>
+                </div>
             </div>
             <div class="currency-sheet__footer">
-                <button class="currency-sheet__cancel" type="button" data-my-plans-prefund-edit-sheet-close>Understood</button>
+                <button class="currency-sheet__cancel" type="button" data-my-plans-prefund-edit-sheet-close>Done</button>
             </div>
         </div>
     </div>
