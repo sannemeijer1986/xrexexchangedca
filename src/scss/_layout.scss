@@ -9437,8 +9437,14 @@ button.plan-buffer-funding-hero__how-link {
   text-align: right;
 }
 
-.plan-buffer-funding-period-summary {
+// By period: hide until count > 0 (mirrors amount summary + `.plan-buffer-panel--has-positive`).
+.plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
+  display: none;
   margin-bottom: 24px;
+}
+
+.plan-buffer-panel--has-positive .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
+  display: flex;
 }
 
 .plan-buffer-funding-round {

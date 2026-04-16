@@ -5794,6 +5794,8 @@
             ctaBtn.disabled = isDisabled;
             ctaBtn.classList.toggle('is-disabled', isDisabled);
           }
+          const periodSummaryEl = clone.querySelector('.plan-buffer-funding-period-summary');
+          if (periodSummaryEl) periodSummaryEl.hidden = funding2PeriodCount <= 0;
           return;
         }
         if (rangeHintEl) {
