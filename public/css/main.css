@@ -12558,10 +12558,9 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .my-plans-detail-panel__invest-summary-line {
@@ -12570,6 +12569,14 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: inherit;
   line-height: inherit;
   color: inherit;
+}
+
+.my-plans-detail-panel__invest-summary-line.my-plans-detail-panel__invest-summary-line--amount {
+  font-size: 20px;
+}
+
+.my-plans-detail-panel__invest-summary-line.my-plans-detail-panel__invest-summary-line--meta {
+  font-size: 16px;
 }
 
 .my-plans-detail-panel__block {

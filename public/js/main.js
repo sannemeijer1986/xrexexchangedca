@@ -1336,15 +1336,7 @@
     return `${mon} ${day} · ${timeStr}`;
   };
 
-  /** "Monthly · 15th at ~12:00" -> "monthly on the 15th"; Flexible -> "monthly on the 6th, 8th & 12th" */
-  const enumerateOrdinalListPhrase = (ordinals) => {
-    const t = (ordinals || []).map((x) => String(x || '').trim()).filter(Boolean);
-    if (t.length === 0) return '';
-    if (t.length === 1) return t[0];
-    if (t.length === 2) return `${t[0]} & ${t[1]}`;
-    return `${t.slice(0, -1).join(', ')} & ${t[t.length - 1]}`;
-  };
-
+  /** "Monthly · 15th at ~12:00" -> "every month on the 15th"; Flexible (1 day) -> same; Flexible (2+) -> "every 6th, 8th, …" */
   const formatScheduleNaturalLine = (schedText) => {
     const sched = String(schedText || '').trim();
     if (!sched) return '';
@@ -1353,31 +1345,50 @@
     const head = (parts[0] || '').toLowerCase();
     const tail = parts.length > 1 ? parts.slice(1).join(' · ').trim() : '';
 
-    if (head.startsWith('daily')) return 'daily';
+    if (head.startsWith('daily')) return 'every day';
 
     if (head.startsWith('weekly')) {
       let detail = tail || clean.replace(/^weekly\b/i, '').trim();
       detail = detail.replace(/\s*·\s*~?\d{1,2}:\d{2}\s*$/i, '').trim();
       detail = detail.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim();
-      return detail ? `weekly on ${detail}` : 'weekly';
+      return detail ? `every week on ${detail}` : 'every week';
     }
 
     if (head.startsWith('flexible')) {
-      const ordinals = parts
-        .slice(1)
-        .map((p) => p.trim())
-        .filter((p) => /^\d{1,2}(?:st|nd|rd|th)$/i.test(p));
-      if (!ordinals.length) return 'monthly';
-      return `monthly on the ${enumerateOrdinalListPhrase(ordinals)}`;
+      const tailJoined = parts.slice(1).join(' ');
+      const ordinals = [];
+      const ordRe = /(\d{1,2}(?:st|nd|rd|th))/gi;
+      let om;
+      while ((om = ordRe.exec(tailJoined))) ordinals.push(om[1]);
+      if (!ordinals.length) return 'every month';
+      if (ordinals.length === 1) return `every month on the ${ordinals[0]}`;
+      return `every ${ordinals.join(', ')}`;
     }
 
     if (head.startsWith('monthly')) {
       let detail = tail || clean.replace(/^monthly\b/i, '').trim();
       if (detail && /^\d/.test(detail)) detail = `the ${detail}`;
-      return detail ? `monthly on ${detail}` : 'monthly';
+      return detail ? `every month on ${detail}` : 'every month';
     }
 
     return clean;
+  };
+
+  /** Normalize "Flexible" schedule detail delimiters to commas for plan-detail schedule line. */
+  const normalizeFlexibleScheduleText = (text) => {
+    const raw = String(text || '').trim();
+    if (!raw) return raw;
+    const parts = raw.split('·').map((t) => t.trim()).filter(Boolean);
+    if (!parts.length) return raw;
+    const head = (parts[0] || '').toLowerCase();
+    if (!head.startsWith('flexible')) return raw;
+    const tailJoined = parts.slice(1).join(' ');
+    const ordinals = [];
+    const ordRe = /(\d{1,2}(?:st|nd|rd|th))/gi;
+    let m;
+    while ((m = ordRe.exec(tailJoined))) ordinals.push(m[1]);
+    if (!ordinals.length) return 'Flexible';
+    return `Flexible · ${ordinals.join(', ')}`;
   };
 
   /**
@@ -2677,7 +2688,10 @@
 
       const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
       const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
-      if (scheduleEl) scheduleEl.textContent = freq === 'daily' ? 'Daily' : `${prefix} · ${timing}`;
+      if (scheduleEl) {
+        const nextSchedule = freq === 'daily' ? 'Daily' : `${prefix} · ${timing}`;
+        scheduleEl.textContent = normalizeFlexibleScheduleText(nextSchedule);
+      }
       if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
       if (endEl) {
         const setEndConditionText = (nextText) => {
@@ -3209,13 +3223,12 @@
       flexDaysGrid.appendChild(frag);
     };
 
-    /** e.g. "every 9th, 18th, 19th, 20th and 24th" */
+    /** One day: "every month on the 15th"; several: "every 6th, 8th, 12th, …" */
     const formatFlexDaysSummaryLine = (days) => {
       const ords = days.map((d) => ordinalSuffix(d));
       if (ords.length === 0) return '- -';
-      if (ords.length === 1) return `every ${ords[0]}`;
-      if (ords.length === 2) return `every ${ords[0]} and ${ords[1]}`;
-      return `every ${ords.slice(0, -1).join(', ')} and ${ords[ords.length - 1]}`;
+      if (ords.length === 1) return `every month on the ${ords[0]}`;
+      return `every ${ords.join(', ')}`;
     };
 
     const syncFlexDaysUI = () => {
@@ -3453,7 +3466,7 @@
       flexDaysSheet.querySelector('[data-schedule-flex-days-confirm]')?.addEventListener('click', () => {
         if (timingValueEl) {
           timingValueEl.textContent = flexSelectedDays.length
-            ? flexSelectedDays.map((d) => ordinalSuffix(d)).join(' · ')
+            ? flexSelectedDays.map((d) => ordinalSuffix(d)).join(', ')
             : 'Select days';
         }
         scheduleSheetApi.refreshEndConditionSubtitles?.();
@@ -5001,7 +5014,7 @@
         }
         const repeats = String(rec.repeats || '').trim();
         if (repeats && repeats !== '—' && scheduleEl) {
-          scheduleEl.textContent = repeats;
+          scheduleEl.textContent = normalizeFlexibleScheduleText(repeats);
         }
       }
       closeManageSheet(true);
@@ -9589,7 +9602,7 @@
               : '';
         const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
         const scheduleLine = formatScheduleNaturalLine(sched)
-          || (freqUnit === 'day' ? 'daily' : freqUnit === 'week' ? 'weekly' : 'monthly');
+          || (freqUnit === 'day' ? 'every day' : freqUnit === 'week' ? 'every week' : 'every month');
         if (planAmountEl) {
           planAmountEl.textContent = amount > 0
             ? `Invest ${amount.toLocaleString('en-US')} ${cur}`
@@ -11128,7 +11141,7 @@
       freqBtn?.click();
 
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
-      if (scheduleEl && repeatsText) scheduleEl.textContent = repeatsText;
+      if (scheduleEl && repeatsText) scheduleEl.textContent = normalizeFlexibleScheduleText(repeatsText);
     };
 
     // ── Open / close ──────────────────────────────────────────────────────────
