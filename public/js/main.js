@@ -6336,7 +6336,7 @@
         ).trim();
         const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
         const freqKey = resolveFunding2FreqKey();
-        const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
+        const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
         const coverUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
         const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
         const resolveFunding2CoversDate = () => {
@@ -7016,6 +7016,9 @@
         learnMorePanel.classList.remove('is-open');
       }
       planBufferApi.applyFundingViewToRoot?.(funding2, 'amount');
+      // Reset/sync may run while the clone still matched the base panel’s tab (e.g. period).
+      // Re-sync after forcing "By amount" so hero subtitle / per-buy prefix match schedule (e.g. flexible).
+      if (typeof funding2._funding2Sync === 'function') funding2._funding2Sync();
       funding2.hidden = false;
       requestAnimationFrame(() => funding2.classList.add('is-open'));
       requestAnimationFrame(() => {
