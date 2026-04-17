@@ -1868,8 +1868,8 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
       el.textContent = range;
     });
-    const startedAgo = `If you'd started ${range} ago ≈`;
-    const breakdownOutcome = 'Simulated gain ≈';
+    const startedAgo = '5Y historical simulation for this plan ≈';
+    const breakdownOutcome = 'Simulated outcome ≈';
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
         el.textContent = startedAgo;
@@ -9287,10 +9287,10 @@
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
         if (simTitleEl) {
-          simTitleEl.textContent = '5Y historical simulation ≈';
+          simTitleEl.textContent = '5Y historical simulation for this plan ≈';
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-          el.textContent = 'Simulated gain ≈';
+          el.textContent = 'Simulated outcome ≈';
         });
         if (legendAssetsEl) legendAssetsEl.textContent = `Plan value (${prettyTickers || '—'})`;
         const showSp500 = getPrototypeBreakdownSp500Visible();
