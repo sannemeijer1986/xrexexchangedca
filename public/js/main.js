@@ -4162,7 +4162,7 @@
         if (dataAttr) b.setAttribute(dataAttr, '');
         return b;
       };
-      const secondaryLabel = statusKey === 'ended' ? 'Re-create plan' : 'Manage plan';
+      const secondaryLabel = statusKey === 'ended' ? 'Duplicate plan' : 'Manage plan';
       leftActions.appendChild(
         btn(
           secondaryLabel,
@@ -4334,7 +4334,7 @@
       const statusText = statusKey === 'paused' ? 'Plan is paused' : statusKey === 'ended' ? 'Plan ended' : 'Plan is active';
       if (statusLabelEl) statusLabelEl.textContent = statusText;
       const manageTriggerEl = detailPanel.querySelector('[data-my-plans-detail-manage-trigger]');
-      if (manageTriggerEl) manageTriggerEl.textContent = statusKey === 'ended' ? 'Re-create plan' : 'Manage plan';
+      if (manageTriggerEl) manageTriggerEl.textContent = statusKey === 'ended' ? 'Duplicate plan' : 'Manage plan';
       if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
       if (investLineEl) {
         const investLine = String(rec.investLine || '').trim();

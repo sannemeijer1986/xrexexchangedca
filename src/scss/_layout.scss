@@ -13068,6 +13068,14 @@ button.plan-buffer-funding-hero__how-link {
   grid-column: 1 / span 2;
 }
 
+.my-plans-detail-panel__ov-total-section,
+.my-plans-detail-panel__ov-funding-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+}
+
 .my-plans-detail-panel__ov-label {
   color: #9b9c9c;
   font-size: 12px;
