@@ -8122,19 +8122,13 @@ div.currency-sheet__item-icon::before {
   align-items: stretch;
   gap: 2px;
 }
-.plan-breakdown-panel__row--profit > span:first-child {
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: left;
-}
 .plan-breakdown-panel__row--profit > span:last-child {
   text-align: left;
 }
 
 .plan-breakdown-panel__profit-range-label {
   font-size: 14px;
+  color: #ffffff !important;
   font-weight: 600;
 }
 

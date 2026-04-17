@@ -8381,14 +8381,6 @@ div.currency-sheet__item-icon {
   align-items: stretch;
   gap: 2px;
 
-  > span:first-child {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.2;
-    text-align: left;
-  }
-
   > span:last-child {
     text-align: left;
   }
@@ -8396,6 +8388,7 @@ div.currency-sheet__item-icon {
 
 .plan-breakdown-panel__profit-range-label {
   font-size: 14px;
+  color: #ffffff !important;
   font-weight: 600;
 }
 
