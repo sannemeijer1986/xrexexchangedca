@@ -2686,8 +2686,8 @@ button.finance-summary__stat-value--chevron {
 
 .plan-strategy__return-title,
 .plan-detail-panel__return-label {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: #ffffff;
 }
 
@@ -2707,7 +2707,7 @@ button.finance-summary__stat-value--chevron {
 .plan-strategy__return-metrics,
 .plan-detail-panel__return-metrics,
 .plan-breakdown-panel__profit-metrics {
-  --prm-accent: #5ac47d;
+  --prm-accent: #8FB8FF;
   --prm-currency-fs: 14px;
   --prm-currency-fw: 700;
   --prm-currency-ml: 4px;
@@ -2721,10 +2721,6 @@ button.finance-summary__stat-value--chevron {
   align-items: flex-start;
   gap: 4px;
   width: 100%;
-}
-
-.plan-breakdown-panel__profit-metrics {
-  --prm-accent: #56c488;
 }
 
 .plan-strategy__return-metrics-body,
@@ -2817,7 +2813,7 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(2px);
   font-size: 12px;
   font-weight: var(--prm-pct-inline-fw, 700);
-  color: #2f9752;
+  color: var(--prm-accent, #8FB8FF);
 }
 
 .plan-strategy__return-pct-line--historic {
@@ -2877,13 +2873,13 @@ button.finance-summary__stat-value--chevron {
 }
 
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
-  color: var(--prm-accent, #56c488);
+  color: var(--prm-accent, #8FB8FF);
 }
 
 .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
 .plan-return-metric__pct-line--historic.plan-detail-panel__return-pct-inline .plan-detail-panel__return-pct,
 .plan-return-metric__pct-line--historic .plan-strategy__return-pct {
-  color: #56c488;
+  color: var(--prm-accent, #8FB8FF);
 }
 
 .plan-return-metric__pct-line--historic {
@@ -2912,7 +2908,7 @@ button.finance-summary__stat-value--chevron {
 .plan-strategy__return-abs,
 .plan-detail-panel__return-abs,
 .plan-breakdown-panel__profit-abs {
-  font-size: 22px;
+  font-size: 18tpx;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -7994,11 +7990,13 @@ div.currency-sheet__item-icon {
   flex-direction: column;
   gap: 0;
   width: 100%;
+  color: #8FB8FF;
+  margin-bottom: 12px;
 }
 
 .phone-container .plan-detail-panel__return-footnote {
   margin: 2px 0 0;
-  color: #58595a;
+  color: #8FB8FF;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.25;
@@ -8402,9 +8400,9 @@ div.currency-sheet__item-icon {
 }
 
 .phone-container p.plan-breakdown-panel__footnote {
-  margin: 0;
-  color: #58595a;
-  text-align: center;
+  margin: 8px 0 0;
+  color: #8fb8ff;
+  text-align: left;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;

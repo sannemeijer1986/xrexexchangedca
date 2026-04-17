@@ -966,7 +966,7 @@
     );
 
     absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
-    pctEl.textContent = `${formatPct(returnPct)} return`;
+    pctEl.textContent = `${formatPct(returnPct)}`;
 
     const strategyGroup = detailPanel
       ? document.querySelector(
@@ -5617,7 +5617,7 @@
       // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
       const appliedTwSim = investAmt > 0 ? tw : 0;
       const nextPct = base + appliedTwSim;
-      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
+      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
 
       if (absEl) {
         const baseAbs = parseFloat(absEl.dataset.allocBaseAbs || '');
@@ -7507,7 +7507,7 @@
         )?.textContent;
         if (wSim) {
           const core = String(wSim).replace(/\s+return\s*$/i, '').trim();
-          pctEl.textContent = `${core} return`;
+          pctEl.textContent = core;
         }
       }
       if (histPctEl) {
@@ -9286,13 +9286,8 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
-        const isFlexibleFreq = freq === 'flexible';
-        const simCadencePhrase =
-          freq === 'daily' ? 'every day' : freq === 'weekly' ? 'every week' : 'every month';
         if (simTitleEl) {
-          simTitleEl.textContent = isFlexibleFreq
-            ? `If you had invested continuously for the past ${range} ≈`
-            : `If you had invested ${simCadencePhrase} for the past ${range} ≈`;
+          simTitleEl.textContent = '5Y historical simulation ≈';
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `${range} simulated outcome ≈`;
@@ -9301,13 +9296,13 @@
         const showSp500 = getPrototypeBreakdownSp500Visible();
         if (legendSpEl) legendSpEl.hidden = !showSp500;
         if (legendSpItemEl) legendSpItemEl.hidden = !showSp500;
-        if (periodLabelEl) periodLabelEl.textContent = isFlexibleFreq ? 'Invested each time' : `${freqLabel} invested`;
+        if (periodLabelEl) periodLabelEl.textContent = freq === 'flexible' ? 'Invested each time' : `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
         if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
         if (profitPctEl) {
-          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}% return`;
+          profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
         if (profitHistPctEl) {
           profitHistPctEl.textContent = `${histPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
@@ -11782,7 +11777,7 @@
         if (currEl) currEl.hidden = true;
         if (simPctInlineEl) simPctInlineEl.hidden = true;
         if (pctEl) {
-          pctEl.textContent = '0.0% return';
+          pctEl.textContent = '0.0%';
           pctEl.removeAttribute('data-alloc-base-pct');
         }
         if (histPctEl) {
