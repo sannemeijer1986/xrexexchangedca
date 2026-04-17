@@ -9239,10 +9239,13 @@
         if (headlineEl) {
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
+        const isFlexibleFreq = freq === 'flexible';
         const simCadencePhrase =
           freq === 'daily' ? 'every day' : freq === 'weekly' ? 'every week' : 'every month';
         if (simTitleEl) {
-          simTitleEl.textContent = `If you had invested ${simCadencePhrase} for the past ${range} ≈`;
+          simTitleEl.textContent = isFlexibleFreq
+            ? `If you had invested continuously for the past ${range} ≈`
+            : `If you had invested ${simCadencePhrase} for the past ${range} ≈`;
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = `${range} simulated outcome ≈`;
@@ -9251,7 +9254,7 @@
         const showSp500 = getPrototypeBreakdownSp500Visible();
         if (legendSpEl) legendSpEl.hidden = !showSp500;
         if (legendSpItemEl) legendSpItemEl.hidden = !showSp500;
-        if (periodLabelEl) periodLabelEl.textContent = `${freqLabel} invested`;
+        if (periodLabelEl) periodLabelEl.textContent = isFlexibleFreq ? 'Invested each time' : `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
         if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
