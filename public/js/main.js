@@ -1391,6 +1391,38 @@
     return `Flexible · ${ordinals.join(', ')}`;
   };
 
+  /** Full schedule string for parsing; visible flexible row omits the "Flexible · " prefix. */
+  const PLAN_DETAIL_SCHEDULE_FULL_ATTR = 'data-plan-detail-schedule-full';
+
+  const getPlanDetailScheduleFullTextFromEl = (el) => {
+    if (!el) return '';
+    const attr = el.getAttribute(PLAN_DETAIL_SCHEDULE_FULL_ATTR)?.trim();
+    if (attr) return attr;
+    return String(el.textContent || '').trim();
+  };
+
+  const getPlanDetailScheduleFullText = () =>
+    getPlanDetailScheduleFullTextFromEl(document.querySelector('[data-plan-detail-schedule]'));
+
+  const setPlanDetailScheduleElement = (el, fullText) => {
+    if (!el) return;
+    const raw = String(fullText || '').trim();
+    const canonical = normalizeFlexibleScheduleText(raw) || raw;
+    el.setAttribute(PLAN_DETAIL_SCHEDULE_FULL_ATTR, canonical);
+    const parts = canonical.split('·').map((t) => t.trim()).filter(Boolean);
+    const head = (parts[0] || '').toLowerCase();
+    if (head.startsWith('flexible')) {
+      const tailJoined = parts.slice(1).join(' ');
+      const ordinals = [];
+      const ordRe = /(\d{1,2}(?:st|nd|rd|th))/gi;
+      let m;
+      while ((m = ordRe.exec(tailJoined))) ordinals.push(m[1]);
+      el.textContent = ordinals.length ? ordinals.join(', ') : 'Select days';
+    } else {
+      el.textContent = canonical;
+    }
+  };
+
   /**
    * Allocation chips: same DOM + classes as `plan-overview-panel__chips` (Plan overview).
    * Same rules as syncFromPlanDetail: show pct when > 0; single-asset row uses 100% when pct missing.
@@ -2590,7 +2622,7 @@
     const open = () => {
       const scheduleEl = planDetail?.querySelector('[data-plan-detail-schedule]');
       const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
-      const scheduleText = scheduleEl?.textContent?.trim() || '';
+      const scheduleText = scheduleEl ? getPlanDetailScheduleFullTextFromEl(scheduleEl) : '';
 
       const mainFreqBtn = document.querySelector('[data-plan-freq-item].is-active');
       const mainFreq = (mainFreqBtn?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
@@ -2690,7 +2722,7 @@
       const endEl = planDetail?.querySelector('[data-plan-detail-repeats-end]');
       if (scheduleEl) {
         const nextSchedule = freq === 'daily' ? 'Daily' : `${prefix} · ${timing}`;
-        scheduleEl.textContent = normalizeFlexibleScheduleText(nextSchedule);
+        setPlanDetailScheduleElement(scheduleEl, nextSchedule);
       }
       if (planDetail) planDetail.dataset.scheduleBuyNow = buyNowEnabled ? '1' : '0';
       if (endEl) {
@@ -3666,9 +3698,9 @@
       const effAmount = amountRaw > 0 ? amountRaw : (sliderAmt > 0 ? sliderAmt : 5000);
       const investLine = `${effAmount.toLocaleString('en-US')} ${cur} each ${cadence}`;
       const repeats = document.querySelector('[data-plan-overview-repeats]')?.textContent?.trim()
-        || document.querySelector('[data-plan-detail-schedule]')?.textContent?.trim()
+        || getPlanDetailScheduleFullText()
         || '—';
-      const schedLine = document.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+      const schedLine = getPlanDetailScheduleFullText() || '';
       const nextCompact = formatFinanceNextBuyCompact(schedLine);
       const overviewFirstBuy = document.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
       const financeNextBuy = document.querySelector('[data-finance-summary-next-buy]')?.textContent?.trim() || '';
@@ -5014,7 +5046,7 @@
         }
         const repeats = String(rec.repeats || '').trim();
         if (repeats && repeats !== '—' && scheduleEl) {
-          scheduleEl.textContent = normalizeFlexibleScheduleText(repeats);
+          setPlanDetailScheduleElement(scheduleEl, repeats);
         }
       }
       closeManageSheet(true);
@@ -6086,7 +6118,7 @@
 
       const computeFunding2PeriodCoversDateText = (periods, unit) => {
         if (!Number.isFinite(periods) || periods <= 0) return '—';
-        const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         const compact = formatFinanceNextBuyCompact(schedText);
         const monthDay = compact.split('·')[0]?.trim();
         if (!monthDay) return '—';
@@ -6116,7 +6148,7 @@
       /** Short date like "Oct 15" for preview subline ("runs out around …"). */
       const computeFunding2RunsOutAroundLabel = (periods, unit) => {
         if (!Number.isFinite(periods) || periods <= 0) return '';
-        const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         const compact = formatFinanceNextBuyCompact(schedText);
         const monthDay = compact.split('·')[0]?.trim();
         if (!monthDay) return '';
@@ -6311,7 +6343,7 @@
           if (fromOverview && fromOverview !== '- -' && fromOverview !== '—') return shortenWeekdayLabel(fromOverview);
           const fromSummary = String(document.querySelector('[data-finance-summary-next-buy]')?.textContent || '').trim();
           if (fromSummary && fromSummary !== '- -' && fromSummary !== '—') return shortenWeekdayLabel(fromSummary);
-          const schedText = String(panel.querySelector('[data-plan-detail-schedule]')?.textContent || '').trim();
+          const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
           const fromSchedule = formatFinanceNextBuyCompact(schedText);
           if (fromSchedule && fromSchedule !== '- -' && fromSchedule !== '—') return shortenWeekdayLabel(fromSchedule);
           return FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
@@ -8435,11 +8467,11 @@
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
         if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
-          scheduleEl.textContent = freqLabels.monthly;
+          setPlanDetailScheduleElement(scheduleEl, freqLabels.monthly);
         } else {
           const freqItem = document.querySelector('[data-plan-freq-item].is-active');
           const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
-          scheduleEl.textContent = freqLabels[freqKey] || freqLabels.monthly;
+          setPlanDetailScheduleElement(scheduleEl, freqLabels[freqKey] || freqLabels.monthly);
         }
       }
 
@@ -9591,7 +9623,7 @@
         ).toLowerCase();
         const freqBtn = document.querySelector('[data-plan-freq-item].is-active');
         const freqText = freqBtn?.textContent?.trim() || 'Monthly';
-        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const sched = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         const schedLower = sched.toLowerCase();
         const cadenceFromSchedule = schedLower.startsWith('daily')
           ? 'day'
@@ -9986,7 +10018,7 @@
           10,
         ) || 0;
         const cur = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
-        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const sched = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         const schedClean = sched ? sched.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim() : '—';
         const schedParts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const timingDetail = schedParts.length > 1 ? schedParts.slice(1).join(' · ') : '';
@@ -10218,7 +10250,7 @@
       };
 
       const computeNextBuyDate = () => {
-        const schedText = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         // Try to reuse existing compact formatter; then expand to include year.
         const compact = formatFinanceNextBuyCompact(schedText);
         const monthDay = compact.split('·')[0]?.trim();
@@ -11136,12 +11168,13 @@
       const freq =
         lowerRepeats.startsWith('daily') ? 'daily'
           : lowerRepeats.startsWith('weekly') ? 'weekly'
-            : 'monthly';
+            : lowerRepeats.startsWith('flexible') ? 'flexible'
+              : 'monthly';
       const freqBtn = panel.querySelector(`[data-plan-freq-item="${freq}"]`);
       freqBtn?.click();
 
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
-      if (scheduleEl && repeatsText) scheduleEl.textContent = normalizeFlexibleScheduleText(repeatsText);
+      if (scheduleEl && repeatsText) setPlanDetailScheduleElement(scheduleEl, repeatsText);
     };
 
     // ── Open / close ──────────────────────────────────────────────────────────
@@ -11326,7 +11359,7 @@
         if (overviewFirstBuy && overviewFirstBuy !== '—') {
           return `First buy on ${overviewFirstBuy}`;
         }
-        const sched = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+        const sched = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
         const parts = sched.split('·').map((t) => t.trim()).filter(Boolean);
         const tail = parts.length > 1 ? parts.slice(1).join(' · ') : parts[0] || '';
         const timeMatch = tail.match(/at\s+~?\s*(\d{1,2}:\d{2})/i);
@@ -11413,7 +11446,7 @@
           setState('flow', 2, { force: true });
           const overviewFirstBuy = panel.querySelector('[data-plan-overview-first-buy]')?.textContent?.trim() || '';
           const overviewReserved = panel.querySelector('[data-plan-overview-prefund-amount]')?.textContent?.trim() || '';
-          const schedLine = panel.querySelector('[data-plan-detail-schedule]')?.textContent?.trim() || '';
+          const schedLine = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
           const nextCompact = formatFinanceNextBuyCompact(schedLine);
           const financeNextBuy = document.querySelector('[data-finance-summary-next-buy]')?.textContent?.trim() || '';
           const paymentMethod = panel.querySelector('[data-plan-overview-payment-method]')?.textContent?.trim() || 'Pay as you go';
