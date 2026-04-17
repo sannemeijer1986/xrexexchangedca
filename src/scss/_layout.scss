@@ -2947,7 +2947,7 @@ button.finance-summary__stat-value--chevron {
 .plan-breakdown-panel__profit-currency,
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
-  color: #8fb8ff;
+  color: #8FB8FF;
 }
 
 .plan-return-metric__pct--historic {
@@ -8368,6 +8368,7 @@ div.currency-sheet__item-icon {
 
   > span[data-plan-breakdown-value] {
     color: #8fb8ff;
+    font-size: 16px;
   }
 }
 
@@ -8404,9 +8405,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__bottom {
-  position: sticky;
-  bottom: 0;
-  z-index: 3;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -8414,7 +8413,6 @@ div.currency-sheet__item-icon {
   width: 100%;
   margin-top: auto;
   padding: 8px 0 calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(13, 14, 15, 0) 0%, #0d0e0f 24px, #0d0e0f 100%);
 }
 
 .phone-container p.plan-breakdown-panel__footnote {
@@ -8427,7 +8425,7 @@ div.currency-sheet__item-icon {
 }
 
 .return-footnote__warning {
-  // color: #FCD536;
+  // color: #ff6d47;
 }
 
 .plan-breakdown-panel__close-cta {
