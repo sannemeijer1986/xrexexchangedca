@@ -2934,6 +2934,10 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
+.plan-breakdown-panel__profit-abs--breakdown {
+  font-size: 22px;
+}
+
 // Keep Plan detail + Breakdown simulated outcome values blue without changing shared token defaults.
 .plan-detail-panel__return-abs,
 .plan-detail-panel__return-currency,
@@ -8420,6 +8424,10 @@ div.currency-sheet__item-icon {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
+}
+
+.return-footnote__warning {
+  // color: #FCD536;
 }
 
 .plan-breakdown-panel__close-cta {

@@ -2938,6 +2938,10 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
+.plan-breakdown-panel__profit-abs--breakdown {
+  font-size: 22px;
+}
+
 .plan-detail-panel__return-abs,
 .plan-detail-panel__return-currency,
 .plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
