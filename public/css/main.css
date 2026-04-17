@@ -2722,7 +2722,7 @@ button.finance-summary__stat-value--chevron {
 .plan-strategy__return-metrics,
 .plan-detail-panel__return-metrics,
 .plan-breakdown-panel__profit-metrics {
-  --prm-accent: #8FB8FF;
+  --prm-accent: #5ac47d;
   --prm-currency-fs: 14px;
   --prm-currency-fw: 700;
   --prm-currency-ml: 4px;
@@ -2735,6 +2735,10 @@ button.finance-summary__stat-value--chevron {
   align-items: flex-start;
   gap: 4px;
   width: 100%;
+}
+
+.plan-breakdown-panel__profit-metrics {
+  --prm-accent: #56c488;
 }
 
 .plan-strategy__return-metrics-body,
@@ -2819,7 +2823,7 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(2px);
   font-size: 12px;
   font-weight: var(--prm-pct-inline-fw, 700);
-  color: var(--prm-accent, #8FB8FF);
+  color: #2f9752;
 }
 
 .plan-strategy__return-pct-line--historic {
@@ -2878,13 +2882,13 @@ button.finance-summary__stat-value--chevron {
 }
 
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
-  color: var(--prm-accent, #8FB8FF);
+  color: var(--prm-accent, #56c488);
 }
 
 .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
 .plan-return-metric__pct-line--historic.plan-detail-panel__return-pct-inline .plan-detail-panel__return-pct,
 .plan-return-metric__pct-line--historic .plan-strategy__return-pct {
-  color: var(--prm-accent, #8FB8FF);
+  color: #56c488;
 }
 
 .plan-return-metric__pct-line--historic {
@@ -2912,7 +2916,7 @@ button.finance-summary__stat-value--chevron {
 .plan-strategy__return-abs,
 .plan-detail-panel__return-abs,
 .plan-breakdown-panel__profit-abs {
-  font-size: 18tpx;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -2932,6 +2936,17 @@ button.finance-summary__stat-value--chevron {
 .plan-detail-panel__return-pct.plan-return-metric__pct--simulated {
   color: var(--prm-accent, #5ac47d);
   white-space: nowrap;
+}
+
+.plan-detail-panel__return-abs,
+.plan-detail-panel__return-currency,
+.plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
+.plan-detail-panel__return-pct-inline:not(.plan-return-metric__pct-line--historic),
+.plan-breakdown-panel__profit-abs,
+.plan-breakdown-panel__profit-currency,
+.plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
+.plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
+  color: #8fb8ff;
 }
 
 .plan-return-metric__pct--historic {
@@ -8116,6 +8131,11 @@ div.currency-sheet__item-icon::before {
 }
 .plan-breakdown-panel__row--profit > span:last-child {
   text-align: left;
+}
+
+.plan-breakdown-panel__profit-range-label {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .plan-breakdown-panel__profit-wrap {

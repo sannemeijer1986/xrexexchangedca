@@ -1869,7 +1869,7 @@
       el.textContent = range;
     });
     const startedAgo = `If you'd started ${range} ago ≈`;
-    const breakdownOutcome = `${range} simulated outcome ≈`;
+    const breakdownOutcome = 'Simulated gain ≈';
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
         el.textContent = startedAgo;
@@ -9290,7 +9290,7 @@
           simTitleEl.textContent = '5Y historical simulation ≈';
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
-          el.textContent = `${range} simulated outcome ≈`;
+          el.textContent = 'Simulated gain ≈';
         });
         if (legendAssetsEl) legendAssetsEl.textContent = `Plan value (${prettyTickers || '—'})`;
         const showSp500 = getPrototypeBreakdownSp500Visible();
