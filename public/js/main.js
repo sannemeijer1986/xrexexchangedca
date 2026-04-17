@@ -6123,6 +6123,17 @@
         return 'monthly';
       };
 
+      /** Pre-fund UI labels: flexible schedules use buy/buys (not days/weeks/months). */
+      const funding2PrefundUnitLabels = (freqKey) => {
+        if (freqKey === 'flexible') return { unit: 'buy', unitPlural: 'buys' };
+        const u = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        return { unit: u, unitPlural: `${u}s` };
+      };
+      /** Calendar step for projecting “until” dates (flexible ≈ monthly spacing). */
+      const funding2PrefundDateUnit = (freqKey) => (
+        freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month'
+      );
+
       const computeFunding2PeriodCoversDateText = (periods, unit) => {
         if (!Number.isFinite(periods) || periods <= 0) return '—';
         const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
@@ -6188,8 +6199,8 @@
         if (isPeriodView) {
           const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
           const freqKey = resolveFunding2FreqKey();
-          const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-          const unitPlural = `${unit}s`;
+          const { unit, unitPlural } = funding2PrefundUnitLabels(freqKey);
+          const dateUnit = funding2PrefundDateUnit(freqKey);
           const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
           const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
           const periodInputEl = clone.querySelector('[data-plan-buffer-period-input]');
@@ -6235,7 +6246,7 @@
           const sumCovers = clone.querySelector('[data-plan-buffer-period-sum-covers]');
           if (sumCovers) {
             sumCovers.textContent = funding2PeriodCount > 0 && perBuy > 0
-              ? computeFunding2PeriodCoversDateText(funding2PeriodCount, unit)
+              ? computeFunding2PeriodCoversDateText(funding2PeriodCount, dateUnit)
               : '—';
           }
           const sumAmt = clone.querySelector('[data-plan-buffer-period-sum-amount]');
@@ -6245,8 +6256,8 @@
 
           const freqKey2 = resolveFunding2FreqKey();
           const buyCadenceWord = freqKey2 === 'daily' ? 'daily' : freqKey2 === 'weekly' ? 'weekly' : freqKey2 === 'flexible' ? '' : 'monthly';
-          const coverUnit = freqKey2 === 'daily' ? 'day' : freqKey2 === 'weekly' ? 'week' : 'month';
-          const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
+          const { unit: coverUnit, unitPlural: coverPlural } = funding2PrefundUnitLabels(freqKey2);
+          const coverLabel = completeBuys === 1 ? coverUnit : coverPlural;
 
           const planName = String(
             funding2ContextRecord?.kicker
@@ -6270,7 +6281,7 @@
             overviewCoversMainEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
           }
           if (overviewCoversSubEl) {
-            const coversDate = computeFunding2PeriodCoversDateText(funding2PeriodCount, unit);
+            const coversDate = computeFunding2PeriodCoversDateText(funding2PeriodCount, dateUnit);
             overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 ? `Until ${coversDate}` : '';
           }
           if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
@@ -6337,8 +6348,8 @@
         const fmt = (n) => (Number.isFinite(n) ? Number(n).toLocaleString('en-US') : '—');
         const freqKey = resolveFunding2FreqKey();
         const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
-        const coverUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-        const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
+        const { unit: coverUnit, unitPlural: coverPlural } = funding2PrefundUnitLabels(freqKey);
+        const coverLabel = completeBuys === 1 ? coverUnit : coverPlural;
         const resolveFunding2CoversDate = () => {
           const fromContext = String(
             funding2ContextRecord?.nextBuy
@@ -6439,7 +6450,7 @@
                 optionBtn.disabled = exceedsAvailBalance;
                 optionBtn.innerHTML = `
                   <span class="plan-buffer-funding2-option__sub">${fmt(amountValue)}</span>
-                <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : `${coverUnit}s`}</span>
+                <span class="plan-buffer-funding2-option__main">${buyCount} ${buyCount === 1 ? coverUnit : coverPlural}</span>
 
                 `;
                 optionsList.appendChild(optionBtn);
@@ -6713,15 +6724,15 @@
         if (coversLineEl) {
           const isPeriodView = !!clone.querySelector('[data-plan-buffer-funding-view-tab="period"].is-selected');
           const freqKey = resolveFunding2FreqKey();
-          const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-          const unitPlural = `${unit}s`;
+          const { unit, unitPlural } = funding2PrefundUnitLabels(freqKey);
+          const dateUnit = funding2PrefundDateUnit(freqKey);
           let periods = 0;
           if (isPeriodView) {
             periods = funding2PeriodCount > 0 ? funding2PeriodCount : 0;
           } else if (perBuy > 0 && activeAmount > 0) {
             periods = Math.floor(activeAmount / perBuy);
           }
-          const around = computeFunding2RunsOutAroundLabel(periods, unit);
+          const around = computeFunding2RunsOutAroundLabel(periods, dateUnit);
           if (periods > 0 && activeAmount > 0 && around) {
             const coverPhrase = `Covers ${periods} ${periods === 1 ? unit : unitPlural}`;
             coversLineEl.textContent = `${coverPhrase} • runs out around ${around}`;
@@ -9767,8 +9778,10 @@
             const coversCount = Number.isFinite(reserveInputNum) && reserveInputNum > 0 && amount > 0
               ? Math.floor(reserveInputNum / amount)
               : 0;
-            const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-            const unitLabel = `${unit}${coversCount === 1 ? '' : 's'}`;
+            const dateUnit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+            const unitLabel = freqKey === 'flexible'
+              ? (coversCount === 1 ? 'buy' : 'buys')
+              : `${dateUnit}${coversCount === 1 ? '' : 's'}`;
             let untilText = '';
             if (coversCount > 0) {
               const compactNextBuyForCovers = formatFinanceNextBuyCompact(sched) || '';
@@ -9782,8 +9795,8 @@
                   if (endDate.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
                     endDate.setFullYear(endDate.getFullYear() + 1);
                   }
-                  if (unit === 'day') endDate.setDate(endDate.getDate() + coversCount);
-                  else if (unit === 'week') endDate.setDate(endDate.getDate() + (coversCount * 7));
+                  if (dateUnit === 'day') endDate.setDate(endDate.getDate() + coversCount);
+                  else if (dateUnit === 'week') endDate.setDate(endDate.getDate() + (coversCount * 7));
                   else endDate.setMonth(endDate.getMonth() + coversCount);
                   untilText = endDate.toLocaleDateString('en-US', {
                     month: 'short',
@@ -10338,8 +10351,8 @@
         const freqKey = (
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
-        const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
-        const unitPlural = `${unit}s`;
+        const unit = freqKey === 'flexible' ? 'buy' : freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
+        const unitPlural = freqKey === 'flexible' ? 'buys' : `${unit}s`;
         const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
         return { freqKey, unit, unitPlural, cadence };
       };
