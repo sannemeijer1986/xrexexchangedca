@@ -11386,7 +11386,11 @@
         const subEl = successEl?.querySelector('[data-plan-success-sub]');
         const reserveCardEl = successEl?.querySelector('[data-plan-success-reserve-card]');
         if (titleEl) {
-          titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
+          if (freqKey === 'flexible') {
+            titleEl.textContent = 'Your auto-invest plan is set';
+          } else {
+            titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
+          }
         }
         const selectedMethodBtn =
           panel.querySelector('[data-plan-buffer-method].is-selected') ||
