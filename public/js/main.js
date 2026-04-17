@@ -1423,6 +1423,12 @@
     }
   };
 
+  /** "daily" -> "Each daily buy =", flexible/empty -> "Each buy =" */
+  const formatEachBuyPrefix = (cadenceWord) => {
+    const c = String(cadenceWord || '').trim().toLowerCase();
+    return c ? `Each ${c} buy = ` : 'Each buy = ';
+  };
+
   /**
    * Allocation chips: same DOM + classes as `plan-overview-panel__chips` (Plan overview).
    * Same rules as syncFromPlanDetail: show pct when > 0; single-asset row uses 100% when pct missing.
@@ -6104,13 +6110,14 @@
         const fromDom = String(
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || '',
         ).toLowerCase();
-        if (fromDom === 'flexible') return 'monthly';
+        if (fromDom === 'flexible') return 'flexible';
         if (fromDom === 'daily' || fromDom === 'weekly' || fromDom === 'monthly') return fromDom;
         const inv = String(funding2ContextRecord?.investLine || '').toLowerCase();
         if (/\beach\s+day\b/.test(inv)) return 'daily';
         if (/\beach\s+week\b/.test(inv)) return 'weekly';
         if (/\beach\s+month\b/.test(inv)) return 'monthly';
         const rep = String(funding2ContextRecord?.repeats || '').toLowerCase();
+        if (/\bflexible\b/.test(rep)) return 'flexible';
         if (/\bday\b|daily\b/.test(rep)) return 'daily';
         if (/\bweek\b|weekly\b/.test(rep)) return 'weekly';
         return 'monthly';
@@ -6183,7 +6190,7 @@
           const freqKey = resolveFunding2FreqKey();
           const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
           const unitPlural = `${unit}s`;
-          const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
+          const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
           const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
           const periodInputEl = clone.querySelector('[data-plan-buffer-period-input]');
           const parsedPc = parseInt(String(periodInputEl?.value || '').replace(/[^0-9]/g, ''), 10);
@@ -6211,9 +6218,9 @@
           const perBuyLine = clone.querySelector('[data-plan-buffer-period-perbuy-line]');
           if (perBuyLine) {
             if (perBuy > 0) {
-              perBuyLine.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${cadence} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${reserveCur}</span>`;
+              perBuyLine.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(cadence)}</span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${reserveCur}</span>`;
             } else {
-              perBuyLine.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${cadence} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
+              perBuyLine.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(cadence)}</span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
             }
           }
           if (periodInputEl instanceof HTMLInputElement && document.activeElement !== periodInputEl) {
@@ -6237,7 +6244,7 @@
           if (maxBtn) maxBtn.disabled = !(maxPeriod > 0);
 
           const freqKey2 = resolveFunding2FreqKey();
-          const buyCadenceWord = freqKey2 === 'daily' ? 'daily' : freqKey2 === 'weekly' ? 'weekly' : 'monthly';
+          const buyCadenceWord = freqKey2 === 'daily' ? 'daily' : freqKey2 === 'weekly' ? 'weekly' : freqKey2 === 'flexible' ? '' : 'monthly';
           const coverUnit = freqKey2 === 'daily' ? 'day' : freqKey2 === 'weekly' ? 'week' : 'month';
           const coverLabel = completeBuys === 1 ? coverUnit : `${coverUnit}s`;
 
@@ -6386,10 +6393,10 @@
         const perBuySub = clone.querySelector('[data-plan-buffer-perbuy-sub]');
         if (perBuySub) {
           if (perBuy > 0) {
-            perBuySub.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${buyCadenceWord} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${perBuyData.currency}</span>`;
+            perBuySub.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(buyCadenceWord)}</span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${perBuyData.currency}</span>`;
           } else {
             perBuySub.innerHTML =
-              `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${buyCadenceWord} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
+              `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(buyCadenceWord)}</span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
           }
         }
 
@@ -10330,7 +10337,7 @@
         ).toLowerCase();
         const unit = freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month';
         const unitPlural = `${unit}s`;
-        const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : 'monthly';
+        const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
         return { freqKey, unit, unitPlural, cadence };
       };
 
@@ -10568,9 +10575,9 @@
         }
         if (periodPerbuyLineEl) {
           if (perBuy > 0) {
-            periodPerbuyLineEl.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${cadence} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${cur}</span>`;
+            periodPerbuyLineEl.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(cadence)}</span><span class="plan-buffer-funding-hero__subtitle-amount">${fmt(perBuy)} ${cur}</span>`;
           } else {
-            periodPerbuyLineEl.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">Each ${cadence} buy = </span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
+            periodPerbuyLineEl.innerHTML = `<span class="plan-buffer-funding-hero__subtitle-prefix">${formatEachBuyPrefix(cadence)}</span><span class="plan-buffer-funding-hero__subtitle-amount">—</span>`;
           }
         }
         if (periodInputEl && document.activeElement !== periodInputEl) {
