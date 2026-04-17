@@ -12362,6 +12362,7 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   align-items: center;
   gap: 2px;
+  margin: 4px 0px 2px 0px;
 }
 
 .my-plans-position-card__hero-value {
@@ -12382,6 +12383,14 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: inherit;
   line-height: inherit;
   color: inherit;
+}
+
+.my-plans-position-card__invest-summary-line.my-plans-position-card__invest-summary-line--amount {
+  font-size: 16px;   
+}
+
+.my-plans-position-card__invest-summary-line.my-plans-position-card__invest-summary-line--schedule {
+  font-size: 14px;
 }
 
 .my-plans-position-card__hero-icons {
