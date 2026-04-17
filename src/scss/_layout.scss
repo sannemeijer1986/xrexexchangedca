@@ -8606,7 +8606,7 @@ div.currency-sheet__item-icon {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .plan-overview-panel__plan-amount {
@@ -8621,10 +8621,10 @@ div.currency-sheet__item-icon {
 .plan-overview-panel__plan-meta {
   display: block;
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .plan-overview-panel__plan-meta[hidden] {
@@ -12367,10 +12367,21 @@ button.plan-buffer-funding-hero__how-link {
 .my-plans-position-card__hero-value {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
   color: #ffffff;
+}
+
+.my-plans-position-card__invest-summary-line {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
 }
 
 .my-plans-position-card__hero-icons {
@@ -12952,10 +12963,21 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__hero-value {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.2;
+}
+
+.my-plans-detail-panel__invest-summary-line {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
 }
 
 .my-plans-detail-panel__block {

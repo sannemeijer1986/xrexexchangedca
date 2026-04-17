@@ -1336,7 +1336,15 @@
     return `${mon} ${day} · ${timeStr}`;
   };
 
-  /** "Monthly · 15th at ~12:00" -> "Every month on the 15th" */
+  /** "Monthly · 15th at ~12:00" -> "monthly on the 15th"; Flexible -> "monthly on the 6th, 8th & 12th" */
+  const enumerateOrdinalListPhrase = (ordinals) => {
+    const t = (ordinals || []).map((x) => String(x || '').trim()).filter(Boolean);
+    if (t.length === 0) return '';
+    if (t.length === 1) return t[0];
+    if (t.length === 2) return `${t[0]} & ${t[1]}`;
+    return `${t.slice(0, -1).join(', ')} & ${t[t.length - 1]}`;
+  };
+
   const formatScheduleNaturalLine = (schedText) => {
     const sched = String(schedText || '').trim();
     if (!sched) return '';
@@ -1345,17 +1353,28 @@
     const head = (parts[0] || '').toLowerCase();
     const tail = parts.length > 1 ? parts.slice(1).join(' · ').trim() : '';
 
-    if (head.startsWith('daily')) return 'every day';
+    if (head.startsWith('daily')) return 'daily';
 
     if (head.startsWith('weekly')) {
-      const detail = tail || clean.replace(/^weekly\b/i, '').trim();
-      return detail ? `every week on ${detail}` : 'every week';
+      let detail = tail || clean.replace(/^weekly\b/i, '').trim();
+      detail = detail.replace(/\s*·\s*~?\d{1,2}:\d{2}\s*$/i, '').trim();
+      detail = detail.replace(/\s+at\s+~?\d{1,2}:\d{2}\s*$/i, '').trim();
+      return detail ? `weekly on ${detail}` : 'weekly';
+    }
+
+    if (head.startsWith('flexible')) {
+      const ordinals = parts
+        .slice(1)
+        .map((p) => p.trim())
+        .filter((p) => /^\d{1,2}(?:st|nd|rd|th)$/i.test(p));
+      if (!ordinals.length) return 'monthly';
+      return `monthly on the ${enumerateOrdinalListPhrase(ordinals)}`;
     }
 
     if (head.startsWith('monthly')) {
       let detail = tail || clean.replace(/^monthly\b/i, '').trim();
       if (detail && /^\d/.test(detail)) detail = `the ${detail}`;
-      return detail ? `every month on ${detail}` : 'every month';
+      return detail ? `monthly on ${detail}` : 'monthly';
     }
 
     return clean;
@@ -3190,6 +3209,15 @@
       flexDaysGrid.appendChild(frag);
     };
 
+    /** e.g. "every 9th, 18th, 19th, 20th and 24th" */
+    const formatFlexDaysSummaryLine = (days) => {
+      const ords = days.map((d) => ordinalSuffix(d));
+      if (ords.length === 0) return '- -';
+      if (ords.length === 1) return `every ${ords[0]}`;
+      if (ords.length === 2) return `every ${ords[0]} and ${ords[1]}`;
+      return `every ${ords.slice(0, -1).join(', ')} and ${ords[ords.length - 1]}`;
+    };
+
     const syncFlexDaysUI = () => {
       if (!flexDaysSheet) return;
       const count = flexSelectedDays.length;
@@ -3201,9 +3229,7 @@
       }
 
       if (flexDaysSummary) {
-        flexDaysSummary.textContent = count
-          ? `every ${flexSelectedDays.map((d) => ordinalSuffix(d)).join(' · ')}`
-          : '- -';
+        flexDaysSummary.textContent = formatFlexDaysSummaryLine(flexSelectedDays);
       }
 
       if (flexDaysConfirmBtn instanceof HTMLButtonElement) {
@@ -3939,9 +3965,12 @@
       const heroValue = el('div', 'my-plans-position-card__hero-value');
       if (moneyPart) {
         heroValue.textContent = '';
-        heroValue.append(`Invest ${moneyPart}`);
-        heroValue.appendChild(document.createElement('br'));
-        heroValue.append(schedulePart || '—');
+        const amountLine = el('div', 'my-plans-position-card__invest-summary-line my-plans-position-card__invest-summary-line--amount');
+        amountLine.textContent = `Invest ${moneyPart}`;
+        const scheduleLineEl = el('div', 'my-plans-position-card__invest-summary-line my-plans-position-card__invest-summary-line--schedule');
+        scheduleLineEl.textContent = schedulePart || '—';
+        heroValue.appendChild(amountLine);
+        heroValue.appendChild(scheduleLineEl);
       } else {
         heroValue.textContent = investLine || '—';
       }
@@ -4263,9 +4292,14 @@
         const schedulePart = formatScheduleNaturalLine(rec.repeats || '');
         if (moneyPart) {
           investLineEl.textContent = '';
-          investLineEl.append(`Invest ${moneyPart}`);
-          investLineEl.appendChild(document.createElement('br'));
-          investLineEl.append(schedulePart || '—');
+          const amountLine = document.createElement('div');
+          amountLine.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--amount';
+          amountLine.textContent = `Invest ${moneyPart}`;
+          const scheduleLineEl = document.createElement('div');
+          scheduleLineEl.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--schedule';
+          scheduleLineEl.textContent = schedulePart || '—';
+          investLineEl.appendChild(amountLine);
+          investLineEl.appendChild(scheduleLineEl);
         } else {
           investLineEl.textContent = investLine || '—';
         }
@@ -9550,11 +9584,12 @@
           ? 'day'
           : schedLower.startsWith('weekly')
             ? 'week'
-            : schedLower.startsWith('monthly')
+            : schedLower.startsWith('monthly') || schedLower.startsWith('flexible')
               ? 'month'
               : '';
         const freqUnit = cadenceFromSchedule || (freqKey === 'daily' ? 'day' : freqKey === 'weekly' ? 'week' : 'month');
-        const scheduleLine = formatScheduleNaturalLine(sched) || `Every ${freqUnit === 'day' ? 'day' : freqUnit}`;
+        const scheduleLine = formatScheduleNaturalLine(sched)
+          || (freqUnit === 'day' ? 'daily' : freqUnit === 'week' ? 'weekly' : 'monthly');
         if (planAmountEl) {
           planAmountEl.textContent = amount > 0
             ? `Invest ${amount.toLocaleString('en-US')} ${cur}`
