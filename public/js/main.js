@@ -1535,7 +1535,7 @@
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
-        smartAllocSelect.value = 'smart';
+        smartAllocSelect.value = 'manual';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
       setPrototypePrefundLog('none');
@@ -1599,7 +1599,7 @@
       }
       const smartAllocSelect = document.querySelector('[data-prototype-smart-allocation]');
       if (smartAllocSelect) {
-        smartAllocSelect.value = 'smart';
+        smartAllocSelect.value = 'manual';
         smartAllocSelect.dispatchEvent(new Event('change'));
       }
       setPrototypePrefundLog('none');
@@ -7206,6 +7206,32 @@
         ? (panel._planDetailAutoAllocTweakFn || panel._planDetailManualAllocTweakFn || null)
         : (panel._planDetailManualAllocTweakFn || panel._planDetailAutoAllocTweakFn || null);
     };
+    const syncManualAllocHistoricInline = () => {
+      const manualSection = getManualAllocSection();
+      if (!manualSection) return;
+      const headerHistoric = manualSection.querySelector('[data-plan-detail-alloc-header-historic]');
+      const tone = manualSection.querySelector('[data-plan-detail-historic-performance-tone]');
+      if (!headerHistoric || !tone) return;
+      const belowLabel = headerHistoric.querySelector('.plan-detail-panel__historic-performance-label--below');
+      const isSingle = latestAllocItemCount === 1;
+      manualSection.classList.toggle('is-single-asset', isSingle);
+      manualSection.classList.toggle('is-multi-asset', latestAllocItemCount >= 2);
+      if (isSingle) {
+        const firstItem = manualSection.querySelector('[data-plan-detail-allocation] .plan-detail-panel__alloc-item');
+        if (firstItem && !firstItem.contains(tone)) firstItem.appendChild(tone);
+      } else if (belowLabel) {
+        if (tone.parentElement !== headerHistoric || tone.previousElementSibling !== belowLabel) {
+          headerHistoric.insertBefore(tone, belowLabel.nextSibling);
+        }
+      } else if (tone.parentElement !== headerHistoric) {
+        headerHistoric.appendChild(tone);
+      }
+      const footerHistoricPct = panel.querySelector('[data-plan-detail-return-historic-pct]')?.textContent?.trim();
+      const manualHistoricPct = tone.querySelector('[data-plan-detail-return-historic-pct]');
+      if (footerHistoricPct && manualHistoricPct) {
+        manualHistoricPct.textContent = footerHistoricPct;
+      }
+    };
 
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
@@ -11860,6 +11886,7 @@
     document.addEventListener('prototype-smart-allocation-toggle', () => {
       syncActiveAllocationVariant();
       if (!panel.classList.contains('is-open')) return;
+      syncManualAllocHistoricInline();
       // Refresh allocation row values before return/continue sync so active variant inputs are current.
       panel._planDetailAllocRefreshAmounts?.();
       panel._planDetailAutoAllocRefreshAmounts?.();
