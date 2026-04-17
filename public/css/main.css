@@ -2950,7 +2950,7 @@ button.finance-summary__stat-value--chevron {
 .plan-breakdown-panel__profit-currency,
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
 .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
-  color: #8FB8FF;
+  color: #D2F5DE;
 }
 
 .plan-return-metric__pct--historic {
@@ -7744,7 +7744,7 @@ div.currency-sheet__item-icon::before {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .plan-detail-panel__return {
