@@ -5523,12 +5523,27 @@
     const formatPlanDetailFooterMoney = (n) =>
       formatDetailFooterProfit(Math.max(0, Math.round(Number(n) || 0)));
 
-    const clearPlanDetailFooterMetrics = () => {
+    /** Zero row in footer matches compact “K” style (e.g. 0K) for empty / no-data state. */
+    const formatPlanDetailFooterZeroDisplay = () => '0K';
+
+    const setPlanDetailFooterMetricsMissing = (curLabel) => {
       const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
-      if (investedEl) investedEl.textContent = '—';
-      if (valueAmtEl) valueAmtEl.textContent = '—';
+      const cur = String(curLabel || 'TWD').trim();
+      const z = formatPlanDetailFooterZeroDisplay();
+      if (investedEl) investedEl.textContent = `${z} ${cur} invested →`;
+      if (valueAmtEl) valueAmtEl.textContent = z;
+      if (valueSufEl) valueSufEl.textContent = ` ${cur} value ≈ (simulated)`;
+    };
+
+    const setPlanDetailFooterMetricsError = (curLabel) => {
+      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
+      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
+      const cur = String(curLabel || 'TWD').trim();
+      if (investedEl) investedEl.textContent = `${cur} invested →`;
+      if (valueAmtEl) valueAmtEl.textContent = '- -';
       if (valueSufEl) valueSufEl.textContent = '';
     };
 
@@ -5596,7 +5611,7 @@
             'plan-detail-panel__footer--state-ok',
           );
           footerEl.classList.add('plan-detail-panel__footer--state-error');
-          clearPlanDetailFooterMetrics();
+          setPlanDetailFooterMetricsError(curLabel);
         }
         if (histPctEl) {
           histPctEl.textContent = '- -';
@@ -9333,7 +9348,15 @@
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
         if (simTitleEl) {
-          simTitleEl.textContent = `${range} past simulation based on setup`;
+          const breakdownPlanSetupTail =
+            freq === 'flexible'
+              ? 'your plan setup'
+              : freq === 'daily'
+                ? 'your daily plan setup'
+                : freq === 'weekly'
+                  ? 'your weekly plan setup'
+                  : 'your monthly plan setup';
+          simTitleEl.textContent = `${range} past simulation based on ${breakdownPlanSetupTail}`;
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = 'Simulated outcome ≈';
