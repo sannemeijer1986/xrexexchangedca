@@ -9303,6 +9303,7 @@
       const profitStratCapEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-strategy-caption]');
       const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
       const profitCurEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-currency]');
+      const breakdownScrollEl = breakdownPanel.querySelector('.plan-breakdown-panel__body');
 
       /** @type {'detail' | 'widget'} */
       let breakdownOpenSource = 'detail';
@@ -9530,6 +9531,7 @@
         updateRangeUI('breakdown', rangeState.breakdown);
         setBreakdownRangeButtons('detail');
         syncFromDetail();
+        if (breakdownScrollEl) breakdownScrollEl.scrollTop = 0;
         panel.classList.add('is-plan-breakdown-open');
         breakdownPanel.hidden = false;
         requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
