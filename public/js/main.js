@@ -7400,13 +7400,13 @@
 
       if (noAssets || noAmount) {
         footerEl.classList.add('plan-detail-panel__footer--state-missing');
-        clearPlanDetailFooterMetrics();
+        setPlanDetailFooterMetricsMissing(curLabel);
         return;
       }
 
       if (shouldBlockOneBuyBalance || allocationOutOfBalance) {
         footerEl.classList.add('plan-detail-panel__footer--state-error');
-        clearPlanDetailFooterMetrics();
+        setPlanDetailFooterMetricsError(curLabel);
         return;
       }
 

@@ -8159,40 +8159,53 @@ div.currency-sheet__item-icon {
   }
 }
 
-.plan-detail-panel__footer--state-missing,
-.plan-detail-panel__footer--state-error {
+.plan-detail-panel__footer--state-missing {
   .plan-detail-panel__return-label {
-    color: #9b9c9c;
+    color: #ffffff;
   }
 
   .plan-detail-panel__footer-invested-line {
-    color: #6b6c6c;
+    color: #ffffff;
   }
 
   .plan-detail-panel__footer-value-line,
   .plan-detail-panel__footer-value-amount,
   .plan-detail-panel__footer-value-suffix {
-    color: #6b6c6c;
+    color: #6b8fc9;
   }
 
   .plan-detail-panel__footer-value-amount {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
   }
 
   .plan-detail-panel__footer-alert-text {
-    color: #6b6c6c;
+    color: #9b9c9c;
   }
 }
 
 .plan-detail-panel__footer--state-error {
-  .plan-detail-panel__footer-value-amount,
-  .plan-detail-panel__footer-value-suffix {
-    color: #8a5f5c;
+  .plan-detail-panel__return-label {
+    color: #ffffff;
   }
 
   .plan-detail-panel__footer-invested-line {
-    color: #8a5f5c;
+    color: #ffffff;
+  }
+
+  .plan-detail-panel__footer-value-line,
+  .plan-detail-panel__footer-value-amount,
+  .plan-detail-panel__footer-value-suffix {
+    color: #ffffff;
+  }
+
+  .plan-detail-panel__footer-value-amount {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .plan-detail-panel__footer-alert-text {
+    color: #9b9c9c;
   }
 }
 
