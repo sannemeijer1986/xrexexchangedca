@@ -865,10 +865,9 @@
     const slider = document.querySelector('[data-plan-slider]');
     const freqActive = document.querySelector('[data-plan-freq-item].is-active');
     const carousel = document.querySelector('[data-plan-carousel]');
-    if (domWrite) {
-      if (!pctEl || !absEl) return;
-      if (!detailPanel && (!slider || !freqActive)) return;
-    } else if (opts.amount === undefined) {
+    if (domWrite && !detailPanel) {
+      if (!pctEl || !absEl || !slider || !freqActive) return;
+    } else if (!domWrite && opts.amount === undefined) {
       return null;
     }
 
@@ -965,8 +964,8 @@
       'assets/icon_currency_btc.svg',
     );
 
-    absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
-    pctEl.textContent = `${formatPct(returnPct)}`;
+    if (absEl) absEl.textContent = `${profit >= 0 ? '+' : '-'}${formatTwdNumber(profit)}`;
+    if (pctEl) pctEl.textContent = `${formatPct(returnPct)}`;
 
     const strategyGroup = detailPanel
       ? document.querySelector(
@@ -1868,7 +1867,7 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
       el.textContent = range;
     });
-    const startedAgo = '5Y historical simulation for this plan ≈';
+    const startedAgo = `${range} past simulation based on setup`;
     const breakdownOutcome = 'Simulated outcome ≈';
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
@@ -5520,37 +5519,41 @@
       return `${round1(abs / 1000000)}M`;
     };
 
-    const parseDetailFooterAbsText = (text) => {
-      const s = String(text || '').trim();
-      const neg = s.startsWith('-');
-      const t = s.replace(/^[+-]/, '').replace(/,/g, '').trim();
-      if (!t) return NaN;
-      let mult = 1;
-      let numPart = t;
-      if (/K$/i.test(numPart)) {
-        mult = 1e3;
-        numPart = numPart.slice(0, -1).trim();
-      } else if (/M$/i.test(numPart)) {
-        mult = 1e6;
-        numPart = numPart.slice(0, -1).trim();
-      }
-      const n = parseFloat(numPart);
-      if (!isFinite(n)) return NaN;
-      const v = n * mult;
-      return neg ? -v : v;
+    /** Total invested / plan value in footer (same K / M rules as ROI line, e.g. 40.4K TWD). */
+    const formatPlanDetailFooterMoney = (n) =>
+      formatDetailFooterProfit(Math.max(0, Math.round(Number(n) || 0)));
+
+    const clearPlanDetailFooterMetrics = () => {
+      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
+      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
+      if (investedEl) investedEl.textContent = '—';
+      if (valueAmtEl) valueAmtEl.textContent = '—';
+      if (valueSufEl) valueSufEl.textContent = '';
     };
 
     const snapshotFooterAllocBases = () => {
-      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
-      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
-      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
-      if (pctEl) {
-        const raw = parseFloat(String(pctEl.textContent).replace(/[^0-9.\-]/g, ''));
-        if (isFinite(raw)) pctEl.dataset.allocBasePct = String(raw);
+      const gate = readPlanDetailFooterGateState();
+      if (
+        gate.noAssets
+        || gate.noAmount
+        || gate.shouldBlockOneBuyBalance
+        || gate.allocationOutOfBalance
+      ) {
+        return;
       }
-      if (absEl) {
-        const profit = parseDetailFooterAbsText(absEl.textContent);
-        if (isFinite(profit)) absEl.dataset.allocBaseAbs = String(profit);
+      const footerEl = panel.querySelector('[data-plan-detail-footer]');
+      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+      if (footerEl) {
+        const sim = computePlanDetailPanelFooterSimRaw();
+        if (sim) {
+          const totalInvested = Math.round(Number.isFinite(sim.totalInvested) ? sim.totalInvested : 0);
+          const profit = Number.isFinite(sim.profit) ? sim.profit : 0;
+          const pct = Number.isFinite(sim.returnPct) ? sim.returnPct : 0;
+          footerEl.dataset.allocBaseTotal = String(totalInvested);
+          footerEl.dataset.allocBaseProfit = String(profit);
+          footerEl.dataset.allocBasePct = String(pct);
+        }
       }
       if (histPctEl) {
         const rawH = parseFloat(String(histPctEl.textContent).replace(/[^0-9.\-]/g, ''));
@@ -5559,13 +5562,11 @@
     };
 
     const applyFooterAllocSliderTweak = () => {
-      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
-      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
+      const footerEl = panel.querySelector('[data-plan-detail-footer]');
+      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
       const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
       const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
-      const curEl = panel.querySelector('[data-plan-detail-return-currency]');
-      const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
       const historicInlineArrows = panel.querySelectorAll(
         '.plan-detail-panel__alloc-header-historic-inline .plan-return-metric__arrow--historic, '
         + '.plan-detail-panel__alloc-header-historic-inline .plan-detail-panel__return-arrow',
@@ -5573,9 +5574,9 @@
       const historicToneArrows = histToneRoot?.querySelectorAll(
         '.plan-return-metric__arrow--historic, .plan-detail-panel__return-arrow',
       ) || [];
-      if (!pctEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
-      const base = parseFloat(pctEl.dataset.allocBasePct || '');
-      if (!isFinite(base)) return;
+      if (!footerEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
+      const basePct = parseFloat(footerEl.dataset.allocBasePct || '');
+      if (!isFinite(basePct)) return;
       const tw = detailPanelAllocPctTweakFn();
       if (!isFinite(tw)) return;
       const allocRoot = getActiveAllocMultiRoot();
@@ -5585,11 +5586,18 @@
         && !allocRoot.classList.contains('alloc-multi--amount-mode'),
       );
 
+      const curLabel = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+
       if (isPctAllocInvalid) {
-        if (absEl) absEl.textContent = '- -';
-        if (curEl) curEl.hidden = true;
-        if (simPctInlineEl) simPctInlineEl.hidden = true;
-        // Match invalid-state treatment with return metrics row.
+        if (footerEl) {
+          footerEl.classList.remove(
+            'plan-detail-panel__footer--state-missing',
+            'plan-detail-panel__footer--state-error',
+            'plan-detail-panel__footer--state-ok',
+          );
+          footerEl.classList.add('plan-detail-panel__footer--state-error');
+          clearPlanDetailFooterMetrics();
+        }
         if (histPctEl) {
           histPctEl.textContent = '- -';
         }
@@ -5606,32 +5614,28 @@
         return;
       }
 
-      if (curEl) curEl.hidden = false;
-      if (simPctInlineEl) simPctInlineEl.hidden = false;
       [...historicInlineArrows, ...historicToneArrows].forEach((arrow) => {
         arrow.hidden = false;
         arrow.style.display = '';
       });
       const amountInp = panel.querySelector('[data-plan-detail-amount-input]');
       const investAmt = Math.max(0, parseInt(amountInp?.value?.replace(/[^0-9]/g, '') || '0', 10) || 0);
-      // No "amount per buy" → keep simulated return at the snapshotted base (0% from the model); do not nudge from allocation sliders.
       const appliedTwSim = investAmt > 0 ? tw : 0;
-      const nextPct = base + appliedTwSim;
-      pctEl.textContent = `${nextPct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+      const nextPct = basePct + appliedTwSim;
 
-      if (absEl) {
-        const baseAbs = parseFloat(absEl.dataset.allocBaseAbs || '');
-        if (isFinite(baseAbs) && Math.abs(base) > 1e-6) {
-          const nextAbs = baseAbs * (nextPct / base);
-          const sign = nextAbs >= 0 ? '+' : '-';
-          absEl.textContent = `${sign}${formatDetailFooterProfit(Math.abs(nextAbs))}`;
+      const baseTotal = parseFloat(footerEl.dataset.allocBaseTotal || '');
+      const baseProfit = parseFloat(footerEl.dataset.allocBaseProfit || '');
+      if (isFinite(baseTotal) && isFinite(baseProfit)) {
+        let nextProfit;
+        if (Math.abs(basePct) <= 1e-6) {
+          nextProfit = 0;
         } else {
-          // When base return is 0 (common with empty/zero amount), restore from invalid placeholder to default +0.
-          absEl.textContent = '+0';
+          nextProfit = baseProfit * (nextPct / basePct);
         }
+        const nextValue = Math.round(baseTotal + nextProfit);
+        if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterMoney(nextValue);
       }
 
-      // Historic (combined) performance should respond to allocation even when amount per buy is empty/0.
       if (histPctEl) {
         const baseHist = parseFloat(histPctEl.dataset.allocBaseHistPct || '');
         if (isFinite(baseHist)) {
@@ -7236,11 +7240,64 @@
     // Static balances for the prototype
     const BALANCES = { TWD: 75000, USDT: 2750 };
 
-    const syncPlanDetailContinueState = () => {
-      const continueBtn = panel.querySelector('.plan-detail-panel__continue');
-      if (!continueBtn) return;
-      const breakdownBtn = panel.querySelector('.plan-detail-panel__view-breakdown-link');
+    const applyPlanDetailAllocTweakToSim = (sim, amount) => {
+      if (!sim || typeof detailPanelAllocPctTweakFn !== 'function') return sim;
+      const tw = detailPanelAllocPctTweakFn();
+      if (!isFinite(tw)) return sim;
+      const next = { ...sim };
+      const simBasePct = Number.isFinite(sim.returnPct) ? sim.returnPct : 0;
+      const simAppliedTw = amount > 0 ? tw : 0;
+      const simNextPct = simBasePct + simAppliedTw;
+      next.returnPct = simNextPct;
+      if (Number.isFinite(sim.profit) && Math.abs(simBasePct) > 1e-6) {
+        next.profit = sim.profit * (simNextPct / simBasePct);
+      }
+      if (Number.isFinite(sim.historicReturnPct)) {
+        next.historicReturnPct = sim.historicReturnPct + tw;
+      }
+      return next;
+    };
 
+    const computePlanDetailPanelFooterSimRaw = () => {
+      const amountEl = panel.querySelector('[data-plan-detail-amount-input]');
+      const amount = parseInt(String(amountEl?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      const selectedAssets = getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg');
+      const range = rangeState.plan || '5Y';
+      const freq = (
+        document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
+      ).toLowerCase();
+      const ctx = panelOpenContext;
+      const overrideCuratedKey =
+        detailAllocOverride?.kind === 'curated' && detailAllocOverride.key
+          ? String(detailAllocOverride.key).toLowerCase()
+          : '';
+      const effectiveCuratedKey =
+        ctx.source === 'curated' && ctx.curatedKey ? String(ctx.curatedKey).toLowerCase() : overrideCuratedKey;
+      let planKeyOpt;
+      if (effectiveCuratedKey) planKeyOpt = effectiveCuratedKey;
+      else if (ctx.source === 'spotlight' && ctx.spotlightKey) {
+        planKeyOpt = String(ctx.spotlightKey).toLowerCase();
+      }
+
+      return updatePlanStrategyHistoricalReturn({
+        detailPanel: true,
+        amount,
+        planKey: planKeyOpt,
+        freq,
+        historicalRangeKey: range,
+        domWrite: false,
+        displayAssets: selectedAssets,
+      });
+    };
+
+    const computePlanDetailPanelFooterSimTweaked = () => {
+      const amountEl = panel.querySelector('[data-plan-detail-amount-input]');
+      const amount = parseInt(String(amountEl?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      const sim = computePlanDetailPanelFooterSimRaw();
+      return applyPlanDetailAllocTweakToSim(sim, amount);
+    };
+
+    const readPlanDetailFooterGateState = () => {
       const allocCount = parseInt(
         panel.querySelector('[data-plan-detail-alloc-count]')?.textContent?.trim() || '0',
         10,
@@ -7281,30 +7338,92 @@
         }
       }
 
-      continueBtn.disabled = noAssets || noAmount || shouldBlockOneBuyBalance || allocationOutOfBalance;
-
       const isPctAllocInvalid =
-        allocRoot
+        Boolean(allocRoot)
         && allocCount >= 2
         && !allocRoot.classList.contains('alloc-multi--amount-mode')
         && allocationOutOfBalance;
+
+      return {
+        allocCount,
+        amount,
+        cur,
+        balance,
+        noAssets,
+        noAmount,
+        shouldBlockOneBuyBalance,
+        allocationOutOfBalance,
+        isPctAllocInvalid,
+        allocRoot,
+      };
+    };
+
+    const syncPlanDetailFooterInvestmentDisplay = (gate) => {
+      const footerEl = panel.querySelector('[data-plan-detail-footer]');
+      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
+      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
+      if (!footerEl || !investedEl || !valueAmtEl || !valueSufEl) return;
+
+      footerEl.classList.remove(
+        'plan-detail-panel__footer--state-missing',
+        'plan-detail-panel__footer--state-error',
+        'plan-detail-panel__footer--state-ok',
+      );
+
+      const curLabel = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || gate.cur || 'TWD').trim();
+      const {
+        noAssets,
+        noAmount,
+        shouldBlockOneBuyBalance,
+        allocationOutOfBalance,
+      } = gate;
+
+      footerEl.removeAttribute('data-alloc-base-total');
+      footerEl.removeAttribute('data-alloc-base-profit');
+      footerEl.removeAttribute('data-alloc-base-pct');
+
+      if (noAssets || noAmount) {
+        footerEl.classList.add('plan-detail-panel__footer--state-missing');
+        clearPlanDetailFooterMetrics();
+        return;
+      }
+
+      if (shouldBlockOneBuyBalance || allocationOutOfBalance) {
+        footerEl.classList.add('plan-detail-panel__footer--state-error');
+        clearPlanDetailFooterMetrics();
+        return;
+      }
+
+      footerEl.classList.add('plan-detail-panel__footer--state-ok');
+      const sim = computePlanDetailPanelFooterSimTweaked();
+      if (!sim) return;
+      const totalInvested = Math.round(Number.isFinite(sim.totalInvested) ? sim.totalInvested : 0);
+      const profit = Number.isFinite(sim.profit) ? sim.profit : 0;
+      const value = Math.round(totalInvested + profit);
+      investedEl.textContent = `${formatPlanDetailFooterMoney(totalInvested)} ${curLabel} invested →`;
+      valueAmtEl.textContent = formatPlanDetailFooterMoney(value);
+      valueSufEl.textContent = ` ${curLabel} value ≈ (simulated)`;
+    };
+
+    const syncPlanDetailContinueState = () => {
+      const continueBtn = panel.querySelector('.plan-detail-panel__continue');
+      if (!continueBtn) return;
+      const breakdownBtn = panel.querySelector('.plan-detail-panel__view-breakdown-link');
+
+      const gate = readPlanDetailFooterGateState();
+      const {
+        noAssets,
+        noAmount,
+        shouldBlockOneBuyBalance,
+        allocationOutOfBalance,
+        isPctAllocInvalid,
+      } = gate;
+
+      continueBtn.disabled = noAssets || noAmount || shouldBlockOneBuyBalance || allocationOutOfBalance;
       if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount || isPctAllocInvalid;
 
-      const detailAbsEl = panel.querySelector('[data-plan-detail-return-abs]');
-      const detailCurEl = panel.querySelector('[data-plan-detail-return-currency]');
-      const detailPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
-      if (noAssets) {
-        if (detailAbsEl) detailAbsEl.textContent = '- -';
-        if (detailCurEl) detailCurEl.hidden = true;
-        if (detailPctInlineEl) detailPctInlineEl.hidden = true;
-      } else if (isPctAllocInvalid) {
-        if (detailAbsEl) detailAbsEl.textContent = '- -';
-        if (detailCurEl) detailCurEl.hidden = true;
-        if (detailPctInlineEl) detailPctInlineEl.hidden = true;
-      } else {
-        if (detailCurEl) detailCurEl.hidden = false;
-        if (detailPctInlineEl) detailPctInlineEl.hidden = false;
-      }
+      syncPlanDetailFooterInvestmentDisplay(gate);
     };
 
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
@@ -7488,78 +7607,11 @@
       syncPlanDetailContinueState();
     };
 
-    // Sync all footer return elements from the main widget's currently displayed values.
+    // Sync simulation title from the main widget (footer totals come from updateDetailReturn / gate state).
     const syncFooterFromMainWidget = () => {
-      const absEl = panel.querySelector('[data-plan-detail-return-abs]');
-      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
       const titleEl = panel.querySelector('[data-plan-detail-return-title]');
-      const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
-      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
-      const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
-      const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
-      const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
-      if (absEl) absEl.textContent = document.querySelector('.plan-strategy__return-abs')?.textContent || absEl.textContent;
-      if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
-      if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
-      if (pctEl) {
-        const wSim = document.querySelector(
-          '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values .plan-strategy__return-pct',
-        )?.textContent;
-        if (wSim) {
-          const core = String(wSim).replace(/\s+return\s*$/i, '').trim();
-          pctEl.textContent = core;
-        }
-      }
-      if (histPctEl) {
-        histPctEl.textContent = document.querySelector('[data-plan-return-historic-pct]')?.textContent || histPctEl.textContent;
-      }
-      if (histIcons) {
-        const w = document.querySelector('[data-plan-return-asset-icons]');
-        setReturnMetricIconWrapHtml(histIcons, w?.innerHTML ?? '', {
-          layoutSig: w?.dataset?.returnMetricIconSig,
-        });
-      }
-      if (histCap) {
-        histCap.textContent = document.querySelector('[data-plan-return-historic-caption]')?.textContent || histCap.textContent;
-      }
-      if (stratCap) {
-        stratCap.textContent = document.querySelector('[data-plan-return-strategy-caption]')?.textContent || stratCap.textContent;
-      }
-      const dStrat = panel.querySelector(
-        '.plan-detail-panel__return-metrics-col--strategy.plan-detail-panel__return-metrics-col--values',
-      );
-      const dHist = panel.querySelector('[data-plan-detail-historic-performance-tone]');
-      const wStrat = document.querySelector(
-        '.plan-strategy__return-metrics-col--strategy.plan-strategy__return-metrics-col--values',
-      );
-      const wHist = document.querySelector(
-        '.plan-strategy__return-metrics-col--historic.plan-strategy__return-metrics-col--values',
-      );
-      if (dStrat && wStrat) {
-        dStrat.classList.toggle('plan-return-metric__group--loss', wStrat.classList.contains('plan-return-metric__group--loss'));
-        dStrat.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
-          const wImg = wStrat.querySelectorAll('.plan-return-metric__arrow')[i];
-          if (!wImg) return;
-          if (wImg.classList.contains('plan-return-metric__arrow--historic')) {
-            img.src = wImg.src;
-            img.classList.remove('plan-return-metric__arrow--down');
-          } else {
-            img.classList.toggle('plan-return-metric__arrow--down', wImg.classList.contains('plan-return-metric__arrow--down'));
-          }
-        });
-      }
-      if (dHist && wHist) {
-        dHist.classList.toggle('plan-return-metric__group--loss', wHist.classList.contains('plan-return-metric__group--loss'));
-        dHist.querySelectorAll('.plan-return-metric__arrow').forEach((img, i) => {
-          const wImg = wHist.querySelectorAll('.plan-return-metric__arrow')[i];
-          if (!wImg) return;
-          if (wImg.classList.contains('plan-return-metric__arrow--historic')) {
-            img.src = wImg.src;
-            img.classList.remove('plan-return-metric__arrow--down');
-          } else {
-            img.classList.toggle('plan-return-metric__arrow--down', wImg.classList.contains('plan-return-metric__arrow--down'));
-          }
-        });
+      if (titleEl) {
+        titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
       }
     };
 
@@ -8522,12 +8574,10 @@
         }
       }
 
-      // Return footer
+      // Return footer title (investment rows refresh in updateDetailReturn)
       if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
         const titleEl = panel.querySelector('[data-plan-detail-return-title]');
-        const currEl = panel.querySelector('[data-plan-detail-return-currency]');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
-        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
       } else {
         syncFooterFromMainWidget();
       }
@@ -8579,7 +8629,6 @@
         if (allocAutoSection) allocAutoSection.hidden = true;
         if (allocAutoList) allocAutoList.innerHTML = '';
         updateDetailReturn();
-        syncPlanDetailContinueState();
         return;
       }
 
@@ -8797,14 +8846,7 @@
         }
       }
 
-      if (ctx.source === 'curated' || ctx.source === 'spotlight') {
-        updateDetailReturn();
-      } else if (ctx.source === 'plan') {
-        // Footer % was synced from main widget earlier; capture base + alloc slider tweak
-        snapshotFooterAllocBases();
-        applyFooterAllocSliderTweak();
-      }
-      syncPlanDetailContinueState();
+      updateDetailReturn();
       scheduleSheetApi.syncBuyNowFromPlanDetail?.();
       if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
         planOverviewApi.sync();
@@ -9291,7 +9333,7 @@
           headlineEl.textContent = `If you'd started ${range} ago and invested in ${prettyTickers}`;
         }
         if (simTitleEl) {
-          simTitleEl.textContent = '5Y historical simulation for this plan ≈';
+          simTitleEl.textContent = `${range} past simulation based on setup`;
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = 'Simulated outcome ≈';
@@ -11760,7 +11802,6 @@
       const ctx = panelOpenContext;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
       const titleEl = panel.querySelector('[data-plan-detail-return-title]');
-      const currEl = panel.querySelector('[data-plan-detail-return-currency]');
       syncDetailBreakdownLinkState();
 
       // Always recalculate coverage whenever amount or currency changes
@@ -11768,42 +11809,25 @@
       syncPlanDetailContinueState();
 
       if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) {
-        // No allocation yet — show blank return footer
-        const absEl = panel.querySelector('[data-plan-detail-return-abs]');
-        const pctEl = panel.querySelector('[data-plan-detail-return-pct]');
+        // No allocation yet — reset historic header + title (footer totals follow gate state)
         const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
         const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
-        const simPctInlineEl = panel.querySelector('.plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated');
-        const histIcons = panel.querySelector('[data-plan-detail-return-asset-icons]');
-        const histCap = panel.querySelector('[data-plan-detail-return-historic-caption]');
-        const stratCap = panel.querySelector('[data-plan-detail-return-strategy-caption]');
-        if (absEl) absEl.textContent = '- -';
-        if (currEl) currEl.hidden = true;
-        if (simPctInlineEl) simPctInlineEl.hidden = true;
-        if (pctEl) {
-          pctEl.textContent = '0.0%';
-          pctEl.removeAttribute('data-alloc-base-pct');
-        }
         if (histPctEl) {
           histPctEl.textContent = '0.0%';
           histPctEl.removeAttribute('data-alloc-base-hist-pct');
         }
         if (autoHistPctEl) autoHistPctEl.textContent = '0.0%';
-        setReturnMetricIconWrapHtml(histIcons, '', { layoutSig: '' });
-        if (histCap) histCap.textContent = 'Price change';
-        if (stratCap) stratCap.textContent = 'Return';
-        if (absEl) absEl.removeAttribute('data-alloc-base-abs');
         if (titleEl) titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
-        if (currEl) currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
-        panel.querySelectorAll('.plan-detail-panel__return-metrics-col.plan-return-metric__group').forEach((g) => {
-          g.classList.remove('plan-return-metric__group--loss');
-          g.querySelectorAll('.plan-return-metric__arrow').forEach((a) => {
+        const histTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+        if (histTone) {
+          histTone.classList.remove('plan-return-metric__group--loss');
+          histTone.querySelectorAll('.plan-return-metric__arrow').forEach((a) => {
             a.classList.remove('plan-return-metric__arrow--down');
             if (a.classList.contains('plan-return-metric__arrow--historic')) {
               a.src = RETURN_METRIC_ARROW_HIST_POS;
             }
           });
-        });
+        }
         return;
       }
 
@@ -11829,9 +11853,6 @@
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         }
-        if (currEl) {
-          currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
-        }
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
         snapshotFooterAllocBases();
         applyFooterAllocSliderTweak();
@@ -11852,9 +11873,6 @@
         if (titleEl) {
           titleEl.textContent = document.querySelector('[data-plan-return-title]')?.textContent || titleEl.textContent;
         }
-        if (currEl) {
-          currEl.textContent = document.querySelector('[data-plan-return-currency]')?.textContent || currEl.textContent;
-        }
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
         snapshotFooterAllocBases();
         applyFooterAllocSliderTweak();
@@ -11869,6 +11887,17 @@
         updatePlanStrategyHistoricalReturn();
         slider.setAttribute('aria-valuenow', prev);
         syncFooterFromMainWidget();
+        const carousel = document.querySelector('[data-plan-carousel]');
+        const activePlan = String(carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
+        const freqItem = document.querySelector('[data-plan-freq-item].is-active');
+        const freqPlan = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+        updatePlanStrategyHistoricalReturn({
+          detailPanel: true,
+          amount,
+          planKey: activePlan,
+          freq: freqPlan,
+          displayAssets: getCurrentPlanDisplayAssets('assets/icon_currency_btc.svg'),
+        });
         if (returnObserver && mainReturnAbsEl) returnObserver.observe(mainReturnAbsEl, observerOpts);
         snapshotFooterAllocBases();
         applyFooterAllocSliderTweak();
@@ -11890,7 +11919,6 @@
       panel._planDetailAllocRefreshAmounts?.();
       panel._planDetailAutoAllocRefreshAmounts?.();
       updateDetailReturn();
-      syncPlanDetailContinueState();
       if (panel.querySelector('[data-plan-overview-panel]')?.classList.contains('is-open')) {
         planOverviewApi.sync();
       }

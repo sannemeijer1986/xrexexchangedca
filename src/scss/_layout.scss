@@ -2686,8 +2686,8 @@ button.finance-summary__stat-value--chevron {
 
 .plan-strategy__return-title,
 .plan-detail-panel__return-label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #ffffff;
 }
 
@@ -8034,8 +8034,7 @@ div.currency-sheet__item-icon {
   font-weight: 600;
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
-
+// ── Footer — Figma 9055:63075 (plan page footer safe base)
 .plan-detail-panel__footer {
   flex-shrink: 0;
   background: #151718;
@@ -8046,35 +8045,148 @@ div.currency-sheet__item-icon {
   gap: 16px;
 }
 
-.plan-detail-panel__return {
+.plan-detail-panel__footer-summary {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  width: 100%;
 }
 
-.plan-detail-panel__return-header {
+// Title row + metrics + alert: gap 6px between title row and metrics block
+.plan-detail-panel__footer-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.plan-detail-panel__footer .plan-detail-panel__return-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.plan-detail-panel__return-value {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  width: 100%;
-  color: #8FB8FF;
-  margin-bottom: 12px;
+// Subtitle/Subtitle 2 — 14px Semibold
+.plan-detail-panel__footer .plan-detail-panel__return-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
 }
 
-.phone-container .plan-detail-panel__return-footnote {
-  margin: 2px 0 0;
-  color: #8FB8FF;
+.plan-detail-panel__footer-metrics-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.plan-detail-panel__footer-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  width: 100%;
+}
+
+// Caption 12 Semibold — "50.2K TWD invested →"
+.phone-container p.plan-detail-panel__footer-invested-line {
+  margin: 0;
+  padding: 0;
+  font-family: 'Manrope', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: normal;
+  color: #ffffff;
+}
+
+// H5 amount + suffix — 18px Bold + 12px Semibold, highlight
+.plan-detail-panel__footer-value-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  min-height: 22px;
+  font-family: 'Manrope', sans-serif;
+  color: #8fb8ff;
+}
+
+.plan-detail-panel__footer-value-amount {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  color: #8fb8ff;
+}
+
+.plan-detail-panel__footer-value-suffix {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  color: #8fb8ff;
+  margin-left: 3px;
+}
+
+.plan-detail-panel__footer-alert {
+  width: 100%;
+  border-top: 1px solid #3C4248;
+  padding-top: 8px;
+  overflow: hidden;
+}
+
+.phone-container .plan-detail-panel__footer-alert-text {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
   text-align: left;
+  color: #9b9c9c;
+}
+
+.plan-detail-panel__footer--state-ok {
+  .plan-detail-panel__return-label {
+    color: #ffffff;
+  }
+
+  .plan-detail-panel__footer-alert-text {
+    color: #9b9c9c;
+  }
+}
+
+.plan-detail-panel__footer--state-missing,
+.plan-detail-panel__footer--state-error {
+  .plan-detail-panel__return-label {
+    color: #9b9c9c;
+  }
+
+  .plan-detail-panel__footer-invested-line {
+    color: #6b6c6c;
+  }
+
+  .plan-detail-panel__footer-value-line,
+  .plan-detail-panel__footer-value-amount,
+  .plan-detail-panel__footer-value-suffix {
+    color: #6b6c6c;
+  }
+
+  .plan-detail-panel__footer-value-amount {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .plan-detail-panel__footer-alert-text {
+    color: #6b6c6c;
+  }
+}
+
+.plan-detail-panel__footer--state-error {
+  .plan-detail-panel__footer-value-amount,
+  .plan-detail-panel__footer-value-suffix {
+    color: #8a5f5c;
+  }
+
+  .plan-detail-panel__footer-invested-line {
+    color: #8a5f5c;
+  }
 }
 
 .plan-detail-panel__footer-btns {

@@ -772,7 +772,7 @@
 
                                             <div class="plan-strategy__return">
                                                 <div class="plan-strategy__return-header">
-                                                    <div class="plan-strategy__return-title" data-plan-return-title>5Y historical simulation for this plan ≈</div>
+                                                    <div class="plan-strategy__return-title" data-plan-return-title>5Y past simulation based on setup</div>
                                                     <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="plan">
                                                         <span data-range-label="plan">5Y</span>
                                                         <img src="assets/icon_chevron_down_white.svg" alt="" class="plan-strategy__range-icon" />
@@ -1233,43 +1233,29 @@
             </div>
         </div>
 
-        <!-- Sticky footer -->
-        <div class="plan-detail-panel__footer">
-            <div class="plan-detail-panel__return">
-                <!-- Row 1: label + range selector -->
-                <div class="plan-detail-panel__return-header">
-                    <span class="plan-detail-panel__return-label" data-plan-detail-return-title>5Y historical simulation for this plan ≈</span>
-                    <button class="plan-detail-panel__return-range" type="button" aria-label="Return range" data-range-sheet-trigger="plan">
-                        <span data-range-label="plan">5Y</span>
-                        <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" />
-                    </button>
-                </div>
-                <!-- Row 2: large amount + inline pct -->
-                <div class="plan-detail-panel__return-value">
-                    <div class="plan-detail-panel__return-metrics">
-                        <div class="plan-detail-panel__return-metrics-body">
-                            <div class="plan-detail-panel__return-metrics-captions-row">
-                                <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--strategy plan-detail-panel__return-metrics-col--caption">
-                                    <div class="plan-detail-panel__return-metric-caption" data-plan-detail-return-strategy-caption>Return</div>
-                                </div>
-                            </div>
-                            <div class="plan-detail-panel__return-metrics-values-row">
-                                <div class="plan-detail-panel__return-metrics-col plan-detail-panel__return-metrics-col--strategy plan-detail-panel__return-metrics-col--values plan-return-metric__group">
-                                    <div class="plan-detail-panel__return-primary-line">
-                                        <span class="plan-detail-panel__return-abs" data-plan-detail-return-abs>+58K</span>
-                                        <span class="plan-detail-panel__return-currency" data-plan-detail-return-currency> TWD</span>
-                                        <div class="plan-detail-panel__return-pct-inline plan-return-metric__pct-line--simulated">
-                                            <img src="assets/icon_northeast_arrow_blue.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--simulated" />
-                                            <span class="plan-detail-panel__return-pct plan-return-metric__pct--simulated" data-plan-detail-return-pct>50.0%</span>
-                                        </div>
-                                    </div>
-                                </div>
+        <!-- Sticky footer — Figma 9055:63075 -->
+        <div class="plan-detail-panel__footer plan-detail-panel__footer--state-missing" data-plan-detail-footer>
+            <div class="plan-detail-panel__footer-summary">
+                <div class="plan-detail-panel__footer-main">
+                    <div class="plan-detail-panel__return-header">
+                        <span class="plan-detail-panel__return-label" data-plan-detail-return-title>5Y past simulation based on setup</span>
+                        <button class="plan-detail-panel__return-range" type="button" aria-label="Return range" data-range-sheet-trigger="plan">
+                            <span data-range-label="plan">5Y</span>
+                            <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" />
+                        </button>
+                    </div>
+                    <div class="plan-detail-panel__footer-metrics-wrap">
+                        <div class="plan-detail-panel__footer-metrics" data-plan-detail-footer-metrics>
+                            <p class="plan-detail-panel__footer-invested-line" data-plan-detail-footer-invested-line>—</p>
+                            <div class="plan-detail-panel__footer-value-line">
+                                <span class="plan-detail-panel__footer-value-amount" data-plan-detail-footer-value-amount>—</span><span class="plan-detail-panel__footer-value-suffix" data-plan-detail-footer-value-suffix></span>
                             </div>
                         </div>
-                        <div class="plan-detail-panel__return-historic-icon-slot" data-plan-detail-return-asset-icons aria-hidden="true"></div>
+                        <div class="plan-detail-panel__footer-alert" role="note">
+                            <p class="plan-detail-panel__footer-alert-text">For reference only. Simulated from historical data; actual results may vary.</p>
+                        </div>
                     </div>
                 </div>
-                <p class="plan-detail-panel__return-footnote">Not indicative of future results · <span class="return-footnote__warning">Past data</span></p>
             </div>
             <!-- Buttons: secondary Breakdown + primary Continue (Figma 8723:15779) -->
             <div class="plan-detail-panel__footer-btns">
