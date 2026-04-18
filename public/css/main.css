@@ -6817,7 +6817,7 @@ div.currency-sheet__item-icon::before {
 .plan-detail-panel__allocation-list {
   background: #151718;
   border-radius: 16px;
-  padding: 16px;
+  padding: 8px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -7174,7 +7174,7 @@ div.currency-sheet__item-icon::before {
 
 .alloc-multi:not(.alloc-multi--auto) .alloc-multi__item {
   gap: 2px;
-  padding-bottom: 8px;
+  padding-bottom: 0px;
 }
 .alloc-multi:not(.alloc-multi--auto) .alloc-multi__item:not(:last-child) {
   border-bottom: none;
@@ -7229,10 +7229,6 @@ div.currency-sheet__item-icon::before {
   min-width: 87px;
 }
 
-.alloc-multi:not(.alloc-multi--auto) .alloc-multi__pct-col {
-  gap: 0;
-}
-
 .alloc-multi__pct-wrap {
   position: relative;
   border: 1px solid #3c4248;
@@ -7250,13 +7246,13 @@ div.currency-sheet__item-icon::before {
 .alloc-multi.alloc-multi--pct-invalid .alloc-multi__pct-wrap::after {
   content: "";
   position: absolute;
-  top: 50%;
-  left: -17px;
+  top: 22%;
+  left: -1px;
   width: 8px;
   height: 8px;
   border-radius: 999px;
   background: #eb5347;
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% - 4px));
 }
 
 .alloc-multi.alloc-multi--pct-invalid .alloc-multi__slider-fill {
@@ -7282,22 +7278,65 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
 }
 
-.alloc-multi__slider-amount-row {
+.alloc-multi__manual-layout {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 16px;
   width: 100%;
   min-width: 0;
 }
 
-.alloc-multi__slider-amount-row .alloc-multi__slider-row {
+.alloc-multi__manual-left {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.alloc-multi__row--manual-head {
+  padding: 12px 0 0;
+}
+
+.alloc-multi:not(.alloc-multi--auto) .alloc-multi__manual-layout .alloc-multi__icon {
+  margin-bottom: 0;
+}
+
+.alloc-multi:not(.alloc-multi--auto) .alloc-multi__manual-layout .alloc-multi__info {
+  margin-bottom: 0;
+}
+
+.alloc-multi__slider-row--manual {
+  gap: 0;
+  width: 100%;
+}
+
+.alloc-multi__slider-row--manual .alloc-multi__slider {
   flex: 1;
   min-width: 0;
 }
 
+.alloc-multi__pct-col--manual-stacked {
+  flex-shrink: 0;
+  width: 88px;
+  min-width: 87px;
+  align-items: stretch;
+  gap: 10px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.alloc-multi__pct-col--manual-stacked .alloc-multi__pct-amount-sub-wrap {
+  width: 100%;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
 .alloc-multi__pct-amount-sub-wrap {
   flex-shrink: 0;
-  width: 94px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -7321,7 +7360,12 @@ div.currency-sheet__item-icon::before {
   min-width: 124px;
 }
 
-.alloc-multi.alloc-multi--amount-mode .alloc-multi__slider-amount-row {
+.alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-col--manual-stacked {
+  width: auto;
+  min-width: 124px;
+}
+
+.alloc-multi.alloc-multi--amount-mode .alloc-multi__manual-layout {
   gap: 0;
 }
 

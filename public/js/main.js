@@ -8744,31 +8744,33 @@
         allocList.innerHTML = `<div class="alloc-multi">${
           allocItems.map((item, i) => `
             <div class="alloc-multi__item" data-alloc-idx="${i}">
-              <div class="alloc-multi__row">
-                <img class="alloc-multi__icon" src="${item.icon}" alt="" />
-                <div class="alloc-multi__info">
-                  <span class="alloc-multi__name">${item.name}</span>
-                  <span class="alloc-multi__ticker">${item.ticker}</span>
+              <div class="alloc-multi__manual-layout">
+                <div class="alloc-multi__manual-left">
+                  <div class="alloc-multi__row alloc-multi__row--manual-head">
+                    <img class="alloc-multi__icon" src="${item.icon}" alt="" />
+                    <div class="alloc-multi__info">
+                      <span class="alloc-multi__name">${item.name}</span>
+                      <span class="alloc-multi__ticker">${item.ticker}</span>
+                    </div>
+                  </div>
+                  <div class="alloc-multi__slider-row alloc-multi__slider-row--manual">
+                    <div class="alloc-multi__slider" data-alloc-slider>
+                      <div class="alloc-multi__slider-bg"></div>
+                      <div class="alloc-multi__slider-fill" data-alloc-fill></div>
+                      <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
+                    </div>
+                  </div>
                 </div>
-                <div class="alloc-multi__pct-col">
+                <div class="alloc-multi__pct-col alloc-multi__pct-col--manual-stacked">
+                  <div class="alloc-multi__pct-amount-sub-wrap">
+                    <p class="alloc-multi__pct-amount-sub" data-alloc-pct-amount-sub aria-hidden="true"></p>
+                  </div>
                   <div class="alloc-multi__pct-wrap">
                     <div class="alloc-multi__pct-inner">
                       <input class="alloc-multi__pct-input" type="text" inputmode="numeric" data-alloc-pct-input />
                       <span class="alloc-multi__pct-symbol">%</span>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div class="alloc-multi__slider-amount-row">
-                <div class="alloc-multi__slider-row">
-                  <div class="alloc-multi__slider" data-alloc-slider>
-                    <div class="alloc-multi__slider-bg"></div>
-                    <div class="alloc-multi__slider-fill" data-alloc-fill></div>
-                    <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
-                  </div>
-                </div>
-                <div class="alloc-multi__pct-amount-sub-wrap">
-                  <p class="alloc-multi__pct-amount-sub" data-alloc-pct-amount-sub aria-hidden="true"></p>
                 </div>
               </div>
             </div>`).join('')
