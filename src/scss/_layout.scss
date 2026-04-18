@@ -7374,6 +7374,16 @@ div.currency-sheet__item-icon {
   }
 }
 
+// Manual multi-asset list: tighter rows, no dividers (Figma 9052:47717)
+.alloc-multi:not(.alloc-multi--auto) .alloc-multi__item {
+  gap: 2px;
+  padding-bottom: 8px;
+
+  &:not(:last-child) {
+    border-bottom: none;
+  }
+}
+
 .alloc-multi__row {
   display: flex;
   align-items: center;
@@ -7422,6 +7432,10 @@ div.currency-sheet__item-icon {
   gap: 8px;
   flex-shrink: 0;
   min-width: 87px;
+}
+
+.alloc-multi:not(.alloc-multi--auto) .alloc-multi__pct-col {
+  gap: 0;
 }
 
 .alloc-multi__pct-wrap {
@@ -7476,12 +7490,52 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
+// Manual: amount beside slider, fixed column (Figma 9052:47717)
+.alloc-multi__slider-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.alloc-multi__slider-amount-row .alloc-multi__slider-row {
+  flex: 1;
+  min-width: 0;
+}
+
+.alloc-multi__pct-amount-sub-wrap {
+  flex-shrink: 0;
+  width: 94px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.phone-container .alloc-multi__pct-amount-sub-wrap p.alloc-multi__pct-amount-sub {
+  width: 100%;
+  max-width: 100%;
+  font-size: 12px;
+  margin-bottom: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-amount-sub {
   display: none;
 }
 
 .alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-col {
   min-width: 124px;
+}
+
+.alloc-multi.alloc-multi--amount-mode .alloc-multi__slider-amount-row {
+  gap: 0;
+}
+
+.alloc-multi.alloc-multi--amount-mode .alloc-multi__pct-amount-sub-wrap {
+  display: none;
 }
 
 // Amount mode when total is 0 or too small to give each asset ≥1 unit: read-only controls

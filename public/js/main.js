@@ -7748,7 +7748,7 @@
             const invest = getPlanDetailInvestTotal();
             const cur = getPlanDetailCurrency();
             const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
-            amountSubEl.textContent = `≈ ${slice.toLocaleString('en-US')} ${cur}`;
+            amountSubEl.textContent = `${slice.toLocaleString('en-US')} ${cur}`;
             amountSubEl.setAttribute('aria-hidden', 'false');
           }
         }
@@ -8693,14 +8693,18 @@
                       <span class="alloc-multi__pct-symbol">%</span>
                     </div>
                   </div>
-                  <p class="alloc-multi__pct-amount-sub" data-alloc-pct-amount-sub aria-hidden="true"></p>
                 </div>
               </div>
-              <div class="alloc-multi__slider-row">
-                <div class="alloc-multi__slider" data-alloc-slider>
-                  <div class="alloc-multi__slider-bg"></div>
-                  <div class="alloc-multi__slider-fill" data-alloc-fill></div>
-                  <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
+              <div class="alloc-multi__slider-amount-row">
+                <div class="alloc-multi__slider-row">
+                  <div class="alloc-multi__slider" data-alloc-slider>
+                    <div class="alloc-multi__slider-bg"></div>
+                    <div class="alloc-multi__slider-fill" data-alloc-fill></div>
+                    <div class="alloc-multi__slider-thumb" data-alloc-thumb></div>
+                  </div>
+                </div>
+                <div class="alloc-multi__pct-amount-sub-wrap">
+                  <p class="alloc-multi__pct-amount-sub" data-alloc-pct-amount-sub aria-hidden="true"></p>
                 </div>
               </div>
             </div>`).join('')
