@@ -6231,6 +6231,7 @@ div.currency-sheet__item-icon::before {
   position: relative;
   z-index: 10;
   background: #1b1d1d;
+  border-bottom: 1px solid transparent;
   display: flex;
   align-items: center;
   padding: 52px 16px 16px;
@@ -6239,6 +6240,7 @@ div.currency-sheet__item-icon::before {
 }
 .plan-detail-panel__header.is-collapsed {
   background: #0d0e0f;
+  border-bottom-color: #252627;
 }
 
 .plan-detail-panel__header-divider {
