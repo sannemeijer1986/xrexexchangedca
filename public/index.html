@@ -2335,9 +2335,17 @@
         <div class="alloc-picker-panel__body">
             <div class="alloc-picker-panel__view" data-alloc-picker-view="curated" hidden>
                 <div class="alloc-picker-panel__theme-cats" data-alloc-picker-theme-cats></div>
+                <div class="alloc-picker-panel__search-wrap">
+                    <img class="alloc-picker-panel__search-icon" src="assets/icon_search_gray.svg" alt="" />
+                    <input class="alloc-picker-panel__search" type="text" data-alloc-picker-search placeholder="Search" aria-label="Search coins" />
+                    <button type="button" class="alloc-picker-panel__search-clear" data-alloc-picker-search-clear aria-label="Clear search" hidden>
+                        <img src="assets/icon_clearinput.svg" alt="" width="24" height="24" />
+                    </button>
+                </div>
                 <div class="alloc-picker-panel__hint-row alloc-picker-panel__hint-row--theme">
                     <div class="alloc-picker-panel__hint-copy">
                         <p class="alloc-picker-panel__hint" data-alloc-picker-theme-title>All</p>
+                        <p class="alloc-picker-panel__subhint">Sorted by market cap</p>
                     </div>
                     <div class="alloc-picker-panel__hint-actions">
                         <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="curated">

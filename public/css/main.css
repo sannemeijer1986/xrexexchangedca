@@ -14015,7 +14015,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .alloc-picker-panel__search-wrap {
   position: relative;
-  margin: 16px 0;
+  margin: 0;
   display: flex;
   align-items: center;
 }
@@ -14091,7 +14091,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .alloc-picker-panel__hint-row--theme {
   margin: 0;
-  align-items: flex-start;
+  align-items: flex-center;
 }
 
 .alloc-picker-panel__hint-row .alloc-picker-panel__hint {
@@ -14116,12 +14116,12 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   margin: 0;
 }
 
-.alloc-picker-panel__subhint {
-  margin: 4px 0 0;
-  font-size: 16px;
+.phone-container p.alloc-picker-panel__subhint {
+  margin: 0;
+  font-size: 12px;
   font-weight: 600;
   line-height: normal;
-  color: #ffffff;
+  color: #9B9C9C;
 }
 
 .alloc-picker-panel__hint-actions {

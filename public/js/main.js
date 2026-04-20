@@ -9224,12 +9224,20 @@
           return;
         }
         const cat = themeCategoryByKey.get(activeThemeCategory);
-        if (themeTitleEl) themeTitleEl.textContent = cat?.label || 'All';
+        if (themeTitleEl) {
+          themeTitleEl.textContent = activeThemeCategory === 'all'
+            ? 'Top market cap'
+            : `Top ${cat?.label || 'theme'}`;
+        }
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;
-        const visible = activeThemeCategory === 'all'
+        const q = String(searchInput?.value || '').trim().toLowerCase();
+        const filteredByCategory = activeThemeCategory === 'all'
           ? pickableCoins
           : pickableCoins.filter((c) => (c.categories || []).includes(activeThemeCategory));
+        const visible = filteredByCategory.filter(
+          (c) => !q || c.name.toLowerCase().includes(q) || c.ticker.toLowerCase().includes(q),
+        );
         themeCoinsListEl.innerHTML = visible.map((c) => {
           const isSelected = selectedKeys.includes(c.key);
           const ret = spotlightReturns[c.key]?.[curRange] || c.ret;
@@ -9429,14 +9437,14 @@
 
       searchInput?.addEventListener('input', () => {
         syncSearchClear();
-        renderCoins();
+        renderThemeCoins();
       });
 
       searchClearBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         if (searchInput) searchInput.value = '';
         syncSearchClear();
-        renderCoins();
+        renderThemeCoins();
         searchInput?.focus();
       });
 
