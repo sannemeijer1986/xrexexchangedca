@@ -12677,6 +12677,55 @@
 
   initFinanceIntroStateControls();
 
+  const initFinanceAutoStickyCta = () => {
+    const stickyWrap = document.querySelector('[data-finance-auto-sticky-cta]');
+    const stickyBtn = stickyWrap?.querySelector('[data-finance-auto-sticky-new-plan]');
+    const contentEl = document.querySelector('[data-content]');
+    const container = document.querySelector('.phone-container');
+    if (!stickyWrap || !stickyBtn || !contentEl || !container) return;
+
+    const isFinanceAutoActive = () =>
+      document.documentElement.dataset.activeTab === 'finance'
+      && document.documentElement.dataset.financePage === 'auto';
+
+    const setStickyVisible = (visible) => {
+      stickyWrap.hidden = !visible;
+      stickyWrap.classList.toggle('is-visible', visible);
+    };
+
+    const syncSticky = () => {
+      const actionsEl = document.querySelector('[data-finance-page="auto"] .finance-summary__actions');
+      if (
+        !actionsEl
+        || !isFinanceAutoActive()
+        || container.classList.contains('is-plan-detail-open')
+      ) {
+        setStickyVisible(false);
+        return;
+      }
+      const threshold = actionsEl.offsetTop + actionsEl.offsetHeight + 8;
+      setStickyVisible(contentEl.scrollTop > threshold);
+    };
+
+    stickyBtn.addEventListener('click', () => {
+      document.querySelector('[data-finance-page="auto"] [data-finance-new-plan]')?.click();
+      setStickyVisible(false);
+    });
+
+    contentEl.addEventListener('scroll', syncSticky, { passive: true });
+    window.addEventListener('resize', syncSticky, { passive: true });
+    document.querySelectorAll('[data-tab-target], [data-finance-header-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => requestAnimationFrame(syncSticky));
+    });
+
+    const classObserver = new MutationObserver(() => syncSticky());
+    classObserver.observe(container, { attributes: true, attributeFilter: ['class'] });
+
+    syncSticky();
+  };
+
+  initFinanceAutoStickyCta();
+
   const initSideMenu = () => {
     const container = document.querySelector('.phone-container');
     const trigger = document.querySelector('[data-menu-trigger]');

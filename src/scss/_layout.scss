@@ -1481,6 +1481,10 @@ html[data-active-tab="finance"] {
   }
 }
 
+.explore-side__card[data-open-tab] {
+  cursor: pointer;
+}
+
 .explore-side__icon {
   width: 32px;
   height: 32px;
@@ -2091,6 +2095,38 @@ html[data-active-tab="finance"] {
 .finance-intro-learn-more-panel__btn--full {
   flex: 1 1 100%;
   width: 100%;
+}
+
+.finance-auto-sticky-cta {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%) translateY(10px);
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.finance-auto-sticky-cta.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.finance-auto-sticky-cta__btn {
+  height: 32px;
+  min-width: 96px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #275cfd;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .finance-intro-learn-more-panel__btn--secondary {
