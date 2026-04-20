@@ -9204,7 +9204,6 @@
       const renderThemeCategories = () => {
         if (!themeCatsEl) return;
         themeCatsEl.innerHTML = themeCategories.map((cat) => `
-          ${(() => { const isActive = cat.key === activeThemeCategory; return ''; })()}
           <button
             class="alloc-picker-panel__theme-cat ${cat.key === activeThemeCategory ? 'is-active' : ''}"
             type="button"
