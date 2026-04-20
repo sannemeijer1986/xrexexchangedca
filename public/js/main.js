@@ -7261,18 +7261,17 @@
     };
 
     const pickableCoins = [
-      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['marketcap', 'rwa'] },
-      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['marketcap', 'defi'] },
-      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%', categories: ['marketcap', 'ai'] },
+      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['defi'] },
+      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['defi'] },
+      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%', categories: ['ai'] },
       { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%', categories: ['rwa'] },
       { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%', categories: ['ai'] },
-      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%', categories: ['marketcap', 'ai'] },
+      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%', categories: ['ai'] },
       { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%', categories: ['defi'] },
       { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%', categories: ['defi'] },
     ];
 
     const themeCategories = [
-      { key: 'marketcap', label: 'Market cap', icon: '', iconClass: 'alloc-picker-panel__theme-cat-icon--marketcap' },
       { key: 'ai', label: 'AI', icon: 'assets/icon_cat_ai.svg' },
       { key: 'rwa', label: 'RWA', icon: 'assets/icon_cat_rwa.svg' },
       { key: 'defi', label: 'DeFi', icon: 'assets/icon_cat_defi.svg' },
@@ -9101,7 +9100,7 @@
       let activeTab = 'coins';
       let selectedCoinKeys = [];
       let selectedThemeCoinKeys = [];
-      let activeThemeCategory = 'marketcap';
+      let activeThemeCategory = 'ai';
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
       const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
@@ -9206,7 +9205,7 @@
           return;
         }
         const cat = themeCategoryByKey.get(activeThemeCategory);
-        if (themeTitleEl) themeTitleEl.textContent = cat?.label ? `Top ${cat.label.toLowerCase()}` : 'Top market cap';
+        if (themeTitleEl) themeTitleEl.textContent = cat?.label ? `Top ${cat.label}` : 'Top theme';
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;
         const visible = pickableCoins.filter((c) => (c.categories || []).includes(activeThemeCategory));
@@ -9348,8 +9347,8 @@
             ? initialKeysFromPanel
             : initialKeysFromFallback;
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
-        selectedThemeCoinKeys = selectedCoinKeys.slice();
-        activeThemeCategory = 'marketcap';
+        selectedThemeCoinKeys = [];
+        activeThemeCategory = 'ai';
         activeTab = 'coins';
         if (searchInput) searchInput.value = '';
         syncSearchClear();
@@ -9384,6 +9383,7 @@
         btn.addEventListener('click', () => {
           activeTab = btn.dataset.allocPickerTab === 'curated' ? 'curated' : 'coins';
           if (activeTab === 'curated') {
+            selectedThemeCoinKeys = [];
             renderThemeCategories();
             renderThemeCoins();
           }
