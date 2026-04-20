@@ -1867,7 +1867,7 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
       el.textContent = range;
     });
-    const startedAgo = `${range} past simulation based on setup`;
+    const startedAgo = `Past ${range} simulation based on setup`;
     const breakdownOutcome = 'Simulated outcome ≈';
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
@@ -9465,7 +9465,7 @@
                 : freq === 'weekly'
                   ? 'your weekly plan setup'
                   : 'your monthly plan setup';
-          simTitleEl.textContent = `${range} past simulation based on ${breakdownPlanSetupTail}`;
+          simTitleEl.textContent = `Past ${range} simulation based on ${breakdownPlanSetupTail}`;
         }
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = 'Simulated outcome ≈';
@@ -12353,6 +12353,7 @@
       renderStep();
       panelEl.hidden = false;
       requestAnimationFrame(() => panelEl.classList.add('is-open'));
+      document.dispatchEvent(new CustomEvent('finance-intro-learn-more-opened'));
     };
 
     const close = (opts = {}) => {
@@ -12371,6 +12372,14 @@
     };
 
     triggers.forEach((trigger) => trigger.addEventListener('click', open));
+
+    document.querySelectorAll('[data-finance-intro-open-learn-more]').forEach((surface) => {
+      surface.addEventListener('click', (e) => {
+        if (e.target.closest('[data-finance-intro-dismiss]')) return;
+        if (e.target.closest('.finance-intro__link')) return;
+        open();
+      });
+    });
     backBtn?.addEventListener('click', () => {
       if (activeStep <= 0) {
         close();
@@ -12399,7 +12408,8 @@
     const introEl = document.querySelector('.finance-intro');
     const firstStateEl = document.querySelector('[data-finance-intro-state="1"]');
     const compactStateEl = document.querySelector('[data-finance-intro-state="2"]');
-    document.querySelector('[data-finance-intro-dismiss]')?.addEventListener('click', () => {
+    document.querySelector('[data-finance-intro-dismiss]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (dismissAnimating) return;
       dismissAnimating = true;
 
@@ -12456,9 +12466,10 @@
       // Match .finance-intro.is-transitioning height duration (0.26s) + small buffer
       finishFallbackTimer = window.setTimeout(finishDismiss, 360);
     });
-    document.querySelector('[data-finance-intro-how-it-works-first]')?.addEventListener('click', () => {
+    document.addEventListener('finance-intro-learn-more-opened', () => {
+      const firstVisible = document.querySelector('[data-finance-intro-state="1"]');
+      if (!firstVisible || firstVisible.hidden) return;
       if (forceToCompactTimer) clearTimeout(forceToCompactTimer);
-      // Let the tutorial panel open first, then persist intro as compact state.
       forceToCompactTimer = setTimeout(() => {
         setState('financeIntro', 2, { force: true });
       }, 260);

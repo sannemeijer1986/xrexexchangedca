@@ -1776,6 +1776,11 @@ html[data-active-tab="finance"] {
   overflow: hidden;
 }
 
+.finance-intro__first-card[data-finance-intro-open-learn-more],
+.finance-intro__state--compact[data-finance-intro-open-learn-more] {
+  cursor: pointer;
+}
+
 .finance-intro__first-top {
   padding: 20px 16px 8px 16px;
   background-image:
@@ -1799,12 +1804,18 @@ html[data-active-tab="finance"] {
 
 .finance-intro__first-close {
   margin-left: auto;
-  width: 20px;
-  height: 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
   background: transparent;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
