@@ -9470,10 +9470,19 @@
       });
 
       continueBtn?.addEventListener('click', () => {
-        applySelectedCoins();
         if (allocPickerOpenSource === 'finance') {
+          // Finance entrypoint should move forward to plan detail, not "back" from a stacked child panel.
+          // Open the plan first, then apply selected assets so newplan initialization doesn't clear override.
+          close({ instant: true });
           setOpen(true, { source: 'newplan' });
+          applySelectedCoins();
+          setTimeout(() => {
+            const inp = panel.querySelector('[data-plan-detail-amount-input]');
+            inp?.focus();
+          }, 200);
+          return;
         }
+        applySelectedCoins();
         close();
       });
 
