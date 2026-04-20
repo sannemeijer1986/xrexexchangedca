@@ -7263,7 +7263,7 @@
     const mapCuratedKeyToThemeCategory = (key) => {
       const k = String(key || '').toLowerCase();
       if (k === 'aiessentials') return 'ai';
-      if (k === 'digitalgold') return 'gold';
+      if (k === 'digitalgold') return 'rwa';
       if (k === 'bigthree') return 'defi';
       return 'all';
     };
@@ -9217,6 +9217,13 @@
         `).join('');
       };
 
+      const scrollActiveThemeCategoryIntoView = () => {
+        if (!themeCatsEl) return;
+        const activeBtn = themeCatsEl.querySelector('[data-alloc-picker-theme-cat].is-active');
+        if (!activeBtn) return;
+        activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      };
+
       const renderThemeCoins = (opts = { full: true }) => {
         if (!themeCoinsListEl) return;
         if (!opts.full) {
@@ -9392,11 +9399,15 @@
         syncSearchClear();
         syncTabs();
         renderThemeCategories();
+        scrollActiveThemeCategoryIntoView();
         renderCoins();
         renderThemeCoins();
         renderChips({ full: true });
         allocPickerPanel.hidden = false;
-        requestAnimationFrame(() => allocPickerPanel.classList.add('is-open'));
+        requestAnimationFrame(() => {
+          allocPickerPanel.classList.add('is-open');
+          scrollActiveThemeCategoryIntoView();
+        });
       };
 
       const close = (closeOpts = {}) => {
@@ -9423,6 +9434,7 @@
           if (activeTab === 'curated') {
             selectedThemeCoinKeys = [];
             renderThemeCategories();
+            scrollActiveThemeCategoryIntoView();
             renderThemeCoins();
           }
           syncTabs();
@@ -9513,6 +9525,7 @@
         if (!next || next === activeThemeCategory) return;
         activeThemeCategory = next;
         renderThemeCategories();
+        scrollActiveThemeCategoryIntoView();
         renderThemeCoins();
       });
 
