@@ -14213,16 +14213,18 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   display: block;
 }
 
-.alloc-picker-panel__theme-cat-icon--marketcap img {
-  width: 24px;
-  height: 24px;
-}
-
 .alloc-picker-panel__theme-cat-label {
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
   white-space: nowrap;
+}
+
+.alloc-picker-panel__theme-cat-all {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: normal;
+  color: #9b9c9c;
 }
 
 .alloc-picker-panel__theme-cat.is-active {
@@ -14231,6 +14233,10 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .alloc-picker-panel__theme-cat.is-active .alloc-picker-panel__theme-cat-icon {
   background: #044430;
+}
+
+.alloc-picker-panel__theme-cat.is-active .alloc-picker-panel__theme-cat-all {
+  color: #ffffff;
 }
 
 .alloc-picker-panel__view[data-alloc-picker-view=curated] .alloc-picker-panel__coins {

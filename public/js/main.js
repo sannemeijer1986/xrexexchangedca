@@ -7265,7 +7265,7 @@
       if (k === 'aiessentials') return 'ai';
       if (k === 'digitalgold') return 'rwa';
       if (k === 'bigthree') return 'defi';
-      return 'ai';
+      return 'all';
     };
 
     const pickableCoins = [
@@ -7280,6 +7280,7 @@
     ];
 
     const themeCategories = [
+      { key: 'all', label: 'All', icon: '', iconClass: 'alloc-picker-panel__theme-cat-icon--all' },
       { key: 'ai', label: 'AI', icon: 'assets/icon_cat_ai.svg' },
       { key: 'rwa', label: 'RWA', icon: 'assets/icon_cat_rwa.svg' },
       { key: 'defi', label: 'DeFi', icon: 'assets/icon_cat_defi.svg' },
@@ -9105,10 +9106,10 @@
       const searchInput = allocPickerPanel.querySelector('[data-alloc-picker-search]');
       const searchClearBtn = allocPickerPanel.querySelector('[data-alloc-picker-search-clear]');
       const searchWrap = allocPickerPanel.querySelector('.alloc-picker-panel__search-wrap');
-      let activeTab = 'coins';
+      let activeTab = 'curated';
       let selectedCoinKeys = [];
       let selectedThemeCoinKeys = [];
-      let activeThemeCategory = 'ai';
+      let activeThemeCategory = 'all';
       let allocPickerOpenSource = 'plan';
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
@@ -9200,7 +9201,7 @@
             data-alloc-picker-theme-cat="${cat.key}"
           >
             <span class="alloc-picker-panel__theme-cat-icon ${cat.iconClass || ''}">
-              ${cat.icon ? `<img src="${cat.icon}" alt="" />` : '<img src="assets/icon_northeast_arrow.svg" alt="" />'}
+              ${cat.icon ? `<img src="${cat.icon}" alt="" />` : '<span class="alloc-picker-panel__theme-cat-all">All</span>'}
             </span>
             <span class="alloc-picker-panel__theme-cat-label">${cat.label}</span>
           </button>
@@ -9214,10 +9215,12 @@
           return;
         }
         const cat = themeCategoryByKey.get(activeThemeCategory);
-        if (themeTitleEl) themeTitleEl.textContent = cat?.label ? `Top ${cat.label}` : 'Top theme';
+        if (themeTitleEl) themeTitleEl.textContent = cat?.label || 'All';
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;
-        const visible = pickableCoins.filter((c) => (c.categories || []).includes(activeThemeCategory));
+        const visible = activeThemeCategory === 'all'
+          ? pickableCoins
+          : pickableCoins.filter((c) => (c.categories || []).includes(activeThemeCategory));
         themeCoinsListEl.innerHTML = visible.map((c) => {
           const isSelected = selectedKeys.includes(c.key);
           const ret = spotlightReturns[c.key]?.[curRange] || c.ret;
@@ -9326,11 +9329,11 @@
       const open = (openOpts = {}) => {
         const emptyEntry = openOpts.emptyEntry === true;
         const openSource = openOpts.source === 'finance' ? 'finance' : 'plan';
-        const initialTab = openOpts.tab === 'curated' ? 'curated' : 'coins';
+        const initialTab = 'curated';
         const initialThemeCategory =
           themeCategoryByKey.has(String(openOpts.themeCategory || '').toLowerCase())
             ? String(openOpts.themeCategory || '').toLowerCase()
-            : 'ai';
+            : 'all';
         allocPickerOpenSource = openSource;
         const currentPanelTickers = Array.from(
           panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
