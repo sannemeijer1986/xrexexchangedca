@@ -3522,7 +3522,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 .faq {
-  margin: 0 0 32px;
+  margin: 0 0 80px;
   padding: 0;
 }
 
@@ -8097,8 +8097,9 @@ div.currency-sheet__item-icon::before {
   width: 100%;
 }
 
-.plan-detail-panel__footer-metrics--dimmed {
-  opacity: 0.25;
+.plan-detail-panel__footer-metrics--dimmed .plan-detail-panel__footer-value-amount {
+  color: #ffffff;
+  opacity: 1;
 }
 
 .phone-container p.plan-detail-panel__footer-invested-line {

@@ -3546,7 +3546,7 @@ button.finance-summary__stat-value--chevron {
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
 
 .faq {
-  margin: 0 0 32px;
+  margin: 0 0 80px;
   padding: 0;
 }
 
@@ -8355,7 +8355,10 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__footer-metrics--dimmed {
-  opacity: 0.25;
+  .plan-detail-panel__footer-value-amount {
+    color: #ffffff;
+    opacity: 1;
+  }
 }
 
 // Caption 12 Semibold — "50.2K TWD invested →"
