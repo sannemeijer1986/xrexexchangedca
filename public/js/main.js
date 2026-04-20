@@ -5608,8 +5608,20 @@
 
     const setPlanDetailFooterMetricsDimmed = (isDimmed) => {
       const metricsEl = panel.querySelector('.plan-detail-panel__footer-metrics');
+      const alertEl = panel.querySelector('.plan-detail-panel__footer-alert');
+      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
+      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       if (!metricsEl) return;
       metricsEl.classList.toggle('plan-detail-panel__footer-metrics--dimmed', !!isDimmed);
+      if (alertEl) alertEl.hidden = !!isDimmed;
+      if (investedEl) investedEl.hidden = !!isDimmed;
+      if (valueSufEl) {
+        valueSufEl.hidden = !!isDimmed;
+        valueSufEl.setAttribute('aria-hidden', isDimmed ? 'true' : 'false');
+        if (isDimmed) valueSufEl.textContent = '';
+      }
+      if (valueAmtEl && isDimmed) valueAmtEl.textContent = '- -';
     };
 
     const setPlanDetailFooterSimulatedValueDisplay = (n, curLabel) => {
@@ -12688,10 +12700,23 @@
       document.documentElement.dataset.activeTab === 'finance'
       && document.documentElement.dataset.financePage === 'auto';
 
+    let stickyShouldBeVisible = false;
     const setStickyVisible = (visible) => {
-      stickyWrap.hidden = !visible;
-      stickyWrap.classList.toggle('is-visible', visible);
+      stickyShouldBeVisible = !!visible;
+      if (stickyShouldBeVisible) {
+        if (stickyWrap.hidden) stickyWrap.hidden = false;
+        requestAnimationFrame(() => {
+          if (stickyShouldBeVisible) stickyWrap.classList.add('is-visible');
+        });
+        return;
+      }
+      stickyWrap.classList.remove('is-visible');
     };
+
+    stickyWrap.addEventListener('transitionend', (e) => {
+      if (e.propertyName !== 'opacity') return;
+      if (!stickyShouldBeVisible) stickyWrap.hidden = true;
+    });
 
     const syncSticky = () => {
       const actionsEl = document.querySelector('[data-finance-page="auto"] .finance-summary__actions');

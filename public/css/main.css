@@ -2122,11 +2122,11 @@ html[data-active-tab=finance] .app-header__tabs {
   position: absolute;
   left: 50%;
   bottom: 100px;
-  transform: translateX(-50%) translateY(10px);
-  z-index: 30;
+  transform: translateX(-50%) translateY(0px);
+  z-index: 8;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 1s ease, transform 1s ease;
+  transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
 .finance-auto-sticky-cta.is-visible {
