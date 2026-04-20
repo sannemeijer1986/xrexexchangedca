@@ -9120,6 +9120,7 @@
       let selectedThemeCoinKeys = [];
       let activeThemeCategory = 'all';
       let allocPickerOpenSource = 'plan';
+      let allocPickerOpenedFromTemplate = false;
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
       const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
@@ -9357,6 +9358,7 @@
             ? String(openOpts.themeCategory || '').toLowerCase()
             : 'all';
         allocPickerOpenSource = openSource;
+        allocPickerOpenedFromTemplate = openOpts.fromTemplate === true;
         const currentPanelTickers = Array.from(
           panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
         )
@@ -9507,6 +9509,18 @@
           // Open the plan first, then apply selected assets so newplan initialization doesn't clear override.
           close({ instant: true });
           setOpen(true, { source: 'newplan' });
+          if (allocPickerOpenedFromTemplate) {
+            const selectedKeys = selectedThemeCoinKeys.slice();
+            const singleSelectedCoin = selectedKeys.length === 1 ? coinByKey.get(selectedKeys[0]) : null;
+            const categoryLabel = themeCategoryByKey.get(activeThemeCategory)?.label || 'My';
+            customPlanTitle = (
+              activeThemeCategory === 'all' && singleSelectedCoin?.name
+                ? `${singleSelectedCoin.name} plan`
+                : `${categoryLabel} plan`
+            );
+          } else {
+            customPlanTitle = '';
+          }
           applySelectedCoins();
           setTimeout(() => {
             const inp = panel.querySelector('[data-plan-detail-amount-input]');
@@ -12030,6 +12044,7 @@
           source: 'finance',
           tab: 'curated',
           themeCategory,
+          fromTemplate: true,
           emptyEntry: true,
         });
       };
