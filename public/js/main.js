@@ -7260,6 +7260,14 @@
       aiessentials: 'RENDER, NEAR, SOL',
     };
 
+    const mapCuratedKeyToThemeCategory = (key) => {
+      const k = String(key || '').toLowerCase();
+      if (k === 'aiessentials') return 'ai';
+      if (k === 'digitalgold') return 'rwa';
+      if (k === 'bigthree') return 'defi';
+      return 'ai';
+    };
+
     const pickableCoins = [
       { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['defi'] },
       { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['defi'] },
@@ -9101,6 +9109,7 @@
       let selectedCoinKeys = [];
       let selectedThemeCoinKeys = [];
       let activeThemeCategory = 'ai';
+      let allocPickerOpenSource = 'plan';
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
       const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
@@ -9316,6 +9325,13 @@
 
       const open = (openOpts = {}) => {
         const emptyEntry = openOpts.emptyEntry === true;
+        const openSource = openOpts.source === 'finance' ? 'finance' : 'plan';
+        const initialTab = openOpts.tab === 'curated' ? 'curated' : 'coins';
+        const initialThemeCategory =
+          themeCategoryByKey.has(String(openOpts.themeCategory || '').toLowerCase())
+            ? String(openOpts.themeCategory || '').toLowerCase()
+            : 'ai';
+        allocPickerOpenSource = openSource;
         const currentPanelTickers = Array.from(
           panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
         )
@@ -9341,15 +9357,17 @@
           })
           .filter(Boolean);
 
-        const seed = emptyEntry
+        const seed = (openSource === 'finance')
           ? []
-          : initialKeysFromPanel.length
-            ? initialKeysFromPanel
-            : initialKeysFromFallback;
+          : emptyEntry
+            ? []
+            : initialKeysFromPanel.length
+              ? initialKeysFromPanel
+              : initialKeysFromFallback;
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
         selectedThemeCoinKeys = [];
-        activeThemeCategory = 'ai';
-        activeTab = 'coins';
+        activeThemeCategory = initialThemeCategory;
+        activeTab = initialTab;
         if (searchInput) searchInput.value = '';
         syncSearchClear();
         syncTabs();
@@ -9453,6 +9471,9 @@
 
       continueBtn?.addEventListener('click', () => {
         applySelectedCoins();
+        if (allocPickerOpenSource === 'finance') {
+          setOpen(true, { source: 'newplan' });
+        }
         close();
       });
 
@@ -11936,7 +11957,7 @@
       allocPickerApi.open(emptyEntry ? { emptyEntry: true } : {});
     });
 
-    document.querySelectorAll('.curated-portfolios__card, .start-theme__card').forEach((card) => {
+    document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
       if (card.tagName !== 'BUTTON') {
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
@@ -11955,6 +11976,26 @@
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           openFromCard();
+        }
+      });
+    });
+
+    document.querySelectorAll('.start-theme__card').forEach((card) => {
+      const openThemeAllocPicker = () => {
+        const curatedKey = String(card.getAttribute('data-curated-key') || '').toLowerCase();
+        const themeCategory = mapCuratedKeyToThemeCategory(curatedKey);
+        allocPickerApi.open({
+          source: 'finance',
+          tab: 'curated',
+          themeCategory,
+          emptyEntry: true,
+        });
+      };
+      card.addEventListener('click', openThemeAllocPicker);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openThemeAllocPicker();
         }
       });
     });
