@@ -1149,7 +1149,12 @@
                             <div class="plan-detail-panel__alloc-header-title-group">
                                 <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
                                 <div class="plan-detail-panel__alloc-header-historic-inline" data-plan-detail-alloc-header-historic>
-                                    <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y</span>
+                                    <div class="plan-detail-panel__alloc-header-historic-label-row" data-plan-detail-alloc-historic-label-row>
+                                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y perf.</span>
+                                        <button type="button" class="plan-detail-panel__alloc-historic-info-btn" aria-label="About historic performance" data-plan-detail-historic-performance-info>
+                                            <img src="assets/icon_info_circle_gray.svg" alt="" width="16" height="16" />
+                                        </button>
+                                    </div>
                                     <div data-plan-detail-historic-performance-tone>
                                         <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
                                             <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
@@ -1159,7 +1164,7 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y</span>
+                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y perf.</span>
                         <div class="alloc-mode-toggle is-hidden" data-alloc-mode-toggle>
                             <button class="alloc-mode-toggle__btn" type="button" data-alloc-mode-btn="amount">Amount</button>
                             <button class="alloc-mode-toggle__btn is-active" type="button" data-alloc-mode-btn="pct">
@@ -1215,7 +1220,7 @@
                                     </span>
                                 </div>
                                 <div class="plan-detail-panel__alloc-header-historic-inline plan-detail-panel__alloc-header-historic-inline--auto">
-                                    <span class="plan-detail-panel__historic-performance-label--below" data-plan-detail-alloc-auto-range>Past 5Y</span>
+                                    <span class="plan-detail-panel__historic-performance-label--below" data-plan-detail-alloc-auto-range>Past 5Y perf.</span>
                                     <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
                                         <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
                                         <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-alloc-auto-historic-pct>0.0%</span>
@@ -2510,6 +2515,25 @@
             </div>
             <div class="currency-sheet__footer">
                 <button class="currency-sheet__cancel" type="button" data-smart-alloc-info-sheet-close>Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan detail: historic performance label info -->
+    <div class="currency-sheet" data-plan-detail-historic-perf-info-sheet hidden aria-modal="true" role="dialog" aria-label="Historic performance">
+        <button class="currency-sheet__backdrop" type="button" data-plan-detail-historic-perf-info-sheet-close aria-label="Close"></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title" data-plan-detail-historic-perf-info-title>Historic performance</h2>
+                <p class="currency-sheet__desc" data-plan-detail-historic-perf-info-desc>
+                    Shows how asset(s) has performed over time. Historical performance does not guarantee future results.
+                </p>
+            </div>
+            <div class="currency-sheet__footer">
+                <button class="currency-sheet__cancel" type="button" data-plan-detail-historic-perf-info-sheet-close>Understood</button>
             </div>
         </div>
     </div>

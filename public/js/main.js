@@ -1877,9 +1877,9 @@
         // Multi-asset alloc header uses the --below label for combined historic performance.
         // Single-asset uses --header and the alloc-row tone (so --below is hidden by CSS).
         if (el.classList.contains('plan-detail-panel__historic-performance-label--below')) {
-          el.textContent = `Past ${range}`;
+          el.textContent = `Past ${range} perf.`;
         } else {
-          el.textContent = `Past ${range}`;
+          el.textContent = `Past ${range} perf.`;
         }
       });
     }
@@ -1999,6 +1999,41 @@
       });
     });
     sheet.querySelectorAll('[data-smart-alloc-info-sheet-close]').forEach((btn) => {
+      btn.addEventListener('click', close);
+    });
+  };
+
+  const initPlanDetailHistoricPerfInfoSheet = () => {
+    const sheet = document.querySelector('[data-plan-detail-historic-perf-info-sheet]');
+    if (!sheet) return;
+    const panel = sheet.querySelector('.currency-sheet__panel');
+    const rangeEl = sheet.querySelector('[data-plan-detail-historic-perf-info-range]');
+
+    const open = () => {
+      const range = rangeState?.plan || '5Y';
+      if (rangeEl) rangeEl.textContent = range;
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add('is-open'));
+    };
+
+    const close = () => {
+      sheet.classList.remove('is-open');
+      const onEnd = () => {
+        if (!sheet.classList.contains('is-open')) sheet.hidden = true;
+        panel?.removeEventListener('transitionend', onEnd);
+      };
+      panel?.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    document.querySelectorAll('[data-plan-detail-historic-performance-info]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    });
+    sheet.querySelectorAll('[data-plan-detail-historic-perf-info-sheet-close]').forEach((btn) => {
       btn.addEventListener('click', close);
     });
   };
@@ -5456,6 +5491,7 @@
   initRangeSheet();
   initPlanBufferAutofillSheet();
   initSmartAllocInfoSheet();
+  initPlanDetailHistoricPerfInfoSheet();
   initScheduleBuyNowInfoSheet();
   initFinanceSummaryInfoSheets();
   initPlanOverviewFundingInfoSheet();
@@ -7231,16 +7267,18 @@
       const headerHistoric = manualSection.querySelector('[data-plan-detail-alloc-header-historic]');
       const tone = manualSection.querySelector('[data-plan-detail-historic-performance-tone]');
       if (!headerHistoric || !tone) return;
+      const labelRow = headerHistoric.querySelector('[data-plan-detail-alloc-historic-label-row]');
       const belowLabel = headerHistoric.querySelector('.plan-detail-panel__historic-performance-label--below');
+      const historicAnchor = labelRow || belowLabel;
       const isSingle = latestAllocItemCount === 1;
       manualSection.classList.toggle('is-single-asset', isSingle);
       manualSection.classList.toggle('is-multi-asset', latestAllocItemCount >= 2);
       if (isSingle) {
         const firstItem = manualSection.querySelector('[data-plan-detail-allocation] .plan-detail-panel__alloc-item');
         if (firstItem && !firstItem.contains(tone)) firstItem.appendChild(tone);
-      } else if (belowLabel) {
-        if (tone.parentElement !== headerHistoric || tone.previousElementSibling !== belowLabel) {
-          headerHistoric.insertBefore(tone, belowLabel.nextSibling);
+      } else if (historicAnchor) {
+        if (tone.parentElement !== headerHistoric || tone.previousElementSibling !== historicAnchor) {
+          headerHistoric.insertBefore(tone, historicAnchor.nextSibling);
         }
       } else if (tone.parentElement !== headerHistoric) {
         headerHistoric.appendChild(tone);
@@ -8614,17 +8652,19 @@
         allocList.innerHTML = '';
         const emptyHeaderHistoric = panel.querySelector('[data-plan-detail-alloc-header-historic]');
         const emptyHistoricTone = panel.querySelector('[data-plan-detail-historic-performance-tone]');
+        const emptyLabelRow = emptyHeaderHistoric?.querySelector('[data-plan-detail-alloc-historic-label-row]');
         const emptyBelowLabel = emptyHeaderHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
+        const emptyAnchor = emptyLabelRow || emptyBelowLabel;
         if (emptyHeaderHistoric && emptyHistoricTone && !emptyHeaderHistoric.contains(emptyHistoricTone)) {
-          if (emptyBelowLabel) emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+          if (emptyAnchor) emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyAnchor.nextSibling);
           else emptyHeaderHistoric.appendChild(emptyHistoricTone);
         } else if (
           emptyHeaderHistoric &&
           emptyHistoricTone &&
-          emptyBelowLabel &&
-          emptyHistoricTone.previousElementSibling !== emptyBelowLabel
+          emptyAnchor &&
+          emptyHistoricTone.previousElementSibling !== emptyAnchor
         ) {
-          emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyBelowLabel.nextSibling);
+          emptyHeaderHistoric.insertBefore(emptyHistoricTone, emptyAnchor.nextSibling);
         }
         if (allocSection) {
           allocSection.classList.remove('is-single-asset');
@@ -8702,10 +8742,10 @@
       );
       if (belowHistLabel) {
         belowHistLabel.textContent = allocItems.length >= 2
-          ? `Past ${planRange}`
-          : `Past ${planRange}`;
+          ? `Past ${planRange} perf.`
+          : `Past ${planRange} perf.`;
       }
-      if (allocAutoRangeEl) allocAutoRangeEl.textContent = `Past ${planRange}`;
+      if (allocAutoRangeEl) allocAutoRangeEl.textContent = `Past ${planRange} perf.`;
       if (allocAutoHistoricPctEl) {
         const histPct = panel.querySelector('[data-plan-detail-return-historic-pct]')?.textContent?.trim();
         allocAutoHistoricPctEl.textContent = histPct || allocAutoHistoricPctEl.textContent;
@@ -8718,16 +8758,18 @@
 
       const historicRow = panel.querySelector('.plan-detail-panel__historic-performance-row');
       const headerHistoric = panel.querySelector('[data-plan-detail-alloc-header-historic]');
+      const historicLabelRow = headerHistoric?.querySelector('[data-plan-detail-alloc-historic-label-row]');
       const historicBelowInHeader = headerHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
+      const historicAnchor = historicLabelRow || historicBelowInHeader;
       let historicTone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
       const historicAllocSubtitle = historicRow?.querySelector('[data-plan-detail-alloc-subtitle]');
 
       const placeHistoricToneInAllocHeaderInline = () => {
         const tone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
         if (!headerHistoric || !tone) return;
-        if (historicBelowInHeader) {
-          if (tone.parentElement === headerHistoric && tone.previousElementSibling === historicBelowInHeader) return;
-          headerHistoric.insertBefore(tone, historicBelowInHeader.nextSibling);
+        if (historicAnchor) {
+          if (tone.parentElement === headerHistoric && tone.previousElementSibling === historicAnchor) return;
+          headerHistoric.insertBefore(tone, historicAnchor.nextSibling);
         } else {
           if (tone.parentElement === headerHistoric) return;
           headerHistoric.appendChild(tone);

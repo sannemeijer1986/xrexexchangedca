@@ -7062,6 +7062,41 @@ div.currency-sheet__item-icon {
   min-height: 0;
 }
 
+.plan-detail-panel__alloc-header-historic-label-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.phone-container .plan-detail-panel__alloc-historic-info-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid #4d88ff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  img {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .plan-detail-panel__allocation-section.is-multi-asset .plan-detail-panel__alloc-header-historic-inline {
   display: flex;
 }
@@ -8655,7 +8690,7 @@ div.currency-sheet__item-icon {
 }
 
 .return-footnote__warning {
-  // color: #ff6d47;
+  color: #ff6d47;
 }
 
 .plan-breakdown-panel__close-cta {
