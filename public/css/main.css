@@ -8128,6 +8128,11 @@ div.currency-sheet__item-icon::before {
   color: #8fb8ff;
 }
 
+.plan-detail-panel__footer-value-amount--unavailable {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
 .plan-detail-panel__footer-value-suffix {
   font-size: 12px;
   font-weight: 600;

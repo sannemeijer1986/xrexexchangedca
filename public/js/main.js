@@ -5621,7 +5621,10 @@
         valueSufEl.setAttribute('aria-hidden', isDimmed ? 'true' : 'false');
         if (isDimmed) valueSufEl.textContent = '';
       }
-      if (valueAmtEl && isDimmed) valueAmtEl.textContent = '- -';
+      if (valueAmtEl) {
+        valueAmtEl.classList.toggle('plan-detail-panel__footer-value-amount--unavailable', !!isDimmed);
+        if (isDimmed) valueAmtEl.textContent = '- -';
+      }
     };
 
     const setPlanDetailFooterSimulatedValueDisplay = (n, curLabel) => {
@@ -5629,7 +5632,10 @@
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
       const v = Math.max(0, Math.round(Number(n) || 0));
-      if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n, cur);
+      if (valueAmtEl) {
+        valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n, cur);
+        valueAmtEl.classList.remove('plan-detail-panel__footer-value-amount--unavailable');
+      }
       if (valueSufEl) {
         valueSufEl.textContent = ` ${cur} simulated value`;
         valueSufEl.hidden = false;
@@ -5659,7 +5665,10 @@
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const cur = String(curLabel || 'TWD').trim();
       if (investedEl) investedEl.textContent = `${cur} invested →`;
-      if (valueAmtEl) valueAmtEl.textContent = '- -';
+      if (valueAmtEl) {
+        valueAmtEl.textContent = '- -';
+        valueAmtEl.classList.add('plan-detail-panel__footer-value-amount--unavailable');
+      }
       hidePlanDetailFooterValueSuffix();
       setPlanDetailFooterMetricsDimmed(true);
     };
