@@ -9217,11 +9217,11 @@
         `).join('');
       };
 
-      const scrollActiveThemeCategoryIntoView = () => {
+      const scrollActiveThemeCategoryIntoView = (behavior = 'auto') => {
         if (!themeCatsEl) return;
         const activeBtn = themeCatsEl.querySelector('[data-alloc-picker-theme-cat].is-active');
         if (!activeBtn) return;
-        activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+        activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior });
       };
 
       const renderThemeCoins = (opts = { full: true }) => {
@@ -9525,7 +9525,7 @@
         if (!next || next === activeThemeCategory) return;
         activeThemeCategory = next;
         renderThemeCategories();
-        scrollActiveThemeCategoryIntoView();
+        scrollActiveThemeCategoryIntoView('smooth');
         renderThemeCoins();
       });
 
