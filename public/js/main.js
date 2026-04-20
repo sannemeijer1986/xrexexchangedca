@@ -7531,6 +7531,9 @@
       const footerEl = panel.querySelector('[data-plan-detail-footer]');
       const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
+      const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
+      const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
+      const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
       if (!footerEl || !investedEl || !valueAmtEl) return;
 
       footerEl.classList.remove(
@@ -7571,6 +7574,18 @@
       const value = Math.round(totalInvested + profit);
       investedEl.textContent = `${formatPlanDetailFooterMoney(totalInvested, curLabel)} ${curLabel} invested →`;
       setPlanDetailFooterSimulatedValueDisplay(value, curLabel);
+      if (Number.isFinite(sim.historicReturnPct)) {
+        const histText = `${sim.historicReturnPct.toLocaleString('en-US', {
+          maximumFractionDigits: 1,
+          minimumFractionDigits: 1,
+        })}%`;
+        if (histPctEl) {
+          histPctEl.textContent = histText;
+          histPctEl.dataset.allocBaseHistPct = String(sim.historicReturnPct);
+        }
+        if (autoHistPctEl) autoHistPctEl.textContent = histText;
+        if (histToneRoot) setReturnMetricTone(histToneRoot, sim.historicReturnPct);
+      }
     };
 
     const syncPlanDetailContinueState = () => {
