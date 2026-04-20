@@ -5544,26 +5544,39 @@
     const container = document.querySelector('.phone-container');
     if (!panel) return;
 
-    const formatDetailFooterProfit = (n) => {
+    /**
+     * Compact plan amounts by currency: TWD uses 萬 (10k) / 億 (100m); others use K / M (thousand / million).
+     * @param {number} n
+     * @param {string} [curLabel]
+     */
+    const formatDetailFooterProfit = (n, curLabel) => {
       const abs = Math.abs(n);
       const round1 = (x) => {
         const r = Math.round(x * 10) / 10;
-        return Number.isInteger(r) ? r.toString() : r.toString();
+        return Number.isInteger(r) ? String(r) : r.toFixed(1);
       };
+      const cur = String(curLabel || '').trim().toUpperCase();
+      if (cur === 'TWD') {
+        if (abs < 10000) return abs.toLocaleString('en-US');
+        if (abs < 100000000) return `${round1(abs / 10000)}萬`;
+        return `${round1(abs / 100000000)}億`;
+      }
       if (abs < 10000) return abs.toLocaleString('en-US');
       if (abs < 1000000) return `${round1(abs / 1000)}K`;
       return `${round1(abs / 1000000)}M`;
     };
 
-    /** Invested / value number chunk: same K / M rules as ROI line, but plain `0` when zero (no `0K`). */
-    const formatPlanDetailFooterMoney = (n) => {
+    /** Invested line number chunk: TWD 萬/億 vs other K/M; plain `0` when zero. */
+    const formatPlanDetailFooterMoney = (n, curLabel) => {
       const v = Math.max(0, Math.round(Number(n) || 0));
       if (v === 0) return '0';
-      return formatDetailFooterProfit(v);
+      return formatDetailFooterProfit(v, curLabel);
     };
 
-    /** Simulated value amount only: `≈ 0`, `≈ 500`, `≈ 50.4k` (space after ≈; lowercase `k` for thousands). */
-    const formatPlanDetailFooterSimulatedValueAmount = (n) => {
+    /**
+     * Simulated value amount only: `≈ 0`, `≈ 7,114` or `≈ 1.1萬` (TWD) vs `≈ 11.4k` (USDT etc.).
+     */
+    const formatPlanDetailFooterSimulatedValueAmount = (n, curLabel) => {
       const v = Math.max(0, Math.round(Number(n) || 0));
       if (v === 0) return '≈ 0';
       const abs = v;
@@ -5571,8 +5584,13 @@
         const r = Math.round(x * 10) / 10;
         return Number.isInteger(r) ? String(r) : r.toFixed(1);
       };
+      const cur = String(curLabel || '').trim().toUpperCase();
       let numPart;
-      if (abs < 10000) {
+      if (cur === 'TWD') {
+        if (abs < 10000) numPart = abs.toLocaleString('en-US');
+        else if (abs < 100000000) numPart = `${round1(abs / 10000)}萬`;
+        else numPart = `${round1(abs / 100000000)}億`;
+      } else if (abs < 10000) {
         numPart = abs.toLocaleString('en-US');
       } else if (abs < 1000000) {
         numPart = `${round1(abs / 1000)}k`;
@@ -5586,7 +5604,7 @@
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
-      if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n);
+      if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n, cur);
       if (valueSufEl) {
         valueSufEl.textContent = ` ${cur} simulated value`;
         valueSufEl.hidden = false;
@@ -5606,7 +5624,7 @@
     const setPlanDetailFooterMetricsMissing = (curLabel) => {
       const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
       const cur = String(curLabel || 'TWD').trim();
-      if (investedEl) investedEl.textContent = `${formatPlanDetailFooterMoney(0)} ${cur} invested →`;
+      if (investedEl) investedEl.textContent = `${formatPlanDetailFooterMoney(0, cur)} ${cur} invested →`;
       setPlanDetailFooterSimulatedValueDisplay(0, cur);
     };
 
@@ -7491,7 +7509,7 @@
       const totalInvested = Math.round(Number.isFinite(sim.totalInvested) ? sim.totalInvested : 0);
       const profit = Number.isFinite(sim.profit) ? sim.profit : 0;
       const value = Math.round(totalInvested + profit);
-      investedEl.textContent = `${formatPlanDetailFooterMoney(totalInvested)} ${curLabel} invested →`;
+      investedEl.textContent = `${formatPlanDetailFooterMoney(totalInvested, curLabel)} ${curLabel} invested →`;
       setPlanDetailFooterSimulatedValueDisplay(value, curLabel);
     };
 
@@ -9452,15 +9470,15 @@
         breakdownPanel.querySelectorAll('[data-plan-breakdown-profit-range-label]').forEach((el) => {
           el.textContent = 'Simulated outcome ≈';
         });
-        if (legendAssetsEl) legendAssetsEl.textContent = `Plan value (${prettyTickers || '—'})`;
+        if (legendAssetsEl) legendAssetsEl.textContent = `Simulated value (${prettyTickers || '—'})`;
         const showSp500 = getPrototypeBreakdownSp500Visible();
         if (legendSpEl) legendSpEl.hidden = !showSp500;
         if (legendSpItemEl) legendSpItemEl.hidden = !showSp500;
         if (periodLabelEl) periodLabelEl.textContent = freq === 'flexible' ? 'Invested each time' : `${freqLabel} invested`;
         if (totalLabelEl) totalLabelEl.textContent = `Total invested`;
         if (contributionEl) contributionEl.textContent = `${amount.toLocaleString('en-US')} ${cur}`;
-        if (totalEl) totalEl.textContent = `${totalInvested.toLocaleString('en-US')} ${cur}`;
-        if (valueEl) valueEl.textContent = `${value.toLocaleString('en-US')} ${cur}`;
+        if (totalEl) totalEl.textContent = `${formatPlanDetailFooterMoney(totalInvested, cur)} ${cur}`;
+        if (valueEl) valueEl.textContent = `${formatPlanDetailFooterSimulatedValueAmount(value, cur)} ${cur}`;
         if (profitPctEl) {
           profitPctEl.textContent = `${pct.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
         }
@@ -9471,7 +9489,9 @@
         setReturnMetricIconWrapHtml(profitAssetIconsEl, profitIcons.html, { layoutSig: profitIcons.sig });
         if (profitHistCapEl) profitHistCapEl.textContent = buildHistoricPerformanceCaption(selectedAssets);
         if (profitStratCapEl) profitStratCapEl.textContent = 'Return';
-        if (profitAbsEl) profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit))}`;
+        if (profitAbsEl) {
+          profitAbsEl.textContent = `${profit >= 0 ? '+' : '-'}${formatDetailFooterProfit(Math.abs(profit), cur)}`;
+        }
         if (profitCurEl) profitCurEl.textContent = cur;
 
         const stratG = breakdownPanel.querySelector(
