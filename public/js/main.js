@@ -5714,14 +5714,25 @@
       const historicToneArrows = histToneRoot?.querySelectorAll(
         '.plan-return-metric__arrow--historic, .plan-detail-panel__return-arrow',
       ) || [];
-      const allocRoot = getActiveAllocMultiRoot();
-      const isPctAllocInvalid = Boolean(
-        allocRoot
-        && allocRoot.classList.contains('alloc-multi--pct-invalid')
-        && !allocRoot.classList.contains('alloc-multi--amount-mode'),
-      );
+      const gate = readPlanDetailFooterGateState();
+      const isPctAllocInvalid = !!gate.isPctAllocInvalid;
 
       const curLabel = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
+      const restoreHistoricFromSim = () => {
+        const sim = computePlanDetailPanelFooterSimTweaked();
+        if (!sim || !Number.isFinite(sim.historicReturnPct)) return;
+        const histVal = sim.historicReturnPct;
+        const histText = `${histVal.toLocaleString('en-US', {
+          maximumFractionDigits: 1,
+          minimumFractionDigits: 1,
+        })}%`;
+        if (histPctEl) {
+          histPctEl.textContent = histText;
+          histPctEl.dataset.allocBaseHistPct = String(histVal);
+        }
+        if (autoHistPctEl) autoHistPctEl.textContent = histText;
+        if (histToneRoot) setReturnMetricTone(histToneRoot, histVal);
+      };
 
       // Invalid % allocation: show historic as "- -" and hide arrows. Must run before basePct / tweak early-returns
       // (footer sync clears data-alloc-base-* and would otherwise skip this branch).
@@ -5751,11 +5762,20 @@
         return;
       }
 
-      if (!footerEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
+      if (!footerEl || typeof detailPanelAllocPctTweakFn !== 'function') {
+        restoreHistoricFromSim();
+        return;
+      }
       const basePct = parseFloat(footerEl.dataset.allocBasePct || '');
-      if (!isFinite(basePct)) return;
+      if (!isFinite(basePct)) {
+        restoreHistoricFromSim();
+        return;
+      }
       const tw = detailPanelAllocPctTweakFn();
-      if (!isFinite(tw)) return;
+      if (!isFinite(tw)) {
+        restoreHistoricFromSim();
+        return;
+      }
 
       [...historicInlineArrows, ...historicToneArrows].forEach((arrow) => {
         arrow.hidden = false;
@@ -9559,8 +9579,8 @@
             const singleSelectedCoin = selectedKeys.length === 1 ? coinByKey.get(selectedKeys[0]) : null;
             const categoryLabel = themeCategoryByKey.get(activeThemeCategory)?.label || 'My';
             customPlanTitle = (
-              activeThemeCategory === 'all' && singleSelectedCoin?.name
-                ? `${singleSelectedCoin.name} plan`
+              activeThemeCategory === 'all'
+                ? (singleSelectedCoin?.name ? `${singleSelectedCoin.name} plan` : 'My plan')
                 : `${categoryLabel} plan`
             );
           } else {
