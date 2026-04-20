@@ -7043,6 +7043,7 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: -5px;
 }
 
 .plan-detail-panel__alloc-ticker {
@@ -7272,6 +7273,7 @@ div.currency-sheet__item-icon::before {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: -3px;
 }
 
 .alloc-multi__ticker {
