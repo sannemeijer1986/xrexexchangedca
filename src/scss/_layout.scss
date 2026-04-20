@@ -14459,20 +14459,19 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-top: 8px;
 }
 
 .alloc-picker-panel__theme-top {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   margin: 0 16px;
 }
 
 .alloc-picker-panel__theme-top-divider {
   width: calc(100% + 32px);
   margin-left: -16px;
-  margin: 8px 0 16px -16px;
+  margin: 4px 0 16px -16px;
   border-bottom: 1px solid #252627;
 }
 
