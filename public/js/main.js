@@ -7263,27 +7263,36 @@
     const mapCuratedKeyToThemeCategory = (key) => {
       const k = String(key || '').toLowerCase();
       if (k === 'aiessentials') return 'ai';
-      if (k === 'digitalgold') return 'rwa';
+      if (k === 'digitalgold') return 'gold';
       if (k === 'bigthree') return 'defi';
       return 'all';
     };
 
     const pickableCoins = [
-      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['defi'] },
-      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['defi'] },
-      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%', categories: ['ai'] },
-      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%', categories: ['rwa'] },
-      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%', categories: ['ai'] },
-      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%', categories: ['ai'] },
-      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%', categories: ['defi'] },
-      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%', categories: ['defi'] },
+      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['gold', 'defi', 'l1'] },
+      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['defi', 'l1', 'nft'] },
+      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%', categories: ['ai', 'l1', 'gaming', 'nft', 'metaverse'] },
+      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%', categories: ['rwa', 'gold'] },
+      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%', categories: ['ai', 'metaverse'] },
+      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%', categories: ['ai', 'l1', 'storage'] },
+      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%', categories: ['defi', 'rwa'] },
+      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%', categories: ['l1'] },
     ];
 
     const themeCategories = [
-      { key: 'all', label: 'All', icon: '', iconClass: 'alloc-picker-panel__theme-cat-icon--all' },
-      { key: 'ai', label: 'AI', icon: 'assets/icon_cat_ai.svg' },
-      { key: 'rwa', label: 'RWA', icon: 'assets/icon_cat_rwa.svg' },
-      { key: 'defi', label: 'DeFi', icon: 'assets/icon_cat_defi.svg' },
+      { key: 'all', label: 'All', iconOff: 'assets/icon_cat_all_off.svg', iconOn: 'assets/icon_cat_all_on.svg' },
+      { key: 'ai', label: 'AI', iconOff: 'assets/icon_cat_ai_off.svg', iconOn: 'assets/icon_cat_ai_on.svg' },
+      { key: 'gold', label: 'Gold', iconOff: 'assets/icon_cat_gold_off.svg', iconOn: 'assets/icon_cat_gold_on.svg' },
+      { key: 'rwa', label: 'RWA', iconOff: 'assets/icon_cat_rwa_off.svg.svg', iconOn: 'assets/icon_cat_rwa_on.svg' },
+      { key: 'l1', label: 'L1', iconOff: 'assets/icon_cat_l1_off.svg', iconOn: 'assets/icon_cat_l1_on.svg' },
+      { key: 'l2', label: 'L2', iconOff: 'assets/icon_cat_l2_off.svg', iconOn: 'assets/icon_cat_l2_on.svg' },
+      { key: 'defi', label: 'DeFi', iconOff: 'assets/icon_cat_defi_off.svg', iconOn: 'assets/icon_cat_defi_on.svg' },
+      { key: 'gaming', label: 'Gaming', iconOff: 'assets/icon_cat_game_off.svg', iconOn: 'assets/icon_cat_game_on.svg' },
+      { key: 'storage', label: 'Storage', iconOff: 'assets/icon_cat_storage_off.svg', iconOn: 'assets/icon_cat_storage_on.svg' },
+      { key: 'restake', label: 'Restake', iconOff: 'assets/icon_cat_restake_off.svg', iconOn: 'assets/icon_cat_restake_on.svg' },
+      { key: 'meme', label: 'Meme', iconOff: 'assets/icon_cat_meme_off.svg', iconOn: 'assets/icon_cat_meme_on.svg' },
+      { key: 'nft', label: 'NFT', iconOff: 'assets/icon_cat_nft_off.svg', iconOn: 'assets/icon_cat_nft_on.svg' },
+      { key: 'metaverse', label: 'Metaverse', iconOff: 'assets/icon_cat_metaverse_off.svg', iconOn: 'assets/icon_cat_metaverse_on.svg' },
     ];
 
     const pickerCurated = [
@@ -9195,13 +9204,14 @@
       const renderThemeCategories = () => {
         if (!themeCatsEl) return;
         themeCatsEl.innerHTML = themeCategories.map((cat) => `
+          ${(() => { const isActive = cat.key === activeThemeCategory; return ''; })()}
           <button
             class="alloc-picker-panel__theme-cat ${cat.key === activeThemeCategory ? 'is-active' : ''}"
             type="button"
             data-alloc-picker-theme-cat="${cat.key}"
           >
             <span class="alloc-picker-panel__theme-cat-icon ${cat.iconClass || ''}">
-              ${cat.icon ? `<img src="${cat.icon}" alt="" />` : '<span class="alloc-picker-panel__theme-cat-all">All</span>'}
+              <img src="${cat.key === activeThemeCategory ? cat.iconOn : cat.iconOff}" alt="" />
             </span>
             <span class="alloc-picker-panel__theme-cat-label">${cat.label}</span>
           </button>
@@ -9368,7 +9378,9 @@
               ? initialKeysFromPanel
               : initialKeysFromFallback;
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
-        selectedThemeCoinKeys = [];
+        selectedThemeCoinKeys = openSource === 'finance'
+          ? []
+          : selectedCoinKeys.slice();
         activeThemeCategory = initialThemeCategory;
         activeTab = initialTab;
         if (searchInput) searchInput.value = '';
