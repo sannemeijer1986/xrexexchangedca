@@ -14631,7 +14631,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 .alloc-picker-panel__theme-cats {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 6px;
   overflow-x: auto;
   padding: 0 8px;
   margin: 0 -8px;
@@ -14654,7 +14654,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   align-items: center;
   gap: 2px;
   padding: 0;
-  min-width: 72px;
+  min-width: 62px;
   cursor: pointer;
 }
 
@@ -14662,7 +14662,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   width: 48px;
   height: 48px;
   border-radius: 999px;
-  background: #202326;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -14670,8 +14669,8 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 }
 
 .alloc-picker-panel__theme-cat-icon img {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: block;
 }
 
@@ -14691,10 +14690,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 
 .alloc-picker-panel__theme-cat.is-active {
   color: #ffffff;
-}
-
-.alloc-picker-panel__theme-cat.is-active .alloc-picker-panel__theme-cat-icon {
-  background: #044430;
 }
 
 .alloc-picker-panel__theme-cat.is-active .alloc-picker-panel__theme-cat-all {
