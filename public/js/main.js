@@ -7261,14 +7261,21 @@
     };
 
     const pickableCoins = [
-      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%' },
-      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%' },
-      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%' },
-      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%' },
-      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%' },
-      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%' },
-      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%' },
-      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%' },
+      { key: 'btc', name: 'Bitcoin', ticker: 'BTC', icon: 'assets/icon_currency_btc.svg', ret: '121.23%', categories: ['marketcap', 'rwa'] },
+      { key: 'eth', name: 'Ethereum', ticker: 'ETH', icon: 'assets/icon_currency_eth.svg', ret: '73.88%', categories: ['marketcap', 'defi'] },
+      { key: 'sol', name: 'Solana', ticker: 'SOL', icon: 'assets/icon_solana.svg', ret: '142.11%', categories: ['marketcap', 'ai'] },
+      { key: 'xaut', name: 'Tether Gold', ticker: 'XAUT', icon: 'assets/icon_currency_xaut.svg', ret: '28.30%', categories: ['rwa'] },
+      { key: 'render', name: 'Render', ticker: 'RENDER', icon: 'assets/icon_currency_render.svg', ret: '65.20%', categories: ['ai'] },
+      { key: 'near', name: 'NEAR', ticker: 'NEAR', icon: 'assets/icon_currency_near.svg', ret: '41.80%', categories: ['marketcap', 'ai'] },
+      { key: 'link', name: 'Chainlink', ticker: 'LINK', icon: 'assets/icon_currency_link.svg', ret: '35.60%', categories: ['defi'] },
+      { key: 'xrp', name: 'XRP', ticker: 'XRP', icon: 'assets/icon_currency_xrp.svg', ret: '44.20%', categories: ['defi'] },
+    ];
+
+    const themeCategories = [
+      { key: 'marketcap', label: 'Market cap', icon: '', iconClass: 'alloc-picker-panel__theme-cat-icon--marketcap' },
+      { key: 'ai', label: 'AI', icon: 'assets/icon_cat_ai.svg' },
+      { key: 'rwa', label: 'RWA', icon: 'assets/icon_cat_rwa.svg' },
+      { key: 'defi', label: 'DeFi', icon: 'assets/icon_cat_defi.svg' },
     ];
 
     const pickerCurated = [
@@ -9081,7 +9088,9 @@
       const viewCoins = allocPickerPanel.querySelector('[data-alloc-picker-view="coins"]');
       const viewCurated = allocPickerPanel.querySelector('[data-alloc-picker-view="curated"]');
       const coinsListEl = allocPickerPanel.querySelector('[data-alloc-picker-coins-list]');
-      const curatedListEl = allocPickerPanel.querySelector('[data-alloc-picker-curated-list]');
+      const themeCoinsListEl = allocPickerPanel.querySelector('[data-alloc-picker-theme-coins-list]');
+      const themeCatsEl = allocPickerPanel.querySelector('[data-alloc-picker-theme-cats]');
+      const themeTitleEl = allocPickerPanel.querySelector('[data-alloc-picker-theme-title]');
       const chipsEl = allocPickerPanel.querySelector('[data-alloc-picker-chips]');
       const footerEl = allocPickerPanel.querySelector('[data-alloc-picker-footer]');
       const continueBtn = allocPickerPanel.querySelector('[data-alloc-picker-continue]');
@@ -9091,29 +9100,42 @@
       const searchWrap = allocPickerPanel.querySelector('.alloc-picker-panel__search-wrap');
       let activeTab = 'coins';
       let selectedCoinKeys = [];
+      let selectedThemeCoinKeys = [];
+      let activeThemeCategory = 'marketcap';
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
+      const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
+
+      const getActiveSelectedKeys = () => (activeTab === 'curated' ? selectedThemeCoinKeys : selectedCoinKeys);
+      const setActiveSelectedKeys = (next) => {
+        if (activeTab === 'curated') selectedThemeCoinKeys = next;
+        else selectedCoinKeys = next;
+      };
 
       const syncTabs = () => {
         tabBtns.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.allocPickerTab === activeTab));
         if (viewCoins) viewCoins.hidden = activeTab !== 'coins';
         if (viewCurated) viewCurated.hidden = activeTab !== 'curated';
-        if (footerEl) footerEl.hidden = activeTab !== 'coins';
+        if (footerEl) footerEl.hidden = !(activeTab === 'coins' || activeTab === 'curated');
+        renderChips({ full: true });
       };
 
       const syncCoinListMaxSelectedClass = () => {
-        if (!coinsListEl) return;
-        coinsListEl.classList.toggle('alloc-picker-panel__coins--max-selected', selectedCoinKeys.length >= 3);
+        const listEl = activeTab === 'curated' ? themeCoinsListEl : coinsListEl;
+        if (!listEl) return;
+        listEl.classList.toggle('alloc-picker-panel__coins--max-selected', getActiveSelectedKeys().length >= 3);
       };
 
       const syncCoinRowSelectionOnly = () => {
-        if (!coinsListEl) return;
+        const listEl = activeTab === 'curated' ? themeCoinsListEl : coinsListEl;
+        if (!listEl) return;
         const onSrc = 'assets/icon_checkbox_on.svg';
         const offSrc = 'assets/icon_checkbox_off.svg';
-        coinsListEl.querySelectorAll('[data-alloc-picker-coin]').forEach((row) => {
+        const selectedKeys = getActiveSelectedKeys();
+        listEl.querySelectorAll('[data-alloc-picker-coin]').forEach((row) => {
           const key = row.getAttribute('data-alloc-picker-coin');
           if (!key) return;
-          const isSelected = selectedCoinKeys.includes(key);
+          const isSelected = selectedKeys.includes(key);
           row.classList.toggle('is-selected', isSelected);
           const check = row.querySelector('.alloc-picker-panel__coin-check');
           if (check) {
@@ -9136,6 +9158,61 @@
         coinsListEl.innerHTML = visible.map((c) => {
           const isSelected = selectedCoinKeys.includes(c.key);
           const ret = spotlightReturns[c.key]?.[spotRange] || c.ret;
+          return `
+            <button class="alloc-picker-panel__coin-row ${isSelected ? 'is-selected' : ''}" type="button" data-alloc-picker-coin="${c.key}">
+              <img class="alloc-picker-panel__coin-icon" src="${c.icon}" alt="" />
+              <div class="alloc-picker-panel__coin-main">
+                <span class="alloc-picker-panel__coin-ticker">${c.ticker}</span>
+                <span class="alloc-picker-panel__coin-name">${c.name}</span>
+              </div>
+              <span class="alloc-picker-panel__coin-pct-wrap">
+                <img class="alloc-picker-panel__coin-pct-arrow" src="assets/icon_northeast_arrow.svg" alt="" />
+                <span class="alloc-picker-panel__coin-pct">${ret}</span>
+              </span>
+              <img
+                class="alloc-picker-panel__coin-check"
+                src="${isSelected ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg'}"
+                width="20"
+                height="20"
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+          `;
+        }).join('');
+        syncCoinListMaxSelectedClass();
+      };
+
+      const renderThemeCategories = () => {
+        if (!themeCatsEl) return;
+        themeCatsEl.innerHTML = themeCategories.map((cat) => `
+          <button
+            class="alloc-picker-panel__theme-cat ${cat.key === activeThemeCategory ? 'is-active' : ''}"
+            type="button"
+            data-alloc-picker-theme-cat="${cat.key}"
+          >
+            <span class="alloc-picker-panel__theme-cat-icon ${cat.iconClass || ''}">
+              ${cat.icon ? `<img src="${cat.icon}" alt="" />` : '<img src="assets/icon_northeast_arrow.svg" alt="" />'}
+            </span>
+            <span class="alloc-picker-panel__theme-cat-label">${cat.label}</span>
+          </button>
+        `).join('');
+      };
+
+      const renderThemeCoins = (opts = { full: true }) => {
+        if (!themeCoinsListEl) return;
+        if (!opts.full) {
+          syncCoinRowSelectionOnly();
+          return;
+        }
+        const cat = themeCategoryByKey.get(activeThemeCategory);
+        if (themeTitleEl) themeTitleEl.textContent = cat?.label ? `Top ${cat.label.toLowerCase()}` : 'Top market cap';
+        const selectedKeys = selectedThemeCoinKeys;
+        const curRange = rangeState.curated;
+        const visible = pickableCoins.filter((c) => (c.categories || []).includes(activeThemeCategory));
+        themeCoinsListEl.innerHTML = visible.map((c) => {
+          const isSelected = selectedKeys.includes(c.key);
+          const ret = spotlightReturns[c.key]?.[curRange] || c.ret;
           return `
             <button class="alloc-picker-panel__coin-row ${isSelected ? 'is-selected' : ''}" type="button" data-alloc-picker-coin="${c.key}">
               <img class="alloc-picker-panel__coin-icon" src="${c.icon}" alt="" />
@@ -9191,7 +9268,8 @@
 
       const renderChips = (opts = { full: false }) => {
         if (!chipsEl || !continueBtn) return;
-        const selected = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean);
+        const selectedKeys = getActiveSelectedKeys();
+        const selected = selectedKeys.map((k) => coinByKey.get(k)).filter(Boolean);
         const n = selected.length;
         if (selectedHeadingEl) {
           const headingByCount = ['No coins selected', '1 coin selected', '2 coins selected', '3 coins selected'];
@@ -9205,7 +9283,7 @@
           return;
         }
 
-        const wantKeys = new Set(selectedCoinKeys);
+        const wantKeys = new Set(selectedKeys);
         chipsEl.querySelectorAll('[data-alloc-picker-chip-key]').forEach((chip) => {
           const k = chip.getAttribute('data-alloc-picker-chip-key');
           if (!wantKeys.has(k)) chip.remove();
@@ -9218,32 +9296,6 @@
         });
       };
 
-      const renderCurated = () => {
-        if (!curatedListEl) return;
-        const curRange = rangeState.curated;
-        curatedListEl.innerHTML = pickerCurated.map((p) => {
-          const ret = curatedReturns[p.key]?.[curRange] || '';
-          return `
-            <button class="curated-portfolios__card" type="button" data-alloc-picker-curated="${p.key}">
-              <div class="curated-portfolios__card-main">
-                <div class="curated-portfolios__icon-wrap">
-                  <img src="${p.icon}" alt="" class="curated-portfolios__icon" />
-                </div>
-                <div class="curated-portfolios__info">
-                  <span class="curated-portfolios__name">${p.title}</span>
-                  <span class="curated-portfolios__tickers">${p.tickers}</span>
-                </div>
-                <div class="curated-portfolios__return">
-                  <img src="assets/icon_northeast_arrow.svg" alt="" class="curated-portfolios__return-arrow" />
-                  <span class="curated-portfolios__return-pct">${ret}</span>
-                </div>
-              </div>
-              <p class="curated-portfolios__desc">${p.desc}</p>
-            </button>
-          `;
-        }).join('');
-      };
-
       const syncSearchClear = () => {
         const has = !!(searchInput && String(searchInput.value || '').trim());
         if (searchClearBtn) searchClearBtn.hidden = !has;
@@ -9251,7 +9303,8 @@
       };
 
       const applySelectedCoins = () => {
-        const items = selectedCoinKeys.map((k) => coinByKey.get(k)).filter(Boolean).map((c) => ({
+        const selectedKeys = getActiveSelectedKeys();
+        const items = selectedKeys.map((k) => coinByKey.get(k)).filter(Boolean).map((c) => ({
           name: c.name,
           ticker: c.ticker,
           icon: c.icon,
@@ -9295,12 +9348,15 @@
             ? initialKeysFromPanel
             : initialKeysFromFallback;
         selectedCoinKeys = Array.from(new Set(seed)).slice(0, 3);
+        selectedThemeCoinKeys = selectedCoinKeys.slice();
+        activeThemeCategory = 'marketcap';
         activeTab = 'coins';
         if (searchInput) searchInput.value = '';
         syncSearchClear();
         syncTabs();
-        renderCurated();
+        renderThemeCategories();
         renderCoins();
+        renderThemeCoins();
         renderChips({ full: true });
         allocPickerPanel.hidden = false;
         requestAnimationFrame(() => allocPickerPanel.classList.add('is-open'));
@@ -9327,6 +9383,10 @@
       tabBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
           activeTab = btn.dataset.allocPickerTab === 'curated' ? 'curated' : 'coins';
+          if (activeTab === 'curated') {
+            renderThemeCategories();
+            renderThemeCoins();
+          }
           syncTabs();
         });
       });
@@ -9364,13 +9424,30 @@
         renderChips();
       });
 
+      themeCoinsListEl?.addEventListener('click', (e) => {
+        const row = e.target.closest('[data-alloc-picker-coin]');
+        if (!row) return;
+        const key = row.getAttribute('data-alloc-picker-coin');
+        const idx = selectedThemeCoinKeys.indexOf(key);
+        if (idx >= 0) {
+          selectedThemeCoinKeys.splice(idx, 1);
+        } else if (selectedThemeCoinKeys.length < 3) {
+          selectedThemeCoinKeys.push(key);
+        } else {
+          showTopSnackbar('Max 3 coins', { variant: 'alloc-picker-max' });
+        }
+        renderThemeCoins({ full: false });
+        renderChips();
+      });
+
       chipsEl?.addEventListener('click', (e) => {
         const dismiss = e.target.closest('button[data-alloc-picker-chip-remove]');
         if (!dismiss) return;
         e.preventDefault();
         const key = dismiss.getAttribute('data-alloc-picker-chip-remove');
-        selectedCoinKeys = selectedCoinKeys.filter((k) => k !== key);
-        renderCoins({ full: false });
+        setActiveSelectedKeys(getActiveSelectedKeys().filter((k) => k !== key));
+        if (activeTab === 'curated') renderThemeCoins({ full: false });
+        else renderCoins({ full: false });
         renderChips();
       });
 
@@ -9379,22 +9456,20 @@
         close();
       });
 
-      curatedListEl?.addEventListener('click', (e) => {
-        const card = e.target.closest('[data-alloc-picker-curated]');
-        if (!card) return;
-        const key = String(card.getAttribute('data-alloc-picker-curated') || '').toLowerCase();
-        const items = planAllocation[key];
-        if (!items?.length) return;
-        detailAllocOverride = { kind: 'curated', key, items };
-        populatePanel({ preserveAmount: true });
-        updateDetailReturn();
-        close();
+      themeCatsEl?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-alloc-picker-theme-cat]');
+        if (!btn) return;
+        const next = String(btn.getAttribute('data-alloc-picker-theme-cat') || '');
+        if (!next || next === activeThemeCategory) return;
+        activeThemeCategory = next;
+        renderThemeCategories();
+        renderThemeCoins();
       });
 
       document.addEventListener('range-sheet-confirmed', () => {
         if (!allocPickerPanel.classList.contains('is-open')) return;
         renderCoins();
-        renderCurated();
+        renderThemeCoins();
       });
 
       return { open, close };
@@ -12336,7 +12411,7 @@
         visual: 'assets/finance_intro_step_1.svg',
       },
       {
-        title: 'Pick from coins, curated portfolios, or build your own',
+        title: 'Pick from coins, themes, or build your own',
         desc: 'Start quickly with ready-made options, or customize allocations that match your conviction.',
         visual: 'assets/finance_intro_step_2.svg',
       },
