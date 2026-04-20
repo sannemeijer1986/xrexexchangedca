@@ -5606,16 +5606,24 @@
       return `≈ ${numPart}`;
     };
 
+    const setPlanDetailFooterMetricsDimmed = (isDimmed) => {
+      const metricsEl = panel.querySelector('.plan-detail-panel__footer-metrics');
+      if (!metricsEl) return;
+      metricsEl.classList.toggle('plan-detail-panel__footer-metrics--dimmed', !!isDimmed);
+    };
+
     const setPlanDetailFooterSimulatedValueDisplay = (n, curLabel) => {
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
+      const v = Math.max(0, Math.round(Number(n) || 0));
       if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n, cur);
       if (valueSufEl) {
         valueSufEl.textContent = ` ${cur} simulated value`;
         valueSufEl.hidden = false;
         valueSufEl.setAttribute('aria-hidden', 'false');
       }
+      setPlanDetailFooterMetricsDimmed(v === 0);
     };
 
     const hidePlanDetailFooterValueSuffix = () => {
@@ -5641,6 +5649,7 @@
       if (investedEl) investedEl.textContent = `${cur} invested →`;
       if (valueAmtEl) valueAmtEl.textContent = '- -';
       hidePlanDetailFooterValueSuffix();
+      setPlanDetailFooterMetricsDimmed(true);
     };
 
     const snapshotFooterAllocBases = () => {

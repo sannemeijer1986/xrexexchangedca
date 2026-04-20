@@ -8061,6 +8061,10 @@ div.currency-sheet__item-icon::before {
   width: 100%;
 }
 
+.plan-detail-panel__footer-metrics--dimmed {
+  opacity: 0.25;
+}
+
 .phone-container p.plan-detail-panel__footer-invested-line {
   margin: 0;
   padding: 0;
