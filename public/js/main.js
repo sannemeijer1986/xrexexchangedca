@@ -9225,9 +9225,7 @@
         }
         const cat = themeCategoryByKey.get(activeThemeCategory);
         if (themeTitleEl) {
-          themeTitleEl.textContent = activeThemeCategory === 'all'
-            ? 'Top market cap'
-            : `Top ${cat?.label || 'theme'}`;
+          themeTitleEl.textContent = cat?.label || 'All';
         }
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;

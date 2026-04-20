@@ -14007,7 +14007,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin: 0 16px;
+  margin: 4px 16px 0 16px;
 }
 
 .alloc-picker-panel__theme-top-divider {
@@ -14020,7 +14020,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 .alloc-picker-panel__theme-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   margin: 0 16px;
 }
 
