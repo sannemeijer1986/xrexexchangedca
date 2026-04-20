@@ -8039,11 +8039,6 @@ div.currency-sheet__item-icon::before {
 .plan-detail-panel__footer--state-error .plan-detail-panel__footer-invested-line {
   color: #ffffff;
 }
-.plan-detail-panel__footer--state-error .plan-detail-panel__footer-value-line,
-.plan-detail-panel__footer--state-error .plan-detail-panel__footer-value-amount,
-.plan-detail-panel__footer--state-error .plan-detail-panel__footer-value-suffix {
-  color: #ffffff;
-}
 .plan-detail-panel__footer--state-error .plan-detail-panel__footer-value-amount {
   font-size: 18px;
   font-weight: 700;
