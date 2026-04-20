@@ -1148,7 +1148,7 @@
                         <div class="plan-detail-panel__alloc-header-main">
                             <div class="plan-detail-panel__alloc-header-title-group">
                                 <div class="plan-detail-panel__section-label">Allocation (<span data-plan-detail-alloc-count>1</span>)</div>
-                                <div class="plan-detail-panel__alloc-header-historic-inline" data-plan-detail-alloc-header-historic>
+                                <div class="plan-detail-panel__alloc-header-historic-inline" data-plan-detail-alloc-header-historic data-plan-detail-historic-perf-sheet-trigger>
                                     <div class="plan-detail-panel__alloc-header-historic-label-row" data-plan-detail-alloc-historic-label-row>
                                         <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--below" data-plan-detail-historic-performance-label>Past 5Y perf.</span>
                                         <button type="button" class="plan-detail-panel__alloc-historic-info-btn" aria-label="About historic performance" data-plan-detail-historic-performance-info>
@@ -1164,7 +1164,12 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y perf.</span>
+                        <div class="plan-detail-panel__alloc-header-historic-single" data-plan-detail-historic-perf-sheet-trigger>
+                            <span class="plan-detail-panel__historic-performance-label plan-detail-panel__historic-performance-label--header" data-plan-detail-historic-performance-label>Past 5Y perf.</span>
+                            <button type="button" class="plan-detail-panel__alloc-historic-info-btn" aria-label="About historic performance" data-plan-detail-historic-performance-info>
+                                <img src="assets/icon_info_circle_gray.svg" alt="" width="16" height="16" />
+                            </button>
+                        </div>
                         <div class="alloc-mode-toggle is-hidden" data-alloc-mode-toggle>
                             <button class="alloc-mode-toggle__btn" type="button" data-alloc-mode-btn="amount">Amount</button>
                             <button class="alloc-mode-toggle__btn is-active" type="button" data-alloc-mode-btn="pct">

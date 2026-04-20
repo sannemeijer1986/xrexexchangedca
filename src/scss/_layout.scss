@@ -1789,10 +1789,12 @@ html[data-active-tab="finance"] {
 }
 
 .finance-intro__first-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 3px;
 }
 
 .finance-intro__first-bottom {
@@ -1802,20 +1804,21 @@ html[data-active-tab="finance"] {
   justify-content: flex-start;
 }
 
+// Out of flow so the row height stays tight; 48px target extends left of the icon (same right edge).
 .finance-intro__first-close {
-  margin-left: auto;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   cursor: pointer;
 }
 
@@ -1824,6 +1827,7 @@ html[data-active-tab="finance"] {
   height: 20px;
   display: block;
   opacity: 0.9;
+  margin-right: 12px;
 }
 
 .finance-intro__first-headline-row {
@@ -1844,6 +1848,7 @@ html[data-active-tab="finance"] {
 
 .phone-container p.finance-intro__first-kicker {
   margin: 0 !important;
+  padding-right: 48px;
   font-size: 14px;
   font-weight: 600;
   line-height: 1;
@@ -7108,8 +7113,13 @@ div.currency-sheet__item-icon {
   }
 }
 
+.plan-detail-panel__alloc-header-historic-single {
+  display: none;
+}
+
 .plan-detail-panel__allocation-section.is-multi-asset .plan-detail-panel__alloc-header-historic-inline {
   display: flex;
+  cursor: pointer;
 }
 
 .plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-header-historic-inline {
@@ -7143,6 +7153,15 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__allocation-section.is-single-asset {
+  .plan-detail-panel__alloc-header-historic-single {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    align-self: center;
+    cursor: pointer;
+  }
+
   .plan-detail-panel__historic-performance-label--header {
     display: block;
     align-self: center;

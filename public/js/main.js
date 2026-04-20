@@ -2033,6 +2033,12 @@
         open();
       });
     });
+
+    document.querySelectorAll('[data-plan-detail-historic-perf-sheet-trigger]').forEach((region) => {
+      region.addEventListener('click', () => {
+        open();
+      });
+    });
     sheet.querySelectorAll('[data-plan-detail-historic-perf-info-sheet-close]').forEach((btn) => {
       btn.addEventListener('click', close);
     });
