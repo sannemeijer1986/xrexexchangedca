@@ -8353,6 +8353,7 @@ div.currency-sheet__item-icon::before {
 .plan-breakdown-panel__row > span[data-plan-breakdown-value] {
   color: #8fb8ff;
   font-size: 16px;
+  font-weight: 700;
 }
 
 .plan-breakdown-panel__divider {
