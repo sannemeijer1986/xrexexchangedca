@@ -8560,9 +8560,18 @@
       } else if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
         planKey = ctx.curatedKey.toLowerCase();
         const card = ctx.card;
-        title = card.querySelector('.curated-portfolios__name')?.textContent?.trim() || 'Portfolio';
-        ticker = card.querySelector('.curated-portfolios__tickers')?.textContent?.trim() || planTicker[planKey] || '';
-        iconSrc = card.querySelector('.curated-portfolios__icon')?.getAttribute('src') || iconSrc;
+        title = (
+          card.querySelector('.curated-portfolios__name')
+          || card.querySelector('.start-theme__name')
+        )?.textContent?.trim() || 'Portfolio';
+        ticker = (
+          card.querySelector('.curated-portfolios__tickers')
+          || card.querySelector('.start-theme__desc')
+        )?.textContent?.trim() || planTicker[planKey] || '';
+        iconSrc = (
+          card.querySelector('.curated-portfolios__icon')
+          || card.querySelector('.start-theme__icon img')
+        )?.getAttribute('src') || iconSrc;
         if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else if (ctx.source === 'spotlight' && ctx.spotlightKey && ctx.card) {
         const card = ctx.card;
@@ -11852,9 +11861,11 @@
       allocPickerApi.open(emptyEntry ? { emptyEntry: true } : {});
     });
 
-    document.querySelectorAll('.curated-portfolios__card').forEach((card) => {
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
+    document.querySelectorAll('.curated-portfolios__card, .start-theme__card').forEach((card) => {
+      if (card.tagName !== 'BUTTON') {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+      }
       const openFromCard = () => {
         const key = card.getAttribute('data-curated-key');
         if (!key) return;

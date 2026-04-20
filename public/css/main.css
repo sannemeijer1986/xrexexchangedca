@@ -3241,6 +3241,124 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
+.start-theme {
+  margin: 0;
+}
+
+.start-theme__header {
+  display: flex;
+  align-items: center;
+  margin: 0 0 16px;
+}
+
+.start-theme__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.start-theme__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.start-theme__card {
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  background: #1b1d1d;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  color: #ffffff;
+  cursor: pointer;
+}
+.start-theme__card:focus-visible {
+  outline: 2px solid #275cfd;
+  outline-offset: 2px;
+}
+
+.start-theme__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 444px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.start-theme__icon--ai,
+.start-theme__icon--defi {
+  background: #3d2d6f;
+}
+
+.start-theme__icon--rwa {
+  background: #044430;
+}
+
+.start-theme__content {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.start-theme__name {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  color: #ffffff;
+}
+
+.start-theme__desc {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.start-theme__chev {
+  width: 24px;
+  height: 24px;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.start-theme__footer {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+  margin-top: 16px;
+}
+
+.start-theme__show-all {
+  height: 32px;
+  padding: 0 10px;
+  background: #2d2f2f;
+  border: 0;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 .spotlight {
   margin: 0;
   padding: 0;
