@@ -5555,32 +5555,68 @@
       return `${round1(abs / 1000000)}M`;
     };
 
-    /** Total invested / plan value in footer (same K / M rules as ROI line, e.g. 40.4K TWD). */
-    const formatPlanDetailFooterMoney = (n) =>
-      formatDetailFooterProfit(Math.max(0, Math.round(Number(n) || 0)));
+    /** Invested / value number chunk: same K / M rules as ROI line, but plain `0` when zero (no `0K`). */
+    const formatPlanDetailFooterMoney = (n) => {
+      const v = Math.max(0, Math.round(Number(n) || 0));
+      if (v === 0) return '0';
+      return formatDetailFooterProfit(v);
+    };
 
-    /** Zero row in footer matches compact “K” style (e.g. 0K) for empty / no-data state. */
-    const formatPlanDetailFooterZeroDisplay = () => '0K';
+    /** Simulated value amount only: `≈ 0`, `≈ 500`, `≈ 50.4k` (space after ≈; lowercase `k` for thousands). */
+    const formatPlanDetailFooterSimulatedValueAmount = (n) => {
+      const v = Math.max(0, Math.round(Number(n) || 0));
+      if (v === 0) return '≈ 0';
+      const abs = v;
+      const round1 = (x) => {
+        const r = Math.round(x * 10) / 10;
+        return Number.isInteger(r) ? String(r) : r.toFixed(1);
+      };
+      let numPart;
+      if (abs < 10000) {
+        numPart = abs.toLocaleString('en-US');
+      } else if (abs < 1000000) {
+        numPart = `${round1(abs / 1000)}k`;
+      } else {
+        numPart = `${round1(abs / 1000000)}M`;
+      }
+      return `≈ ${numPart}`;
+    };
 
-    const setPlanDetailFooterMetricsMissing = (curLabel) => {
-      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+    const setPlanDetailFooterSimulatedValueDisplay = (n, curLabel) => {
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
-      const z = formatPlanDetailFooterZeroDisplay();
-      if (investedEl) investedEl.textContent = `${z} ${cur} invested →`;
-      if (valueAmtEl) valueAmtEl.textContent = z;
-      if (valueSufEl) valueSufEl.textContent = ` ${cur} value ≈ (simulated)`;
+      if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n);
+      if (valueSufEl) {
+        valueSufEl.textContent = ` ${cur} simulated value`;
+        valueSufEl.hidden = false;
+        valueSufEl.setAttribute('aria-hidden', 'false');
+      }
+    };
+
+    const hidePlanDetailFooterValueSuffix = () => {
+      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
+      if (valueSufEl) {
+        valueSufEl.textContent = '';
+        valueSufEl.hidden = true;
+        valueSufEl.setAttribute('aria-hidden', 'true');
+      }
+    };
+
+    const setPlanDetailFooterMetricsMissing = (curLabel) => {
+      const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
+      const cur = String(curLabel || 'TWD').trim();
+      if (investedEl) investedEl.textContent = `${formatPlanDetailFooterMoney(0)} ${cur} invested →`;
+      setPlanDetailFooterSimulatedValueDisplay(0, cur);
     };
 
     const setPlanDetailFooterMetricsError = (curLabel) => {
       const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
-      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
       if (investedEl) investedEl.textContent = `${cur} invested →`;
       if (valueAmtEl) valueAmtEl.textContent = '- -';
-      if (valueSufEl) valueSufEl.textContent = '';
+      hidePlanDetailFooterValueSuffix();
     };
 
     const snapshotFooterAllocBases = () => {
@@ -5614,7 +5650,6 @@
 
     const applyFooterAllocSliderTweak = () => {
       const footerEl = panel.querySelector('[data-plan-detail-footer]');
-      const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const histPctEl = panel.querySelector('[data-plan-detail-return-historic-pct]');
       const autoHistPctEl = panel.querySelector('[data-plan-detail-alloc-auto-historic-pct]');
       const histToneRoot = panel.querySelector('[data-plan-detail-historic-performance-tone]');
@@ -5687,7 +5722,7 @@
           nextProfit = baseProfit * (nextPct / basePct);
         }
         const nextValue = Math.round(baseTotal + nextProfit);
-        if (valueAmtEl) valueAmtEl.textContent = formatPlanDetailFooterMoney(nextValue);
+        setPlanDetailFooterSimulatedValueDisplay(nextValue, curLabel);
       }
 
       if (histPctEl) {
@@ -7418,8 +7453,7 @@
       const footerEl = panel.querySelector('[data-plan-detail-footer]');
       const investedEl = panel.querySelector('[data-plan-detail-footer-invested-line]');
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
-      const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
-      if (!footerEl || !investedEl || !valueAmtEl || !valueSufEl) return;
+      if (!footerEl || !investedEl || !valueAmtEl) return;
 
       footerEl.classList.remove(
         'plan-detail-panel__footer--state-missing',
@@ -7458,8 +7492,7 @@
       const profit = Number.isFinite(sim.profit) ? sim.profit : 0;
       const value = Math.round(totalInvested + profit);
       investedEl.textContent = `${formatPlanDetailFooterMoney(totalInvested)} ${curLabel} invested →`;
-      valueAmtEl.textContent = formatPlanDetailFooterMoney(value);
-      valueSufEl.textContent = ` ${curLabel} value ≈ (simulated)`;
+      setPlanDetailFooterSimulatedValueDisplay(value, curLabel);
     };
 
     const syncPlanDetailContinueState = () => {
