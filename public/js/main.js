@@ -5625,11 +5625,6 @@
       const historicToneArrows = histToneRoot?.querySelectorAll(
         '.plan-return-metric__arrow--historic, .plan-detail-panel__return-arrow',
       ) || [];
-      if (!footerEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
-      const basePct = parseFloat(footerEl.dataset.allocBasePct || '');
-      if (!isFinite(basePct)) return;
-      const tw = detailPanelAllocPctTweakFn();
-      if (!isFinite(tw)) return;
       const allocRoot = getActiveAllocMultiRoot();
       const isPctAllocInvalid = Boolean(
         allocRoot
@@ -5639,6 +5634,8 @@
 
       const curLabel = String(panel.querySelector('[data-plan-detail-currency]')?.textContent || currencyState.plan || 'TWD').trim();
 
+      // Invalid % allocation: show historic as "- -" and hide arrows. Must run before basePct / tweak early-returns
+      // (footer sync clears data-alloc-base-* and would otherwise skip this branch).
       if (isPctAllocInvalid) {
         if (footerEl) {
           footerEl.classList.remove(
@@ -5664,6 +5661,12 @@
         });
         return;
       }
+
+      if (!footerEl || typeof detailPanelAllocPctTweakFn !== 'function') return;
+      const basePct = parseFloat(footerEl.dataset.allocBasePct || '');
+      if (!isFinite(basePct)) return;
+      const tw = detailPanelAllocPctTweakFn();
+      if (!isFinite(tw)) return;
 
       [...historicInlineArrows, ...historicToneArrows].forEach((arrow) => {
         arrow.hidden = false;
@@ -7477,6 +7480,16 @@
       if (breakdownBtn) breakdownBtn.disabled = noAssets || noAmount || isPctAllocInvalid;
 
       syncPlanDetailFooterInvestmentDisplay(gate);
+      // Restore footer sim snapshot after display sync (sync clears data-alloc-base-*); needed for historic % tweak.
+      if (
+        !noAssets
+        && !noAmount
+        && !shouldBlockOneBuyBalance
+        && !allocationOutOfBalance
+      ) {
+        snapshotFooterAllocBases();
+      }
+      applyFooterAllocSliderTweak();
     };
 
     /** Plan detail repeats line reflects schedule end: Set a limit (enddate) vs Continuous / After N buys. */
