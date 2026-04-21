@@ -12395,6 +12395,41 @@
       if (!sheet || !tabsEl || !cardsEl) return { open: () => {}, close: () => {} };
       const categories = [...themeCategories];
       let activeCategory = 'all';
+      let suppressCardScrollSync = false;
+      let cardScrollSyncTimer = 0;
+      const bindHorizontalRailInteractions = (el) => {
+        if (!el) return;
+        if (el.dataset.themeGuideRailBound === 'true') return;
+        el.dataset.themeGuideRailBound = 'true';
+        let isDown = false;
+        let startX = 0;
+        let startLeft = 0;
+        el.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          isDown = true;
+          startX = e.clientX;
+          startLeft = el.scrollLeft;
+          el.setPointerCapture?.(e.pointerId);
+        });
+        el.addEventListener('pointermove', (e) => {
+          if (!isDown) return;
+          el.scrollLeft = startLeft - (e.clientX - startX);
+        });
+        const stop = (e) => {
+          if (!isDown) return;
+          isDown = false;
+          if (e?.pointerId != null && el.hasPointerCapture?.(e.pointerId)) {
+            el.releasePointerCapture(e.pointerId);
+          }
+        };
+        el.addEventListener('pointerup', stop);
+        el.addEventListener('pointercancel', stop);
+        el.addEventListener('wheel', (e) => {
+          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          e.preventDefault();
+          el.scrollLeft += e.deltaY;
+        }, { passive: false });
+      };
 
       const resolveCategory = (key) => {
         const normalized = String(key || '').toLowerCase();
@@ -12406,6 +12441,10 @@
             ${cat.label}
           </button>
         `).join('');
+      };
+      const scrollActiveTabIntoView = (behavior = 'auto') => {
+        const activeTabEl = tabsEl.querySelector(`[data-theme-guide-tab="${activeCategory}"]`);
+        activeTabEl?.scrollIntoView({ behavior, inline: 'center', block: 'nearest' });
       };
       const renderCards = () => {
         cardsEl.innerHTML = categories.map((cat) => `
@@ -12421,9 +12460,17 @@
       const setActiveCategory = (key, opts = {}) => {
         activeCategory = resolveCategory(key);
         renderTabs();
+        scrollActiveTabIntoView(opts.tabBehavior || 'auto');
         if (opts.scrollCard !== false) {
-          const card = cardsEl.querySelector(`[data-theme-guide-card="${activeCategory}"]`);
-          card?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+          const idx = categories.findIndex((cat) => cat.key === activeCategory);
+          const firstCard = cardsEl.querySelector('[data-theme-guide-card]');
+          if (idx >= 0 && firstCard) {
+            const cardWidth = firstCard.getBoundingClientRect().width + 12; // card + gap
+            suppressCardScrollSync = true;
+            cardsEl.scrollTo({ left: idx * cardWidth, behavior: opts.cardBehavior || 'auto' });
+            window.clearTimeout(cardScrollSyncTimer);
+            cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, 220);
+          }
         }
       };
 
@@ -12434,6 +12481,7 @@
       });
       let scrollRaf = 0;
       cardsEl.addEventListener('scroll', () => {
+        if (suppressCardScrollSync) return;
         if (scrollRaf) cancelAnimationFrame(scrollRaf);
         scrollRaf = requestAnimationFrame(() => {
           const cards = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
@@ -12448,7 +12496,7 @@
               nearestKey = card.getAttribute('data-theme-guide-card') || nearestKey;
             }
           });
-          if (nearestKey !== activeCategory) setActiveCategory(nearestKey, { scrollCard: false });
+          if (nearestKey !== activeCategory) setActiveCategory(nearestKey, { scrollCard: false, tabBehavior: 'smooth' });
         });
       }, { passive: true });
 
@@ -12456,10 +12504,12 @@
         activeCategory = resolveCategory(opts.category);
         renderTabs();
         renderCards();
+        bindHorizontalRailInteractions(tabsEl);
+        bindHorizontalRailInteractions(cardsEl);
         sheet.hidden = false;
         requestAnimationFrame(() => {
           sheet.classList.add('is-open');
-          setActiveCategory(activeCategory);
+          setActiveCategory(activeCategory, { cardBehavior: 'auto', tabBehavior: 'auto' });
         });
       };
       const close = () => {

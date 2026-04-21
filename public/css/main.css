@@ -14640,8 +14640,8 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .alloc-picker-panel__theme-info {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 0;
   border-radius: 999px;
   background: #2a2e34;
@@ -14652,8 +14652,8 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .alloc-picker-panel__theme-info img {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -14667,9 +14667,17 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .theme-guide-sheet__tabs {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scroll-behavior: smooth;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -14678,6 +14686,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .theme-guide-sheet__tab {
+  flex: 0 0 auto;
   border: 0;
   border-radius: 999px;
   padding: 6px 12px;
@@ -14696,10 +14705,16 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .theme-guide-sheet__cards {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   display: flex;
   gap: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -14708,7 +14723,9 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 }
 
 .theme-guide-sheet__card {
-  flex: 0 0 calc(100% - 36px);
+  flex: 0 0 296px;
+  width: 296px;
+  max-width: calc(100vw - 64px);
   min-height: 320px;
   background: #2d2f2f;
   border-radius: 16px;
