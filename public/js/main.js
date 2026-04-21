@@ -144,6 +144,7 @@
       }
       syncFinanceSummaryVisibility();
       syncMyPlansFlowUi();
+      applyFinanceSummaryMeta();
     }
     if (group === 'financeIntro') {
       syncFinanceIntroState();
@@ -1477,6 +1478,50 @@
   const applyFinanceSummaryMeta = () => {
     const suf = currencyState.summary;
     const fallbackAmt = formatMoney(0, suf);
+    const deriveCompletedBuysForSummary = (rawCompletedBuys) => {
+      const parsed = parseInt(String(rawCompletedBuys || '0'), 10) || 0;
+      const flowState = states.flow ?? 1;
+      return flowState >= 3 ? Math.max(5, parsed) : Math.max(0, parsed);
+    };
+    const parseInvestedFromPlanRecords = () => {
+      if ((states.flow ?? 1) < 3) return null;
+      const recs = [myPlansSubmittedPlan, myPlansPrefillPlan];
+      for (const rec of recs) {
+        const investedParsed = parseMoneyWithCurrency(rec?.totalInvested || '');
+        if (investedParsed && Number.isFinite(investedParsed.amount) && investedParsed.amount > 0) {
+          return investedParsed;
+        }
+        const perBuyMatch = String(rec?.investLine || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})\s+each\b/i);
+        const inferredCompleted = deriveCompletedBuysForSummary(rec?.completedBuys);
+        if (!perBuyMatch || inferredCompleted <= 0) continue;
+        const amount = parseFloat(String(perBuyMatch[1] || '').replace(/,/g, ''));
+        const currency = normalizeFxCurrency(perBuyMatch[2]);
+        if (Number.isFinite(amount) && amount > 0 && currency) {
+          return { amount: amount * inferredCompleted, currency };
+        }
+      }
+      return null;
+    };
+    const parseInvestedFromPlanUi = () => {
+      if ((states.flow ?? 1) < 3) return null;
+      const detailAmount = parseInt(
+        String(document.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, ''),
+        10,
+      ) || 0;
+      const mainAmount = parseInt(
+        String(document.querySelector('[data-plan-amount]')?.textContent || '').replace(/[^0-9]/g, ''),
+        10,
+      ) || 0;
+      const amount = detailAmount > 0 ? detailAmount : mainAmount;
+      if (amount <= 0) return null;
+      const completed = deriveCompletedBuysForSummary(0);
+      if (completed <= 0) return null;
+      const currency =
+        normalizeFxCurrency(document.querySelector('[data-plan-detail-currency]')?.textContent)
+        || normalizeFxCurrency(document.querySelector('[data-plan-currency-label]')?.textContent)
+        || suf;
+      return { amount: amount * completed, currency };
+    };
     const parseFundingReservedFromPlanRecords = () => {
       // In pre-fund prototype states, summary reserved should mirror pre-funded amount.
       if ((states.funding ?? 1) < 3) return null;
@@ -1512,6 +1557,10 @@
     const reservedAmt = reservedSource
       ? formatMoney(convertFx(reservedSource.amount, reservedSource.currency, suf), suf)
       : fallbackAmt;
+    const investedSource = parseInvestedFromPlanRecords() || parseInvestedFromPlanUi();
+    const investedAmt = investedSource
+      ? formatMoney(convertFx(investedSource.amount, investedSource.currency, suf), suf)
+      : fallbackAmt;
     document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
       const t = el.querySelector('.finance-summary__stat-value-text');
       if (t) t.textContent = reservedAmt;
@@ -1519,8 +1568,8 @@
     });
     document.querySelectorAll('[data-finance-summary-invested]').forEach((el) => {
       const t = el.querySelector('.finance-summary__stat-value-text');
-      if (t) t.textContent = fallbackAmt;
-      else el.textContent = fallbackAmt;
+      if (t) t.textContent = investedAmt;
+      else el.textContent = investedAmt;
     });
 
     // Keep "My plans" summary strip in sync with Finance summary.
@@ -1528,7 +1577,7 @@
       el.textContent = reservedAmt;
     });
     document.querySelectorAll('[data-my-plans-summary-invested-text]').forEach((el) => {
-      el.textContent = fallbackAmt;
+      el.textContent = investedAmt;
     });
 
     const nbRaw = financeSummaryConfirmedNextBuy.trim() || FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
