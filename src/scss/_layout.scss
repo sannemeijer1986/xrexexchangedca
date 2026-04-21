@@ -6537,9 +6537,9 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__product-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
   justify-content: center;
-  padding-top: 4px;
+  align-self: center;
+  padding-top: 0;
   flex: 1 1 auto;
   min-width: 0;
 }

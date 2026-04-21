@@ -3713,7 +3713,11 @@
     const buildFallbackPlanSnapshot = () => {
       if ((states.flow ?? 1) < 2) return null;
       const name = document.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan';
-      const tickerLineRaw = document.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || '';
+      const panelEl = document.querySelector('[data-plan-detail-panel]');
+      const tickerLineRaw =
+        String(panelEl?.dataset?.planDetailAssetTickerLine || '').trim()
+        || document.querySelector('[data-plan-detail-ticker]')?.textContent?.trim()
+        || '';
       const tickers = tickerLineRaw
         ? tickerLineRaw.split(/[·,]/g).map((t) => t.trim()).filter(Boolean).join(' · ')
         : '';
@@ -8596,9 +8600,24 @@
       }
     };
 
+    /** Auto plan title from allocation: 0 → "My plan", 1 → asset name, 2+ → "BTC · ETH · …". */
+    const resolveAutoPlanTitleFromItems = (items) => {
+      const list = Array.isArray(items) ? items.filter(Boolean) : [];
+      if (list.length === 0) return 'My plan';
+      if (list.length === 1) {
+        const name = String(list[0].name || list[0].ticker || '').trim();
+        return name || 'My plan';
+      }
+      return list
+        .map((i) => String(i.ticker || '').trim())
+        .filter(Boolean)
+        .join(' · ');
+    };
+
     const getCurrentPlanDisplayAssets = (fallbackIconSrc) => {
       const ctx = panelOpenContext || { source: 'plan' };
       if (detailAllocOverride?.items?.length) return detailAllocOverride.items.slice(0, 3);
+      if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) return [];
       if (ctx.source === 'curated' && ctx.curatedKey) return (planAllocation[String(ctx.curatedKey).toLowerCase()] || []).slice(0, 3);
       if (ctx.source === 'spotlight' && ctx.spotlightKey) {
         const key = String(ctx.spotlightKey || '').toLowerCase();
@@ -8633,30 +8652,18 @@
       const cur = currencyState.plan;
       const carousel = document.querySelector('[data-plan-carousel]');
       let planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
-      let title = 'Bitcoin';
       let iconSrc = 'assets/icon_currency_btc.svg';
       let ticker = 'BTC';
 
       const amountInput = panel.querySelector('[data-plan-detail-amount-input]');
 
       if (ctx.source === 'newplan') {
-        title = 'My plan';
-        const now = new Date();
-        ticker = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         iconSrc = 'assets/icon_noallocation.svg';
         planKey = 'newplan';
         if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else if (ctx.source === 'curated' && ctx.curatedKey && ctx.card) {
         planKey = ctx.curatedKey.toLowerCase();
         const card = ctx.card;
-        title = (
-          card.querySelector('.curated-portfolios__name')
-          || card.querySelector('.start-theme__name')
-        )?.textContent?.trim() || 'Portfolio';
-        ticker = (
-          card.querySelector('.curated-portfolios__tickers')
-          || card.querySelector('.start-theme__desc')
-        )?.textContent?.trim() || planTicker[planKey] || '';
         iconSrc = (
           card.querySelector('.curated-portfolios__icon')
           || card.querySelector('.start-theme__icon img')
@@ -8664,7 +8671,6 @@
         if (amountInput && !shouldPreserveCurrentAmount) amountInput.value = '';
       } else if (ctx.source === 'spotlight' && ctx.spotlightKey && ctx.card) {
         const card = ctx.card;
-        title = card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto';
         ticker = card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || String(ctx.spotlightKey).toUpperCase();
         iconSrc = card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc;
         planKey = String(ctx.spotlightKey).toLowerCase();
@@ -8673,7 +8679,6 @@
         const activeSlide = carousel?.querySelector('[data-plan-carousel-item].swiper-slide-active')
           || carousel?.querySelector('[data-plan-carousel-item]');
         planKey = (carousel?.getAttribute('data-active-plan') || 'bitcoin').toLowerCase();
-        title = activeSlide?.getAttribute('data-title') || 'Bitcoin';
         iconSrc = activeSlide?.querySelector('img')?.getAttribute('src') || 'assets/icon_currency_btc.svg';
         ticker = planTicker[planKey] || 'BTC';
         const amountRaw = document.querySelector('[data-plan-amount]')?.textContent?.replace(/,/g, '') || '10000';
@@ -8683,39 +8688,46 @@
         }
       }
 
-      // If user confirms a custom manual coin mix from allocation picker, present as "Your plan".
-      if (detailAllocOverride?.kind === 'coins' && detailAllocOverride.items?.length) {
-        const selectedTickers = detailAllocOverride.items
-          .map((item) => String(item?.ticker || '').trim())
-          .filter(Boolean);
-        title = 'My plan';
-        ticker = selectedTickers.join(' · ');
-      }
       if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.items?.length) {
         const curatedMeta = pickerCurated.find((p) => p.key === detailAllocOverride.key);
-        const curatedTickers = detailAllocOverride.items
-          .map((item) => String(item?.ticker || '').trim())
-          .filter(Boolean);
-        title = curatedMeta?.title || title;
-        ticker = curatedTickers.join(' · ');
         if (curatedMeta?.icon) iconSrc = curatedMeta.icon;
       }
 
-      const isCustomNoAssetsYet =
-        (ctx.source === 'newplan' && !detailAllocOverride?.items?.length)
-        || (detailAllocOverride?.kind === 'coins' && !detailAllocOverride.items?.length);
-      const effectiveTitle =
-        customPlanTitle.trim()
-          ? customPlanTitle.trim()
-          : title;
+      const allocItems =
+        (detailAllocOverride?.items?.length
+          ? detailAllocOverride.items
+          : null)
+        || (ctx.source === 'newplan' && !detailAllocOverride?.items?.length
+          ? []
+          : null)
+        || ((ctx.source === 'spotlight' && ctx.card)
+          ? [{
+              name: ctx.card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto',
+              ticker: ctx.card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || ticker,
+              icon: ctx.card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc,
+            }]
+          : (planAllocation[planKey] || planAllocation.bitcoin));
+
+      const autoTitle = resolveAutoPlanTitleFromItems(allocItems);
+      const hasCustomTitle = !!customPlanTitle.trim();
+      const effectiveTitle = hasCustomTitle ? customPlanTitle.trim() : autoTitle;
+      const tickerLine = allocItems
+        .map((i) => String(i.ticker || '').trim())
+        .filter(Boolean)
+        .join(' · ');
+      const secondaryPlanLine = tickerLine;
+      const shouldShowSecondaryLine = allocItems.length === 1 || (hasCustomTitle && !!tickerLine);
+
+      panel.dataset.planDetailAutoTitle = autoTitle;
+      panel.dataset.planDetailAssetTickerLine = tickerLine;
 
       // Product hero
       panel.querySelector('[data-plan-detail-name]').textContent = effectiveTitle;
       {
         const t = panel.querySelector('[data-plan-detail-ticker]');
         if (t) {
-          t.textContent = ticker;
-          t.hidden = !!isCustomNoAssetsYet;
+          t.textContent = secondaryPlanLine;
+          t.hidden = !shouldShowSecondaryLine;
         }
       }
       const productIconWrap = panel.querySelector('[data-plan-detail-icon-wrap]');
@@ -8732,8 +8744,8 @@
       {
         const ht = panel.querySelector('[data-plan-detail-header-ticker]');
         if (ht) {
-          ht.textContent = ticker;
-          ht.hidden = !!isCustomNoAssetsYet;
+          ht.textContent = secondaryPlanLine;
+          ht.hidden = !shouldShowSecondaryLine;
         }
       }
 
@@ -8745,7 +8757,7 @@
 
       const curatedProductKeyForDesc = (() => {
         // Manual/new plans should never show curated subtitles.
-        if (ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins' || title === 'My plan') {
+        if (ctx.source === 'newplan' || detailAllocOverride?.kind === 'coins' || !allocItems.length) {
           return null;
         }
         if (detailAllocOverride?.kind === 'curated' && detailAllocOverride.key) {
@@ -8857,40 +8869,8 @@
 
       if (allocSection) allocSection.classList.remove('is-empty');
 
-      const allocItems =
-        (detailAllocOverride?.items?.length
-          ? detailAllocOverride.items
-          : null)
-        || ((ctx.source === 'spotlight' && ctx.card)
-          ? [{
-              name: ctx.card.querySelector('.crypto-pill__name')?.textContent?.trim() || 'Crypto',
-              ticker: ctx.card.querySelector('.crypto-pill__ticker')?.textContent?.trim() || ticker,
-              icon: ctx.card.querySelector('.crypto-pill__icon')?.getAttribute('src') || iconSrc,
-            }]
-          : (planAllocation[planKey] || planAllocation.bitcoin));
-
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
       latestAllocItemCount = allocItems.length;
-
-      if (allocItems.length >= 2) {
-        const tickLine = allocItems
-          .map((item) => String(item?.ticker || '').trim())
-          .filter(Boolean)
-          .join(' · ');
-        if (tickLine) {
-          ticker = tickLine;
-          const tEl = panel.querySelector('[data-plan-detail-ticker]');
-          const htEl = panel.querySelector('[data-plan-detail-header-ticker]');
-          if (tEl) {
-            tEl.textContent = tickLine;
-            tEl.hidden = !!isCustomNoAssetsYet;
-          }
-          if (htEl) {
-            htEl.textContent = tickLine;
-            htEl.hidden = !!isCustomNoAssetsYet;
-          }
-        }
-      }
 
       const addLabel = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
       panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
@@ -9185,7 +9165,6 @@
       let selectedThemeCoinKeys = [];
       let activeThemeCategory = 'all';
       let allocPickerOpenSource = 'plan';
-      let allocPickerOpenedFromTemplate = false;
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
       const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
@@ -9423,7 +9402,6 @@
             ? String(openOpts.themeCategory || '').toLowerCase()
             : 'all';
         allocPickerOpenSource = openSource;
-        allocPickerOpenedFromTemplate = openOpts.fromTemplate === true;
         const currentPanelTickers = Array.from(
           panel.querySelectorAll('.alloc-multi__ticker, .plan-detail-panel__alloc-ticker'),
         )
@@ -9574,18 +9552,7 @@
           // Open the plan first, then apply selected assets so newplan initialization doesn't clear override.
           close({ instant: true });
           setOpen(true, { source: 'newplan' });
-          if (allocPickerOpenedFromTemplate) {
-            const selectedKeys = selectedThemeCoinKeys.slice();
-            const singleSelectedCoin = selectedKeys.length === 1 ? coinByKey.get(selectedKeys[0]) : null;
-            const categoryLabel = themeCategoryByKey.get(activeThemeCategory)?.label || 'My';
-            customPlanTitle = (
-              activeThemeCategory === 'all'
-                ? (singleSelectedCoin?.name ? `${singleSelectedCoin.name} plan` : 'My plan')
-                : `${categoryLabel} plan`
-            );
-          } else {
-            customPlanTitle = '';
-          }
+          customPlanTitle = '';
           applySelectedCoins();
           setTimeout(() => {
             const inp = panel.querySelector('[data-plan-detail-amount-input]');
@@ -11978,7 +11945,7 @@
             kicker: selectedAssets.length === 1
               ? (selectedAssets[0]?.name || panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan')
               : (panel.querySelector('[data-plan-detail-name]')?.textContent?.trim() || 'My plan'),
-            tickers: tickerLine || (panel.querySelector('[data-plan-detail-ticker]')?.textContent?.trim() || 'BTC'),
+            tickers: tickerLine || String(panel.dataset?.planDetailAssetTickerLine || '').trim() || 'BTC',
             assetMix,
             iconSrc: singleIconSrc,
             assetIcons: selectedAssets.map((a) => ({ ticker: String(a?.ticker || '').trim(), icon: String(a?.icon || '').trim() })).filter((a) => a.icon),
@@ -12109,7 +12076,6 @@
           source: 'finance',
           tab: 'curated',
           themeCategory,
-          fromTemplate: true,
           emptyEntry: true,
         });
       };
