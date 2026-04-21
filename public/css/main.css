@@ -7213,6 +7213,10 @@ div.currency-sheet__item-icon::before {
   padding: 12px 0px 12px 0px;
 }
 
+.plan-detail-panel__alloc-header-historic-inline {
+  display: none !important;
+}
+
 .plan-detail-panel__alloc-header-historic-inline .plan-return-metric__pct-line--historic {
   display: flex;
 }
@@ -7326,7 +7330,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-header-historic-single {
-  display: flex;
+  display: none;
   flex-direction: row;
   align-items: center;
   gap: 4px;

@@ -7402,6 +7402,10 @@ div.currency-sheet__item-icon {
   padding: 12px 0px 12px 0px;
 }
 
+.plan-detail-panel__alloc-header-historic-inline {
+  display: none !important;
+}
+
 // The existing historic pct component class hides itself globally; re-enable in header (multi) or alloc row (single).
 .plan-detail-panel__alloc-header-historic-inline .plan-return-metric__pct-line--historic {
   display: flex;
@@ -7521,7 +7525,8 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__allocation-section.is-single-asset {
   .plan-detail-panel__alloc-header-historic-single {
-    display: flex;
+    display: none;
+    // display: flex;
     flex-direction: row;
     align-items: center;
     gap: 4px;
