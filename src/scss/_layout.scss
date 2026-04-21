@@ -8848,7 +8848,7 @@ div.currency-sheet__item-icon {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 32px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8863,6 +8863,42 @@ div.currency-sheet__item-icon {
     height: 0 !important;
     background: transparent;
   }
+}
+
+.plan-breakdown-panel__segmented {
+  width: 100%;
+  min-height: 32px;
+  border-radius: 12px;
+  background: #1b1d1d;
+  display: flex;
+  align-items: center;
+}
+
+.plan-breakdown-panel__segment {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid #4d88ff;
+    outline-offset: 1px;
+  }
+}
+
+.plan-breakdown-panel__segment.is-active {
+  background: #ffffff;
+  color: #0d0e0f;
 }
 
 .plan-breakdown-panel__card {
@@ -8965,7 +9001,7 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 4px;
 }
 
 .plan-breakdown-panel__legend-item--invested {
@@ -9037,7 +9073,7 @@ div.currency-sheet__item-icon {
   margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .plan-breakdown-panel__row {
@@ -9066,7 +9102,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-breakdown-panel__divider {
-  margin: 8px 0;
+  margin: 12px 0;
   height: 1px;
   background: #3c4248;
 }
@@ -9105,7 +9141,7 @@ div.currency-sheet__item-icon {
   gap: 12px;
   width: 100%;
   margin-top: auto;
-  padding: 8px 0 calc(16px + env(safe-area-inset-bottom));
+  padding: 0px 0 calc(16px + env(safe-area-inset-bottom));
 }
 
 .phone-container p.plan-breakdown-panel__footnote {

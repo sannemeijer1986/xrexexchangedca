@@ -9696,6 +9696,9 @@
 
       const rangeBtnDetail = breakdownPanel.querySelector('.plan-breakdown-panel__range--detail');
       const rangeBtnWidget = breakdownPanel.querySelector('.plan-breakdown-panel__range--widget');
+      const breakdownSegments = Array.from(
+        breakdownPanel.querySelectorAll('[data-plan-breakdown-segment]'),
+      );
 
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
@@ -9719,6 +9722,18 @@
 
       /** @type {'detail' | 'widget'} */
       let breakdownOpenSource = 'detail';
+      /** @type {'simulated' | 'historic'} */
+      let breakdownViewMode = 'simulated';
+
+      const setBreakdownViewMode = (mode) => {
+        breakdownViewMode = mode === 'historic' ? 'historic' : 'simulated';
+        breakdownSegments.forEach((btn) => {
+          const active = btn.getAttribute('data-plan-breakdown-segment') === breakdownViewMode;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      };
+      setBreakdownViewMode('simulated');
 
       const setBreakdownRangeButtons = (source) => {
         if (rangeBtnDetail) rangeBtnDetail.hidden = source !== 'detail';
@@ -9940,6 +9955,7 @@
 
       const open = () => {
         breakdownOpenSource = 'detail';
+        setBreakdownViewMode('simulated');
         // Opening breakdown from plan-detail footer should inherit the current plan range.
         rangeState.breakdown = rangeState.plan || rangeState.breakdown || '5Y';
         updateRangeUI('breakdown', rangeState.breakdown);
@@ -9953,6 +9969,7 @@
 
       const openFromPlanWidget = () => {
         breakdownOpenSource = 'widget';
+        setBreakdownViewMode('simulated');
         // Opening breakdown from Finance quick strategy should inherit its current range.
         rangeState.widgetBreakdown = rangeState.plan || rangeState.widgetBreakdown || '5Y';
         updateRangeUI('widgetBreakdown', rangeState.widgetBreakdown);
@@ -9989,6 +10006,11 @@
       panel.querySelector('.plan-detail-panel__view-breakdown-link')?.addEventListener('click', open);
       document.querySelector('.plan-strategy__view-breakdown-link')?.addEventListener('click', openFromPlanWidget);
       breakdownPanel.querySelectorAll('[data-plan-breakdown-close]').forEach((btn) => btn.addEventListener('click', close));
+      breakdownSegments.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setBreakdownViewMode(btn.getAttribute('data-plan-breakdown-segment'));
+        });
+      });
 
       document.addEventListener('range-sheet-confirmed', (e) => {
         if (!breakdownPanel.classList.contains('is-open')) return;
