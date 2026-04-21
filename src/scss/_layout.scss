@@ -3367,13 +3367,50 @@ button.finance-summary__stat-value--chevron {
 }
 
 .start-theme__chev {
-  width: 24px;
-  height: 24px;
-  color: #ffffff;
+  display: none;
+}
+
+.start-theme__stack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.start-theme__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.start-theme__stack-coin {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #1b1d1d;
+  object-fit: cover;
+  display: block;
+  margin-left: -6px;
+  background: #1b1d1d;
+}
+
+.start-theme__stack-coin:first-child {
+  margin-left: 0;
+}
+
+.start-theme__stack-more {
+  width: 20px;
+  height: 20px;
+  margin-left: -6px;
+  border-radius: 50%;
+  border: 1px solid #1b1d1d;
+  background: #2a2e34;
+  color: #a3a3a3;
+  font-size: 8px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .start-theme__footer {
@@ -3500,6 +3537,10 @@ button.finance-summary__stat-value--chevron {
   display: block;
 }
 
+.finance-themes-page__item-chev {
+  display: none;
+}
+
 .finance-themes-page__item-copy {
   flex: 1 1 auto;
   min-width: 0;
@@ -3511,7 +3552,13 @@ button.finance-summary__stat-value--chevron {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  margin-right: 4px;
+}
+
+.finance-themes-page__item-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .finance-themes-page__item-stack-coin {
@@ -3522,7 +3569,7 @@ button.finance-summary__stat-value--chevron {
   object-fit: cover;
   display: block;
   margin-left: -6px;
-  background: #2a2e34;
+  background: #0d0e0f;
 }
 
 .finance-themes-page__item-stack-coin:first-child {
@@ -3560,19 +3607,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 .finance-themes-page__item-chev {
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  img {
-    width: 24px;
-    height: 24px;
-    transform: rotate(180deg);
-    display: block;
-  }
+  display: none;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -12162,20 +12162,6 @@
       metaverse: 'Metaverse',
       gold: 'Digital Gold',
     };
-    const financeThemeStackKeys = {
-      ai: ['fet', 'render', 'near', 'sol'],
-      rwa: ['xaut', 'link', 'btc'],
-      l1: ['btc', 'eth', 'sol', 'xrp'],
-      l2: ['eth', 'pol', 'link'],
-      defi: ['eth', 'link', 'btc', 'sol'],
-      gaming: ['sol', 'eth', 'btc'],
-      storage: ['near', 'btc', 'eth'],
-      restake: ['eth', 'near', 'link'],
-      meme: ['doge', 'btc', 'sol'],
-      nft: ['eth', 'sol', 'near'],
-      metaverse: ['render', 'sol', 'near'],
-      gold: ['xaut', 'btc'],
-    };
     const iconByTicker = {
       BTC: 'assets/icon_currency_btc.svg',
       ETH: 'assets/icon_currency_eth.svg',
@@ -12189,6 +12175,34 @@
       POL: 'assets/icon_currency_matic.svg',
       DOGE: 'assets/icon_currency_btc.svg',
     };
+    const getThemeCoinStackMarkup = (themeCategory, variant = 'start') => {
+      const category = String(themeCategory || '').toLowerCase();
+      const keys = pickableCoins
+        .filter((c) => (c.categories || []).includes(category))
+        .map((c) => c.key)
+        .slice(0, 4);
+      const visibles = keys.slice(0, 3);
+      const extra = Math.max(0, keys.length - visibles.length);
+      const coinClass = variant === 'allthemes' ? 'finance-themes-page__item-stack-coin' : 'start-theme__stack-coin';
+      const moreClass = variant === 'allthemes' ? 'finance-themes-page__item-stack-more' : 'start-theme__stack-more';
+      const chips = visibles.map((k) => {
+        const match = pickableCoins.find((c) => c.key === k);
+        const ticker = String(match?.ticker || k || '').trim().toUpperCase();
+        const icon = match?.icon || iconByTicker[ticker] || 'assets/icon_currency_btc.svg';
+        return `<img class="${coinClass}" src="${icon}" alt="" />`;
+      }).join('');
+      const extraChip = extra > 0
+        ? `<span class="${moreClass}">+${extra}</span>`
+        : '';
+      return chips + extraChip;
+    };
+
+    document.querySelectorAll('.start-theme__card').forEach((card) => {
+      const curatedKey = String(card.getAttribute('data-curated-key') || '').toLowerCase();
+      const themeCategory = mapCuratedKeyToThemeCategory(curatedKey);
+      const stackEl = card.querySelector('[data-start-theme-stack]');
+      if (stackEl) stackEl.innerHTML = getThemeCoinStackMarkup(themeCategory, 'start');
+    });
 
     const closeFinanceThemesPage = (opts = {}) => {
       if (!financeThemesPageEl || !financeThemesPageEl.classList.contains('is-open')) return;
@@ -12223,22 +12237,13 @@
             <span class="finance-themes-page__item-title">${cat.label}</span>
             <span class="finance-themes-page__item-sub">${financeThemeDescriptions[cat.key] || `What is ${cat.label}`}</span>
           </span>
-          <span class="finance-themes-page__item-stack" aria-hidden="true">
-            ${(() => {
-              const keys = (financeThemeStackKeys[cat.key] || []).slice(0, 4);
-              const visibles = keys.slice(0, 3);
-              const extra = Math.max(0, keys.length - visibles.length);
-              const chips = visibles.map((k) => {
-                const match = pickableCoins.find((c) => c.key === k);
-                const ticker = String(match?.ticker || k || '').trim().toUpperCase();
-                const icon = match?.icon || iconByTicker[ticker] || 'assets/icon_currency_btc.svg';
-                return `<img class="finance-themes-page__item-stack-coin" src="${icon}" alt="" />`;
-              }).join('');
-              return chips + (extra > 0 ? `<span class="finance-themes-page__item-stack-more">+${extra}</span>` : '');
-            })()}
-          </span>
-          <span class="finance-themes-page__item-chev" aria-hidden="true">
-            <img src="assets/icon_back.svg" alt="" />
+          <span class="finance-themes-page__item-right">
+            <span class="finance-themes-page__item-stack" aria-hidden="true">
+              ${getThemeCoinStackMarkup(cat.key, 'allthemes')}
+            </span>
+            <span class="finance-themes-page__item-chev" aria-hidden="true">
+              <img src="assets/icon_back.svg" alt="" />
+            </span>
           </span>
         </button>
       `).join('');
@@ -12261,6 +12266,23 @@
     });
     financeThemesPageEl?.querySelectorAll('[data-finance-themes-close]').forEach((btn) => {
       btn.addEventListener('click', closeFinanceThemesPage);
+    });
+
+    const spotlightShowAllBtn = document.querySelector('.spotlight .curated-portfolios__show-all');
+    const openAllocPickerAllFromFinance = () => {
+      allocPickerApi.open({
+        source: 'finance',
+        tab: 'curated',
+        themeCategory: 'all',
+        emptyEntry: true,
+      });
+    };
+    spotlightShowAllBtn?.addEventListener('click', openAllocPickerAllFromFinance);
+    spotlightShowAllBtn?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openAllocPickerAllFromFinance();
+      }
     });
 
     // Spotlight crypto pills → open detail panel with empty auto-invest amount.
