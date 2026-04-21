@@ -14715,11 +14715,17 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   scroll-snap-type: x mandatory;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 .theme-guide-sheet__cards::-webkit-scrollbar {
   display: none;
+}
+
+.theme-guide-sheet__cards.is-dragging {
+  scroll-snap-type: none;
+  cursor: grabbing;
 }
 
 .theme-guide-sheet__card {

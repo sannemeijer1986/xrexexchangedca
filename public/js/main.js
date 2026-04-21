@@ -12404,16 +12404,42 @@
         let isDown = false;
         let startX = 0;
         let startLeft = 0;
+        let moved = false;
+        const SNAP_THRESHOLD_PX = 3;
+        let dragSettleTimer = 0;
+        const snapToNearestCard = () => {
+          const cards = Array.from(el.querySelectorAll('[data-theme-guide-card]'));
+          if (!cards.length) return;
+          let nearestLeft = cards[0].offsetLeft;
+          let nearestDist = Math.abs(el.scrollLeft - nearestLeft);
+          cards.forEach((card) => {
+            const left = card.offsetLeft;
+            const dist = Math.abs(el.scrollLeft - left);
+            if (dist < nearestDist) {
+              nearestDist = dist;
+              nearestLeft = left;
+            }
+          });
+          el.scrollTo({ left: nearestLeft, behavior: 'smooth' });
+        };
         el.addEventListener('pointerdown', (e) => {
           if (e.button !== 0) return;
           isDown = true;
+          moved = false;
+          if (dragSettleTimer) {
+            window.clearTimeout(dragSettleTimer);
+            dragSettleTimer = 0;
+          }
           startX = e.clientX;
           startLeft = el.scrollLeft;
+          el.classList.add('is-dragging');
           el.setPointerCapture?.(e.pointerId);
         });
         el.addEventListener('pointermove', (e) => {
           if (!isDown) return;
-          el.scrollLeft = startLeft - (e.clientX - startX);
+          const delta = e.clientX - startX;
+          if (Math.abs(delta) > SNAP_THRESHOLD_PX) moved = true;
+          el.scrollLeft = startLeft - delta;
         });
         const stop = (e) => {
           if (!isDown) return;
@@ -12421,6 +12447,15 @@
           if (e?.pointerId != null && el.hasPointerCapture?.(e.pointerId)) {
             el.releasePointerCapture(e.pointerId);
           }
+          if (moved) {
+            snapToNearestCard();
+            dragSettleTimer = window.setTimeout(() => {
+              el.classList.remove('is-dragging');
+              dragSettleTimer = 0;
+            }, 260);
+            return;
+          }
+          el.classList.remove('is-dragging');
         };
         el.addEventListener('pointerup', stop);
         el.addEventListener('pointercancel', stop);
