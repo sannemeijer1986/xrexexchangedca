@@ -12475,10 +12475,13 @@
       let activeCategory = 'all';
       let suppressCardScrollSync = false;
       let cardScrollSyncTimer = 0;
-      const bindHorizontalRailInteractions = (el) => {
+      const bindHorizontalRailInteractions = (el, opts = {}) => {
         if (!el) return;
         if (el.dataset.themeGuideRailBound === 'true') return;
         el.dataset.themeGuideRailBound = 'true';
+        const shouldSnapCards = opts.snapToCards === true;
+        const dragClassName = opts.dragClassName || '';
+        const usePointerCapture = opts.usePointerCapture !== false;
         let isDown = false;
         let startX = 0;
         let startLeft = 0;
@@ -12488,6 +12491,7 @@
         let lastClientX = 0;
         let dragSettleTimer = 0;
         const snapToNearestCard = () => {
+          if (!shouldSnapCards) return;
           const cards = Array.from(el.querySelectorAll('[data-theme-guide-card]'));
           if (!cards.length) return;
           const firstOffset = cards[0].offsetLeft;
@@ -12517,8 +12521,8 @@
           }
           startX = e.clientX;
           startLeft = el.scrollLeft;
-          el.classList.add('is-dragging');
-          el.setPointerCapture?.(e.pointerId);
+          if (dragClassName) el.classList.add(dragClassName);
+          if (usePointerCapture) el.setPointerCapture?.(e.pointerId);
         });
         el.addEventListener('pointermove', (e) => {
           if (!isDown) return;
@@ -12532,19 +12536,23 @@
           if (!isDown) return;
           if (activePointerId != null && e?.pointerId != null && e.pointerId !== activePointerId) return;
           isDown = false;
-          if (e?.pointerId != null && el.hasPointerCapture?.(e.pointerId)) {
+          if (usePointerCapture && e?.pointerId != null && el.hasPointerCapture?.(e.pointerId)) {
             el.releasePointerCapture(e.pointerId);
           }
           activePointerId = null;
           if (moved) {
             snapToNearestCard();
-            dragSettleTimer = window.setTimeout(() => {
-              el.classList.remove('is-dragging');
-              dragSettleTimer = 0;
-            }, 260);
+            if (shouldSnapCards && dragClassName) {
+              dragSettleTimer = window.setTimeout(() => {
+                el.classList.remove(dragClassName);
+                dragSettleTimer = 0;
+              }, 260);
+            } else if (dragClassName) {
+              el.classList.remove(dragClassName);
+            }
             return;
           }
-          el.classList.remove('is-dragging');
+          if (dragClassName) el.classList.remove(dragClassName);
         };
         el.addEventListener('pointerup', stop);
         el.addEventListener('pointercancel', stop);
@@ -12657,7 +12665,8 @@
         activeCategory = resolveCategory(opts.category);
         renderTabs();
         renderCards();
-        bindHorizontalRailInteractions(cardsEl);
+        bindHorizontalRailInteractions(tabsEl, { usePointerCapture: false });
+        bindHorizontalRailInteractions(cardsEl, { snapToCards: true, dragClassName: 'is-dragging' });
         sheet.hidden = false;
         requestAnimationFrame(() => {
           sheet.classList.add('is-open');
@@ -12759,7 +12768,7 @@
           <img class="finance-themes-page__item-icon" src="${cat.iconOn}" alt="" aria-hidden="true" />
           <span class="finance-themes-page__item-copy">
             <span class="finance-themes-page__item-title">${cat.label}</span>
-            <span class="finance-themes-page__item-sub">${financeThemeDescriptions[cat.key] || `What is ${cat.label}`}</span>
+              <span class="finance-themes-page__item-sub">${financeThemeHeadSubtitles[cat.key] || financeThemeDescriptions[cat.key] || `What is ${cat.label}`}</span>
           </span>
           <span class="finance-themes-page__item-right">
             <span class="finance-themes-page__item-stack" aria-hidden="true">
