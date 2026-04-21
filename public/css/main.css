@@ -13079,14 +13079,23 @@ button.plan-buffer-funding-hero__how-link {
 .my-plans-detail-panel__header-main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+}
+
+.my-plans-detail-panel__header-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: 1.2;
+  display: block;
 }
 
 .phone-container p.my-plans-detail-panel__header-kicker {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.2;
 }
 
 .my-plans-detail-panel__header-kicker[hidden] {
@@ -13095,7 +13104,7 @@ button.plan-buffer-funding-hero__how-link {
 
 .phone-container h1.my-plans-detail-panel__title {
   margin: 0;
-  padding-bottom: 1px;
+  padding-bottom: 0;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
