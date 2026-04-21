@@ -15136,9 +15136,9 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 }
 
 .theme-guide-sheet__divider {
-  width: calc(100% + 32px);
+  width: calc(100% - 32px);
   height: 1px;
-  margin: 0 -16px;
+  margin: 0px 16px 0 16px;
   background: #252627;
 }
 
@@ -15151,7 +15151,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   padding: 0 16px 0 16px;
   box-sizing: border-box;
   overflow-x: auto;
-  margin-top: 16px;
+  margin-top: 4px;
   overflow-y: hidden;
   white-space: nowrap;
   scroll-behavior: smooth;
