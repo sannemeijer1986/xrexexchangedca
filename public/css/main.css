@@ -6337,6 +6337,14 @@ div.currency-sheet__item-icon::before {
   line-height: 1.2;
 }
 
+.plan-detail-panel__header-ticker[hidden] {
+  display: none !important;
+}
+
+.plan-detail-panel__header-ticker[hidden] {
+  display: none !important;
+}
+
 .plan-detail-panel__header-icon-wrap {
   width: 32px;
   height: 32px;
