@@ -12526,7 +12526,7 @@
               ? (cardEls[1].offsetLeft - firstCard.offsetLeft)
               : firstCard.getBoundingClientRect().width + 12; // card + gap
             suppressCardScrollSync = true;
-            cardsEl.scrollTo({ left: firstOffset + (idx * cardWidth), behavior: opts.cardBehavior || 'auto' });
+            cardsEl.scrollTo({ left: firstOffset + (idx * cardWidth), behavior: opts.cardBehavior || 'smooth' });
             window.clearTimeout(cardScrollSyncTimer);
             cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, 220);
           }
