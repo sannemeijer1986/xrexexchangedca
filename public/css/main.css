@@ -14419,7 +14419,6 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   align-items: center;
   gap: 8px;
   padding: 52px 16px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .alloc-picker-panel__icon-btn {

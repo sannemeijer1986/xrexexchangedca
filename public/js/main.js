@@ -9339,6 +9339,8 @@
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
       const themeCategoryByKey = new Map(themeCategories.map((c) => [c.key, c]));
+      const themeCategoryBtnByKey = new Map();
+      const themeCoinRowByKey = new Map();
 
       const getActiveSelectedKeys = () => (activeTab === 'curated' ? selectedThemeCoinKeys : selectedCoinKeys);
       const setActiveSelectedKeys = (next) => {
@@ -9419,18 +9421,35 @@
 
       const renderThemeCategories = () => {
         if (!themeCatsEl) return;
-        themeCatsEl.innerHTML = themeCategories.map((cat) => `
-          <button
-            class="alloc-picker-panel__theme-cat ${cat.key === activeThemeCategory ? 'is-active' : ''}"
-            type="button"
-            data-alloc-picker-theme-cat="${cat.key}"
-          >
-            <span class="alloc-picker-panel__theme-cat-icon ${cat.iconClass || ''}">
-              <img src="${cat.key === activeThemeCategory ? cat.iconOn : cat.iconOff}" alt="" />
-            </span>
-            <span class="alloc-picker-panel__theme-cat-label">${cat.label}</span>
-          </button>
-        `).join('');
+        if (!themeCategoryBtnByKey.size) {
+          themeCatsEl.innerHTML = '';
+          themeCategories.forEach((cat) => {
+            const btn = document.createElement('button');
+            btn.className = 'alloc-picker-panel__theme-cat';
+            btn.type = 'button';
+            btn.setAttribute('data-alloc-picker-theme-cat', cat.key);
+            const iconWrap = document.createElement('span');
+            iconWrap.className = `alloc-picker-panel__theme-cat-icon ${cat.iconClass || ''}`.trim();
+            const iconImg = document.createElement('img');
+            iconImg.alt = '';
+            iconWrap.appendChild(iconImg);
+            const label = document.createElement('span');
+            label.className = 'alloc-picker-panel__theme-cat-label';
+            label.textContent = cat.label;
+            btn.append(iconWrap, label);
+            themeCatsEl.appendChild(btn);
+            themeCategoryBtnByKey.set(cat.key, btn);
+          });
+        }
+        themeCategories.forEach((cat) => {
+          const btn = themeCategoryBtnByKey.get(cat.key);
+          if (!btn) return;
+          const isActive = cat.key === activeThemeCategory;
+          btn.classList.toggle('is-active', isActive);
+          const img = btn.querySelector('img');
+          const nextSrc = isActive ? cat.iconOn : cat.iconOff;
+          if (img && img.getAttribute('src') !== nextSrc) img.setAttribute('src', nextSrc);
+        });
       };
 
       const scrollActiveThemeCategoryIntoView = (behavior = 'auto') => {
@@ -9459,31 +9478,75 @@
         const visible = filteredByCategory.filter(
           (c) => !q || c.name.toLowerCase().includes(q) || c.ticker.toLowerCase().includes(q),
         );
-        themeCoinsListEl.innerHTML = visible.map((c) => {
+        if (!themeCoinRowByKey.size) {
+          themeCoinsListEl.innerHTML = '';
+          pickableCoins.forEach((c) => {
+            const row = document.createElement('button');
+            row.className = 'alloc-picker-panel__coin-row';
+            row.type = 'button';
+            row.setAttribute('data-alloc-picker-coin', c.key);
+
+            const icon = document.createElement('img');
+            icon.className = 'alloc-picker-panel__coin-icon';
+            icon.src = c.icon;
+            icon.alt = '';
+
+            const main = document.createElement('div');
+            main.className = 'alloc-picker-panel__coin-main';
+            const ticker = document.createElement('span');
+            ticker.className = 'alloc-picker-panel__coin-ticker';
+            ticker.textContent = c.ticker;
+            const name = document.createElement('span');
+            name.className = 'alloc-picker-panel__coin-name';
+            name.textContent = c.name;
+            main.append(ticker, name);
+
+            const pctWrap = document.createElement('span');
+            pctWrap.className = 'alloc-picker-panel__coin-pct-wrap';
+            const pctArrow = document.createElement('img');
+            pctArrow.className = 'alloc-picker-panel__coin-pct-arrow';
+            pctArrow.src = 'assets/icon_northeast_arrow.svg';
+            pctArrow.alt = '';
+            const pct = document.createElement('span');
+            pct.className = 'alloc-picker-panel__coin-pct';
+            pctWrap.append(pctArrow, pct);
+
+            const check = document.createElement('img');
+            check.className = 'alloc-picker-panel__coin-check';
+            check.width = 20;
+            check.height = 20;
+            check.alt = '';
+            check.setAttribute('aria-hidden', 'true');
+
+            row.append(icon, main, pctWrap, check);
+            themeCoinsListEl.appendChild(row);
+            themeCoinRowByKey.set(c.key, row);
+          });
+        }
+        const visibleKeySet = new Set(visible.map((c) => c.key));
+        pickableCoins.forEach((c) => {
+          const row = themeCoinRowByKey.get(c.key);
+          if (!row) return;
+          if (!visibleKeySet.has(c.key)) {
+            if (row.parentElement === themeCoinsListEl) row.remove();
+            return;
+          }
           const isSelected = selectedKeys.includes(c.key);
+          row.classList.toggle('is-selected', isSelected);
           const ret = spotlightReturns[c.key]?.[curRange] || c.ret;
-          return `
-            <button class="alloc-picker-panel__coin-row ${isSelected ? 'is-selected' : ''}" type="button" data-alloc-picker-coin="${c.key}">
-              <img class="alloc-picker-panel__coin-icon" src="${c.icon}" alt="" />
-              <div class="alloc-picker-panel__coin-main">
-                <span class="alloc-picker-panel__coin-ticker">${c.ticker}</span>
-                <span class="alloc-picker-panel__coin-name">${c.name}</span>
-              </div>
-              <span class="alloc-picker-panel__coin-pct-wrap">
-                <img class="alloc-picker-panel__coin-pct-arrow" src="assets/icon_northeast_arrow.svg" alt="" />
-                <span class="alloc-picker-panel__coin-pct">${ret}</span>
-              </span>
-              <img
-                class="alloc-picker-panel__coin-check"
-                src="${isSelected ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg'}"
-                width="20"
-                height="20"
-                alt=""
-                aria-hidden="true"
-              />
-            </button>
-          `;
-        }).join('');
+          const pctEl = row.querySelector('.alloc-picker-panel__coin-pct');
+          if (pctEl) pctEl.textContent = ret;
+          const check = row.querySelector('.alloc-picker-panel__coin-check');
+          if (check) {
+            const nextCheck = isSelected ? 'assets/icon_checkbox_on.svg' : 'assets/icon_checkbox_off.svg';
+            if (check.getAttribute('src') !== nextCheck) check.setAttribute('src', nextCheck);
+          }
+        });
+        // Rebuild visible order without recreating row nodes (keeps image cache warm, no flicker).
+        const orderedVisibleRows = visible
+          .map((c) => themeCoinRowByKey.get(c.key))
+          .filter(Boolean);
+        themeCoinsListEl.replaceChildren(...orderedVisibleRows);
         syncCoinListMaxSelectedClass();
       };
 
@@ -12518,15 +12581,14 @@
         scrollActiveTabIntoView(opts.tabBehavior || 'auto');
         if (opts.scrollCard !== false) {
           const idx = categories.findIndex((cat) => cat.key === activeCategory);
-          const firstCard = cardsEl.querySelector('[data-theme-guide-card]');
-          if (idx >= 0 && firstCard) {
-            const cardEls = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
-            const firstOffset = firstCard.offsetLeft;
-            const cardWidth = cardEls.length > 1
-              ? (cardEls[1].offsetLeft - firstCard.offsetLeft)
-              : firstCard.getBoundingClientRect().width + 12; // card + gap
+          const cardEls = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
+          if (idx >= 0 && cardEls[idx]) {
             suppressCardScrollSync = true;
-            cardsEl.scrollTo({ left: firstOffset + (idx * cardWidth), behavior: opts.cardBehavior || 'smooth' });
+            cardEls[idx].scrollIntoView({
+              behavior: opts.cardBehavior || 'smooth',
+              inline: 'start',
+              block: 'nearest',
+            });
             window.clearTimeout(cardScrollSyncTimer);
             cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, 220);
           }
