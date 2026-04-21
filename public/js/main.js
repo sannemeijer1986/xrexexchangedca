@@ -4389,6 +4389,7 @@
     const populateMyPlansPlanDetail = (rec) => {
       if (!detailPanel || !rec) return;
       const detailTitleEl = detailPanel.querySelector('[data-my-plans-detail-title]');
+      const detailHeaderKickerEl = detailPanel.querySelector('[data-my-plans-detail-header-kicker]');
       const statusLabelEl = detailPanel.querySelector('[data-my-plans-detail-status-label]');
       const investLineEl = detailPanel.querySelector('[data-my-plans-detail-invest-line]');
       const iconsWrap = detailPanel.querySelector('[data-my-plans-detail-icons]');
@@ -4412,35 +4413,6 @@
       if (statusLabelEl) statusLabelEl.textContent = statusText;
       const manageTriggerEl = detailPanel.querySelector('[data-my-plans-detail-manage-trigger]');
       if (manageTriggerEl) manageTriggerEl.textContent = statusKey === 'ended' ? 'Duplicate plan' : 'Manage plan';
-      if (detailTitleEl) detailTitleEl.textContent = rec.kicker || rec.name || 'Plan';
-      if (investLineEl) {
-        const investLine = String(rec.investLine || '').trim();
-        const money = investLine.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
-        const moneyPart = money ? `${money[1]} ${String(money[2] || '').toUpperCase()}` : '';
-        const schedulePart = formatScheduleNaturalLine(rec.repeats || '');
-        if (moneyPart) {
-          investLineEl.textContent = '';
-          const amountLine = document.createElement('div');
-          amountLine.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--amount';
-          amountLine.textContent = `Invest ${moneyPart}`;
-          const scheduleLineEl = document.createElement('div');
-          scheduleLineEl.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--schedule';
-          scheduleLineEl.textContent = schedulePart || '—';
-          investLineEl.appendChild(amountLine);
-          investLineEl.appendChild(scheduleLineEl);
-        } else {
-          investLineEl.textContent = investLine || '—';
-        }
-      }
-      if (pauseBtn) pauseBtn.textContent = statusKey === 'paused' ? 'Resume' : 'Pause';
-      renderMyPlansHeaderIcons(
-        iconsWrap,
-        rec.tickers,
-        rec.iconSrc || 'assets/icon_currency_btc.svg',
-        rec.assetIcons || [],
-        'product',
-      );
-
       const tickers = String(rec.tickers || '')
         .split(/[·,]/g)
         .map((x) => x.trim().toUpperCase())
@@ -4490,6 +4462,52 @@
           || 'assets/icon_currency_btc.svg';
         return { ticker: t, name: names[t] || t, icon };
       };
+      const assetCount = mix.length;
+      const tickerLine = mix.map((m) => m.ticker).filter(Boolean).join(' · ');
+      const singleMeta = assetCount === 1 ? tickerMeta(mix[0].ticker) : null;
+      const autoHeaderTitle =
+        assetCount === 0
+          ? 'My plan'
+          : assetCount === 1
+            ? (singleMeta?.name || 'My plan')
+            : (tickerLine || 'My plan');
+      const candidateCustomName = String(rec.name || '').trim();
+      const hasCustomHeaderName = !!candidateCustomName && candidateCustomName !== autoHeaderTitle;
+      const effectiveHeaderTitle = hasCustomHeaderName ? candidateCustomName : autoHeaderTitle;
+      const showHeaderKicker = assetCount === 1 || (hasCustomHeaderName && !!tickerLine);
+      if (detailTitleEl) detailTitleEl.textContent = effectiveHeaderTitle;
+      if (detailHeaderKickerEl) {
+        detailHeaderKickerEl.textContent = tickerLine || '';
+        detailHeaderKickerEl.hidden = !showHeaderKicker;
+      }
+      if (investLineEl) {
+        const investLine = String(rec.investLine || '').trim();
+        const money = investLine.match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+        const moneyPart = money ? `${money[1]} ${String(money[2] || '').toUpperCase()}` : '';
+        const schedulePart = formatScheduleNaturalLine(rec.repeats || '');
+        if (moneyPart) {
+          investLineEl.textContent = '';
+          const amountLine = document.createElement('div');
+          amountLine.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--amount';
+          amountLine.textContent = `Invest ${moneyPart}`;
+          const scheduleLineEl = document.createElement('div');
+          scheduleLineEl.className = 'my-plans-detail-panel__invest-summary-line my-plans-detail-panel__invest-summary-line--schedule';
+          scheduleLineEl.textContent = schedulePart || '—';
+          investLineEl.appendChild(amountLine);
+          investLineEl.appendChild(scheduleLineEl);
+        } else {
+          investLineEl.textContent = investLine || '—';
+        }
+      }
+      if (pauseBtn) pauseBtn.textContent = statusKey === 'paused' ? 'Resume' : 'Pause';
+      renderMyPlansHeaderIcons(
+        iconsWrap,
+        rec.tickers,
+        rec.iconSrc || 'assets/icon_currency_btc.svg',
+        rec.assetIcons || [],
+        'product',
+      );
+
       if (allocationEl) {
         allocationEl.textContent = '';
         const singleAsset = mix.length === 1;
