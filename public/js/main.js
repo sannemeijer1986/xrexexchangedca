@@ -163,6 +163,7 @@
       }
       syncPrototypeFundingToDocument();
       syncMyPlansFlowUi();
+      applyFinanceSummaryMeta();
     }
     return clamped;
   };
@@ -1476,8 +1477,40 @@
   const applyFinanceSummaryMeta = () => {
     const suf = currencyState.summary;
     const fallbackAmt = formatMoney(0, suf);
-    const reservedAmt = financeSummaryConfirmedReserved
-      ? formatMoney(convertFx(financeSummaryConfirmedReserved.amount, financeSummaryConfirmedReserved.currency, suf), suf)
+    const parseFundingReservedFromPlanRecords = () => {
+      // In pre-fund prototype states, summary reserved should mirror pre-funded amount.
+      if ((states.funding ?? 1) < 3) return null;
+      const recs = [myPlansSubmittedPlan, myPlansPrefillPlan];
+      for (const rec of recs) {
+        const parsed = parseMoneyWithCurrency(rec?.reservedFunds || '');
+        if (parsed && Number.isFinite(parsed.amount) && parsed.amount > 0) return parsed;
+      }
+      return null;
+    };
+    const parseFundingDefaultFromPlanRecords = () => {
+      const recs = [myPlansSubmittedPlan, myPlansPrefillPlan];
+      for (const rec of recs) {
+        const m = String(rec?.investLine || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})\s+each\b/i);
+        if (!m) continue;
+        const amount = parseFloat(String(m[1] || '').replace(/,/g, ''));
+        const currency = String(m[2] || '').trim().toUpperCase();
+        if (Number.isFinite(amount) && amount > 0 && currency) {
+          return { amount: amount * 4, currency };
+        }
+      }
+      return null;
+    };
+    const fundingState = states.funding ?? 1;
+    const reservedSource = fundingState >= 3
+      ? (
+          parseFundingReservedFromPlanRecords()
+          || financeSummaryConfirmedReserved
+          || parseFundingDefaultFromPlanRecords()
+          || { amount: 40000, currency: suf }
+        )
+      : financeSummaryConfirmedReserved;
+    const reservedAmt = reservedSource
+      ? formatMoney(convertFx(reservedSource.amount, reservedSource.currency, suf), suf)
       : fallbackAmt;
     document.querySelectorAll('[data-finance-summary-reserved]').forEach((el) => {
       const t = el.querySelector('.finance-summary__stat-value-text');
