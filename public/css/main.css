@@ -14666,6 +14666,13 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   padding: 0 0 32px 0;
 }
 
+.theme-guide-sheet__divider {
+  width: calc(100% + 32px);
+  height: 1px;
+  margin: 0 -16px;
+  background: #252627;
+}
+
 .theme-guide-sheet__tabs {
   width: 100%;
   max-width: 100%;
