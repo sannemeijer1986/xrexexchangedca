@@ -9720,6 +9720,14 @@
       const profitAbsEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-abs]');
       const profitCurEl = breakdownPanel.querySelector('[data-plan-breakdown-profit-currency]');
       const breakdownScrollEl = breakdownPanel.querySelector('.plan-breakdown-panel__body');
+      const pastViewEl = breakdownPanel.querySelector('[data-plan-breakdown-past-view]');
+      const pastListEl = breakdownPanel.querySelector('[data-plan-breakdown-past-list]');
+      const pastRangeEl = breakdownPanel.querySelector('[data-plan-breakdown-past-range]');
+      const pastCombinedEl = breakdownPanel.querySelector('[data-plan-breakdown-past-combined]');
+      const pastCombinedValueEl = breakdownPanel.querySelector('[data-plan-breakdown-past-combined-value]');
+      const pastCombinedValueWrapEl = breakdownPanel.querySelector('.plan-breakdown-panel__past-combined-value-wrap');
+      const pastCombinedArrowEl = breakdownPanel.querySelector('[data-plan-breakdown-past-combined-arrow]');
+      const pastDividerEl = breakdownPanel.querySelector('[data-plan-breakdown-past-divider]');
 
       /** @type {'detail' | 'widget'} */
       let breakdownOpenSource = 'detail';
@@ -9728,7 +9736,7 @@
 
       const ensureBreakdownCardViewMarkup = () => {
         if (!breakdownCardEl) return;
-        breakdownCardEl.classList.toggle('is-empty', breakdownViewMode === 'historic');
+        breakdownCardEl.classList.remove('is-empty');
       };
 
       const setBreakdownViewMode = (mode) => {
@@ -9741,6 +9749,60 @@
         ensureBreakdownCardViewMarkup();
       };
       setBreakdownViewMode('simulated');
+
+      const renderPastPerformanceCard = (selectedAssets, range) => {
+        if (!pastViewEl || !pastListEl) return;
+        if (pastRangeEl) pastRangeEl.textContent = range || '5Y';
+        const normalizedRange = String(range || '5Y').toUpperCase();
+        const rows = (selectedAssets || []).slice(0, 3).map((asset) => {
+          const ticker = String(asset?.ticker || '').trim().toUpperCase();
+          const key = ticker.toLowerCase();
+          const fromSpotlight = spotlightReturns[key]?.[normalizedRange];
+          const numericPct = parseFloat(String(fromSpotlight || '0').replace(/[^0-9.-]/g, ''));
+          const pct = Number.isFinite(numericPct) ? numericPct : 0;
+          return {
+            name: String(asset?.name || ticker || 'Asset').trim(),
+            ticker: ticker || '—',
+            icon: String(asset?.icon || 'assets/icon_currency_btc.svg').trim(),
+            pct,
+          };
+        });
+        pastListEl.innerHTML = rows.map((row) => `
+          <div class="plan-breakdown-panel__past-row">
+            <img class="plan-breakdown-panel__past-icon" src="${row.icon}" alt="" />
+            <div class="plan-breakdown-panel__past-asset">
+              <span class="plan-breakdown-panel__past-name">${row.name}</span>
+              <span class="plan-breakdown-panel__past-ticker">${row.ticker}</span>
+            </div>
+            <span class="plan-breakdown-panel__past-pct ${row.pct < 0 ? 'is-negative' : ''}">
+              <img src="${row.pct < 0 ? RETURN_METRIC_ARROW_HIST_NEG : RETURN_METRIC_ARROW_HIST_POS}" alt="" class="plan-breakdown-panel__past-pct-arrow" />
+              ${Math.abs(row.pct).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+            </span>
+          </div>
+        `).join('');
+
+        const showCombined = rows.length >= 2;
+        if (pastCombinedEl) pastCombinedEl.hidden = !showCombined;
+        if (pastDividerEl) pastDividerEl.hidden = rows.length < 1;
+        if (showCombined && pastCombinedValueEl && pastCombinedValueWrapEl && pastCombinedArrowEl) {
+          const avg = rows.reduce((acc, row) => acc + row.pct, 0) / rows.length;
+          const pos = avg >= 0;
+          pastCombinedValueEl.textContent = `${Math.abs(avg).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+          pastCombinedValueWrapEl.classList.toggle('is-negative', !pos);
+          pastCombinedArrowEl.src = pos ? RETURN_METRIC_ARROW_HIST_POS : RETURN_METRIC_ARROW_HIST_NEG;
+        }
+      };
+
+      const syncBreakdownViewVisibility = () => {
+        const showPast = breakdownViewMode === 'historic';
+        if (pastViewEl) pastViewEl.hidden = !showPast;
+        if (iconWrap) iconWrap.hidden = showPast;
+        const simNodes = ['.plan-breakdown-panel__plan-row', '.plan-breakdown-panel__chart', '.plan-breakdown-panel__stats'];
+        simNodes.forEach((sel) => {
+          const el = breakdownPanel.querySelector(sel);
+          if (el) el.hidden = showPast;
+        });
+      };
 
       const setBreakdownRangeButtons = (source) => {
         if (rangeBtnDetail) rangeBtnDetail.hidden = source !== 'detail';
@@ -9854,6 +9916,11 @@
           document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || 'monthly'
         ).toLowerCase();
         const freqLabel = freq === 'daily' ? 'Daily' : freq === 'weekly' ? 'Weekly' : 'Monthly';
+        if (breakdownViewMode === 'historic') {
+          renderPastPerformanceCard(selectedAssets, range);
+          syncBreakdownViewVisibility();
+          return;
+        }
 
         const ctx = panelOpenContext;
         const overrideCuratedKey =
@@ -9928,6 +9995,11 @@
         ).toLowerCase();
         const freqLabel = freq === 'daily' ? 'Daily' : freq === 'weekly' ? 'Weekly' : 'Monthly';
         const fallbackIconSrc = selectedAssets[0]?.icon || 'assets/icon_currency_btc.svg';
+        if (breakdownViewMode === 'historic') {
+          renderPastPerformanceCard(selectedAssets, range);
+          syncBreakdownViewVisibility();
+          return;
+        }
 
         const sim = updatePlanStrategyHistoricalReturn({
           amount,
@@ -9953,11 +10025,8 @@
       };
 
       const sync = (opts = {}) => {
-        if (breakdownViewMode === 'historic') {
-          ensureBreakdownCardViewMarkup();
-          return;
-        }
         ensureBreakdownCardViewMarkup();
+        syncBreakdownViewVisibility();
         const source =
           opts.source ||
           (breakdownPanel.classList.contains('is-open') ? breakdownOpenSource : 'detail');
@@ -9973,6 +10042,7 @@
         updateRangeUI('breakdown', rangeState.breakdown);
         setBreakdownRangeButtons('detail');
         syncFromDetail();
+        syncBreakdownViewVisibility();
         if (breakdownScrollEl) breakdownScrollEl.scrollTop = 0;
         panel.classList.add('is-plan-breakdown-open');
         breakdownPanel.hidden = false;
@@ -9987,6 +10057,7 @@
         updateRangeUI('widgetBreakdown', rangeState.widgetBreakdown);
         setBreakdownRangeButtons('widget');
         syncFromWidget();
+        syncBreakdownViewVisibility();
         breakdownPanel.hidden = false;
         requestAnimationFrame(() => breakdownPanel.classList.add('is-open'));
       };
@@ -10021,6 +10092,7 @@
       breakdownSegments.forEach((btn) => {
         btn.addEventListener('click', () => {
           setBreakdownViewMode(btn.getAttribute('data-plan-breakdown-segment'));
+          sync();
         });
       });
 

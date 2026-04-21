@@ -8923,6 +8923,132 @@ div.currency-sheet__item-icon {
   display: none !important;
 }
 
+.plan-breakdown-panel__past-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-breakdown-panel__past-view[hidden] {
+  display: none !important;
+}
+
+.plan-breakdown-panel__plan-row[hidden],
+.plan-breakdown-panel__chart[hidden],
+.plan-breakdown-panel__stats[hidden] {
+  display: none !important;
+}
+
+.plan-breakdown-panel__past-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 4px 0 8px;
+}
+
+.plan-breakdown-panel__past-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-breakdown-panel__past-row {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.plan-breakdown-panel__past-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.plan-breakdown-panel__past-asset {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-breakdown-panel__past-name {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.plan-breakdown-panel__past-ticker {
+  color: #9b9c9c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.plan-breakdown-panel__past-pct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1px;
+  color: #5ac47d;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.plan-breakdown-panel__past-pct.is-negative {
+  color: #eb5347;
+}
+
+.plan-breakdown-panel__past-pct-arrow {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.plan-breakdown-panel__past-combined {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.plan-breakdown-panel__past-combined-label {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.plan-breakdown-panel__past-combined-value-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #5ac47d;
+}
+
+.plan-breakdown-panel__past-combined-value-wrap.is-negative {
+  color: #eb5347;
+}
+
+.plan-breakdown-panel__past-combined-arrow {
+  width: 20px;
+  height: 20px;
+}
+
+.plan-breakdown-panel__past-combined-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .plan-breakdown-panel__plan-row {
   display: flex;
   align-items: center;
@@ -9117,6 +9243,10 @@ div.currency-sheet__item-icon {
   margin: 12px 0;
   height: 1px;
   background: #3c4248;
+}
+
+.plan-breakdown-panel__divider--past {
+  margin: 4px 0;
 }
 
 .plan-breakdown-panel__row--profit {
