@@ -12424,8 +12424,8 @@
           }
           const maxIndex = cards.length - 1;
           targetIndex = Math.max(0, Math.min(maxIndex, targetIndex));
-          const targetLeft = firstOffset + (targetIndex * step);
-          el.scrollTo({ left: targetLeft, behavior: 'smooth' });
+          const targetCard = cards[targetIndex];
+          targetCard?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
         };
         el.addEventListener('pointerdown', (e) => {
           if (e.button !== 0) return;

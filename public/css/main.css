@@ -14663,7 +14663,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .theme-guide-sheet__body {
   gap: 16px;
-  padding: 0 0 16px 0;
+  padding: 0 0 32px 0;
 }
 
 .theme-guide-sheet__tabs {
@@ -14675,6 +14675,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   padding: 0 16px 0 16px;
   box-sizing: border-box;
   overflow-x: auto;
+  margin-top: 16px;
   overflow-y: hidden;
   white-space: nowrap;
   scroll-behavior: smooth;
@@ -14689,10 +14690,11 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .theme-guide-sheet__tab {
   flex: 0 0 auto;
+  height: 28px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 6px 12px;
-  background: transparent;
+  background: #2D2F2F;
   color: #9b9c9c;
   font-size: 12px;
   font-weight: 600;
@@ -14711,9 +14713,10 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   max-width: 100%;
   min-width: 0;
   display: flex;
-  gap: 12px;
+  gap: 16px;
   padding: 0 16px 0 16px;
   box-sizing: border-box;
+  margin-top: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -14775,6 +14778,7 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .theme-guide-sheet__footer {
   padding-top: 0;
+  padding-bottom: 0px;
 }
 
 .alloc-picker-panel__coins {
