@@ -1838,15 +1838,16 @@
         </div>
 
         <div class="plan-breakdown-panel__body">
-            <div class="plan-breakdown-panel__segmented" role="tablist" aria-label="Breakdown view">
-                <button class="plan-breakdown-panel__segment is-active" type="button" role="tab" aria-selected="true" data-plan-breakdown-segment="simulated">
-                    Simulated outcome
-                </button>
-                <button class="plan-breakdown-panel__segment" type="button" role="tab" aria-selected="false" data-plan-breakdown-segment="historic">
-                    Past performance
-                </button>
-            </div>
-            <div class="plan-breakdown-panel__card">
+            <div class="plan-breakdown-panel__content">
+                <div class="plan-breakdown-panel__segmented" role="tablist" aria-label="Breakdown view">
+                    <button class="plan-breakdown-panel__segment is-active" type="button" role="tab" aria-selected="true" data-plan-breakdown-segment="simulated">
+                        Simulation
+                    </button>
+                    <button class="plan-breakdown-panel__segment" type="button" role="tab" aria-selected="false" data-plan-breakdown-segment="historic">
+                        Past performance
+                    </button>
+                </div>
+                <div class="plan-breakdown-panel__card">
                 <div class="plan-breakdown-panel__plan-row">
                     <div class="plan-breakdown-panel__plan-title" data-plan-breakdown-sim-title>—</div>
                     <div class="plan-breakdown-panel__asset-wrap" data-plan-breakdown-icon-wrap>
@@ -1911,6 +1912,7 @@
                         </span>
                     </div>
                     <p class="plan-breakdown-panel__footnote">For reference only. Simulated with past data;<br />Actual results may vary. Newer assets use earliest available data.</p>
+                </div>
                 </div>
             </div>
             <div class="plan-breakdown-panel__bottom">

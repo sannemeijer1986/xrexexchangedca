@@ -9699,6 +9699,7 @@
       const breakdownSegments = Array.from(
         breakdownPanel.querySelectorAll('[data-plan-breakdown-segment]'),
       );
+      const breakdownCardEl = breakdownPanel.querySelector('.plan-breakdown-panel__card');
 
       const iconWrap = breakdownPanel.querySelector('[data-plan-breakdown-icon-wrap]');
       const headlineEl = breakdownPanel.querySelector('[data-plan-breakdown-headline]');
@@ -9725,6 +9726,11 @@
       /** @type {'simulated' | 'historic'} */
       let breakdownViewMode = 'simulated';
 
+      const ensureBreakdownCardViewMarkup = () => {
+        if (!breakdownCardEl) return;
+        breakdownCardEl.classList.toggle('is-empty', breakdownViewMode === 'historic');
+      };
+
       const setBreakdownViewMode = (mode) => {
         breakdownViewMode = mode === 'historic' ? 'historic' : 'simulated';
         breakdownSegments.forEach((btn) => {
@@ -9732,6 +9738,7 @@
           btn.classList.toggle('is-active', active);
           btn.setAttribute('aria-selected', active ? 'true' : 'false');
         });
+        ensureBreakdownCardViewMarkup();
       };
       setBreakdownViewMode('simulated');
 
@@ -9946,6 +9953,11 @@
       };
 
       const sync = (opts = {}) => {
+        if (breakdownViewMode === 'historic') {
+          ensureBreakdownCardViewMarkup();
+          return;
+        }
+        ensureBreakdownCardViewMarkup();
         const source =
           opts.source ||
           (breakdownPanel.classList.contains('is-open') ? breakdownOpenSource : 'detail');
