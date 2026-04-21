@@ -12504,7 +12504,6 @@
         activeCategory = resolveCategory(opts.category);
         renderTabs();
         renderCards();
-        bindHorizontalRailInteractions(tabsEl);
         bindHorizontalRailInteractions(cardsEl);
         sheet.hidden = false;
         requestAnimationFrame(() => {
