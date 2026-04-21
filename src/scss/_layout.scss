@@ -15187,6 +15187,8 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  scroll-padding-left: 16px;
+  scroll-padding-right: 16px;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
