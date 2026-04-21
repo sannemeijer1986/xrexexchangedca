@@ -12470,7 +12470,8 @@
       const tabsEl = sheet?.querySelector('[data-theme-guide-tabs]');
       const cardsEl = sheet?.querySelector('[data-theme-guide-cards]');
       if (!sheet || !tabsEl || !cardsEl) return { open: () => {}, close: () => {} };
-      const categories = [...themeCategories];
+      const allCategories = [...themeCategories];
+      let visibleCategories = [...allCategories];
       let activeCategory = 'all';
       let suppressCardScrollSync = false;
       let cardScrollSyncTimer = 0;
@@ -12565,10 +12566,11 @@
 
       const resolveCategory = (key) => {
         const normalized = String(key || '').toLowerCase();
-        return categories.some((c) => c.key === normalized) ? normalized : 'all';
+        if (visibleCategories.some((c) => c.key === normalized)) return normalized;
+        return visibleCategories[0]?.key || 'all';
       };
       const renderTabs = () => {
-        tabsEl.innerHTML = categories.map((cat) => `
+        tabsEl.innerHTML = visibleCategories.map((cat) => `
           <button class="theme-guide-sheet__tab ${cat.key === activeCategory ? 'is-active' : ''}" type="button" data-theme-guide-tab="${cat.key}">
             ${cat.label}
           </button>
@@ -12579,7 +12581,7 @@
         activeTabEl?.scrollIntoView({ behavior, inline: 'center', block: 'nearest' });
       };
       const renderCards = () => {
-        cardsEl.innerHTML = categories.map((cat) => `
+        cardsEl.innerHTML = visibleCategories.map((cat) => `
           <article class="theme-guide-sheet__card" data-theme-guide-card="${cat.key}">
             <div class="theme-guide-sheet__card-head">
               <img class="theme-guide-sheet__card-icon" src="${cat.iconOn}" alt="" />
@@ -12598,10 +12600,10 @@
         renderTabs();
         scrollActiveTabIntoView(opts.tabBehavior || 'auto');
         if (opts.scrollCard !== false) {
-          const idx = categories.findIndex((cat) => cat.key === activeCategory);
+          const idx = visibleCategories.findIndex((cat) => cat.key === activeCategory);
           const cardEls = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
           if (idx >= 0 && cardEls[idx]) {
-            const prevIdx = categories.findIndex((cat) => cat.key === prevActiveCategory);
+            const prevIdx = visibleCategories.findIndex((cat) => cat.key === prevActiveCategory);
             const hopCount = prevIdx >= 0 ? Math.abs(idx - prevIdx) : 1;
             const settleMs = opts.lockActiveDuringScroll
               ? Math.min(1100, 260 + (hopCount * 140))
@@ -12649,6 +12651,9 @@
       }, { passive: true });
 
       const open = (opts = {}) => {
+        visibleCategories = opts.hideAll
+          ? allCategories.filter((cat) => cat.key !== 'all')
+          : [...allCategories];
         activeCategory = resolveCategory(opts.category);
         renderTabs();
         renderCards();
@@ -12778,7 +12783,7 @@
       btn.addEventListener('click', closeFinanceThemesPage);
     });
     financeThemesPageEl?.querySelector('[data-theme-guide-open]')?.addEventListener('click', () => {
-      themeGuideApi.open({ category: 'all' });
+      themeGuideApi.open({ category: 'all', hideAll: true });
     });
     document.querySelector('.alloc-picker-panel__theme-info')?.addEventListener('click', () => {
       const activeThemeCat = allocPickerPanel
