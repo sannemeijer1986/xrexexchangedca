@@ -8561,7 +8561,7 @@ div.currency-sheet__item-icon::before {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px;
+  padding: 16px 16px 0px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
