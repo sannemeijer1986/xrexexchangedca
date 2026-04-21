@@ -7426,9 +7426,32 @@
 
     let detailAllocOverride = null;
     let latestAllocItemCount = 0;
+    const HISTORIC_TONE_DEFAULT_MARKUP = `
+      <div class="plan-detail-panel__return-pct-inline plan-detail-panel__return-pct-inline--historic plan-return-metric__pct-line--historic">
+        <img src="assets/icon_northeast_arrow.svg" alt="" class="plan-detail-panel__return-arrow plan-return-metric__arrow plan-return-metric__arrow--historic" />
+        <span class="plan-return-metric__pct plan-return-metric__pct--historic" data-plan-detail-return-historic-pct>0.0%</span>
+      </div>
+    `;
 
     const getManualAllocSection = () =>
       panel.querySelector('.plan-detail-panel__allocation-section:not(.plan-detail-panel__allocation-section--auto)');
+    const getOrCreateHistoricToneNode = (section = getManualAllocSection()) => {
+      if (!section) return null;
+      let tone = section.querySelector('[data-plan-detail-historic-performance-tone]');
+      if (tone) return tone;
+      const headerHistoric = section.querySelector('[data-plan-detail-alloc-header-historic]');
+      if (!headerHistoric) return null;
+      tone = document.createElement('div');
+      tone.setAttribute('data-plan-detail-historic-performance-tone', '');
+      tone.dataset.historicToneMarkupDefault = HISTORIC_TONE_DEFAULT_MARKUP.trim();
+      tone.innerHTML = HISTORIC_TONE_DEFAULT_MARKUP;
+      const labelRow = headerHistoric.querySelector('[data-plan-detail-alloc-historic-label-row]');
+      const belowLabel = headerHistoric.querySelector('.plan-detail-panel__historic-performance-label--below');
+      const historicAnchor = labelRow || belowLabel;
+      if (historicAnchor) headerHistoric.insertBefore(tone, historicAnchor.nextSibling);
+      else headerHistoric.appendChild(tone);
+      return tone;
+    };
     const getAutoAllocSection = () => panel.querySelector('[data-plan-detail-allocation-auto-section]');
     const getActiveAllocSection = () => {
       const useSmart = getPrototypeSmartAllocationEnabled();
@@ -7456,7 +7479,7 @@
       const manualSection = getManualAllocSection();
       if (!manualSection) return;
       const headerHistoric = manualSection.querySelector('[data-plan-detail-alloc-header-historic]');
-      const tone = manualSection.querySelector('[data-plan-detail-historic-performance-tone]');
+      const tone = getOrCreateHistoricToneNode(manualSection);
       if (!headerHistoric || !tone) return;
       const labelRow = headerHistoric.querySelector('[data-plan-detail-alloc-historic-label-row]');
       const belowLabel = headerHistoric.querySelector('.plan-detail-panel__historic-performance-label--below');
@@ -8960,11 +8983,38 @@
       const historicLabelRow = headerHistoric?.querySelector('[data-plan-detail-alloc-historic-label-row]');
       const historicBelowInHeader = headerHistoric?.querySelector('.plan-detail-panel__historic-performance-label--below');
       const historicAnchor = historicLabelRow || historicBelowInHeader;
-      let historicTone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
+      let historicTone = getOrCreateHistoricToneNode(allocSection);
       const historicAllocSubtitle = historicRow?.querySelector('[data-plan-detail-alloc-subtitle]');
+      const singleAssetAmountText = () => {
+        const amountInputEl = panel.querySelector('[data-plan-detail-amount-input]');
+        const currencyEl = panel.querySelector('[data-plan-detail-currency]');
+        const perBuyAmount = parseInt(String(amountInputEl?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+        const currency = String(currencyEl?.textContent || 'TWD').trim() || 'TWD';
+        return `${Math.max(0, perBuyAmount).toLocaleString('en-US')} ${currency}`;
+      };
+      const setHistoricToneSingleAsset = () => {
+        const tone = getOrCreateHistoricToneNode(allocSection);
+        if (!tone) return;
+        if (!tone.dataset.historicToneMarkupDefault) {
+          tone.dataset.historicToneMarkupDefault = tone.innerHTML;
+        }
+        tone.innerHTML = `
+          <div class="plan-detail-panel__single-asset-summary" data-plan-detail-single-asset-summary>
+            <span class="plan-detail-panel__single-asset-summary-title" data-plan-detail-single-asset-per-buy>${singleAssetAmountText()}</span>
+            <span class="plan-detail-panel__single-asset-summary-subtitle">per buy</span>
+          </div>
+        `;
+      };
+      const setHistoricToneMultiAsset = () => {
+        const tone = getOrCreateHistoricToneNode(allocSection);
+        if (!tone) return;
+        const defaultMarkup = tone.dataset.historicToneMarkupDefault;
+        if (!defaultMarkup || tone.querySelector('[data-plan-detail-return-historic-pct]')) return;
+        tone.innerHTML = defaultMarkup;
+      };
 
       const placeHistoricToneInAllocHeaderInline = () => {
-        const tone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
+        const tone = getOrCreateHistoricToneNode(allocSection);
         if (!headerHistoric || !tone) return;
         if (historicAnchor) {
           if (tone.parentElement === headerHistoric && tone.previousElementSibling === historicAnchor) return;
@@ -9092,14 +9142,16 @@
         }
       }
 
-      historicTone = allocSection?.querySelector('[data-plan-detail-historic-performance-tone]');
+      historicTone = getOrCreateHistoricToneNode(allocSection);
       if (allocSection && historicRow && historicTone) {
         if (allocItems.length === 1) {
+          setHistoricToneSingleAsset();
           const firstItem = allocList.querySelector('.plan-detail-panel__alloc-item');
           if (firstItem && !firstItem.contains(historicTone)) {
             firstItem.appendChild(historicTone);
           }
         } else {
+          setHistoricToneMultiAsset();
           placeHistoricToneInAllocHeaderInline();
         }
       }
@@ -12355,11 +12407,17 @@
       const ctx = panelOpenContext;
       const amount = parseInt(amountInput?.value?.replace(/[^0-9]/g, '') || '0', 10);
       const titleEl = panel.querySelector('[data-plan-detail-return-title]');
+      const singleAssetPerBuyEl = panel.querySelector('[data-plan-detail-single-asset-per-buy]');
+      const detailCurrencyEl = panel.querySelector('[data-plan-detail-currency]');
       syncDetailBreakdownLinkState();
 
       // Always recalculate coverage whenever amount or currency changes
       updateCoverageUI();
       syncPlanDetailContinueState();
+      if (singleAssetPerBuyEl) {
+        const currency = String(detailCurrencyEl?.textContent || 'TWD').trim() || 'TWD';
+        singleAssetPerBuyEl.textContent = `${Math.max(0, amount || 0).toLocaleString('en-US')} ${currency}`;
+      }
 
       if (ctx.source === 'newplan' && !detailAllocOverride?.items?.length) {
         // No allocation yet — reset historic header + title (footer totals follow gate state)

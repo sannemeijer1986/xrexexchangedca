@@ -7359,18 +7359,10 @@ div.currency-sheet__item-icon::before {
 .plan-detail-panel__allocation-section.is-single-asset [data-plan-detail-historic-performance-tone] {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
-}
-.plan-detail-panel__allocation-section.is-single-asset .plan-return-metric__pct-line--historic {
-  display: flex;
-}
-.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__return-pct-inline--historic {
-  font-size: 14px;
-  transform: none;
-}
-.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-item .plan-detail-panel__return-arrow {
-  width: 16px;
-  height: 16px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-left: auto;
+  min-width: 0;
 }
 
 .plan-detail-panel__alloc-item [data-plan-detail-historic-performance-tone] .plan-return-metric__pct-line--historic {
@@ -7381,6 +7373,32 @@ div.currency-sheet__item-icon::before {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.plan-detail-panel__single-asset-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  text-align: right;
+}
+
+.plan-detail-panel__single-asset-summary-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
+  display: block;
+}
+
+.plan-detail-panel__single-asset-summary-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #9B9C9C;
+  display: block;
+  white-space: nowrap;
 }
 
 .plan-detail-panel__alloc-icon {
