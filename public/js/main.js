@@ -12120,16 +12120,20 @@
       });
     });
 
+    const openThemeAllocPickerByCategory = (themeCategory) => {
+      allocPickerApi.open({
+        source: 'finance',
+        tab: 'curated',
+        themeCategory,
+        emptyEntry: true,
+      });
+    };
+
     document.querySelectorAll('.start-theme__card').forEach((card) => {
       const openThemeAllocPicker = () => {
         const curatedKey = String(card.getAttribute('data-curated-key') || '').toLowerCase();
         const themeCategory = mapCuratedKeyToThemeCategory(curatedKey);
-        allocPickerApi.open({
-          source: 'finance',
-          tab: 'curated',
-          themeCategory,
-          emptyEntry: true,
-        });
+        openThemeAllocPickerByCategory(themeCategory);
       };
       card.addEventListener('click', openThemeAllocPicker);
       card.addEventListener('keydown', (e) => {
@@ -12138,6 +12142,119 @@
           openThemeAllocPicker();
         }
       });
+    });
+
+    const financeThemesPageEl = document.querySelector('[data-finance-themes-page]');
+    const financeThemesListEl = financeThemesPageEl?.querySelector('[data-finance-themes-list]');
+    const financeThemesShowAllBtn = document.querySelector('.start-theme__show-all');
+    const financeThemeDescriptions = {
+      ai: 'Artificial Intelligence',
+      rwa: 'Real World Assets',
+      l1: 'Layer 1',
+      l2: 'Layer 2',
+      defi: 'Decentralized Finance',
+      gaming: 'Gaming',
+      storage: 'Storage',
+      restake: 'Restaking',
+      meme: 'Meme coins',
+      nft: 'Non-fungible tokens',
+      metaverse: 'Metaverse',
+      gold: 'Digital Gold',
+    };
+    const financeThemeStackKeys = {
+      ai: ['fet', 'render', 'near', 'sol'],
+      rwa: ['xaut', 'link', 'btc'],
+      l1: ['btc', 'eth', 'sol', 'xrp'],
+      l2: ['eth', 'pol', 'link'],
+      defi: ['eth', 'link', 'btc', 'sol'],
+      gaming: ['sol', 'eth', 'btc'],
+      storage: ['near', 'btc', 'eth'],
+      restake: ['eth', 'near', 'link'],
+      meme: ['doge', 'btc', 'sol'],
+      nft: ['eth', 'sol', 'near'],
+      metaverse: ['render', 'sol', 'near'],
+      gold: ['xaut', 'btc'],
+    };
+    const iconByTicker = {
+      BTC: 'assets/icon_currency_btc.svg',
+      ETH: 'assets/icon_currency_eth.svg',
+      SOL: 'assets/icon_solana.svg',
+      XAUT: 'assets/icon_currency_xaut.svg',
+      RENDER: 'assets/icon_currency_render.svg',
+      NEAR: 'assets/icon_currency_near.svg',
+      LINK: 'assets/icon_currency_link.svg',
+      XRP: 'assets/icon_currency_xrp.svg',
+      FET: 'assets/icon_currency_btc.svg',
+      POL: 'assets/icon_currency_matic.svg',
+      DOGE: 'assets/icon_currency_btc.svg',
+    };
+
+    const closeFinanceThemesPage = () => {
+      if (!financeThemesPageEl || !financeThemesPageEl.classList.contains('is-open')) return;
+      financeThemesPageEl.classList.remove('is-open');
+      const onEnd = () => {
+        if (!financeThemesPageEl.classList.contains('is-open')) financeThemesPageEl.hidden = true;
+        financeThemesPageEl.removeEventListener('transitionend', onEnd);
+      };
+      financeThemesPageEl.addEventListener('transitionend', onEnd);
+      setTimeout(onEnd, 320);
+    };
+
+    const openFinanceThemesPage = () => {
+      if (!financeThemesPageEl) return;
+      financeThemesPageEl.hidden = false;
+      requestAnimationFrame(() => {
+        financeThemesPageEl.classList.add('is-open');
+      });
+    };
+
+    if (financeThemesListEl) {
+      const visibleThemes = themeCategories.filter((cat) => cat.key !== 'all');
+      financeThemesListEl.innerHTML = visibleThemes.map((cat) => `
+        <button class="finance-themes-page__item" type="button" data-finance-theme-category="${cat.key}">
+          <img class="finance-themes-page__item-icon" src="${cat.iconOn}" alt="" aria-hidden="true" />
+          <span class="finance-themes-page__item-copy">
+            <span class="finance-themes-page__item-title">${cat.label}</span>
+            <span class="finance-themes-page__item-sub">${financeThemeDescriptions[cat.key] || `What is ${cat.label}`}</span>
+          </span>
+          <span class="finance-themes-page__item-stack" aria-hidden="true">
+            ${(() => {
+              const keys = (financeThemeStackKeys[cat.key] || []).slice(0, 4);
+              const visibles = keys.slice(0, 3);
+              const extra = Math.max(0, keys.length - visibles.length);
+              const chips = visibles.map((k) => {
+                const match = pickableCoins.find((c) => c.key === k);
+                const ticker = String(match?.ticker || k || '').trim().toUpperCase();
+                const icon = match?.icon || iconByTicker[ticker] || 'assets/icon_currency_btc.svg';
+                return `<img class="finance-themes-page__item-stack-coin" src="${icon}" alt="" />`;
+              }).join('');
+              return chips + (extra > 0 ? `<span class="finance-themes-page__item-stack-more">+${extra}</span>` : '');
+            })()}
+          </span>
+          <span class="finance-themes-page__item-chev" aria-hidden="true">
+            <img src="assets/icon_back.svg" alt="" />
+          </span>
+        </button>
+      `).join('');
+      financeThemesListEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-finance-theme-category]');
+        if (!btn) return;
+        const category = String(btn.getAttribute('data-finance-theme-category') || '').toLowerCase();
+        if (!category) return;
+        closeFinanceThemesPage();
+        openThemeAllocPickerByCategory(category);
+      });
+    }
+
+    financeThemesShowAllBtn?.addEventListener('click', openFinanceThemesPage);
+    financeThemesShowAllBtn?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openFinanceThemesPage();
+      }
+    });
+    financeThemesPageEl?.querySelectorAll('[data-finance-themes-close]').forEach((btn) => {
+      btn.addEventListener('click', closeFinanceThemesPage);
     });
 
     // Spotlight crypto pills → open detail panel with empty auto-invest amount.

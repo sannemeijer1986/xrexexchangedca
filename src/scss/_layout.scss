@@ -3396,6 +3396,187 @@ button.finance-summary__stat-value--chevron {
   cursor: pointer;
 }
 
+// ─── All themes page (Finance Auto-invest) ───────────────────────────────────
+
+.finance-themes-page {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.28s ease, opacity 0.24s ease;
+}
+
+.finance-themes-page.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.finance-themes-page__header {
+  padding: 52px 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.finance-themes-page__icon-btn {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.finance-themes-page__title-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.finance-themes-page__title {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.finance-themes-page__divider {
+  width: 100%;
+  height: 1px;
+  background: #252627;
+}
+
+.finance-themes-page__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.finance-themes-page__list {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0 24px;
+}
+
+.finance-themes-page__item {
+  width: 100%;
+  min-height: 72px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.finance-themes-page__item-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.finance-themes-page__item-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.finance-themes-page__item-stack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 4px;
+}
+
+.finance-themes-page__item-stack-coin {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #0d0e0f;
+  object-fit: cover;
+  display: block;
+  margin-left: -6px;
+  background: #2a2e34;
+}
+
+.finance-themes-page__item-stack-coin:first-child {
+  margin-left: 0;
+}
+
+.finance-themes-page__item-stack-more {
+  width: 20px;
+  height: 20px;
+  margin-left: -6px;
+  border-radius: 50%;
+  border: 1px solid #0d0e0f;
+  background: #2a2e34;
+  color: #a3a3a3;
+  font-size: 8px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.finance-themes-page__item-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.finance-themes-page__item-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #7c7c7c;
+  line-height: 1.2;
+}
+
+.finance-themes-page__item-chev {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 24px;
+    height: 24px;
+    transform: rotate(180deg);
+    display: block;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Cryptos in the Spotlight ─────────────────────────────────────────────────
