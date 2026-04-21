@@ -12661,7 +12661,16 @@
         sheet.hidden = false;
         requestAnimationFrame(() => {
           sheet.classList.add('is-open');
+          // Exception on open: jump to target tab/card position without animation.
+          const prevTabScrollBehavior = tabsEl.style.scrollBehavior;
+          const prevCardScrollBehavior = cardsEl.style.scrollBehavior;
+          tabsEl.style.scrollBehavior = 'auto';
+          cardsEl.style.scrollBehavior = 'auto';
           setActiveCategory(activeCategory, { cardBehavior: 'auto', tabBehavior: 'auto' });
+          requestAnimationFrame(() => {
+            tabsEl.style.scrollBehavior = prevTabScrollBehavior;
+            cardsEl.style.scrollBehavior = prevCardScrollBehavior;
+          });
         });
       };
       const close = () => {
