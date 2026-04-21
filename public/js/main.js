@@ -5687,7 +5687,7 @@
       if (cur === 'TWD') {
         if (abs < 10000) return abs.toLocaleString('en-US');
         if (abs < 100000000) return `${round1(abs / 10000)}萬`;
-        return `${round1(abs / 100000000)}億`;
+        return `${round1(abs / 100000000)}百萬`;
       }
       if (abs < 10000) return abs.toLocaleString('en-US');
       if (abs < 1000000) return `${round1(abs / 1000)}K`;
@@ -5717,7 +5717,7 @@
       if (cur === 'TWD') {
         if (abs < 10000) numPart = abs.toLocaleString('en-US');
         else if (abs < 100000000) numPart = `${round1(abs / 10000)}萬`;
-        else numPart = `${round1(abs / 100000000)}億`;
+        else numPart = `${round1(abs / 100000000)}百萬`;
       } else if (abs < 10000) {
         numPart = abs.toLocaleString('en-US');
       } else if (abs < 1000000) {
