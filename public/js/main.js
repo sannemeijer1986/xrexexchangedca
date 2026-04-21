@@ -5753,13 +5753,15 @@
       const valueAmtEl = panel.querySelector('[data-plan-detail-footer-value-amount]');
       const valueSufEl = panel.querySelector('[data-plan-detail-footer-value-suffix]');
       const cur = String(curLabel || 'TWD').trim();
+      const simRange = String(rangeState?.plan || '5Y').toUpperCase();
+      const simRangeLabel = ['1Y', '3Y', '5Y'].includes(simRange) ? simRange : '5Y';
       const v = Math.max(0, Math.round(Number(n) || 0));
       if (valueAmtEl) {
         valueAmtEl.textContent = formatPlanDetailFooterSimulatedValueAmount(n, cur);
         valueAmtEl.classList.remove('plan-detail-panel__footer-value-amount--unavailable');
       }
       if (valueSufEl) {
-        valueSufEl.textContent = ` ${cur} simulated value`;
+        valueSufEl.textContent = ` ${cur} (${simRangeLabel} simulated value)`;
         valueSufEl.hidden = false;
         valueSufEl.setAttribute('aria-hidden', 'false');
       }

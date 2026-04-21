@@ -8051,7 +8051,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .plan-detail-panel__allocation-section {
-  padding-top: 8px;
+  padding-top: 16px;
 }
 
 .plan-detail-panel__allocation-section--auto {
