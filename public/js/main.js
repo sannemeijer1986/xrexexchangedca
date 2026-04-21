@@ -12451,6 +12451,20 @@
       metaverse: '{$descriptionSameAsMarkets}',
       gold: '{$descriptionSameAsMarkets}',
     };
+    const financeThemeHeadSubtitles = {
+      ai: 'Artifical Intelligence',
+      gold: 'Tokenized gold',
+      rwa: 'Real World Assets',
+      l1: 'Layer1 solutions',
+      l2: 'Layer2 solutions',
+      defi: 'Decentralized Finance',
+      gaming: 'Play to Earn & more',
+      storage: 'Decentralised storage solutions',
+      restake: 'Reuse of staked asset innovations',
+      meme: 'Cultural coins',
+      nft: 'Non-fundigble tokens',
+      metaverse: 'VR, digital estate & more',
+    };
     const initThemeGuideSheet = () => {
       const sheet = document.querySelector('[data-theme-guide-sheet]');
       const tabsEl = sheet?.querySelector('[data-theme-guide-tabs]');
@@ -12569,7 +12583,10 @@
           <article class="theme-guide-sheet__card" data-theme-guide-card="${cat.key}">
             <div class="theme-guide-sheet__card-head">
               <img class="theme-guide-sheet__card-icon" src="${cat.iconOn}" alt="" />
-              <div class="theme-guide-sheet__card-title">${cat.label}</div>
+              <div class="theme-guide-sheet__card-head-copy">
+                <div class="theme-guide-sheet__card-title">${cat.label}</div>
+                ${financeThemeHeadSubtitles[cat.key] ? `<div class="theme-guide-sheet__card-subtitle">${financeThemeHeadSubtitles[cat.key]}</div>` : ''}
+              </div>
             </div>
             <p class="theme-guide-sheet__card-desc">${financeThemeDescriptions[cat.key] || `Learn more about ${cat.label}.`}</p>
           </article>
