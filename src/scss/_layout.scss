@@ -15124,6 +15124,101 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   display: block;
 }
 
+.theme-guide-sheet {
+  .currency-sheet__panel {
+    max-height: min(76vh, 620px);
+  }
+}
+
+.theme-guide-sheet__body {
+  gap: 16px;
+  padding-top: 0;
+}
+
+.theme-guide-sheet__tabs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.theme-guide-sheet__tab {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.theme-guide-sheet__tab.is-active {
+  background: #ffffff;
+  color: #0d0e0f;
+}
+
+.theme-guide-sheet__cards {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.theme-guide-sheet__card {
+  flex: 0 0 calc(100% - 36px);
+  min-height: 320px;
+  background: #2d2f2f;
+  border-radius: 16px;
+  padding: 16px;
+  scroll-snap-align: start;
+}
+
+.theme-guide-sheet__card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.theme-guide-sheet__card-icon {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.theme-guide-sheet__card-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.phone-container p.theme-guide-sheet__card-desc {
+  margin: 0;
+  color: #c7c7c7;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.theme-guide-sheet__footer {
+  padding-top: 0;
+}
+
 .alloc-picker-panel__coins {
   display: flex;
   flex-direction: column;
@@ -15217,7 +15312,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 .alloc-picker-panel__coin-row {
   width: 100%;
   border-radius: 12px;
-  background: #1b1d1d;
+  background: #151718;
   padding: 16px;
   display: flex;
   align-items: center;
@@ -15230,6 +15325,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 
 .alloc-picker-panel__coin-row.is-selected {
   outline: 2px solid #ffffff;
+  background: #1b1d1d;
 }
 
 .alloc-picker-panel__coins--max-selected .alloc-picker-panel__coin-row:not(.is-selected) {

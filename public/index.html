@@ -905,8 +905,8 @@
                 <div class="finance-themes-page__title-wrap">
                     <h2 class="finance-themes-page__title">All themes</h2>
                 </div>
-                <button class="finance-themes-page__icon-btn finance-themes-page__icon-btn--right" type="button" aria-label="Support">
-                    <img src="assets/icon_contactsupport.svg" alt="" />
+                <button class="finance-themes-page__icon-btn finance-themes-page__icon-btn--right" type="button" data-theme-guide-open aria-label="Theme guide">
+                    <img src="assets/icon_guide.svg" alt="" />
                 </button>
             </header>
             <div class="finance-themes-page__divider" aria-hidden="true"></div>
@@ -914,6 +914,25 @@
                 <div class="finance-themes-page__list" data-finance-themes-list></div>
             </div>
         </section>
+
+        <div class="currency-sheet theme-guide-sheet" data-theme-guide-sheet hidden aria-modal="true" role="dialog" aria-label="Theme guide">
+            <button class="currency-sheet__backdrop" type="button" data-theme-guide-close aria-label="Close"></button>
+            <div class="currency-sheet__panel">
+                <div class="currency-sheet__handle-wrap">
+                    <div class="currency-sheet__handle"></div>
+                </div>
+                <div class="currency-sheet__body theme-guide-sheet__body">
+                    <div class="currency-sheet__headerwrapper">
+                        <div class="currency-sheet__title">Theme guide</div>
+                    </div>
+                    <div class="theme-guide-sheet__tabs" data-theme-guide-tabs></div>
+                    <div class="theme-guide-sheet__cards" data-theme-guide-cards></div>
+                </div>
+                <div class="currency-sheet__footer theme-guide-sheet__footer">
+                    <button class="currency-sheet__cancel" type="button" data-theme-guide-close>Done</button>
+                </div>
+            </div>
+        </div>
 
         <div class="finance-auto-sticky-cta" data-finance-auto-sticky-cta hidden>
             <button class="finance-auto-sticky-cta__btn" type="button" data-finance-auto-sticky-new-plan>New plan</button>
