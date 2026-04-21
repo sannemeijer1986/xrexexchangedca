@@ -5531,14 +5531,32 @@
       });
     });
 
+    const openFirstDetail = () => {
+      const list = getMyPlansRecords();
+      const rec = list[0];
+      if (!rec) {
+        open();
+        return;
+      }
+      open();
+      openPlanDetail(rec);
+    };
+
     syncMyPlansFromFlow();
 
-    return { open, close: closeMyPlans, sync: syncMyPlansFromFlow };
+    return { open, close: closeMyPlans, sync: syncMyPlansFromFlow, openFirstDetail };
   };
 
   const myPlansPanelApi = initMyPlansPanel({
     goFinanceAutoInvest,
     getDismissPlanDetailStackInstant: () => dismissPlanDetailStackInstant,
+  });
+
+  const flow2HeroNextBtn = document.querySelector('.finance-summary__next--flow-2-hero');
+  flow2HeroNextBtn?.addEventListener('click', () => {
+    if ((states.flow ?? 1) < 2) return;
+    goFinanceAutoInvest();
+    myPlansPanelApi.openFirstDetail?.();
   });
 
   initFinanceSectionNav();

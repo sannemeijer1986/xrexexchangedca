@@ -1999,15 +1999,22 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance-intro-learn-more-panel__close {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
+}
+
+.finance-intro-learn-more-panel__close img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .finance-intro-learn-more-panel__stepper {
@@ -2033,14 +2040,21 @@ html[data-active-tab=finance] .app-header__tabs {
 }
 
 .finance-intro-learn-more-panel__help {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.finance-intro-learn-more-panel__help img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .finance-intro-learn-more-panel__body {
