@@ -12576,6 +12576,7 @@
         `).join('');
       };
       const setActiveCategory = (key, opts = {}) => {
+        const prevActiveCategory = activeCategory;
         activeCategory = resolveCategory(key);
         renderTabs();
         scrollActiveTabIntoView(opts.tabBehavior || 'auto');
@@ -12583,6 +12584,11 @@
           const idx = categories.findIndex((cat) => cat.key === activeCategory);
           const cardEls = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
           if (idx >= 0 && cardEls[idx]) {
+            const prevIdx = categories.findIndex((cat) => cat.key === prevActiveCategory);
+            const hopCount = prevIdx >= 0 ? Math.abs(idx - prevIdx) : 1;
+            const settleMs = opts.lockActiveDuringScroll
+              ? Math.min(1100, 260 + (hopCount * 140))
+              : 220;
             suppressCardScrollSync = true;
             cardEls[idx].scrollIntoView({
               behavior: opts.cardBehavior || 'smooth',
@@ -12590,7 +12596,7 @@
               block: 'nearest',
             });
             window.clearTimeout(cardScrollSyncTimer);
-            cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, 220);
+            cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, settleMs);
           }
         }
       };
@@ -12598,7 +12604,11 @@
       tabsEl.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-theme-guide-tab]');
         if (!btn) return;
-        setActiveCategory(btn.getAttribute('data-theme-guide-tab'));
+        setActiveCategory(btn.getAttribute('data-theme-guide-tab'), {
+          lockActiveDuringScroll: true,
+          cardBehavior: 'smooth',
+          tabBehavior: 'smooth',
+        });
       });
       let scrollRaf = 0;
       cardsEl.addEventListener('scroll', () => {
