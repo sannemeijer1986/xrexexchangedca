@@ -5761,7 +5761,7 @@
         valueAmtEl.classList.remove('plan-detail-panel__footer-value-amount--unavailable');
       }
       if (valueSufEl) {
-        valueSufEl.textContent = ` ${cur} (${simRangeLabel} simulated value)`;
+        valueSufEl.textContent = ` ${cur} (simulated value)`;
         valueSufEl.hidden = false;
         valueSufEl.setAttribute('aria-hidden', 'false');
       }
