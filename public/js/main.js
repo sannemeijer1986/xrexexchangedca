@@ -9602,6 +9602,7 @@
         if (allocPickerOpenSource === 'finance') {
           // Finance entrypoint should move forward to plan detail, not "back" from a stacked child panel.
           // Open the plan first, then apply selected assets so newplan initialization doesn't clear override.
+          closeFinanceThemesPage({ instant: true });
           close({ instant: true });
           setOpen(true, { source: 'newplan' });
           customPlanTitle = '';
@@ -12189,8 +12190,13 @@
       DOGE: 'assets/icon_currency_btc.svg',
     };
 
-    const closeFinanceThemesPage = () => {
+    const closeFinanceThemesPage = (opts = {}) => {
       if (!financeThemesPageEl || !financeThemesPageEl.classList.contains('is-open')) return;
+      if (opts.instant) {
+        financeThemesPageEl.classList.remove('is-open');
+        financeThemesPageEl.hidden = true;
+        return;
+      }
       financeThemesPageEl.classList.remove('is-open');
       const onEnd = () => {
         if (!financeThemesPageEl.classList.contains('is-open')) financeThemesPageEl.hidden = true;
@@ -12241,7 +12247,7 @@
         if (!btn) return;
         const category = String(btn.getAttribute('data-finance-theme-category') || '').toLowerCase();
         if (!category) return;
-        closeFinanceThemesPage();
+        // Keep All themes mounted underneath so allocation can slide over it.
         openThemeAllocPickerByCategory(category);
       });
     }
