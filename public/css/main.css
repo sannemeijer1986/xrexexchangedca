@@ -14672,6 +14672,8 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   min-width: 0;
   display: flex;
   gap: 10px;
+  padding: 0 16px 0 16px;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
@@ -14710,6 +14712,8 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   min-width: 0;
   display: flex;
   gap: 12px;
+  padding: 0 16px 0 16px;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -14761,10 +14765,10 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 
 .phone-container p.theme-guide-sheet__card-desc {
   margin: 0;
-  color: #c7c7c7;
-  font-size: 14px;
+  color: #fff;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.6;
 }
 
 .theme-guide-sheet__footer {

@@ -12374,19 +12374,19 @@
     const financeThemesListEl = financeThemesPageEl?.querySelector('[data-finance-themes-list]');
     const financeThemesShowAllBtn = document.querySelector('.start-theme__show-all');
     const financeThemeDescriptions = {
-      all: 'Check out trading opportunities on the market. Track performance and jump into a trade when you\'re ready!',
-      ai: 'Artificial Intelligence',
-      rwa: 'Real World Assets',
-      l1: 'Layer 1',
-      l2: 'Layer 2',
-      defi: 'Decentralized Finance',
-      gaming: 'Gaming',
-      storage: 'Storage',
-      restake: 'Restaking',
-      meme: 'Meme coins',
-      nft: 'Non-fungible tokens',
-      metaverse: 'Metaverse',
-      gold: 'Digital Gold',
+      all: 'An overview of all coins available on XREX for auto-investing',
+      ai: '{$descriptionSameAsMarkets}',
+      rwa: '{$descriptionSameAsMarkets}',
+      l1: '{$descriptionSameAsMarkets}',
+      l2: '{$descriptionSameAsMarkets}',
+      defi: '{$descriptionSameAsMarkets}',
+      gaming: '{$descriptionSameAsMarkets}',
+      storage: '{$descriptionSameAsMarkets}',
+      restake: '{$descriptionSameAsMarkets}',
+      meme: '{$descriptionSameAsMarkets}',
+      nft: '{$descriptionSameAsMarkets}',
+      metaverse: '{$descriptionSameAsMarkets}',
+      gold: '{$descriptionSameAsMarkets}',
     };
     const initThemeGuideSheet = () => {
       const sheet = document.querySelector('[data-theme-guide-sheet]');
@@ -12405,27 +12405,34 @@
         let startX = 0;
         let startLeft = 0;
         let moved = false;
+        let activePointerId = null;
         const SNAP_THRESHOLD_PX = 3;
+        let lastClientX = 0;
         let dragSettleTimer = 0;
         const snapToNearestCard = () => {
           const cards = Array.from(el.querySelectorAll('[data-theme-guide-card]'));
           if (!cards.length) return;
-          let nearestLeft = cards[0].offsetLeft;
-          let nearestDist = Math.abs(el.scrollLeft - nearestLeft);
-          cards.forEach((card) => {
-            const left = card.offsetLeft;
-            const dist = Math.abs(el.scrollLeft - left);
-            if (dist < nearestDist) {
-              nearestDist = dist;
-              nearestLeft = left;
-            }
-          });
-          el.scrollTo({ left: nearestLeft, behavior: 'smooth' });
+          const firstOffset = cards[0].offsetLeft;
+          const step = cards.length > 1 ? (cards[1].offsetLeft - cards[0].offsetLeft) : cards[0].getBoundingClientRect().width + 12;
+          const dragDelta = lastClientX - startX;
+          const dragDirection = dragDelta < 0 ? 1 : dragDelta > 0 ? -1 : 0; // swipe left => next
+          const SNAP_SENSITIVITY_RATIO = 0.25;
+          const currentFloatIndex = step > 0 ? (el.scrollLeft - firstOffset) / step : 0;
+          let targetIndex = Math.round(currentFloatIndex);
+          if (Math.abs(dragDelta) > (step * SNAP_SENSITIVITY_RATIO)) {
+            targetIndex = Math.round(currentFloatIndex) + dragDirection;
+          }
+          const maxIndex = cards.length - 1;
+          targetIndex = Math.max(0, Math.min(maxIndex, targetIndex));
+          const targetLeft = firstOffset + (targetIndex * step);
+          el.scrollTo({ left: targetLeft, behavior: 'smooth' });
         };
         el.addEventListener('pointerdown', (e) => {
           if (e.button !== 0) return;
           isDown = true;
+          activePointerId = e.pointerId;
           moved = false;
+          lastClientX = e.clientX;
           if (dragSettleTimer) {
             window.clearTimeout(dragSettleTimer);
             dragSettleTimer = 0;
@@ -12437,16 +12444,20 @@
         });
         el.addEventListener('pointermove', (e) => {
           if (!isDown) return;
+          if (activePointerId != null && e.pointerId !== activePointerId) return;
+          lastClientX = e.clientX;
           const delta = e.clientX - startX;
           if (Math.abs(delta) > SNAP_THRESHOLD_PX) moved = true;
           el.scrollLeft = startLeft - delta;
         });
         const stop = (e) => {
           if (!isDown) return;
+          if (activePointerId != null && e?.pointerId != null && e.pointerId !== activePointerId) return;
           isDown = false;
           if (e?.pointerId != null && el.hasPointerCapture?.(e.pointerId)) {
             el.releasePointerCapture(e.pointerId);
           }
+          activePointerId = null;
           if (moved) {
             snapToNearestCard();
             dragSettleTimer = window.setTimeout(() => {
@@ -12459,6 +12470,15 @@
         };
         el.addEventListener('pointerup', stop);
         el.addEventListener('pointercancel', stop);
+        el.addEventListener('lostpointercapture', () => {
+          if (!isDown) return;
+          stop({});
+        });
+        window.addEventListener('pointerup', stop);
+        window.addEventListener('blur', () => {
+          if (!isDown) return;
+          stop({});
+        });
         el.addEventListener('wheel', (e) => {
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           e.preventDefault();
@@ -12500,9 +12520,13 @@
           const idx = categories.findIndex((cat) => cat.key === activeCategory);
           const firstCard = cardsEl.querySelector('[data-theme-guide-card]');
           if (idx >= 0 && firstCard) {
-            const cardWidth = firstCard.getBoundingClientRect().width + 12; // card + gap
+            const cardEls = Array.from(cardsEl.querySelectorAll('[data-theme-guide-card]'));
+            const firstOffset = firstCard.offsetLeft;
+            const cardWidth = cardEls.length > 1
+              ? (cardEls[1].offsetLeft - firstCard.offsetLeft)
+              : firstCard.getBoundingClientRect().width + 12; // card + gap
             suppressCardScrollSync = true;
-            cardsEl.scrollTo({ left: idx * cardWidth, behavior: opts.cardBehavior || 'auto' });
+            cardsEl.scrollTo({ left: firstOffset + (idx * cardWidth), behavior: opts.cardBehavior || 'auto' });
             window.clearTimeout(cardScrollSyncTimer);
             cardScrollSyncTimer = window.setTimeout(() => { suppressCardScrollSync = false; }, 220);
           }
