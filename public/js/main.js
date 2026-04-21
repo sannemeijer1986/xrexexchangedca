@@ -9063,7 +9063,8 @@
     const commitCustomPlanTitle = () => {
       if (!nameInput) return;
       const next = String(nameInput.value || '').trim().slice(0, 40);
-      customPlanTitle = next;
+      const autoTitle = String(panel.dataset.planDetailAutoTitle || '').trim();
+      customPlanTitle = next && next !== autoTitle ? next : '';
       nameInput.hidden = true;
       if (nameSpan) nameSpan.hidden = false;
       if (nameEditIcon) nameEditIcon.hidden = false;
