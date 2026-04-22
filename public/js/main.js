@@ -2563,6 +2563,25 @@
 
   /** My plans detail (prefund layout, funding state ≥3): pre-funded info + edit pre-funding sheets. */
   const initMyPlansPrefundDetailSheets = () => {
+    const syncPrefundSheetCurrencyCopy = () => {
+      const cur = String(currencyState.plan || 'TWD').trim().toUpperCase();
+      const editSheet = document.querySelector('[data-my-plans-prefund-edit-sheet]');
+      const endConfirmSheet = document.querySelector('[data-my-plans-prefund-end-confirm-sheet]');
+      const editReturnNameEl = editSheet?.querySelector('[data-my-plans-prefund-edit-return-name]');
+      const editReturnDescEl = editSheet?.querySelector('[data-my-plans-prefund-edit-return-desc]');
+      const endTitleEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-title]');
+      const endHighlightEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-highlight]');
+      const endCopyEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-copy-body]');
+      const endSubmitEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]');
+
+      if (editReturnNameEl) editReturnNameEl.textContent = `Return reserved ${cur}`;
+      if (editReturnDescEl) editReturnDescEl.textContent = `Release pre-funded ${cur} back to your wallet and stop auto-refill`;
+      if (endTitleEl) endTitleEl.textContent = `Return reserved ${cur}?`;
+      if (endHighlightEl) endHighlightEl.textContent = `Your pre-funded ${cur} will be released back to your wallet, and auto-refill will stop.`;
+      if (endCopyEl) endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled auto-invest date.`;
+      if (endSubmitEl) endSubmitEl.textContent = `Return reserved ${cur}`;
+    };
+
     const bindSheet = (sheetSelector, closeAttr, openSelector) => {
       const sheet = document.querySelector(sheetSelector);
       if (!sheet) return;
@@ -2587,6 +2606,7 @@
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
+          syncPrefundSheetCurrencyCopy();
           sheetOpenWithInstantBackdrop(sheet);
         });
       });
@@ -2594,6 +2614,8 @@
 
     bindSheet('[data-my-plans-prefund-funded-info-sheet]', 'data-my-plans-prefund-funded-info-sheet-close', '[data-my-plans-prefund-funded-info-sheet-open]');
     bindSheet('[data-my-plans-prefund-edit-sheet]', 'data-my-plans-prefund-edit-sheet-close', '[data-my-plans-prefund-edit-sheet-open]');
+    syncPrefundSheetCurrencyCopy();
+    document.addEventListener('plan-investment-currency-updated', syncPrefundSheetCurrencyCopy);
   };
 
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
@@ -5397,6 +5419,15 @@
 
     const openEndPrefundConfirmSheet = () => {
       if (!editPrefundSheet || !endPrefundConfirmSheet || !editPrefundPanel || !endPrefundConfirmPanel) return;
+      const cur = String(currencyState.plan || 'TWD').trim().toUpperCase();
+      const endTitleEl = endPrefundConfirmSheet.querySelector('[data-my-plans-prefund-end-confirm-title]');
+      const endHighlightEl = endPrefundConfirmSheet.querySelector('[data-my-plans-prefund-end-confirm-highlight]');
+      const endCopyEl = endPrefundConfirmSheet.querySelector('[data-my-plans-prefund-end-confirm-copy-body]');
+      const endSubmitEl = endPrefundConfirmSheet.querySelector('[data-my-plans-prefund-end-confirm-submit]');
+      if (endTitleEl) endTitleEl.textContent = `Return reserved ${cur}?`;
+      if (endHighlightEl) endHighlightEl.textContent = `Your pre-funded ${cur} will be released back to your wallet, and auto-refill will stop.`;
+      if (endCopyEl) endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled auto-invest date.`;
+      if (endSubmitEl) endSubmitEl.textContent = `Return reserved ${cur}`;
       if (getBottomSheetStacking()) {
         sheetOpenWithInstantBackdrop(endPrefundConfirmSheet);
         return;
@@ -6307,8 +6338,11 @@
       };
 
       const getFunding2PerBuy = (curFallback) => {
+        const activePlanCur = String(currencyState.plan || curFallback || 'TWD').trim().toUpperCase();
         const fromPlan = parseMoneyText(funding2ContextRecord?.investLine || '');
-        if (fromPlan && fromPlan.amount > 0) return fromPlan;
+        if (fromPlan && fromPlan.amount > 0 && String(fromPlan.currency || '').toUpperCase() === activePlanCur) {
+          return fromPlan;
+        }
         const detailAmountRaw = String(panel.querySelector('[data-plan-detail-amount-input]')?.value || '').replace(/[^0-9]/g, '');
         const detailAmount = parseInt(detailAmountRaw, 10);
         const detailCur = String(
@@ -6384,7 +6418,7 @@
       let funding2PeriodCount = 0;
       const formatWithCommas = (n) => Number(n).toLocaleString('en-US');
       const resolveFunding2Numbers = () => {
-        const perBuyData = getFunding2PerBuy('TWD');
+        const perBuyData = getFunding2PerBuy(currencyState.plan || 'TWD');
         const reserveCur = String(perBuyData.currency || 'TWD').trim().toUpperCase();
         const availBalance = Number(BALANCES[reserveCur] ?? BALANCES.TWD ?? 0);
         return { perBuyData, reserveCur, availBalance };
