@@ -10517,6 +10517,9 @@ button.plan-buffer-funding-hero__how-link {
   margin-left: auto;
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-explained-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -10528,6 +10531,12 @@ button.plan-buffer-funding-hero__how-link {
   color: #3f78ff;
   cursor: pointer;
   text-align: left;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-explained-link__icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-learn-more-stepper {
   display: inline-flex;

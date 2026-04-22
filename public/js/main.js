@@ -6270,7 +6270,7 @@
         explainedWrap.className = 'plan-buffer-funding2-hero-explained';
         explainedWrap.setAttribute('data-funding2-explained-wrap', 'true');
         explainedWrap.innerHTML =
-          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>Guide</button>';
+          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained><img class="plan-buffer-funding2-explained-link__icon" src="assets/icon_guide_blue.svg" width="20" height="20" alt="" aria-hidden="true" /><span>Guide</span></button>';
         if (scrollerEl && heroSeg) {
           const segRow = document.createElement('div');
           segRow.className = 'plan-buffer-funding2-seg-row';
