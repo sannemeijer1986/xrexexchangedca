@@ -2646,6 +2646,8 @@
     bindSheet('[data-my-plans-prefund-edit-sheet]', 'data-my-plans-prefund-edit-sheet-close', '[data-my-plans-prefund-edit-sheet-open]');
     syncPrefundSheetCurrencyCopy();
     document.addEventListener('plan-investment-currency-updated', syncPrefundSheetCurrencyCopy);
+    /** Manage plan → Pre-funding settings opens the edit sheet without `[data-my-plans-prefund-edit-sheet-open]`; keep copy in sync. */
+    document.addEventListener('my-plans-prefund-edit-sheet-sync-copy', syncPrefundSheetCurrencyCopy);
   };
 
   /** Plan detail: auto-invest schedule sheet (currency-sheet chrome). */
@@ -5226,6 +5228,7 @@
       if (prefundLeftEl) {
         if (!prefundEditMode) {
           prefundLeftEl.hidden = true;
+          manageSheet.removeAttribute('data-my-plans-manage-prefund-left-value');
         } else {
           const leftText = resolvePrefundLeftSubtitleText(rec);
           prefundLeftEl.textContent = leftText;
@@ -5417,6 +5420,7 @@
               closeManageSheet();
               return;
             }
+            document.dispatchEvent(new CustomEvent('my-plans-prefund-edit-sheet-sync-copy'));
             if (getBottomSheetStacking()) {
               sheetOpenWithInstantBackdrop(editSheet);
               return;
