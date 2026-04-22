@@ -6249,11 +6249,13 @@
       }
       container.appendChild(clone);
       clone.querySelector('[data-plan-buffer2-exit-open]')?.addEventListener('click', openFunding2ExitSheet);
-      // Funding2 is standalone now, so wire top-up trigger explicitly (no clone->original proxy).
-      clone.querySelector('[data-plan-detail-topup-trigger]')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        baseFundingPanel.querySelector('[data-plan-detail-topup-trigger]')?.click();
+      // Funding2 is standalone now, so wire all clone top-up triggers explicitly.
+      clone.querySelectorAll('[data-plan-detail-topup-trigger]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          baseFundingPanel.querySelector('[data-plan-detail-topup-trigger]')?.click();
+        });
       });
 
       const scrollerEl = clone.querySelector('.plan-buffer-panel__scroller');
