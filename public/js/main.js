@@ -5492,7 +5492,7 @@
     endPrefundConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-submit]')?.addEventListener('click', () => {
       setState('funding', 1, { force: true });
       setPrototypePrefundLog('returned');
-      showMyPlansSnackbar('Pre-funding ended');
+      showMyPlansSnackbar('Funds returned');
       closePrefundEndConfirmStackTogether();
     });
 
