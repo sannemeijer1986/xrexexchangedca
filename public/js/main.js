@@ -6890,9 +6890,25 @@
                 ? funding2OptionBaseAmount
                 : rawAmount;
               const center = Math.max(1, Math.round(optionsBaseAmount / perBuy));
-              const uniqBuys = Array.from(new Set([Math.max(1, center - 1), center, center + 1])).sort((a, b) => a - b);
-              while (uniqBuys.length < 3) uniqBuys.push((uniqBuys[uniqBuys.length - 1] || 1) + 1);
-              uniqBuys.slice(0, 3).forEach((buyCount) => {
+              const maxAffordableBuys = Math.max(0, Math.floor(availBalance / perBuy));
+              const maxShownBuy = Math.max(1, maxAffordableBuys + 1);
+              const clampedCenter = Math.min(center, maxShownBuy);
+              let startBuy = Math.max(1, clampedCenter - 1);
+              let buyOptions = [startBuy, startBuy + 1, startBuy + 2];
+              if (buyOptions[2] > maxShownBuy) {
+                buyOptions = [
+                  Math.max(1, maxShownBuy - 2),
+                  Math.max(1, maxShownBuy - 1),
+                  maxShownBuy,
+                ];
+              }
+              buyOptions = Array.from(new Set(buyOptions.filter((n) => n >= 1 && n <= maxShownBuy)));
+              while (buyOptions.length < 3) {
+                const next = Math.max(1, (buyOptions[buyOptions.length - 1] || 0) + 1);
+                if (next > maxShownBuy) break;
+                buyOptions.push(next);
+              }
+              buyOptions.forEach((buyCount) => {
                 const amountValue = buyCount * perBuy;
                 const exceedsAvailBalance = amountValue > availBalance;
                 const optionBtn = document.createElement('button');
