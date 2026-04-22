@@ -6712,7 +6712,15 @@
           const maxBtn = clone.querySelector('[data-plan-buffer-period-max]');
           if (maxBtn) maxBtn.disabled = !(maxPeriod > 0);
           if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = true;
-          if (periodBalanceErrorEl) periodBalanceErrorEl.hidden = !hasPeriodBalanceError;
+          if (periodBalanceErrorEl) {
+            if (hasPeriodBalanceError && funding2PeriodCount > 0) {
+              const periodLabel = funding2PeriodCount === 1 ? unit : unitPlural;
+              periodBalanceErrorEl.textContent = `Not enough balance for ${funding2PeriodCount} ${periodLabel}`;
+            } else {
+              periodBalanceErrorEl.textContent = 'Not enough balance';
+            }
+            periodBalanceErrorEl.hidden = !hasPeriodBalanceError;
+          }
 
           const freqKey2 = resolveFunding2FreqKey();
           const buyCadenceWord = freqKey2 === 'daily' ? 'daily' : freqKey2 === 'weekly' ? 'weekly' : freqKey2 === 'flexible' ? '' : 'monthly';
