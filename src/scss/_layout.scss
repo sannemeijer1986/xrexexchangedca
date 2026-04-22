@@ -4517,8 +4517,16 @@ div.currency-sheet__item-icon {
   color: #8fb8ff;
 }
 
+.currency-sheet__item-desc--manage-prefund-left {
+  color: #9b9c9c;
+}
+
 // `display: block` on `.currency-sheet__item-desc` beats UA `[hidden]`; force-hide when toggled in JS.
 .currency-sheet__item-desc--manage-prefund[hidden] {
+  display: none !important;
+}
+
+.currency-sheet__item-desc--manage-prefund-left[hidden] {
   display: none !important;
 }
 

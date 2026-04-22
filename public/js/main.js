@@ -5163,6 +5163,7 @@
       const prefundRowBtn = manageSheet.querySelector('[data-my-plans-manage-action="prefund"]');
       const prefundNameEl = prefundRowBtn?.querySelector('.currency-sheet__item-name');
       const prefundDescEl = prefundRowBtn?.querySelector('.currency-sheet__item-desc--manage-prefund');
+      const prefundLeftEl = prefundRowBtn?.querySelector('[data-my-plans-manage-prefund-left]');
       const prefundEditMode = fundingState >= 3;
       manageSheet.setAttribute('data-my-plans-manage-prefund-mode', prefundEditMode ? 'edit' : 'prefund');
       if (prefundNameEl) {
@@ -5170,6 +5171,18 @@
       }
       if (prefundDescEl) {
         prefundDescEl.hidden = prefundEditMode;
+      }
+      if (prefundLeftEl) {
+        if (!prefundEditMode) {
+          prefundLeftEl.hidden = true;
+        } else {
+          const reservedParsed = parseMoneyWithCurrency(String(rec.reservedFunds || ''));
+          const fallbackCur = String(currencyState.plan || 'TWD').trim().toUpperCase();
+          const cur = String(reservedParsed?.currency || fallbackCur).trim().toUpperCase();
+          const amount = Number.isFinite(reservedParsed?.amount) ? Math.max(0, Number(reservedParsed.amount)) : 0;
+          prefundLeftEl.textContent = `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur} left`;
+          prefundLeftEl.hidden = false;
+        }
       }
     };
 
