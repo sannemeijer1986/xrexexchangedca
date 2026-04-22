@@ -12983,6 +12983,39 @@ button.plan-buffer-funding-hero__how-link {
   min-height: 20px;
 }
 
+.my-plans-position-card__row--next-buy-stack {
+  align-items: flex-start;
+}
+
+.my-plans-position-card__row-right-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  margin-bottom: 2px;
+}
+
+.my-plans-position-card__next-buy-failed {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  color: #eb5347;
+  white-space: nowrap;
+}
+
+.my-plans-position-card__next-buy-failed-chevron {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+  margin-right: -2px;
+}
+
 .my-plans-position-card__row--tight {
   margin-top: 2px;
 }

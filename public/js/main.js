@@ -4248,7 +4248,25 @@
         const nextBuyValue = flowState === 4
           ? '- -'
           : shortenWeekdayLabel(planRecord.nextBuy || planRecord.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
-        list.appendChild(row('Next buy', nextBuyValue));
+        if (getPrototypeShowFailedBuy()) {
+          const nextRow = el('div', 'my-plans-position-card__row my-plans-position-card__row--next-buy-stack');
+          nextRow.appendChild(el('div', 'my-plans-position-card__row-label', 'Next buy'));
+          const stack = el('div', 'my-plans-position-card__row-right-stack');
+          stack.appendChild(el('div', 'my-plans-position-card__row-value', nextBuyValue));
+          const failRow = el('div', 'my-plans-position-card__next-buy-failed');
+          failRow.appendChild(document.createTextNode('Last buy failed'));
+          const failChev = document.createElement('img');
+          failChev.src = 'assets/icon_chevron_right_red.svg';
+          failChev.alt = '';
+          failChev.className = 'my-plans-position-card__next-buy-failed-chevron';
+          failChev.setAttribute('aria-hidden', 'true');
+          failRow.appendChild(failChev);
+          stack.appendChild(failRow);
+          nextRow.appendChild(stack);
+          list.appendChild(nextRow);
+        } else {
+          list.appendChild(row('Next buy', nextBuyValue));
+        }
       }
       list.appendChild(row('Total invested', `${totalInv} \u00b7 ${completedCount} ${completedCount === 1 ? 'buy' : 'buys'}`));
 
