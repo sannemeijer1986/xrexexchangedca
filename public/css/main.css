@@ -4837,9 +4837,9 @@ div.currency-sheet__item-icon::before {
 .phone-container p.schedule-flex-days__sub {
   margin: 0;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 20px;
-  color: #9b9c9c;
+  color: #8FB8FF;
 }
 
 .phone-container p.schedule-flex-days__sub.schedule-flex-days__sub--max {
