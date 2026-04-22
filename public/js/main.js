@@ -6270,7 +6270,7 @@
         explainedWrap.className = 'plan-buffer-funding2-hero-explained';
         explainedWrap.setAttribute('data-funding2-explained-wrap', 'true');
         explainedWrap.innerHTML =
-          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>How it works</button>';
+          '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>Guide</button>';
         if (scrollerEl && heroSeg) {
           const segRow = document.createElement('div');
           segRow.className = 'plan-buffer-funding2-seg-row';
@@ -6538,11 +6538,6 @@
       };
 
       const resolveFunding2FreqKey = () => {
-        const fromDom = String(
-          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || '',
-        ).toLowerCase();
-        if (fromDom === 'flexible') return 'flexible';
-        if (fromDom === 'daily' || fromDom === 'weekly' || fromDom === 'monthly') return fromDom;
         const inv = String(funding2ContextRecord?.investLine || '').toLowerCase();
         if (/\beach\s+day\b/.test(inv)) return 'daily';
         if (/\beach\s+week\b/.test(inv)) return 'weekly';
@@ -6551,6 +6546,16 @@
         if (/\bflexible\b/.test(rep)) return 'flexible';
         if (/\bday\b|daily\b/.test(rep)) return 'daily';
         if (/\bweek\b|weekly\b/.test(rep)) return 'weekly';
+        const scheduleText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]')).toLowerCase();
+        if (scheduleText.startsWith('flexible')) return 'flexible';
+        if (scheduleText.startsWith('daily')) return 'daily';
+        if (scheduleText.startsWith('weekly')) return 'weekly';
+        if (scheduleText.startsWith('monthly')) return 'monthly';
+        const fromDom = String(
+          document.querySelector('[data-plan-freq-item].is-active')?.getAttribute('data-plan-freq-item') || '',
+        ).toLowerCase();
+        if (fromDom === 'flexible') return 'flexible';
+        if (fromDom === 'daily' || fromDom === 'weekly' || fromDom === 'monthly') return fromDom;
         return 'monthly';
       };
 
