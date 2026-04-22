@@ -4434,7 +4434,7 @@ div.currency-sheet__item-icon::before {
 }
 
 .currency-sheet__item--manage-plan {
-  gap: 8px;
+  gap: 12px;
 }
 
 .currency-sheet__item--manage-prefund .currency-sheet__item-name {
@@ -4504,11 +4504,6 @@ div.currency-sheet__item-icon::before {
   font-size: 16px;
   font-weight: 400;
   line-height: 23px;
-}
-
-.phone-container .currency-sheet__prefund-end-confirm-copy-highlight {
-  color: #ffffff !important;
-  font-weight: 600;
 }
 
 .phone-container .currency-sheet__prefund-end-confirm-copy p {
