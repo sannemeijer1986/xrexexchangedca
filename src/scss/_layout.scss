@@ -10519,6 +10519,11 @@ button.plan-buffer-funding-hero__how-link {
   text-align: right;
 }
 
+.plan-buffer-funding2-meta__value[data-plan-buffer-period-sum-amount] {
+  font-size: 18px;
+  font-weight: 700;
+}
+
 // By period: show only when count is 1+ (`plan-buffer-panel--period-has-count` on panel).
 .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
   display: none;
