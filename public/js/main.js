@@ -2563,12 +2563,41 @@
 
   /** My plans detail (prefund layout, funding state ≥3): pre-funded info + edit pre-funding sheets. */
   const initMyPlansPrefundDetailSheets = () => {
+    const formatPrefundLeftSubtitle = () => {
+        const managePrefundLeft = String(
+          document.querySelector('[data-my-plans-manage-sheet]')?.getAttribute('data-my-plans-manage-prefund-left-value') || '',
+        ).trim();
+        if (managePrefundLeft) return managePrefundLeft;
+      const fallbackCur = String(currencyState.plan || 'TWD').trim().toUpperCase();
+      const detailPrefundText = String(
+        document.querySelector('[data-my-plans-detail-funding-prefund-amount]')?.textContent || '',
+      ).trim();
+      const detailParsed = parseMoneyWithCurrency(detailPrefundText);
+      if (detailParsed && detailParsed.amount >= 0) {
+        const cur = String(detailParsed.currency || fallbackCur).trim().toUpperCase();
+        return `${detailParsed.amount.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })} ${cur} left`;
+      }
+      const records = typeof getMyPlansRecords === 'function' ? getMyPlansRecords() : [];
+      const rec = records[0] || null;
+      const reservedParsed = parseMoneyWithCurrency(String(rec?.reservedFunds || ''));
+      const amount = Number.isFinite(reservedParsed?.amount) ? Math.max(0, Number(reservedParsed.amount)) : 0;
+      const cur = String(reservedParsed?.currency || fallbackCur).trim().toUpperCase();
+      return `${amount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} ${cur} left`;
+    };
+
     const syncPrefundSheetCurrencyCopy = () => {
       const cur = String(currencyState.plan || 'TWD').trim().toUpperCase();
       const editSheet = document.querySelector('[data-my-plans-prefund-edit-sheet]');
       const endConfirmSheet = document.querySelector('[data-my-plans-prefund-end-confirm-sheet]');
       const editReturnNameEl = editSheet?.querySelector('[data-my-plans-prefund-edit-return-name]');
       const editReturnDescEl = editSheet?.querySelector('[data-my-plans-prefund-edit-return-desc]');
+      const editLeftSubtitleEl = editSheet?.querySelector('[data-my-plans-prefund-edit-left-subtitle]');
       const endTitleEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-title]');
       const endHighlightEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-highlight]');
       const endCopyEl = endConfirmSheet?.querySelector('[data-my-plans-prefund-end-confirm-copy-body]');
@@ -2576,6 +2605,7 @@
 
       if (editReturnNameEl) editReturnNameEl.textContent = `Return reserved ${cur}`;
       if (editReturnDescEl) editReturnDescEl.textContent = `Release pre-funded ${cur} back to your wallet and stop auto-refill`;
+      if (editLeftSubtitleEl) editLeftSubtitleEl.textContent = formatPrefundLeftSubtitle();
       if (endTitleEl) endTitleEl.textContent = `Return reserved ${cur}?`;
       if (endHighlightEl) endHighlightEl.textContent = `Your pre-funded ${cur} will be released back to your wallet, and auto-refill will stop.`;
       if (endCopyEl) endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled auto-invest date.`;
@@ -5111,6 +5141,27 @@
       return recs[0] || null;
     };
 
+    const resolvePrefundLeftSubtitleText = (rec) => {
+      if (!rec) return `0.00 ${String(currencyState.plan || 'TWD').trim().toUpperCase()} left`;
+      const investMatch = String(rec.investLine || '').match(/(-?\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
+      const per = investMatch ? parseFloat(String(investMatch[1]).replace(/,/g, '')) : NaN;
+      const cur = investMatch ? String(investMatch[2] || '').toUpperCase() : String(currencyState.plan || 'TWD').trim().toUpperCase();
+      const fundingState = states.funding ?? 1;
+      const isFundingPrefundLow = fundingState === 4;
+      const isFundingPrefundEmpty = fundingState === 5;
+      if (isFundingPrefundEmpty) return `0.00 ${cur} left`;
+      if (isFundingPrefundLow) {
+        const oneBuyAmount = Number.isFinite(per) && per > 0 ? per : 0;
+        return `${oneBuyAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur} left`;
+      }
+      const parsedReserved = parseMoneyWithCurrency(String(rec.reservedFunds || ''));
+      const fallbackPrefundAmount = Number.isFinite(per) && per > 0 ? per * 4 : 0;
+      const leftText = parsedReserved && parsedReserved.amount > 0
+        ? `${parsedReserved.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${String(parsedReserved.currency || cur).toUpperCase()}`
+        : `${fallbackPrefundAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur}`;
+      return `${leftText} left`;
+    };
+
     const syncManageSheetUi = (rec) => {
       if (!manageSheet || !rec) return;
       const statusKey =
@@ -5176,12 +5227,10 @@
         if (!prefundEditMode) {
           prefundLeftEl.hidden = true;
         } else {
-          const reservedParsed = parseMoneyWithCurrency(String(rec.reservedFunds || ''));
-          const fallbackCur = String(currencyState.plan || 'TWD').trim().toUpperCase();
-          const cur = String(reservedParsed?.currency || fallbackCur).trim().toUpperCase();
-          const amount = Number.isFinite(reservedParsed?.amount) ? Math.max(0, Number(reservedParsed.amount)) : 0;
-          prefundLeftEl.textContent = `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur} left`;
+          const leftText = resolvePrefundLeftSubtitleText(rec);
+          prefundLeftEl.textContent = leftText;
           prefundLeftEl.hidden = false;
+          manageSheet.setAttribute('data-my-plans-manage-prefund-left-value', leftText);
         }
       }
     };

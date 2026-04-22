@@ -4203,6 +4203,12 @@ button.finance-summary__stat-value--chevron {
   text-align: center;
 }
 
+.phone-container p.currency-sheet__subtitle--prefund-edit-left {
+  color: #9b9c9c;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
 .currency-sheet__list {
   width: 100%;
   background: #2d2f2f;
