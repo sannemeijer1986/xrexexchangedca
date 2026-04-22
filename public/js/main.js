@@ -9119,13 +9119,23 @@
         weekly: 'Weekly · Monday',
         monthly: 'Monthly · 15th',
       };
+      const syncMainFreqTabs = (freqKey) => {
+        const key = String(freqKey || 'monthly').toLowerCase();
+        panel.querySelectorAll('[data-plan-freq-item]').forEach((item) => {
+          const on = String(item.getAttribute('data-plan-freq-item') || '').toLowerCase() === key;
+          item.classList.toggle('is-active', on);
+          item.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       if (scheduleEl) {
         if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
+          syncMainFreqTabs('monthly');
           setPlanDetailScheduleElement(scheduleEl, freqLabels.monthly);
         } else {
           const freqItem = document.querySelector('[data-plan-freq-item].is-active');
           const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
+          syncMainFreqTabs(freqKey);
           setPlanDetailScheduleElement(scheduleEl, freqLabels[freqKey] || freqLabels.monthly);
         }
       }
