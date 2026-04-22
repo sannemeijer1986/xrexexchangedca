@@ -9128,8 +9128,9 @@
         });
       };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
+      const shouldApplyDefaultMonthly = panel.dataset.forceDefaultMonthlySchedule === '1';
       if (scheduleEl) {
-        if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
+        if (shouldApplyDefaultMonthly && (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan')) {
           syncMainFreqTabs('monthly');
           setPlanDetailScheduleElement(scheduleEl, freqLabels.monthly);
         } else {
@@ -9139,6 +9140,7 @@
           setPlanDetailScheduleElement(scheduleEl, freqLabels[freqKey] || freqLabels.monthly);
         }
       }
+      panel.dataset.forceDefaultMonthlySchedule = '0';
 
       // Return footer title (investment rows refresh in updateDetailReturn)
       if (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan') {
@@ -12172,6 +12174,9 @@
           detailAllocOverride = null;
           // Entering from Finance entrypoints should start with Buy now OFF.
           panel.dataset.scheduleBuyNow = '0';
+          panel.dataset.forceDefaultMonthlySchedule = '1';
+        } else {
+          panel.dataset.forceDefaultMonthlySchedule = '0';
         }
         panelOpenContext =
           openCtx?.source === 'newplan'
