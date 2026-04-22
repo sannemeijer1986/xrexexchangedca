@@ -6258,21 +6258,30 @@
 
       const scrollerEl = clone.querySelector('.plan-buffer-panel__scroller');
       scrollerEl?.querySelector('[data-funding2-explained-wrap]')?.remove();
+      scrollerEl?.querySelector('[data-funding2-seg-row]')?.remove();
+      const heroSeg = clone.querySelector('.plan-buffer-funding-seg.plan-buffer-funding-seg--hero');
       const fundingHero = clone.querySelector('.plan-buffer-funding-hero');
       const heroTop = clone.querySelector('.plan-buffer-funding-hero__top');
       const heroSub = clone.querySelector('.plan-buffer-funding-hero__sub');
-      if (fundingHero && heroTop && heroSub && !fundingHero.querySelector('[data-funding2-explained-wrap]')) {
+      if (fundingHero && heroTop && heroSub) {
         const explainedWrap = document.createElement('div');
         explainedWrap.className = 'plan-buffer-funding2-hero-explained';
         explainedWrap.setAttribute('data-funding2-explained-wrap', 'true');
         explainedWrap.innerHTML =
           '<button type="button" class="plan-buffer-funding2-explained-link" data-funding2-explained>How it works</button>';
+        if (scrollerEl && heroSeg) {
+          const segRow = document.createElement('div');
+          segRow.className = 'plan-buffer-funding2-seg-row';
+          segRow.setAttribute('data-funding2-seg-row', 'true');
+          heroSeg.replaceWith(segRow);
+          segRow.appendChild(heroSeg);
+          segRow.appendChild(explainedWrap);
+        }
         const head = document.createElement('div');
         head.className = 'plan-buffer-funding2-hero-head';
         heroTop.replaceWith(head);
         head.appendChild(heroTop);
         head.appendChild(heroSub);
-        head.appendChild(explainedWrap);
       }
       const funding2ExplainedBtn = clone.querySelector('[data-funding2-explained]');
       const learnMorePanel = clone.querySelector('[data-plan-buffer-learn-more-panel]');

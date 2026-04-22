@@ -9984,12 +9984,11 @@ html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffe
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
   padding-top: 2px;
 }
 
 .plan-buffer-funding-input__max-btn {
-  margin-left: auto;
+  margin-right: auto;
   border: 0;
   background: transparent;
   padding: 0;
@@ -10424,6 +10423,16 @@ button.plan-buffer-funding-hero__how-link {
   display: block;
 }
 
+[data-plan-buffer-panel-2] .plan-buffer-funding2-seg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 16px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-seg-row .plan-buffer-funding-seg.plan-buffer-funding-seg--hero {
+  margin: 0;
+  flex: 0 0 auto;
+}
 [data-plan-buffer-panel-2] .plan-buffer-panel__details {
   gap: 24px;
   margin-top: 0;
@@ -10484,9 +10493,10 @@ button.plan-buffer-funding-hero__how-link {
   box-sizing: border-box;
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-hero-explained {
-  width: 100%;
+  width: auto;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 [data-plan-buffer-panel-2] .plan-buffer-funding2-explained-link {
   margin: 0;
