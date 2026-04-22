@@ -6583,7 +6583,7 @@
         return `${month} ${day}, ${year}`;
       };
 
-      /** Short date like "Oct 15" for preview subline ("runs out around …"). */
+      /** Date like "Sep 15, 2026" for preview subline ("runs out …"). */
       const computeFunding2RunsOutAroundLabel = (periods, unit) => {
         if (!Number.isFinite(periods) || periods <= 0) return '';
         const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
@@ -6597,9 +6597,7 @@
         if (unit === 'day') anchor.setDate(anchor.getDate() + periods);
         else if (unit === 'week') anchor.setDate(anchor.getDate() + periods * 7);
         else anchor.setMonth(anchor.getMonth() + periods);
-        const mon = anchor.toLocaleDateString('en-US', { month: 'short' });
-        const day = anchor.getDate();
-        return `${mon} ${day}`;
+        return anchor.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
       const syncFromOriginal = () => {
@@ -6612,6 +6610,25 @@
             : Math.max(0, Math.floor(availBalance));
         const reserveCurEl = clone.querySelector('[data-plan-buffer-reserve-cur]');
         if (reserveCurEl) reserveCurEl.textContent = reserveCur;
+        const reserveInputIconEl = clone.querySelector('[data-plan-buffer-reserve-input-icon]');
+        if (reserveInputIconEl) {
+          const iconMap = {
+            USDT: 'assets/icon_currency_usdt.svg',
+            TWD: 'assets/icon_currency_TWD.svg',
+            USD: 'assets/icon_currency_USD.svg',
+            BTC: 'assets/icon_currency_btc.svg',
+            ETH: 'assets/icon_currency_eth.svg',
+            XRP: 'assets/icon_currency_xrp.svg',
+            XAUT: 'assets/icon_currency_xaut.svg',
+            LINK: 'assets/icon_currency_link.svg',
+            NEAR: 'assets/icon_currency_near.svg',
+            MATIC: 'assets/icon_currency_matic.svg',
+            ONDO: 'assets/icon_currency_ondo.svg',
+            AAVE: 'assets/icon_currency_aave.svg',
+            RENDER: 'assets/icon_currency_render.svg',
+          };
+          reserveInputIconEl.setAttribute('src', iconMap[reserveCur] || iconMap.USDT);
+        }
         const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
         if (availEl) availEl.textContent = `Avail. ${Number(availBalance).toLocaleString('en-US')} ${reserveCur}`;
         const rangeHintEl = clone.querySelector('[data-plan-buffer-reserve-range]');
@@ -6712,8 +6729,8 @@
             overviewCoversMainEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
           }
           if (overviewCoversSubEl) {
-            const coversDate = computeFunding2PeriodCoversDateText(funding2PeriodCount, dateUnit);
-            overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 ? `Until ${coversDate}` : '';
+            const runsOutDate = computeFunding2RunsOutAroundLabel(funding2PeriodCount, dateUnit);
+            overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 && runsOutDate ? `runs out ${runsOutDate}` : '';
           }
           if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
 
@@ -6780,23 +6797,6 @@
         const buyCadenceWord = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
         const { unit: coverUnit, unitPlural: coverPlural } = funding2PrefundUnitLabels(freqKey);
         const coverLabel = completeBuys === 1 ? coverUnit : coverPlural;
-        const resolveFunding2CoversDate = () => {
-          const fromContext = String(
-            funding2ContextRecord?.nextBuy
-              || funding2ContextRecord?.firstBuy
-              || '',
-          ).trim();
-          if (fromContext && fromContext !== '- -' && fromContext !== '—') return fromContext;
-          const fromOverview = String(panel.querySelector('[data-plan-overview-first-buy]')?.textContent || '').trim();
-          if (fromOverview && fromOverview !== '- -' && fromOverview !== '—') return shortenWeekdayLabel(fromOverview);
-          const fromSummary = String(document.querySelector('[data-finance-summary-next-buy]')?.textContent || '').trim();
-          if (fromSummary && fromSummary !== '- -' && fromSummary !== '—') return shortenWeekdayLabel(fromSummary);
-          const schedText = getPlanDetailScheduleFullTextFromEl(panel.querySelector('[data-plan-detail-schedule]'));
-          const fromSchedule = formatFinanceNextBuyCompact(schedText);
-          if (fromSchedule && fromSchedule !== '- -' && fromSchedule !== '—') return shortenWeekdayLabel(fromSchedule);
-          return FINANCE_SUMMARY_NEXT_BUY_FALLBACK;
-        };
-
         const headTitle = clone.querySelector('.plan-buffer-funding-input__title');
         if (headTitle) headTitle.textContent = 'Amount';
         const heroTitle = clone.querySelector('.plan-buffer-funding-hero__title');
@@ -6824,8 +6824,9 @@
         }
         const overviewCoversSubEl = clone.querySelector('[data-funding2-overview-covers-sub]');
         if (overviewCoversSubEl) {
-          const coversDate = resolveFunding2CoversDate();
-          overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 ? `Until ${coversDate}` : '';
+          const dateUnit = funding2PrefundDateUnit(freqKey);
+          const runsOutDate = computeFunding2RunsOutAroundLabel(completeBuys, dateUnit);
+          overviewCoversSubEl.textContent = hasActiveSelection && completeBuys > 0 && runsOutDate ? `runs out ${runsOutDate}` : '';
         }
         const overviewAutorefillAmountEl = clone.querySelector('[data-funding2-overview-autorefill-amount]');
         if (overviewAutorefillAmountEl) overviewAutorefillAmountEl.textContent = overviewAmountText;
@@ -7165,10 +7166,10 @@
           } else if (perBuy > 0 && activeAmount > 0) {
             periods = Math.floor(activeAmount / perBuy);
           }
-          const around = computeFunding2RunsOutAroundLabel(periods, dateUnit);
-          if (periods > 0 && activeAmount > 0 && around) {
+          const runsOutDate = computeFunding2RunsOutAroundLabel(periods, dateUnit);
+          if (periods > 0 && activeAmount > 0 && runsOutDate) {
             const coverPhrase = `Covers ${periods} ${periods === 1 ? unit : unitPlural}`;
-            coversLineEl.textContent = `${coverPhrase} • runs out around ${around}`;
+            coversLineEl.textContent = `${coverPhrase} • runs out ${runsOutDate}`;
             coversLineEl.hidden = false;
             coversLineEl.setAttribute('aria-hidden', 'false');
           } else if (periods > 0 && activeAmount > 0) {

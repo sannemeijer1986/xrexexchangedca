@@ -10197,6 +10197,11 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: 700;
 }
 
+.plan-buffer-funding2-meta__value[data-funding2-meta-amount] {
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
   display: none;
   margin-bottom: 24px;
