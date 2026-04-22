@@ -9129,10 +9129,22 @@
       };
       const scheduleEl = panel.querySelector('[data-plan-detail-schedule]');
       const shouldApplyDefaultMonthly = panel.dataset.forceDefaultMonthlySchedule === '1';
+      const inferFreqFromScheduleText = (text) => {
+        const t = String(text || '').trim().toLowerCase();
+        if (t.startsWith('daily')) return 'daily';
+        if (t.startsWith('weekly')) return 'weekly';
+        if (t.startsWith('flexible')) return 'flexible';
+        return 'monthly';
+      };
       if (scheduleEl) {
+        const existingSchedule = getPlanDetailScheduleFullTextFromEl(scheduleEl);
         if (shouldApplyDefaultMonthly && (ctx.source === 'curated' || ctx.source === 'spotlight' || ctx.source === 'newplan')) {
           syncMainFreqTabs('monthly');
           setPlanDetailScheduleElement(scheduleEl, freqLabels.monthly);
+        } else if (existingSchedule) {
+          // Preserve user-entered schedule/frequency across in-page hops
+          // (Add assets, Breakdown, etc.) instead of re-deriving/resetting.
+          syncMainFreqTabs(inferFreqFromScheduleText(existingSchedule));
         } else {
           const freqItem = document.querySelector('[data-plan-freq-item].is-active');
           const freqKey = (freqItem?.getAttribute('data-plan-freq-item') || 'monthly').toLowerCase();
@@ -11373,7 +11385,7 @@
         if (reserveRangeEl) {
           reserveRangeEl.hidden = rawAmount > 0;
           const maxText = staticAmountCap > 0 ? fmt(staticAmountCap) : '—';
-          reserveRangeEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ` ${cur}`}`;
+          reserveRangeEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ``}`;
         }
         if (reserveInputIconEl) reserveInputIconEl.setAttribute('src', currencyIconSrc(cur));
 
