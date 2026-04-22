@@ -10497,11 +10497,14 @@ button.plan-buffer-funding-hero__how-link {
 .plan-buffer-funding2-meta__row {
   width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
 }
 
+.plan-buffer-funding2-meta__row:first-child {
+  margin-bottom: 5px;
+}
 .plan-buffer-funding2-meta__label {
   font-size: 14px;
   font-weight: 600;
