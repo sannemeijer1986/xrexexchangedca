@@ -5144,7 +5144,7 @@
       const prefundEditMode = fundingState >= 3;
       manageSheet.setAttribute('data-my-plans-manage-prefund-mode', prefundEditMode ? 'edit' : 'prefund');
       if (prefundNameEl) {
-        prefundNameEl.textContent = prefundEditMode ? 'Edit pre-funding' : 'Pre-fund plan';
+        prefundNameEl.textContent = prefundEditMode ? 'Pre-funding settings' : 'Pre-fund plan';
       }
       if (prefundDescEl) {
         prefundDescEl.hidden = prefundEditMode;
@@ -5275,7 +5275,7 @@
           const nextBuy = shortenWeekdayLabel(rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK);
           descEl.textContent = `This will resume your automated buys: The next buy will be on ${nextBuy}.`;
         } else if (action === 'end') {
-          descEl.textContent = 'Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet.';
+          descEl.textContent = 'Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet. This plan cannot be resumed once ended.';
         } else {
           descEl.textContent = 'Your automated buys will be put on hold. No new investments will be made until you resume.';
         }

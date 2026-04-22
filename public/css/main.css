@@ -4506,6 +4506,11 @@ div.currency-sheet__item-icon::before {
   line-height: 23px;
 }
 
+.phone-container .currency-sheet__prefund-end-confirm-copy-highlight {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
 .phone-container .currency-sheet__prefund-end-confirm-copy p {
   margin: 0;
   color: #9b9c9c;

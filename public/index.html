@@ -2386,7 +2386,7 @@
                     <p class="currency-sheet__manage-confirm-kicker" data-my-plans-manage-confirm-kicker>Big Three</p>
                     <h2 class="currency-sheet__title currency-sheet__title--manage-confirm" data-my-plans-manage-confirm-title>End this plan?</h2>
                 </div>
-                <p class="currency-sheet__manage-confirm-desc" data-my-plans-manage-confirm-desc>Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet.</p>
+                <p class="currency-sheet__manage-confirm-desc" data-my-plans-manage-confirm-desc>Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet. This plan cannot be resumed once ended.</p>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--manage-confirm">
                 <button class="currency-sheet__cancel currency-sheet__cancel--manage-confirm-danger" type="button" data-my-plans-manage-confirm-submit>End plan</button>
@@ -2740,7 +2740,7 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
             </div>
             <div class="currency-sheet__body currency-sheet__body--prefund-edit">
                 <div class="currency-sheet__heading-block">
-                    <h2 class="currency-sheet__title">Edit pre-funding</h2>
+                    <h2 class="currency-sheet__title">Pre-funding settings</h2>
                 </div>
                 <div class="currency-sheet__list">
                     <button class="currency-sheet__item currency-sheet__item--action currency-sheet__item--manage-plan" type="button"
@@ -2749,8 +2749,8 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                             <img src="assets/icon_close.svg" alt="" width="20" height="20" />
                         </div>
                         <div class="currency-sheet__item-content">
-                            <span class="currency-sheet__item-name">Return funds</span>
-                            <span class="currency-sheet__item-desc">Returns funds to your wallet and stops the pre-fund auto-refill mechanism</span>
+                            <span class="currency-sheet__item-name">Return reserved TWD</span>
+                            <span class="currency-sheet__item-desc">Release pre-funded TWD back to your wallet and stop auto-refill</span>
                         </div>
                         <img class="currency-sheet__item-chevron" src="assets/icon_chevron_right_white.svg" width="24" height="24" alt="" aria-hidden="true" />
                     </button>
@@ -2770,15 +2770,15 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                 <div class="currency-sheet__handle"></div>
             </div>
             <div class="currency-sheet__body currency-sheet__body--prefund-end-confirm">
-                <h2 class="currency-sheet__title">Return funds</h2>
+                <h2 class="currency-sheet__title">Return reserved TWD</h2>
                 <div class="currency-sheet__prefund-end-confirm-copy">
-                    <p>If you return funds, your plan will switch back to automatically deducting funds from your balance on each scheduled auto-invest date.</p>
-                    <p>Any pre-funded funds will be returned to your wallet, and auto-refill will stop.</p>
+                    <p class="currency-sheet__prefund-end-confirm-copy-highlight">Your pre-funded TWD will be released back to your wallet, and auto-refill will stop.</p>
+                    <p>This plan will resume deducting from your wallet’s TWD balance on each scheduled auto-invest date.</p>
                 </div>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--prefund-end-confirm">
-                <button class="currency-sheet__cancel currency-sheet__cancel--prefund-end-secondary" type="button" data-my-plans-prefund-end-confirm-dismiss>I’ve changed my mind</button>
-                <button class="currency-sheet__cancel currency-sheet__cancel--prefund-end-danger" type="button" data-my-plans-prefund-end-confirm-submit>End pre-funding & return funds</button>
+                <button class="currency-sheet__cancel currency-sheet__cancel--prefund-end-danger" type="button" data-my-plans-prefund-end-confirm-submit>Return reserved TWD</button>
+                <button class="currency-sheet__cancel currency-sheet__cancel--prefund-end-secondary" type="button" data-my-plans-prefund-end-confirm-dismiss>Back</button>
             </div>
         </div>
     </div>
@@ -2902,7 +2902,7 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                 <div class="currency-sheet__handle"></div>
             </div>
             <div class="currency-sheet__body">
-                <h2 class="currency-sheet__title">Pre-funding won't be applied if you leave now.</h2>
+                <h2 class="currency-sheet__title">Pre-funding won't be applied if you leave now</h2>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--split">
                 <button class="currency-sheet__cancel funding2-exit-sheet__btn--leave" type="button" data-funding2-exit-confirm>Leave without pre-funding</button>
