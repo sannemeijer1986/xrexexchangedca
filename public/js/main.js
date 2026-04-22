@@ -6753,7 +6753,7 @@
         clone.classList.remove('plan-buffer-panel--period-has-count');
         if (rangeHintEl) {
           const maxText = staticAmountCap > 0 ? staticAmountCap.toLocaleString('en-US') : '—';
-          rangeHintEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ` ${reserveCur}`}`;
+          rangeHintEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ``}`;
           rangeHintEl.hidden = rawAmount > 0;
         }
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
