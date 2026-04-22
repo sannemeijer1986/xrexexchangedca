@@ -6471,16 +6471,16 @@
         meta.setAttribute('data-funding2-meta', 'true');
         meta.innerHTML = `
           <div class="plan-buffer-funding2-meta__row">
-            <span class="plan-buffer-funding2-meta__label">You will pre-fund</span>
-            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-amount>—</span>
-          </div>
-          <div class="plan-buffer-funding2-meta__row">
-            <span class="plan-buffer-funding2-meta__label">Covers</span>
-            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-covers>—</span>
+            <span class="plan-buffer-funding2-meta__label">Period covered</span>
+            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-period>—</span>
           </div>
           <div class="plan-buffer-funding2-meta__row">
             <span class="plan-buffer-funding2-meta__label">Covers until</span>
             <span class="plan-buffer-funding2-meta__value" data-funding2-meta-until>—</span>
+          </div>
+          <div class="plan-buffer-funding2-meta__row">
+            <span class="plan-buffer-funding2-meta__label">You will pre-fund</span>
+            <span class="plan-buffer-funding2-meta__value" data-funding2-meta-amount>—</span>
           </div>
         `;
         stack.parentElement.appendChild(meta);
@@ -6603,6 +6603,11 @@
       const syncFromOriginal = () => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
+        const staticAmountCap = reserveCur === 'USDT'
+          ? 100000
+          : reserveCur === 'TWD'
+            ? 3000000
+            : Math.max(0, Math.floor(availBalance));
         const reserveCurEl = clone.querySelector('[data-plan-buffer-reserve-cur]');
         if (reserveCurEl) reserveCurEl.textContent = reserveCur;
         const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
@@ -6621,7 +6626,9 @@
           const dateUnit = funding2PrefundDateUnit(freqKey);
           const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
           const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
+          const staticMaxPeriod = perBuy > 0 ? Math.floor(staticAmountCap / perBuy) : 0;
           const periodInputEl = clone.querySelector('[data-plan-buffer-period-input]');
+          const periodRangeEl = clone.querySelector('[data-plan-buffer-period-range]');
           const parsedPc = parseInt(String(periodInputEl?.value || '').replace(/[^0-9]/g, ''), 10);
           const rawPc = Number.isFinite(parsedPc) && parsedPc > 0 ? parsedPc : 0;
           funding2PeriodCount = Math.min(rawPc, maxPeriod);
@@ -6654,6 +6661,10 @@
           }
           if (periodInputEl instanceof HTMLInputElement && document.activeElement !== periodInputEl) {
             periodInputEl.value = funding2PeriodCount > 0 ? formatWithCommas(funding2PeriodCount) : '';
+          }
+          if (periodRangeEl) {
+            periodRangeEl.hidden = funding2PeriodCount > 0;
+            periodRangeEl.textContent = `Max ${staticMaxPeriod > 0 ? formatWithCommas(staticMaxPeriod) : '—'}`;
           }
           const sumPeriod = clone.querySelector('[data-plan-buffer-period-sum-period]');
           if (sumPeriod) {
@@ -6739,9 +6750,8 @@
         }
         clone.classList.remove('plan-buffer-panel--period-has-count');
         if (rangeHintEl) {
-          const minText = perBuy > 0 ? perBuy.toLocaleString('en-US') : '—';
-          const maxText = availBalance > 0 ? availBalance.toLocaleString('en-US') : '—';
-          rangeHintEl.textContent = `Min ${minText} / Max ${maxText}`;
+          const maxText = staticAmountCap > 0 ? staticAmountCap.toLocaleString('en-US') : '—';
+          rangeHintEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ` ${reserveCur}`}`;
           rangeHintEl.hidden = rawAmount > 0;
         }
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
@@ -6879,14 +6889,17 @@
 
         const meta = ensureFunding2Meta();
         if (meta) {
-          const amountEl = meta.querySelector('[data-funding2-meta-amount]');
-          const coversEl = meta.querySelector('[data-funding2-meta-covers]');
+          const periodEl = meta.querySelector('[data-funding2-meta-period]');
           const untilEl = meta.querySelector('[data-funding2-meta-until]');
-          const coversDate = resolveFunding2CoversDate();
+          const amountEl = meta.querySelector('[data-funding2-meta-amount]');
+          const dateUnit = funding2PrefundDateUnit(freqKey);
+          const coversDate = hasActiveSelection && completeBuys > 0
+            ? computeFunding2PeriodCoversDateText(completeBuys, dateUnit)
+            : '- -';
           meta.hidden = !hasActiveSelection;
+          if (periodEl) periodEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
+          if (untilEl) untilEl.textContent = coversDate;
           if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
-          if (coversEl) coversEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
-          if (untilEl) untilEl.textContent = hasActiveSelection && completeBuys > 0 ? coversDate : '- -';
         }
 
         const ctaBtn = clone.querySelector('[data-plan-buffer-confirm]');
@@ -11048,6 +11061,7 @@
       const periodPerbuyLineEl = bufferPanel.querySelector('[data-plan-buffer-period-perbuy-line]');
       const periodAvailBalanceEl = bufferPanel.querySelector('[data-plan-buffer-period-avail-balance]');
       const periodInputEl = bufferPanel.querySelector('[data-plan-buffer-period-input]');
+      const periodRangeEl = bufferPanel.querySelector('[data-plan-buffer-period-range]');
       const periodUnitLabelEl = bufferPanel.querySelector('[data-plan-buffer-period-unit-label]');
       const periodSumPeriodEl = bufferPanel.querySelector('[data-plan-buffer-period-sum-period]');
       const periodSumCoversEl = bufferPanel.querySelector('[data-plan-buffer-period-sum-covers]');
@@ -11210,8 +11224,15 @@
 
       const getMaxAllowedAmount = () => {
         const balance = BALANCES[cur] ?? BALANCES.TWD;
-        const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
-        return Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount, MAX_RESERVE_INPUT)));
+        const { max: maxBuys } = getReserveBuyBounds();
+        const maxByBuys = (
+          perBuy > 0 && Number.isFinite(maxBuys) && maxBuys > 0
+            ? perBuy * maxBuys
+            : Number.POSITIVE_INFINITY
+        );
+        const hardCap = Math.max(0, Math.min(balance, maxByBuys, MAX_RESERVE_INPUT));
+        if (perBuy <= 0) return Math.floor(hardCap);
+        return Math.floor(hardCap / perBuy) * perBuy;
       };
 
       const getActiveFundingView = () => (
@@ -11250,6 +11271,11 @@
         reserveInputAmount = clampReserveAmount(reserveInputAmount);
         const perBuyStr = perBuy > 0 ? `${fmt(perBuy)} ${cur}` : '—';
         const balance = BALANCES[cur] ?? BALANCES.TWD;
+        const staticAmountCap = cur === 'USDT'
+          ? 100000
+          : cur === 'TWD'
+            ? 3000000
+            : Math.max(0, Math.floor(balance));
         const reserveLimitAmount = isSetLimit && perBuy > 0 ? perBuy * coversTotalBuys : Number.POSITIVE_INFINITY;
         const maxAllowedAmount = Math.floor(Math.max(0, Math.min(balance, reserveLimitAmount)));
         const rawAmount = reserveInputAmount;
@@ -11294,9 +11320,8 @@
         }
         if (reserveRangeEl) {
           reserveRangeEl.hidden = rawAmount > 0;
-          const minText = '0';
-          const maxText = Number.isFinite(maxAllowedAmount) && maxAllowedAmount > 0 ? fmt(maxAllowedAmount) : '—';
-          reserveRangeEl.textContent = `Min ${minText} / Max ${maxText}`;
+          const maxText = staticAmountCap > 0 ? fmt(staticAmountCap) : '—';
+          reserveRangeEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ` ${cur}`}`;
         }
         if (reserveInputIconEl) reserveInputIconEl.setAttribute('src', currencyIconSrc(cur));
 
@@ -11469,6 +11494,11 @@
         }
         if (periodInputEl && document.activeElement !== periodInputEl) {
           periodInputEl.value = periodInputCount > 0 ? formatWithCommas(periodInputCount) : '';
+        }
+        if (periodRangeEl) {
+          const maxPeriodCount = perBuy > 0 ? Math.floor(staticAmountCap / perBuy) : 0;
+          periodRangeEl.hidden = periodInputCount > 0;
+          periodRangeEl.textContent = `Max ${maxPeriodCount > 0 ? formatWithCommas(maxPeriodCount) : '—'}`;
         }
         if (periodSumPeriodEl) {
           if (periodInputCount > 0) {
