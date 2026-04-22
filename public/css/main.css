@@ -10437,6 +10437,10 @@ button.plan-buffer-funding-hero__how-link {
   display: block;
 }
 
+[data-plan-buffer-panel-2] .plan-buffer-funding-input__max-btn {
+  margin-left: auto;
+  margin-right: 0;
+}
 [data-plan-buffer-panel-2] .plan-buffer-funding2-seg-row {
   display: flex;
   align-items: center;

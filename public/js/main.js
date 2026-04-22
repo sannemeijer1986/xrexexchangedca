@@ -6518,6 +6518,17 @@
         const availBalance = Number(BALANCES[reserveCur] ?? BALANCES.TWD ?? 0);
         return { perBuyData, reserveCur, availBalance };
       };
+      const getFunding2StaticAmountCap = (currencyCode, fallbackBalance = 0) => {
+        const code = String(currencyCode || '').trim().toUpperCase();
+        if (code === 'USDT') return 100000;
+        if (code === 'TWD') return 3000000;
+        return Math.max(0, Math.floor(fallbackBalance));
+      };
+      const getFunding2StaticMaxPeriod = (currencyCode, perBuyAmount, fallbackBalance = 0) => {
+        const perBuy = Number.isFinite(perBuyAmount) ? Math.max(0, Math.round(perBuyAmount)) : 0;
+        if (perBuy <= 0) return 0;
+        return Math.floor(getFunding2StaticAmountCap(currencyCode, fallbackBalance) / perBuy);
+      };
       const applyFunding2Amount = (nextAmount) => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         if (!(reserveInput instanceof HTMLInputElement)) return;
@@ -6603,11 +6614,7 @@
       const syncFromOriginal = () => {
         const reserveInput = clone.querySelector('[data-plan-buffer-reserve-input]');
         const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
-        const staticAmountCap = reserveCur === 'USDT'
-          ? 100000
-          : reserveCur === 'TWD'
-            ? 3000000
-            : Math.max(0, Math.floor(availBalance));
+        const staticAmountCap = getFunding2StaticAmountCap(reserveCur, availBalance);
         const reserveCurEl = clone.querySelector('[data-plan-buffer-reserve-cur]');
         if (reserveCurEl) reserveCurEl.textContent = reserveCur;
         const reserveInputIconEl = clone.querySelector('[data-plan-buffer-reserve-input-icon]');
@@ -6632,6 +6639,8 @@
         const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
         if (availEl) availEl.textContent = `Avail. ${Number(availBalance).toLocaleString('en-US')} ${reserveCur}`;
         const rangeHintEl = clone.querySelector('[data-plan-buffer-reserve-range]');
+        const reserveBalanceErrorEl = clone.querySelector('[data-plan-buffer-balance-error]');
+        const periodBalanceErrorEl = clone.querySelector('[data-plan-buffer-period-balance-error]');
         const parsedRaw = parseInt(String(reserveInput?.value || '').replace(/[^0-9]/g, ''), 10);
         const rawAmount = Number.isFinite(parsedRaw) ? Math.max(0, parsedRaw) : 0;
         if (!(rawAmount > 0)) funding2OptionBaseAmount = null;
@@ -6644,19 +6653,20 @@
           const { unit, unitPlural } = funding2PrefundUnitLabels(freqKey);
           const dateUnit = funding2PrefundDateUnit(freqKey);
           const cadence = freqKey === 'daily' ? 'daily' : freqKey === 'weekly' ? 'weekly' : freqKey === 'flexible' ? '' : 'monthly';
-          const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
-          const staticMaxPeriod = perBuy > 0 ? Math.floor(staticAmountCap / perBuy) : 0;
+          const maxPeriod = getFunding2StaticMaxPeriod(reserveCur, perBuy, availBalance);
+          const staticMaxPeriod = maxPeriod;
           const periodInputEl = clone.querySelector('[data-plan-buffer-period-input]');
           const periodRangeEl = clone.querySelector('[data-plan-buffer-period-range]');
           const parsedPc = parseInt(String(periodInputEl?.value || '').replace(/[^0-9]/g, ''), 10);
           const rawPc = Number.isFinite(parsedPc) && parsedPc > 0 ? parsedPc : 0;
           funding2PeriodCount = Math.min(rawPc, maxPeriod);
           const periodRaw = perBuy > 0 && funding2PeriodCount > 0 ? funding2PeriodCount * perBuy : 0;
+          const hasPeriodBalanceError = funding2PeriodCount > 0 && periodRaw > availBalance;
           const isValidPeriod =
             perBuy > 0 &&
             funding2PeriodCount >= 1 &&
             periodRaw > 0 &&
-            periodRaw <= availBalance;
+            !hasPeriodBalanceError;
           const activeAmount = isValidPeriod ? periodRaw : 0;
           const hasActiveSelection = activeAmount > 0;
           const completeBuys = funding2PeriodCount;
@@ -6701,6 +6711,8 @@
           if (sumAmt) sumAmt.textContent = isValidPeriod ? `${fmt(periodRaw)} ${reserveCur}` : '—';
           const maxBtn = clone.querySelector('[data-plan-buffer-period-max]');
           if (maxBtn) maxBtn.disabled = !(maxPeriod > 0);
+          if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = true;
+          if (periodBalanceErrorEl) periodBalanceErrorEl.hidden = !hasPeriodBalanceError;
 
           const freqKey2 = resolveFunding2FreqKey();
           const buyCadenceWord = freqKey2 === 'daily' ? 'daily' : freqKey2 === 'weekly' ? 'weekly' : freqKey2 === 'flexible' ? '' : 'monthly';
@@ -6755,7 +6767,7 @@
           const ctaBtn = clone.querySelector('[data-plan-buffer-confirm]');
           if (ctaBtn) {
             ctaBtn.textContent = 'Preview';
-            const isDisabled = !hasActiveSelection;
+            const isDisabled = !hasActiveSelection || hasPeriodBalanceError;
             ctaBtn.disabled = isDisabled;
             ctaBtn.classList.toggle('is-disabled', isDisabled);
           }
@@ -6764,13 +6776,16 @@
             funding2PeriodCount >= 1,
           );
           const periodSummaryEl = clone.querySelector('.plan-buffer-funding-period-summary');
-          if (periodSummaryEl) periodSummaryEl.hidden = funding2PeriodCount < 1;
+          if (periodSummaryEl) periodSummaryEl.hidden = funding2PeriodCount < 1 || hasPeriodBalanceError;
           return;
         }
         clone.classList.remove('plan-buffer-panel--period-has-count');
+        if (periodBalanceErrorEl) periodBalanceErrorEl.hidden = true;
+        const hasAmountBalanceError = rawAmount > availBalance;
+        if (reserveBalanceErrorEl) reserveBalanceErrorEl.hidden = !hasAmountBalanceError;
         if (rangeHintEl) {
           const maxText = staticAmountCap > 0 ? staticAmountCap.toLocaleString('en-US') : '—';
-          rangeHintEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ``}`;
+          rangeHintEl.textContent = `Max ${maxText}${maxText === '—' ? '' : ` ${reserveCur}`}`;
           rangeHintEl.hidden = rawAmount > 0;
         }
         const isExactBuyMultiple = perBuy > 0 && rawAmount > 0 && rawAmount % perBuy === 0;
@@ -6779,7 +6794,7 @@
         // must not leak into this branch when rawAmount is empty or not an exact buy multiple.
         if (rawAmount === 0) {
           funding2SelectedAmount = null;
-        } else if (isExactBuyMultiple) {
+        } else if (isExactBuyMultiple && !hasAmountBalanceError) {
           funding2SelectedAmount = rawAmount;
         } else if (perBuy > 0) {
           funding2SelectedAmount = null;
@@ -6899,7 +6914,7 @@
           const coversDate = hasActiveSelection && completeBuys > 0
             ? computeFunding2PeriodCoversDateText(completeBuys, dateUnit)
             : '- -';
-          meta.hidden = !hasActiveSelection;
+          meta.hidden = !hasActiveSelection || hasAmountBalanceError;
           if (periodEl) periodEl.textContent = hasActiveSelection && completeBuys > 0 ? `${completeBuys} ${coverLabel}` : '- -';
           if (untilEl) untilEl.textContent = coversDate;
           if (amountEl) amountEl.textContent = hasActiveSelection ? `${fmt(activeAmount)} ${reserveCur}` : '- -';
@@ -6908,7 +6923,7 @@
         const ctaBtn = clone.querySelector('[data-plan-buffer-confirm]');
         if (ctaBtn) {
           ctaBtn.textContent = 'Preview';
-          const isDisabled = !hasActiveSelection;
+          const isDisabled = !hasActiveSelection || hasAmountBalanceError;
           ctaBtn.disabled = isDisabled;
           ctaBtn.classList.toggle('is-disabled', isDisabled);
         }
@@ -6943,9 +6958,10 @@
         if (!target.matches('[data-plan-buffer-reserve-input]')) return;
         funding2SelectedAmount = null;
         const parsed = parseInt(String(target.value || '').replace(/[^0-9]/g, ''), 10);
-        const { availBalance } = resolveFunding2Numbers();
+        const { reserveCur, availBalance } = resolveFunding2Numbers();
+        const staticAmountCap = getFunding2StaticAmountCap(reserveCur, availBalance);
         const clamped = Number.isFinite(parsed) && parsed > 0
-          ? Math.min(parsed, Math.max(0, availBalance))
+          ? Math.min(parsed, staticAmountCap)
           : 0;
         funding2OptionBaseAmount = clamped > 0 ? clamped : null;
         target.value = clamped > 0 ? formatWithCommas(clamped) : '';
@@ -6971,11 +6987,8 @@
 
       const maxBtn = clone.querySelector('[data-plan-buffer-reserve-max]');
       maxBtn?.addEventListener('click', () => {
-        const { perBuyData, availBalance } = resolveFunding2Numbers();
-        const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
-        const maxAmount = perBuy > 0
-          ? Math.floor(availBalance / perBuy) * perBuy
-          : availBalance;
+        const { reserveCur, availBalance } = resolveFunding2Numbers();
+        const maxAmount = getFunding2StaticAmountCap(reserveCur, availBalance);
         applyFunding2Amount(maxAmount);
         funding2OptionBaseAmount = maxAmount > 0 ? maxAmount : null;
         requestAnimationFrame(syncFromOriginal);
@@ -7321,9 +7334,9 @@
       clone.addEventListener('change', handleCloneChange);
       const applyFunding2PeriodInputLiveFormat = (target) => {
         if (!(target instanceof HTMLInputElement)) return;
-        const { perBuyData, availBalance } = resolveFunding2Numbers();
+        const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
         const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
-        const maxPeriod = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
+        const maxPeriod = getFunding2StaticMaxPeriod(reserveCur, perBuy, availBalance);
         const cursor = target.selectionStart || 0;
         const oldVal = target.value || '';
         const digitsBeforeCursor = oldVal.slice(0, cursor).replace(/[^0-9]/g, '').length;
@@ -7367,9 +7380,9 @@
       });
       clone.querySelector('[data-plan-buffer-period-max]')?.addEventListener('click', (e) => {
         e.preventDefault();
-        const { perBuyData, availBalance } = resolveFunding2Numbers();
+        const { perBuyData, reserveCur, availBalance } = resolveFunding2Numbers();
         const perBuy = Number.isFinite(perBuyData.amount) ? Math.max(0, Math.round(perBuyData.amount)) : 0;
-        funding2PeriodCount = perBuy > 0 ? Math.floor(availBalance / perBuy) : 0;
+        funding2PeriodCount = getFunding2StaticMaxPeriod(reserveCur, perBuy, availBalance);
         const periodInputMax = clone.querySelector('[data-plan-buffer-period-input]');
         if (periodInputMax instanceof HTMLInputElement) {
           periodInputMax.value = funding2PeriodCount > 0 ? formatWithCommas(funding2PeriodCount) : '';

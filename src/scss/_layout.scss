@@ -10774,6 +10774,11 @@ button.plan-buffer-funding-hero__how-link {
 
 // Funding 2 redesign (clone panel only): simplified pre-fund UX
 [data-plan-buffer-panel-2] {
+  .plan-buffer-funding-input__max-btn {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
   .plan-buffer-funding2-seg-row {
     display: flex;
     align-items: center;
