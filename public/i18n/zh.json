@@ -230,6 +230,7 @@
   "months": "個月",
   "My loans": "借貸部位",
   "My plans": "我的計畫",
+  "My plans ({count})": "我的計畫（{count}）",
   "My plans (0)": "我的計畫（0）",
   "Need higher limits?": "需要更高限額？",
   "Negative": "負數",
@@ -444,6 +445,7 @@
   "Thursday": "週四",
   "Friday": "週五",
   "Saturday": "週六",
+  "An overview of all coins available on XREX for auto-investing": "XREX 上所有可用於自動投資的幣種總覽";
   "Sunday": "週日",
   "Wednesday": "週三",
   "What do you wish to invest in?": "您想投資什麼？",
@@ -463,9 +465,7 @@
   "Your automated buys will be put on hold. No new investments will be made until you resume.": "您的自動買入將暫停。在您恢復之前不會進行新的投資。",
   "Your plan": "您的計畫",
   "Your pre-funded TWD will be released back to your wallet, and auto-refill will stop.": "您預儲的 TWD 將退回您的錢包，自動補充也將停止。",
-
   "_comment_dynamic": "── Dynamic / template strings from main.js ──────────────────────────",
-
   "AI essentials": "AI 精選",
   "About auto-refill when funds run out": "關於資金耗盡時自動補充",
   "Allocation should add up to 100%": "配置總計應為 100%",
@@ -490,17 +490,13 @@
   "Toggle allocation lock": "切換配置鎖定",
   "Track your plan and adjust anytime": "追蹤您的計畫並隨時調整",
   "Your auto-invest plan is set": "您的定期定額計畫已設定完成",
-
   "_comment_templates": "── i18n.js template patterns (toTemplatedSource normalises these) ────",
-
   "{count} {periodLabel}": "{count} {periodLabel}",
   "Not enough balance for {count} {periodLabel}": "餘額不足以完成 {count} 次{periodLabel}",
   "Covers {count} {periodLabel} • runs out {date}": "涵蓋 {count} 次{periodLabel} · 於 {date} 耗盡",
   "runs out {date}": "於 {date} 耗盡",
   "Max {amount} {currency}": "最高 {amount} {currency}",
-
   "_comment_period_labels": "── Period label atoms used inside {periodLabel} ──────────────────",
-
   "buy": "次",
   "day": "天",
   "days": "天",
