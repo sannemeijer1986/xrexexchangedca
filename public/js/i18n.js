@@ -63,6 +63,26 @@
       /^Avail\. \d[\d,]* (USDT|TWD|USD|BTC|ETH|XRP|XAUT|LINK|NEAR|MATIC|ONDO|AAVE|RENDER)$/i,
       'Avail. {amount} {currency}',
     );
+    s = s.replace(
+      /^Invest \d[\d,]* (USDT|TWD|USD|BTC|ETH|XRP|XAUT|LINK|NEAR|MATIC|ONDO|AAVE|RENDER)$/i,
+      'Invest {amount} {currency}',
+    );
+    s = s.replace(
+      /^Active \(\d+\)$/i,
+      'Active ({count})',
+    );
+    s = s.replace(
+      /^Paused \(\d+\)$/i,
+      'Paused ({count})',
+    );
+    s = s.replace(
+      /^Ended \(\d+\)$/i,
+      'Ended ({count})',
+    );
+    s = s.replace(
+      /^every month on the \d{1,2}(st|nd|rd|th)$/i,
+      'every month on the {dayOrdinal}',
+    );
     // Generic fallback for count + period label patterns.
     s = s.replace(
       /^(\d+) (buy|buys|day|days|week|weeks|month|months)$/i,
@@ -138,6 +158,10 @@
       missingByLocale[locale].add(canonical);
     }
     const localized = hasRaw ? table[raw] : (hasCanonical ? table[canonical] : raw);
+    if ((!params || typeof params !== 'object') && /\{[^}]+\}/.test(String(localized))) {
+      // Prevent leaking placeholder tokens in observer-driven translations without params.
+      return raw;
+    }
     return interpolate(localized, params);
   };
 
