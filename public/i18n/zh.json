@@ -466,5 +466,46 @@
   "You've pre-funded this plan: pre-funding helps your plan run long-term without interruptions by reserving funds in advance. When your reserved funds run out, we'll automatically pre-fund again to keep your plan running.": "您已為此計畫預儲資金：預儲資金透過提前預留資金，讓計畫長期無中斷地運作。當您的預留資金耗盡時，我們將自動再次預儲以維持計畫運作。",
   "Your automated buys will be put on hold. No new investments will be made until you resume.": "您的自動買入將暫停。在您恢復之前不會進行新的投資。",
   "Your plan": "您的計畫",
-  "Your pre-funded TWD will be released back to your wallet, and auto-refill will stop.": "您預儲的 TWD 將退回您的錢包，自動補充也將停止。"
+  "Your pre-funded TWD will be released back to your wallet, and auto-refill will stop.": "您預儲的 TWD 將退回您的錢包，自動補充也將停止。",
+
+  "_comment_dynamic": "── Dynamic / template strings from main.js ──────────────────────────",
+
+  "AI essentials": "AI 精選",
+  "About auto-refill when funds run out": "關於資金耗盡時自動補充",
+  "Allocation should add up to 100%": "配置總計應為 100%",
+  "Auto-refill when funds run out": "資金耗盡時自動補充",
+  "Deduct from balance": "從餘額扣款",
+  "Digital gold": "數位黃金",
+  "Enter an amount to buy first": "請先輸入買入金額",
+  "How much would you like to reserve for your plan?": "您想為計畫預留多少資金？",
+  "How pre-funding works": "預儲資金如何運作",
+  "Invest automatically: The easiest way to dollar-cost average": "自動投資：定期定額的最簡單方式",
+  "No funds are set aside: Your plan is paid from your balance at time of each buy. May fail if balance is low.": "無預留資金：每次買入時從餘額扣款。若餘額不足，買入可能失敗。",
+  "Pick from coins, themes, or build your own": "選擇幣種、主題，或自訂策略",
+  "Pre-fund overview": "預儲資金總覽",
+  "Preview": "預覽",
+  "Select nearest option": "選擇最近選項",
+  "Set a limit (disabled)": "設定上限（停用）",
+  "Set aside funds": "預留資金",
+  "Toggle allocation lock": "切換配置鎖定",
+  "Track your plan and adjust anytime": "追蹤您的計畫並隨時調整",
+  "Your auto-invest plan is set": "您的定期定額計畫已設定完成",
+
+  "_comment_templates": "── i18n.js template patterns (toTemplatedSource normalises these) ────",
+
+  "{count} {periodLabel}": "{count} {periodLabel}",
+  "Not enough balance for {count} {periodLabel}": "餘額不足以完成 {count} 次{periodLabel}",
+  "Covers {count} {periodLabel} • runs out {date}": "涵蓋 {count} 次{periodLabel} · 於 {date} 耗盡",
+  "runs out {date}": "於 {date} 耗盡",
+  "Max {amount} {currency}": "最高 {amount} {currency}",
+  "Avail. {amount} {currency}": "可用：{amount} {currency}",
+
+  "_comment_period_labels": "── Period label atoms used inside {periodLabel} ──────────────────",
+
+  "buy": "次",
+  "day": "天",
+  "days": "天",
+  "week": "週",
+  "weeks": "週",
+  "month": "個月"
 }
