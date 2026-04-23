@@ -80,6 +80,10 @@
       'Ended ({count})',
     );
     s = s.replace(
+      /^My plans \(\d+\)$/i,
+      'My plans ({count})',
+    );
+    s = s.replace(
       /^every month on the \d{1,2}(st|nd|rd|th)$/i,
       'every month on the {dayOrdinal}',
     );
@@ -266,6 +270,9 @@
     }
     applyLocaleToTree(document.body);
     document.dispatchEvent(new CustomEvent('prototype-locale-changed', { detail: { locale } }));
+    // Second pass: catch any DOM updates main.js makes synchronously in response to the
+    // locale-changed event or state changes triggered by it.
+    requestAnimationFrame(() => applyLocaleToTree(document.body));
   };
 
   const getLocale = () => locale;
@@ -351,6 +358,9 @@
     bindLocaleSelector();
     applyLocaleToTree(document.body);
     initObserver();
+    // Second pass: catch any DOM updates main.js made during its own DOMContentLoaded
+    // initialization that ran after (or interleaved with) our first applyLocaleToTree pass.
+    requestAnimationFrame(() => applyLocaleToTree(document.body));
   };
 
   const getDiscoveredStrings = () => Array.from(discoveredSources).sort((a, b) => a.localeCompare(b));
