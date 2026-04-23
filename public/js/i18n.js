@@ -132,6 +132,34 @@
     return out;
   };
 
+  // Extract template param values from a raw string by matching it against its canonical template.
+  // e.g. raw="Active (3)", canonical="Active ({count})" → { count: "3" }
+  // e.g. raw="Avail. 5,000 USDT", canonical="Avail. {amount} {currency}" → { amount: "5,000", currency: "USDT" }
+  const extractParamsFromTemplate = (raw, canonical) => {
+    if (!canonical || !canonical.includes('{') || canonical === raw) return null;
+    const paramNames = [];
+    let pattern = '^';
+    let lastIdx = 0;
+    const ph = /\{(\w+)\}/g;
+    let m;
+    while ((m = ph.exec(canonical)) !== null) {
+      pattern += canonical.slice(lastIdx, m.index).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      paramNames.push(m[1]);
+      pattern += '(.+?)';
+      lastIdx = m.index + m[0].length;
+    }
+    pattern += canonical.slice(lastIdx).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$';
+    try {
+      const result = new RegExp(pattern, 'i').exec(raw);
+      if (!result) return null;
+      const out = {};
+      paramNames.forEach((name, i) => { out[name] = result[i + 1]; });
+      return out;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const reverseLookupSource = (text, forLocale = locale) => {
     const current = String(text ?? '');
     if (!current) return current;
@@ -158,11 +186,13 @@
       missingByLocale[locale].add(canonical);
     }
     const localized = hasRaw ? table[raw] : (hasCanonical ? table[canonical] : raw);
-    if ((!params || typeof params !== 'object') && /\{[^}]+\}/.test(String(localized))) {
-      // Prevent leaking placeholder tokens in observer-driven translations without params.
-      return raw;
-    }
-    return interpolate(localized, params);
+    // If no explicit params were supplied but the localized string still has {placeholders},
+    // extract the dynamic values from the original raw string using the canonical template.
+    const autoParams = (!params && canonical !== raw && /\{[^}]+\}/.test(String(localized)))
+      ? extractParamsFromTemplate(raw, canonical)
+      : null;
+    const mergedParams = autoParams ? { ...autoParams, ...(params || {}) } : params;
+    return interpolate(localized, mergedParams);
   };
 
   const shouldTranslateText = (node) => {
