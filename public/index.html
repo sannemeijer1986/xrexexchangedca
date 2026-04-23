@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <script src="auth/auth-config.js"></script>
     <script src="auth/auth-gate.js"></script>
     <meta charset="UTF-8">
@@ -3218,6 +3219,16 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                 </div>
             </div>
             <div class="build-badge__section-row">
+                <div class="build-badge__section-title">Language</div>
+                <div class="build-badge__checkbox-group">
+                    <select class="build-badge__select" id="prototype-language" data-prototype-language
+                        aria-label="Prototype language">
+                        <option value="en" selected>EN</option>
+                        <option value="zh">ZH</option>
+                    </select>
+                </div>
+            </div>
+            <div class="build-badge__section-row">
                 <div class="build-badge__section-title">Allocation</div>
                 <div class="build-badge__checkbox-group">
                     <select class="build-badge__select" id="prototype-allocation-mode" data-prototype-smart-allocation
@@ -3275,6 +3286,7 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
     </div>
 
     <script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script defer src="js/i18n.js"></script>
     <script defer src="js/main.js"></script>
 </body>
 
