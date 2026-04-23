@@ -12686,7 +12686,7 @@
       gold: '{$descriptionSameAsMarkets}',
     };
     const financeThemeHeadSubtitles = {
-      ai: 'Artifical Intelligence',
+      ai: 'Artificial Intelligence',
       gold: 'Tokenized gold',
       rwa: 'Real World Assets',
       l1: 'Layer1 solutions',
@@ -13514,18 +13514,18 @@
     const nextBtn = panelEl.querySelector('[data-finance-intro-learn-more-next]');
     const slides = [
       {
-        title: 'Invest automatically: The easiest way to dollar-cost average',
+        title: 'Invest automatically: the easiest way to dollar-cost average',
         desc: 'Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.',
         visual: 'assets/finance_intro_step_1.svg',
       },
       {
-        title: 'Pick from coins, themes, or build your own',
-        desc: 'Start quickly with ready-made options, or customize allocations that match your conviction.',
+        title: 'Choose assets like Bitcoin, from themes like AI, or build your own!',
+        desc: 'Select a single asset or...',
         visual: 'assets/finance_intro_step_2.svg',
       },
       {
-        title: 'Track your plan and adjust anytime',
-        desc: 'Review performance, edit funding and schedule settings, and keep your strategy running.',
+        title: 'Choose how to fund your plan: flexibly or in advance',
+        desc: 'Pay each time from your wallet, or pre-fund your plan to keep it running automatically. You’re always in control.',
         visual: 'assets/finance_intro_step_3.svg',
       },
     ];
