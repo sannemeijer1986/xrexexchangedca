@@ -2,6 +2,28 @@
 <html lang="en">
 
 <head>
+    <script>document.cookie = "demo_auth=1; path=/";</script>
+    <script>
+      // Inline all local images as data URIs so Figma's cloud can resolve them
+      window.__figmaInlineImages = async function() {
+        const imgs = document.querySelectorAll('img[src]');
+        await Promise.all([...imgs].map(async img => {
+          try {
+            const src = img.getAttribute('src');
+            if (!src || src.startsWith('data:') || src.startsWith('http')) return;
+            const res = await fetch(src);
+            const blob = await res.blob();
+            await new Promise((ok, fail) => {
+              const r = new FileReader();
+              r.onload = () => { img.src = r.result; ok(); };
+              r.onerror = fail;
+              r.readAsDataURL(blob);
+            });
+          } catch(e) {}
+        }));
+      };
+      document.addEventListener('DOMContentLoaded', () => window.__figmaInlineImages());
+    </script>
     <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <script src="auth/auth-config.js"></script>
     <script src="auth/auth-gate.js"></script>
