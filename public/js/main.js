@@ -5694,6 +5694,15 @@
       openFunding2FromMyPlans(detailPanel);
     });
 
+    // Locale flips can leave count labels stale if no My-plans rerender occurs afterward.
+    document.addEventListener('prototype-locale-changed', () => {
+      syncMyPlansLabels();
+      if (panel.classList.contains('is-open')) {
+        renderMyPlansViews();
+        setFilter(activeFilter || 'active');
+      }
+    });
+
     const open = (openOpts = {}) => {
       backFromPlanSuccessView = !!openOpts.fromPlanSuccessView;
       closePlanDetail(true);
