@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "audit:i18n-runtime": "node scripts/audit-runtime-i18n.js",
+    "audit:i18n-missing-zh": "node scripts/audit-runtime-i18n-missing-zh.js",
     "build:css": "mkdir -p public/css && npx sass src/scss/main.scss public/css/main.css --style=compressed --no-source-map",
     "watch:css": "npx sass --watch src/scss/main.scss:public/css/main.css --style=expanded --source-map",
     "watch:css:poll": "npm run watch:css -- --poll",
