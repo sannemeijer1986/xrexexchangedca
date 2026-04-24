@@ -1979,7 +1979,7 @@
     document.querySelectorAll(`[data-range-label="${context}"]`).forEach((el) => {
       el.textContent = range;
     });
-    const startedAgo = `Past ${range} simulation based on setup`;
+    const startedAgo = `Past ${range} simulation · your setup`;
     const breakdownOutcome = 'Simulated outcome ≈';
     if (context === 'plan') {
       document.querySelectorAll('[data-plan-return-title]').forEach((el) => {
@@ -4759,6 +4759,7 @@
       const fundingClassicAlertEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-classic]');
       const fundingClassicAlertTextEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-classic-text]');
       const fundingClassicAlertIconEl = fundingClassicAlertEl?.querySelector('.my-plans-detail-panel__funding-alert-icon');
+      const fundingClassicAlertLinkEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-link]');
       const fundingPrefundAlertEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund]');
       const fundingPrefundAlertTextEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund-text]');
       const fundingPrefundAlertIconEl = fundingPrefundAlertEl?.querySelector('.my-plans-detail-panel__funding-alert-icon');
@@ -4787,14 +4788,14 @@
       if (!usePrefundDetailLayout) {
         applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
         if (fundingMainEl) {
-          fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from ${cur} balance`;
+          fundingMainEl.textContent = rec.isReserved ? 'Pre-fund' : `Deduct from balance`;
         }
         if (fundingSubEl) {
           const sub = fundingState === 2
             ? `Insufficient ${cur} balance`
             : rec.isReserved
               ? (computeCoversBuysText(rec) || rec.reservedFunds || '')
-              : 'Sufficient balance';
+              : `Sufficient ${cur} balance`;
           fundingSubEl.textContent = sub;
           fundingSubEl.classList.toggle('my-plans-detail-panel__ov-sub--positive', fundingState !== 2);
           fundingSubEl.classList.toggle('my-plans-detail-panel__ov-sub--negative', fundingState === 2);
@@ -4807,13 +4808,16 @@
             fundingClassicAlertTextEl,
             fundingClassicAlertIconEl,
             'negative',
-            'Add funds to your wallet before the next buy date.',
+            'Please add funds to your wallet before your next scheduled buy.',
           );
+          if (fundingClassicAlertLinkEl) fundingClassicAlertLinkEl.hidden = false;
         } else {
           applyFundingAlert(fundingClassicAlertEl, fundingClassicAlertTextEl, fundingClassicAlertIconEl, 'negative', '');
+          if (fundingClassicAlertLinkEl) fundingClassicAlertLinkEl.hidden = true;
         }
       } else {
         applyFundingAlert(fundingClassicAlertEl, fundingClassicAlertTextEl, fundingClassicAlertIconEl, 'negative', '');
+        if (fundingClassicAlertLinkEl) fundingClassicAlertLinkEl.hidden = true;
         const investAmtMatch = String(rec.investLine || '').match(/(\d[\d,]*(?:\.\d+)?)\s*([A-Za-z]{3,5})/i);
         const perNum = investAmtMatch
           ? parseFloat(String(investAmtMatch[1] || '').replace(/,/g, ''))

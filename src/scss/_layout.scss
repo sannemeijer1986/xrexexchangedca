@@ -14405,6 +14405,33 @@ button.plan-buffer-funding-hero__how-link {
   color: #eb5347;
 }
 
+.my-plans-detail-panel__funding-alert-link {
+  width: 100%;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3f78ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.my-plans-detail-panel__funding-alert-link img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.my-plans-detail-panel__funding-alert-link[hidden] {
+  display: none !important;
+}
+
 .my-plans-detail-panel__funding-prefund-divider {
   height: 1px;
   width: 100%;
