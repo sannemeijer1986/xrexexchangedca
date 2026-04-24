@@ -1409,6 +1409,8 @@
     if (!el) return;
     const raw = String(fullText || '').trim();
     const canonical = normalizeFlexibleScheduleText(raw) || raw;
+    const tr = (s) => (window.I18N?.t ? window.I18N.t(s) : s);
+    const locale = window.I18N?.getLocale?.() || 'en';
     el.setAttribute(PLAN_DETAIL_SCHEDULE_FULL_ATTR, canonical);
     const parts = canonical.split('·').map((t) => t.trim()).filter(Boolean);
     const head = (parts[0] || '').toLowerCase();
@@ -1418,9 +1420,37 @@
       const ordRe = /(\d{1,2}(?:st|nd|rd|th))/gi;
       let m;
       while ((m = ordRe.exec(tailJoined))) ordinals.push(m[1]);
-      el.textContent = ordinals.length ? ordinals.join(', ') : 'Select days';
+      el.textContent = ordinals.length ? tr(ordinals.join(', ')) : tr('Select days');
     } else {
-      el.textContent = canonical;
+      if (locale === 'zh') {
+        let localized = tr(canonical);
+        // Fallback localization for dynamic schedule values like "Monthly · 16th" or "Weekly · Tuesday".
+        if (localized === canonical) {
+          const weekdayMap = {
+            Monday: '週一',
+            Tuesday: '週二',
+            Wednesday: '週三',
+            Thursday: '週四',
+            Friday: '週五',
+            Saturday: '週六',
+            Sunday: '週日',
+          };
+          localized = localized.replace(
+            /\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/g,
+            (m) => weekdayMap[m] || m,
+          );
+          localized = localized
+            .replace(/^Daily\b/i, '每日')
+            .replace(/^Weekly\b/i, '每週')
+            .replace(/^Monthly\b/i, '每月')
+            .replace(/^Flexible\b/i, '自訂');
+          localized = localized.replace(/(\d{1,2})(st|nd|rd|th)\b/gi, '$1 日');
+          localized = localized.replace(/\s+at\s+~?\s*/gi, ' 約 ');
+        }
+        el.textContent = localized;
+      } else {
+        el.textContent = tr(canonical);
+      }
     }
   };
 
