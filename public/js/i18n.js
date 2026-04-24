@@ -52,6 +52,10 @@
       'runs out {date}',
     );
     s = s.replace(
+      /^This will resume your automated buys: The next buy will be on .+\.$/i,
+      'This will resume your automated buys: The next buy will be on {date}.',
+    );
+    s = s.replace(
       /^Max \d[\d,]* (USDT|TWD|USD|BTC|ETH|XRP|XAUT|LINK|NEAR|MATIC|ONDO|AAVE|RENDER)$/i,
       'Max {amount} {currency}',
     );
