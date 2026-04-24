@@ -2891,6 +2891,15 @@
     scheduleSheetApi.reopenFromChild = reopenFromChild;
 
     const toCanonicalTimingForFreq = (freq, value) => {
+      const toOrdinal = (day) => {
+        const j = day % 10;
+        const k = day % 100;
+        if (k >= 11 && k <= 13) return `${day}th`;
+        if (j === 1) return `${day}st`;
+        if (j === 2) return `${day}nd`;
+        if (j === 3) return `${day}rd`;
+        return `${day}th`;
+      };
       const raw = String(value || '').trim();
       if (!raw) return defaultTimingDetail[freq] || defaultTimingDetail.monthly;
       if (freq === 'weekly') {
@@ -2916,7 +2925,7 @@
         const m = raw.match(/(\d{1,2})/);
         if (!m) return defaultTimingDetail.monthly;
         const day = Math.max(1, Math.min(28, parseInt(m[1], 10)));
-        return ordinalSuffix(day);
+        return toOrdinal(day);
       }
       return raw;
     };
@@ -3429,6 +3438,8 @@
       { short: 'Sun', label: 'Sunday' },
     ];
 
+    const isZhLocale = () => (window.I18N?.getLocale?.() || 'en') === 'zh';
+
     /** @param {number} n 1–31 */
     const ordinalSuffix = (n) => {
       const j = n % 10;
@@ -3440,6 +3451,9 @@
       return `${n}th`;
     };
 
+    /** Locale-aware day label for picker UI (EN: 15th, ZH: 15日). */
+    const formatDayLabel = (n) => (isZhLocale() ? `${n}日` : ordinalSuffix(n));
+
     // ───────────────────────────────────────────────────────────────────────────
     // Flexible: multi-day picker (nested sheet)
 
@@ -3448,9 +3462,9 @@
 
     const parseFlexibleDaysFromTimingText = (text) => {
       const t = String(text || '').trim();
-      if (!t || t === 'Select days' || t === '- -') return [];
+      if (!t || t === 'Select days' || t === tr('Select days') || t === '- -') return [];
       const out = [];
-      const re = /(\d{1,2})(?:st|nd|rd|th)/gi;
+      const re = /(\d{1,2})/g;
       let m;
       while ((m = re.exec(t))) {
         const d = Math.max(1, Math.min(28, parseInt(m[1], 10)));
@@ -3475,12 +3489,13 @@
       flexDaysGrid.appendChild(frag);
     };
 
-    /** One day: "every month on the 15th"; several: "every 6th, 8th, 12th, …" */
+    /** One day EN: "every month on the 15th"; ZH: "每月於15日". */
     const formatFlexDaysSummaryLine = (days) => {
-      const ords = days.map((d) => ordinalSuffix(d));
-      if (ords.length === 0) return '- -';
-      if (ords.length === 1) return `every month on the ${ords[0]}`;
-      return `every ${ords.join(', ')}`;
+      const labels = days.map((d) => formatDayLabel(d));
+      if (labels.length === 0) return '- -';
+      if (isZhLocale()) return `每月於${labels.join('、')}`;
+      if (labels.length === 1) return `every month on the ${labels[0]}`;
+      return `every ${labels.join(', ')}`;
     };
 
     const syncFlexDaysUI = () => {
@@ -3539,7 +3554,7 @@
     };
 
     const parseMonthlyDayIndex = (text) => {
-      const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)/i);
+      const m = String(text || '').match(/(\d{1,2})/);
       if (!m) return 14;
       const d = Math.max(1, Math.min(28, parseInt(m[1], 10)));
       return d - 1;
@@ -3636,7 +3651,7 @@
         primaryCol.hidden = false;
         timeCol.hidden = true;
         timeCol.innerHTML = '';
-        const dayLabels = Array.from({ length: 28 }, (_, i) => ordinalSuffix(i + 1));
+        const dayLabels = Array.from({ length: 28 }, (_, i) => formatDayLabel(i + 1));
         const dayIdx = parseMonthlyDayIndex(tv);
         primaryCol.innerHTML = buildColumnHtml(dayLabels, dayIdx);
         scrollToIndex(primaryCol, dayIdx, 27);
@@ -3673,7 +3688,7 @@
         next = WEEKDAYS[pi].label;
       } else {
         const pi = Math.max(0, Math.min(27, Math.round(primaryCol.scrollTop / ITEM_H)));
-        next = `${ordinalSuffix(pi + 1)}`;
+        next = formatDayLabel(pi + 1);
       }
       if (timingValueEl) timingValueEl.textContent = tr(next);
       scheduleSheetApi.refreshEndConditionSubtitles?.();
@@ -3718,7 +3733,7 @@
       flexDaysSheet.querySelector('[data-schedule-flex-days-confirm]')?.addEventListener('click', () => {
         if (timingValueEl) {
           timingValueEl.textContent = flexSelectedDays.length
-            ? tr(flexSelectedDays.map((d) => ordinalSuffix(d)).join(', '))
+            ? flexSelectedDays.map((d) => formatDayLabel(d)).join(isZhLocale() ? '、' : ', ')
             : tr('Select days');
         }
         scheduleSheetApi.refreshEndConditionSubtitles?.();
