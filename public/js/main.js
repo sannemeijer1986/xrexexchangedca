@@ -6725,7 +6725,12 @@
           reserveInputIconEl.setAttribute('src', iconMap[reserveCur] || iconMap.USDT);
         }
         const availEl = clone.querySelector('[data-plan-buffer-avail-balance-2]');
-        if (availEl) availEl.textContent = `Avail. ${Number(availBalance).toLocaleString('en-US')} ${reserveCur}`;
+        if (availEl) {
+          const amount = Number(availBalance).toLocaleString('en-US');
+          availEl.textContent = window.I18N?.t
+            ? window.I18N.t('Avail. {amount} {currency}', { amount, currency: reserveCur })
+            : `Avail. ${amount} ${reserveCur}`;
+        }
         const rangeHintEl = clone.querySelector('[data-plan-buffer-reserve-range]');
         const reserveBalanceErrorEl = clone.querySelector('[data-plan-buffer-balance-error]');
         const periodBalanceErrorEl = clone.querySelector('[data-plan-buffer-period-balance-error]');
@@ -6761,7 +6766,12 @@
           funding2SelectedAmount = hasActiveSelection ? activeAmount : null;
 
           const periodAvail = clone.querySelector('[data-plan-buffer-period-avail-balance]');
-          if (periodAvail) periodAvail.textContent = `Avail. ${fmt(availBalance)} ${reserveCur}`;
+          if (periodAvail) {
+            const amount = fmt(availBalance);
+            periodAvail.textContent = window.I18N?.t
+              ? window.I18N.t('Avail. {amount} {currency}', { amount, currency: reserveCur })
+              : `Avail. ${amount} ${reserveCur}`;
+          }
           const unitLabel = clone.querySelector('[data-plan-buffer-period-unit-label]');
           if (unitLabel) unitLabel.textContent = unitPlural;
           const heroTitlePeriod = clone.querySelector('[data-plan-buffer-period-hero-title]');
@@ -8086,7 +8096,11 @@
       // "Avail. 15,000 TWD"
       const availEl = panel.querySelector('.plan-detail-panel__avail-text');
       if (availEl) {
-        availEl.innerHTML = `Avail. ${balance.toLocaleString('en-US')} <span data-plan-detail-coverage-currency>${cur}</span>`;
+        const availAmount = balance.toLocaleString('en-US');
+        const availPrefix = window.I18N?.t
+          ? window.I18N.t('Avail. {amount} {currency}', { amount: availAmount, currency: '' }).trim()
+          : `Avail. ${availAmount}`;
+        availEl.innerHTML = `${availPrefix} <span data-plan-detail-coverage-currency>${cur}</span>`;
       }
 
       const currentBalanceEl = panel.querySelector('[data-plan-detail-current-balance]');
@@ -9292,7 +9306,7 @@
         const allocModeToggleNewplan = panel.querySelector('[data-alloc-mode-toggle]');
         if (allocModeToggleNewplan) allocModeToggleNewplan.classList.add('is-hidden');
         panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
-          btn.textContent = 'Add assets';
+          btn.textContent = window.I18N?.t ? window.I18N.t('Add assets') : 'Add assets';
         });
         const resetNewplan = panel.querySelector('[data-alloc-reset]');
         if (resetNewplan) resetNewplan.hidden = true;
@@ -9310,7 +9324,8 @@
       if (allocCountEl) allocCountEl.textContent = String(allocItems.length);
       latestAllocItemCount = allocItems.length;
 
-      const addLabel = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      const addLabelKey = allocItems.length > 1 ? 'Add / remove assets' : 'Add assets';
+      const addLabel = window.I18N?.t ? window.I18N.t(addLabelKey) : addLabelKey;
       panel.querySelectorAll('.plan-detail-panel__add-assets').forEach((btn) => {
         btn.textContent = addLabel;
       });
@@ -10888,7 +10903,12 @@
 
         const balCur = currencyState.plan || 'TWD';
         const bal = BALANCES[balCur] ?? BALANCES.TWD;
-        if (deductSubEl) deductSubEl.textContent = `Avail. ${bal.toLocaleString('en-US')} ${balCur}`;
+        if (deductSubEl) {
+          const amount = bal.toLocaleString('en-US');
+          deductSubEl.textContent = window.I18N?.t
+            ? window.I18N.t('Avail. {amount} {currency}', { amount, currency: balCur })
+            : `Avail. ${amount} ${balCur}`;
+        }
         if (deductValueEl) deductValueEl.textContent = `${cur} balance`;
       };
 
@@ -11460,7 +11480,12 @@
           periodRawAmount <= reserveLimitAmount;
 
         if (availBalanceEl) availBalanceEl.textContent = `${fmt(balance)} ${cur}`;
-        if (availBalanceEl2) availBalanceEl2.textContent = `Avail. ${fmt(balance)} ${cur}`;
+        if (availBalanceEl2) {
+          const amount = fmt(balance);
+          availBalanceEl2.textContent = window.I18N?.t
+            ? window.I18N.t('Avail. {amount} {currency}', { amount, currency: cur })
+            : `Avail. ${amount} ${cur}`;
+        }
         if (perBuyEl) perBuyEl.textContent = perBuyStr;
         if (perBuyEl2) perBuyEl2.textContent = perBuyStr;
         if (recurringPrefundEl) recurringPrefundEl.textContent = reserveAmount > 0 ? `${fmt(reserveAmount)} ${cur}` : '—';
@@ -11635,7 +11660,12 @@
         }
         if (reserveMaxBtn) reserveMaxBtn.disabled = !(maxAllowedAmount > 0);
 
-        if (periodAvailBalanceEl) periodAvailBalanceEl.textContent = `Avail. ${fmt(balance)} ${cur}`;
+        if (periodAvailBalanceEl) {
+          const amount = fmt(balance);
+          periodAvailBalanceEl.textContent = window.I18N?.t
+            ? window.I18N.t('Avail. {amount} {currency}', { amount, currency: cur })
+            : `Avail. ${amount} ${cur}`;
+        }
         if (periodUnitLabelEl) periodUnitLabelEl.textContent = unitPlural;
         if (periodHeroTitleEl) {
           periodHeroTitleEl.textContent = `How many ${unitPlural} would you like to pre-fund in advance?`;
