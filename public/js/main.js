@@ -7114,7 +7114,7 @@
                 </div>
               </div>
               <div class="plan-buffer-funding2-overview-note-row">
-                <p class="plan-buffer-funding2-overview-note" data-funding2-overview-note>You’re in control, you can change or turn off pre-funding any time.</p>
+                <p class="plan-buffer-funding2-overview-note" data-funding2-overview-note>You’re always in control. Change or turn off pre-funding at any time.</p>
                 <img class="plan-buffer-funding2-overview-note-icon" src="assets/icon_green_shield.svg" alt="" width="32" height="32" aria-hidden="true" />
               </div>
             </div>
