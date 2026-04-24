@@ -2477,7 +2477,7 @@
     const titleEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-title]');
     const descEl = sheet.querySelector('[data-plan-overview-funding-info-sheet-desc]');
     const nextTitle = String(title || '').trim() || 'Deduct from balance';
-    const emphasizeLine = 'You can change or turn off pre-funding anytime.';
+    const emphasizeLine = 'You can change or turn off pre-funding any time.';
     const rawDesc = String(desc || '');
     const escapeHtml = (str) => str
       .replace(/&/g, '&amp;')
@@ -2487,8 +2487,8 @@
       .replace(/'/g, '&#39;');
     const highlightedDescHtml = escapeHtml(rawDesc)
       .replace(
-        /You can change or turn off pre-funding anytime\.?/g,
-        '<span class="currency-sheet__desc-highlight">You can change or turn off pre-funding anytime.</span>',
+        /You can change or turn off pre-funding any time\.?/g,
+        '<span class="currency-sheet__desc-highlight">You can change or turn off pre-funding any time.</span>',
       )
       .replace(/\n/g, '<br>');
     if (titleEl) titleEl.textContent = nextTitle;
@@ -2533,7 +2533,7 @@
       }
       const title = isReserved ? 'Set aside funds' : paygoTitle;
       const desc = isReserved
-        ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds anytime.'
+        ? 'Funds are reserved and used automatically for your scheduled buys. You can adjust or add funds any time.'
         : paygoDesc;
       if (titleEl) titleEl.textContent = title;
       if (descEl) descEl.textContent = desc;
@@ -6297,13 +6297,13 @@
       const funding2LearnMoreSlides = [
         {
           title: 'How pre-funding works',
-          desc: 'Text',
-          visual: 'assets/finance_intro_step_1.svg',
+          desc: 'Pre-funding your plan means you are reserving funds in advance so your scheduled investments always go through. No delays, no interruptions.',
+          visual: 'assets/fundingimage_1.png',
         },
         {
           title: 'How auto-refill works',
-          desc: 'Text',
-          visual: 'assets/finance_intro_step_2.svg',
+          desc: 'When your reserved funds run out, auto-refill automatically tops them back up, so your plan keeps investing on schedule, completely hands-free.',
+          visual: 'assets/fundingimage_2.png',
         },
       ];
       let funding2LearnMoreStep = 0;
@@ -7114,7 +7114,7 @@
                 </div>
               </div>
               <div class="plan-buffer-funding2-overview-note-row">
-                <p class="plan-buffer-funding2-overview-note" data-funding2-overview-note>You’re in control, you can change or turn off pre-funding anytime.</p>
+                <p class="plan-buffer-funding2-overview-note" data-funding2-overview-note>You’re in control, you can change or turn off pre-funding any time.</p>
                 <img class="plan-buffer-funding2-overview-note-icon" src="assets/icon_green_shield.svg" alt="" width="32" height="32" aria-hidden="true" />
               </div>
             </div>
@@ -7145,7 +7145,7 @@
           e.stopPropagation();
           openPlanOverviewFundingInfoSheet({
             title: 'Deduct from balance',
-            desc: 'The pre-fund amount will be deducted from your balance and reserved for this plan. When the funds you reserved run out, future auto-refills will also be deducted from your balance.\n\nYou can change or turn off pre-funding anytime.',
+            desc: 'The pre-fund amount will be deducted from your balance and reserved for this plan. When reserved funds run out, future auto-refills will also be deducted from your balance.\n\nYou can change or turn off pre-funding any time.',
           });
         });
         step.querySelector('[data-funding2-overview-autorefill-info-open]')?.addEventListener('click', (e) => {
@@ -7153,7 +7153,7 @@
           e.stopPropagation();
           openPlanOverviewFundingInfoSheet({
             title: 'Auto-refill when funds run out',
-            desc: 'When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.\n\nYou can change or turn off pre-funding anytime',
+            desc: 'When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.\n\nYou can change or turn off pre-funding any time',
           });
         });
         step.querySelector('[data-funding2-overview-consent-toggle]')?.addEventListener('click', () => {
@@ -10655,14 +10655,14 @@
         const endEl = panel.querySelector('[data-plan-detail-repeats-end]');
         const endRaw = String(endEl?.dataset?.endConditionText || endEl?.textContent || '—').trim();
         let endMain = 'Continuous';
-        let endSub = 'Pause anytime';
+        let endSub = 'Pause any time';
         const endLower = endRaw.toLowerCase();
         // When set to number-of-buys mode, plan-detail stores values like:
         // "12 buys ~ Ends Mar 24, 2027" (or small legacy variants). Split this
         // so overview shows title: "12 buys", subtitle: "~ Ends Mar 24, 2027".
         const buysEndsMatch = endRaw.match(/^(.+?\bbuys?\b)\s*(?:~\s*)?Ends\s+(.+)$/i);
         if (buysEndsMatch || endLower === 'continuous' || /^after\s*\d+/i.test(endRaw) || /^after number/i.test(endRaw) || isPlanDetailSetLimitEnd(endRaw)) {
-          endSub = 'Pause anytime';
+          endSub = 'Pause any time';
         }
         if (endMainEl) endMainEl.textContent = endMain;
         if (endSubEl) {
@@ -11020,7 +11020,7 @@
             ? `First buy ${overviewFirstBuy}`
             : (timingDetail ? `First buy ${timingDetail}` : ''));
         const durationMain = 'Continuous';
-        const durationSub = panel.querySelector('[data-plan-overview-end-sub]')?.textContent?.trim() || 'Pause anytime';
+        const durationSub = panel.querySelector('[data-plan-overview-end-sub]')?.textContent?.trim() || 'Pause any time';
 
         if (continueSheetNameEl) continueSheetNameEl.textContent = name;
         if (continueSheetAmountEl) {
@@ -13516,17 +13516,17 @@
       {
         title: 'Invest automatically: the easiest way to dollar-cost average',
         desc: 'Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.',
-        visual: 'assets/finance_intro_step_1.svg',
+        visual: 'assets/featureintro_1.png',
       },
       {
         title: 'Choose assets like Bitcoin, from themes like AI, or build your own!',
         desc: 'Select a single asset or...',
-        visual: 'assets/finance_intro_step_2.svg',
+        visual: 'assets/featureintro_2.png',
       },
       {
         title: 'Choose how to fund your plan: flexibly or in advance',
         desc: 'Pay each time from your wallet, or pre-fund your plan to keep it running automatically. You’re always in control.',
-        visual: 'assets/finance_intro_step_3.svg',
+        visual: 'assets/featureintro_3.png',
       },
     ];
     let activeStep = 0;
