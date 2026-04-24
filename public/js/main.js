@@ -2663,6 +2663,7 @@
     const buyNowToggleEl = planDetail?.querySelector('[data-schedule-buy-now-toggle]');
     const buyNowStateEl = planDetail?.querySelector('[data-schedule-buy-now-state]');
     const endButtons = sheet.querySelectorAll('[data-schedule-end]');
+    const tr = (s, params) => (window.I18N?.t ? window.I18N.t(s, params) : s);
 
     const timingSectionLabels = {
       daily: 'Every day',
@@ -2713,9 +2714,9 @@
         endLimitRowBtn.classList.add('schedule-end-limit-row--disabled');
         endLimitRowBtn.setAttribute('aria-disabled', 'true');
         endLimitRowBtn.tabIndex = -1;
-        endLimitTitleEl.textContent = 'Set a limit (disabled)';
+        endLimitTitleEl.textContent = tr('Set a limit (disabled)');
         if (descEl) {
-          descEl.textContent = 'Enter an amount to buy first';
+          descEl.textContent = tr('Enter an amount to buy first');
           descEl.classList.add('schedule-end-limit-desc--needs-amount');
         }
         return;
@@ -2723,7 +2724,7 @@
       endLimitRowBtn.classList.remove('schedule-end-limit-row--disabled');
       endLimitRowBtn.removeAttribute('aria-disabled');
       endLimitRowBtn.tabIndex = 0;
-      endLimitTitleEl.textContent = 'Set a limit';
+      endLimitTitleEl.textContent = tr('Set a limit');
       if (descEl) {
         descEl.classList.remove('schedule-end-limit-desc--needs-amount');
         const end = sheet.querySelector('[data-schedule-end].is-selected')?.getAttribute('data-schedule-end');
@@ -2767,9 +2768,11 @@
       timingRowBtn.disabled = disabled;
       timingRowBtn.classList.toggle('schedule-sheet__timing-row--disabled', disabled);
       timingRowBtn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
-      if (disabled && timingValueEl) timingValueEl.textContent = defaultTimingDetail.daily;
+      if (disabled && timingValueEl) timingValueEl.textContent = tr(defaultTimingDetail.daily);
       if (timingValueEl) {
-        const isPlaceholder = freq === 'flexible' && String(timingValueEl.textContent || '').trim() === defaultTimingDetail.flexible;
+        const currentText = String(timingValueEl.textContent || '').trim();
+        const isPlaceholder = freq === 'flexible'
+          && (currentText === defaultTimingDetail.flexible || currentText === tr(defaultTimingDetail.flexible));
         timingValueEl.classList.toggle('schedule-sheet__timing-value--placeholder', isPlaceholder);
       }
     };
@@ -2779,11 +2782,13 @@
       const freqBtn = sheet.querySelector('[data-schedule-freq].is-active');
       const freq = (freqBtn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
       const timingText = String(timingValueEl?.textContent || '').trim();
-      const isFlexUnset = freq === 'flexible' && (!timingText || timingText === defaultTimingDetail.flexible);
+      const isFlexUnset = freq === 'flexible'
+        && (!timingText || timingText === defaultTimingDetail.flexible || timingText === tr(defaultTimingDetail.flexible));
       confirmBtn.disabled = isFlexUnset;
       confirmBtn.classList.toggle('is-disabled', isFlexUnset);
       if (timingValueEl) {
-        const isPlaceholder = freq === 'flexible' && (timingText === defaultTimingDetail.flexible || !timingText);
+        const isPlaceholder = freq === 'flexible'
+          && (!timingText || timingText === defaultTimingDetail.flexible || timingText === tr(defaultTimingDetail.flexible));
         timingValueEl.classList.toggle('schedule-sheet__timing-value--placeholder', isPlaceholder);
       }
     };
@@ -2796,7 +2801,7 @@
         buyNowToggleEl.setAttribute('aria-checked', buyNowEnabled ? 'true' : 'false');
       }
       if (buyNowStateEl) {
-        buyNowStateEl.textContent = buyNowEnabled ? 'On' : 'Off';
+        buyNowStateEl.textContent = tr(buyNowEnabled ? 'On' : 'Off');
         buyNowStateEl.classList.toggle('is-on', buyNowEnabled);
       }
     };
@@ -2811,9 +2816,9 @@
       const freq = scheduleText ? parseFreqFromScheduleText(scheduleText) : mainFreq;
 
       setFreqUI(freq);
-      if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
+      if (timingLabelEl) timingLabelEl.textContent = tr(timingSectionLabels[freq] || timingSectionLabels.monthly);
       if (timingValueEl) {
-        timingValueEl.textContent = (scheduleText
+        timingValueEl.textContent = tr(scheduleText
           ? parseTimingFromScheduleText(scheduleText, freq)
           : defaultTimingDetail[freq]);
       }
@@ -2885,12 +2890,44 @@
     scheduleSheetApi.closeAnimatedForChild = closeAnimatedForChild;
     scheduleSheetApi.reopenFromChild = reopenFromChild;
 
+    const toCanonicalTimingForFreq = (freq, value) => {
+      const raw = String(value || '').trim();
+      if (!raw) return defaultTimingDetail[freq] || defaultTimingDetail.monthly;
+      if (freq === 'weekly') {
+        const weekdayMap = {
+          '週一': 'Monday',
+          '週二': 'Tuesday',
+          '週三': 'Wednesday',
+          '週四': 'Thursday',
+          '週五': 'Friday',
+          '週六': 'Saturday',
+          '週日': 'Sunday',
+          '星期一': 'Monday',
+          '星期二': 'Tuesday',
+          '星期三': 'Wednesday',
+          '星期四': 'Thursday',
+          '星期五': 'Friday',
+          '星期六': 'Saturday',
+          '星期日': 'Sunday',
+        };
+        return weekdayMap[raw] || raw;
+      }
+      if (freq === 'monthly') {
+        const m = raw.match(/(\d{1,2})/);
+        if (!m) return defaultTimingDetail.monthly;
+        const day = Math.max(1, Math.min(28, parseInt(m[1], 10)));
+        return ordinalSuffix(day);
+      }
+      return raw;
+    };
+
     const applyAndClose = () => {
       const freqBtn = sheet.querySelector('[data-schedule-freq].is-active');
       const freq = (freqBtn?.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
       const endBtn = sheet.querySelector('[data-schedule-end].is-selected');
       const end = endBtn?.getAttribute('data-schedule-end') || 'continuous';
-      const timing = (timingValueEl?.textContent || '').trim() || defaultTimingDetail[freq];
+      const timingDisplay = (timingValueEl?.textContent || '').trim() || tr(defaultTimingDetail[freq]);
+      const timing = toCanonicalTimingForFreq(freq, timingDisplay);
       const prefix = freqSchedulePrefix[freq] || freqSchedulePrefix.monthly;
 
       document.querySelectorAll('[data-plan-freq-item]').forEach((item) => {
@@ -2952,8 +2989,8 @@
       btn.addEventListener('click', () => {
         const freq = (btn.getAttribute('data-schedule-freq') || 'monthly').toLowerCase();
         setFreqUI(freq);
-        if (timingLabelEl) timingLabelEl.textContent = timingSectionLabels[freq] || timingSectionLabels.monthly;
-        if (timingValueEl) timingValueEl.textContent = defaultTimingDetail[freq];
+        if (timingLabelEl) timingLabelEl.textContent = tr(timingSectionLabels[freq] || timingSectionLabels.monthly);
+        if (timingValueEl) timingValueEl.textContent = tr(defaultTimingDetail[freq]);
         syncTimingRowInteractivity(freq);
         syncScheduleConfirmDisabled();
         scheduleSheetApi.refreshEndConditionSubtitles?.();
@@ -3371,6 +3408,7 @@
     const flexDaysSub = flexDaysSheet?.querySelector('[data-schedule-flex-days-sub]');
     const flexDaysSummary = flexDaysSheet?.querySelector('[data-schedule-flex-days-summary]');
     const flexDaysConfirmBtn = flexDaysSheet?.querySelector('[data-schedule-flex-days-confirm]');
+    const tr = (s, params) => (window.I18N?.t ? window.I18N.t(s, params) : s);
 
     const ITEM_H = 44;
     const SPACER_H = 86;
@@ -3577,7 +3615,7 @@
       highlightAbort = new AbortController();
 
       const freq = getActiveScheduleFreq();
-      if (titleEl) titleEl.textContent = timingTitles[freq] || timingTitles.monthly;
+      if (titleEl) titleEl.textContent = tr(timingTitles[freq] || timingTitles.monthly);
       pickerRoot.classList.toggle('schedule-time-picker--daily', freq === 'daily');
 
       const tv = (timingValueEl?.textContent || '').trim();
@@ -3637,7 +3675,7 @@
         const pi = Math.max(0, Math.min(27, Math.round(primaryCol.scrollTop / ITEM_H)));
         next = `${ordinalSuffix(pi + 1)}`;
       }
-      if (timingValueEl) timingValueEl.textContent = next;
+      if (timingValueEl) timingValueEl.textContent = tr(next);
       scheduleSheetApi.refreshEndConditionSubtitles?.();
       closeTimePickerAndReopenSchedule();
     };
@@ -3680,8 +3718,8 @@
       flexDaysSheet.querySelector('[data-schedule-flex-days-confirm]')?.addEventListener('click', () => {
         if (timingValueEl) {
           timingValueEl.textContent = flexSelectedDays.length
-            ? flexSelectedDays.map((d) => ordinalSuffix(d)).join(', ')
-            : 'Select days';
+            ? tr(flexSelectedDays.map((d) => ordinalSuffix(d)).join(', '))
+            : tr('Select days');
         }
         scheduleSheetApi.refreshEndConditionSubtitles?.();
         closeFlexDaysAndReopenSchedule();
