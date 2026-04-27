@@ -14060,6 +14060,10 @@ button.plan-buffer-funding-hero__how-link {
   // display: none;
 }
 
+.my-plans-detail-panel__section-head[hidden] {
+  display: none !important;
+}
+
 .my-plans-detail-panel__section-head--left {
   justify-content: flex-start;
 }
@@ -14686,7 +14690,8 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   gap: 4px;
 }
 
-.my-plans-detail-panel__activity-date {
+.my-plans-detail-panel__activity-date,
+.my-plans-detail-panel__activity-time {
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
@@ -14697,10 +14702,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
 .my-plans-detail-panel__activity-time {
   margin-top: 0;
   display: inline;
-  color: #58595a;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
 }
 
 .my-plans-detail-panel__activity-invested-line {
