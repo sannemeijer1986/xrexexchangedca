@@ -14365,7 +14365,12 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
 .phone-container p.my-plans-detail-panel__act-list-footer-text {
   margin: 0;
   width: 100%;
-  text-align: right;
+  text-align: center;
+  padding: 8px 4px;
+  box-sizing: border-box;
+  background: #1b1d1d;
+  border: 1px solid #252627;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
