@@ -4558,6 +4558,7 @@
     }
 
     const titleEl = panel.querySelector("[data-my-plans-title]");
+    let activePlanDetailRecord = null;
 
     const tabs = panel.querySelectorAll("[data-my-plans-filter]");
     const views = panel.querySelectorAll("[data-my-plans-view]");
@@ -5582,13 +5583,13 @@
       setTimeout(onEnd, 380);
     };
 
-    const setActivityCardsExpandedState = (rootEl) => {
+    const setActivityCardsExpandedState = (rootEl, expandFirst = true) => {
       if (!rootEl) return;
       const renderedCards = Array.from(
         rootEl.querySelectorAll("[data-my-plans-activity-card]"),
       );
       renderedCards.forEach((rowCard, idx) => {
-        const expanded = idx === 0;
+        const expanded = expandFirst && idx === 0;
         rowCard.classList.toggle("is-expanded", expanded);
         rowCard.classList.toggle("is-collapsed", !expanded);
         const rowToggle = rowCard.querySelector("[data-my-plans-activity-toggle]");
@@ -5612,8 +5613,71 @@
       const sourceActivityEl = detailPanel.querySelector(
         "[data-my-plans-detail-activity]",
       );
-      activityListContentEl.innerHTML = sourceActivityEl?.innerHTML || "";
-      setActivityCardsExpandedState(activityListContentEl);
+      const completedText = String(
+        detailPanel.querySelector("[data-my-plans-detail-completed]")?.textContent ||
+          "",
+      );
+      const completedBuysMatch = completedText.match(/(\d+)/);
+      const completedBuys = completedBuysMatch
+        ? Math.max(0, parseInt(completedBuysMatch[1], 10) || 0)
+        : 0;
+      const scratch = document.createElement("div");
+      scratch.innerHTML = sourceActivityEl?.innerHTML || "";
+      const listOnlyCards = Array.from(
+        scratch.querySelectorAll("[data-my-plans-activity-card]"),
+      ).filter((cardEl) =>
+        cardEl.querySelector(".my-plans-detail-panel__act-row"),
+      );
+      scratch.innerHTML = "";
+      listOnlyCards.forEach((cardEl) => scratch.appendChild(cardEl));
+      const seedCards = Array.from(
+        scratch.querySelectorAll("[data-my-plans-activity-card]"),
+      );
+      if (seedCards.length && completedBuys > 0) {
+        if (seedCards.length > completedBuys) {
+          seedCards.slice(completedBuys).forEach((card) => card.remove());
+        } else if (seedCards.length < completedBuys) {
+          const base = seedCards.map((card) => card.cloneNode(true));
+          for (let i = seedCards.length; i < completedBuys; i += 1) {
+            const src = base[i % base.length];
+            if (!src) break;
+            scratch.appendChild(src.cloneNode(true));
+          }
+        }
+      }
+      const cadenceRaw = String(
+        activePlanDetailRecord?.repeats ||
+          activePlanDetailRecord?.investLine ||
+          "",
+      ).toLowerCase();
+      const cadenceUnit = cadenceRaw.includes("week")
+        ? "week"
+        : cadenceRaw.includes("day")
+          ? "day"
+          : "month";
+      const shiftDateByCadence = (base, step) => {
+        const d = new Date(base);
+        if (cadenceUnit === "day") d.setDate(d.getDate() - step);
+        else if (cadenceUnit === "week") d.setDate(d.getDate() - step * 7);
+        else d.setMonth(d.getMonth() - step);
+        return d;
+      };
+      const pad2 = (n) => String(n).padStart(2, "0");
+      const fmtDate = (d) =>
+        `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const fmtTime = (d) =>
+        `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+      Array.from(scratch.querySelectorAll("[data-my-plans-activity-card]")).forEach(
+        (cardEl, idx) => {
+          const d = shiftDateByCadence(new Date(), idx);
+          const dateEl = cardEl.querySelector(".my-plans-detail-panel__activity-date");
+          const timeEl = cardEl.querySelector(".my-plans-detail-panel__activity-time");
+          if (dateEl) dateEl.textContent = fmtDate(d);
+          if (timeEl) timeEl.textContent = `, ${fmtTime(d)}`;
+        },
+      );
+      activityListContentEl.innerHTML = scratch.innerHTML;
+      setActivityCardsExpandedState(activityListContentEl, false);
       activityListPanel.hidden = false;
       requestAnimationFrame(() => {
         activityListPanel.classList.add("is-open");
@@ -6401,6 +6465,7 @@
 
     const openPlanDetail = (rec) => {
       if (!detailPanel || !rec) return;
+      activePlanDetailRecord = rec;
       if (rec.id)
         detailPanel.setAttribute(
           "data-my-plans-detail-plan-id",
@@ -6509,6 +6574,7 @@
             `assets/icon_chevron_${shouldExpand ? "up" : "down"}_white.svg`,
           );
       });
+    });
     activityListContentEl?.addEventListener("click", (e) => {
       const toggleBtn = e.target.closest("[data-my-plans-activity-toggle]");
       if (!toggleBtn || !activityListContentEl.contains(toggleBtn)) return;
@@ -6537,7 +6603,6 @@
             `assets/icon_chevron_${shouldExpand ? "up" : "down"}_white.svg`,
           );
       });
-    });
     });
 
     detailPanel?.addEventListener("keydown", (e) => {
