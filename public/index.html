@@ -2112,12 +2112,9 @@
                             <div class="my-plans-detail-panel__ov-funding-section" data-my-plans-detail-funding-wrap>
                                 <!-- Classic funding row (prototype funding state 1–2) -->
                                 <div class="my-plans-detail-panel__funding-classic" data-my-plans-detail-funding-classic>
-                                    <div class="my-plans-detail-panel__funding-head">
-                                        <div class="my-plans-detail-panel__ov-label">Funding</div>
-                                        <button class="my-plans-detail-panel__prefund-chip" type="button">Pre-fund</button>
-                                    </div>
-                                    <div class="my-plans-detail-panel__ov-funding-row">
-                                        <div>
+                                    <div class="my-plans-detail-panel__funding-top-row">
+                                        <div class="my-plans-detail-panel__funding-text-wrap">
+                                            <div class="my-plans-detail-panel__ov-label">Funding</div>
                                             <div class="my-plans-detail-panel__ov-funding-line">
                                                 <span class="my-plans-detail-panel__ov-sub" data-my-plans-detail-funding-main>—</span>
                                                 <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-funding-info-trigger aria-label="About funding">
@@ -2128,6 +2125,9 @@
                                                 <img src="assets/icon_check_green_s.svg" alt="" width="16" height="16" class="my-plans-detail-panel__ov-funding-check" data-my-plans-detail-funding-check aria-hidden="true" />
                                                 <span class="my-plans-detail-panel__ov-sub my-plans-detail-panel__ov-sub--positive" data-my-plans-detail-funding-sub></span>
                                             </div>
+                                        </div>
+                                        <div class="my-plans-detail-panel__funding-action-wrap">
+                                            <button class="my-plans-detail-panel__prefund-chip" type="button">Pre-fund</button>
                                         </div>
                                     </div>
                                     <div class="my-plans-detail-panel__funding-alert" data-my-plans-detail-funding-alert-classic hidden>
@@ -2141,15 +2141,19 @@
                                 </div>
                                 <!-- Pre-funded layout (Figma 8982:121547; prototype funding state ≥3) -->
                                 <div class="my-plans-detail-panel__funding-prefund" data-my-plans-detail-funding-prefund hidden>
-                                    <div class="my-plans-detail-panel__funding-prefund-head">
-                                        <span class="my-plans-detail-panel__funding-prefund-head-label">Funding</span>
-                                        <button type="button" class="my-plans-detail-panel__funding-prefund-edit" data-my-plans-prefund-edit-sheet-open>Settings</button>
-                                    </div>
-                                    <div class="my-plans-detail-panel__funding-prefund-status-row">
-                                        <span class="my-plans-detail-panel__funding-prefund-status">Pre-funded</span>
-                                        <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-prefund-funded-info-sheet-open aria-label="About pre-funded">
-                                            <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" />
-                                        </button>
+                                    <div class="my-plans-detail-panel__funding-top-row">
+                                        <div class="my-plans-detail-panel__funding-text-wrap">
+                                            <span class="my-plans-detail-panel__funding-prefund-head-label">Funding</span>
+                                            <div class="my-plans-detail-panel__funding-prefund-status-row">
+                                                <span class="my-plans-detail-panel__funding-prefund-status">Pre-funded</span>
+                                                <button class="my-plans-detail-panel__funding-info-btn" type="button" data-my-plans-prefund-funded-info-sheet-open aria-label="About pre-funded">
+                                                    <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="my-plans-detail-panel__funding-action-wrap">
+                                            <button type="button" class="my-plans-detail-panel__funding-prefund-edit" data-my-plans-prefund-edit-sheet-open>Settings</button>
+                                        </div>
                                     </div>
                                     <div class="my-plans-detail-panel__funding-prefund-amount-row my-plans-detail-panel__funding-prefund-amount-row--ok">
                                         <span class="my-plans-detail-panel__funding-prefund-amount-num" data-my-plans-detail-funding-prefund-amount>—</span>
