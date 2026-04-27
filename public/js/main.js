@@ -2699,25 +2699,46 @@
     document.getElementById("prototype-prefund-log") ||
     document.querySelector("select[data-prototype-prefund-log]");
 
-  /** Prototype control: pre-fund activity log scenario (none / pre-funded / funds returned). */
+  /** Prototype control: recent activity scenario in build badge. */
   const syncPrototypePrefundLogToDocument = () => {
     const sel = getPrototypePrefundLogSelectEl();
     const v = String(sel?.value || "none").toLowerCase();
-    const safe = v === "prefunded" || v === "returned" ? v : "none";
+    const safe =
+      v === "prefunded" ||
+      v === "returned" ||
+      v === "paused" ||
+      v === "resumed" ||
+      v === "ended"
+        ? v
+        : "none";
     document.documentElement.dataset.prototypePrefundLog = safe;
   };
 
   const getPrototypePrefundLog = () => {
     const sel = getPrototypePrefundLogSelectEl();
     const v = String(sel?.value || "none").toLowerCase();
-    if (v === "prefunded" || v === "returned") return v;
+    if (
+      v === "prefunded" ||
+      v === "returned" ||
+      v === "paused" ||
+      v === "resumed" ||
+      v === "ended"
+    )
+      return v;
     return "none";
   };
 
   const setPrototypePrefundLog = (next) => {
     const sel = getPrototypePrefundLogSelectEl();
     if (!sel) return;
-    const v = next === "prefunded" || next === "returned" ? next : "none";
+    const v =
+      next === "prefunded" ||
+      next === "returned" ||
+      next === "paused" ||
+      next === "resumed" ||
+      next === "ended"
+        ? next
+        : "none";
     sel.value = v;
     const opt = Array.from(sel.options).find((o) => String(o.value) === v);
     if (opt) sel.selectedIndex = Array.from(sel.options).indexOf(opt);
@@ -6105,9 +6126,8 @@
 
       if (createdAtEl) {
         const d = rec.createdAt ? new Date(rec.createdAt) : new Date();
-        const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
-        const month = d.toLocaleDateString("en-US", { month: "short" });
-        createdAtEl.textContent = `${weekday} ${d.getDate()} ${month}, ${d.getFullYear()}`;
+        const pad2 = (n) => String(n).padStart(2, "0");
+        createdAtEl.textContent = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
       }
 
       if (planIdEl) {
@@ -6179,10 +6199,11 @@
             : totalAmt > 0 && completedN > 0
               ? totalAmt / completedN
               : 5000;
+        const pad2 = (n) => String(n).padStart(2, "0");
         const mkDate = (date) =>
-          `${date.toLocaleDateString("en-US", { month: "short" })} ${date.getDate()}, ${date.getFullYear()}`;
+          `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
         const mkTime = (date) =>
-          date.toLocaleTimeString("en-US", { hour12: false });
+          `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
         const lines = mix
           .map((m) => {
             const meta = tickerMeta(m.ticker);
@@ -6201,6 +6222,15 @@
           ).toLowerCase();
           const isPrefundedLog = prefundLogType === "prefunded";
           const isReturnedLog = prefundLogType === "returned";
+          const isPausedLog = prefundLogType === "paused";
+          const isResumedLog = prefundLogType === "resumed";
+          const isEndedLog = prefundLogType === "ended";
+          const hasSpecialLog =
+            isPrefundedLog ||
+            isReturnedLog ||
+            isPausedLog ||
+            isResumedLog ||
+            isEndedLog;
           const hasPrefundLog = isPrefundedLog || isReturnedLog;
           const prefundAmtParsed = hasPrefundLog
             ? parseMoneyWithCurrency(rec.reservedFunds || "")
@@ -6216,18 +6246,22 @@
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })} ${prefundCur}`;
-          const headIcon = hasPrefundLog
-            ? isReturnedLog
-              ? "assets/icon_returned.svg"
-              : "assets/icon_prefunded.svg"
+          const headIcon = hasSpecialLog
+            ? "assets/icon_info_blue.svg"
             : failed
               ? "assets/icon_failed.svg"
               : "assets/icon_success_screen.svg";
           const investedText = hasPrefundLog
             ? `${prefundAmtText} ${isReturnedLog ? "returned" : "pre-funded"}`
-            : failed
-              ? "Buy failed"
-              : `${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested`;
+            : isPausedLog
+              ? "Plan paused"
+              : isResumedLog
+                ? "Plan resumed"
+                : isEndedLog
+                  ? "Plan ended"
+                  : failed
+                    ? "Buy failed"
+                    : `${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested`;
           const investedClass = failed
             ? "my-plans-detail-panel__activity-invested-text my-plans-detail-panel__activity-invested-text--failed"
             : "my-plans-detail-panel__activity-invested-text";
@@ -6235,15 +6269,20 @@
             ? isReturnedLog
               ? `<p class="my-plans-detail-panel__act-error">Returned ${prefundAmtText} from this plan to your wallet, auto-refill for pre-funding has been disabled.</p>`
               : `<p class="my-plans-detail-panel__act-error">Reserved ${prefundAmtText} from your wallet for this plan, auto-refill for pre-funding has been enabled.</p>`
-            : failed
-              ? '<p class="my-plans-detail-panel__act-error">Buy order failed due to insufficient balance. Please ensure you have enough balance before the next buy.</p>'
-              : lines;
+            : isPausedLog
+              ? '<p class="my-plans-detail-panel__act-error">Plan was paused. Automated buys will stop until you resume this plan.</p>'
+              : isResumedLog
+                ? '<p class="my-plans-detail-panel__act-error">Plan was resumed. Automated buys will continue on your next scheduled buy.</p>'
+                : isEndedLog
+                  ? '<p class="my-plans-detail-panel__act-error">Plan was ended. Automated buys stopped and any remaining funds were returned to your wallet.</p>'
+                  : failed
+                    ? '<p class="my-plans-detail-panel__act-error">Buy order failed due to insufficient balance. Please ensure you have enough balance before the next buy.</p>'
+                    : lines;
           const failedClass = failed ? " is-failed" : "";
-          return `<article class="my-plans-detail-panel__activity-card ${expanded ? "is-expanded" : "is-collapsed"}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? "true" : "false"}" aria-label="${expanded ? "Collapse activity" : "Expand activity"}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time"> · ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? "up" : "down"}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></div></article>`;
+          return `<article class="my-plans-detail-panel__activity-card ${expanded ? "is-expanded" : "is-collapsed"}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? "true" : "false"}" aria-label="${expanded ? "Collapse activity" : "Expand activity"}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time">, ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? "up" : "down"}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-divider"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></div></article>`;
         };
         const prefundLog = getPrototypePrefundLog();
-        const showPrefundLogCard =
-          prefundLog === "prefunded" || prefundLog === "returned";
+        const showPrefundLogCard = prefundLog !== "none";
         const baseCardIndexes = [0, 1, 2];
         const cardIndexes = showPrefundLogCard
           ? baseCardIndexes.slice(0, -1)
