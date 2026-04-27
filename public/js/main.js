@@ -5604,6 +5604,12 @@
       const createdAtEl = detailPanel.querySelector(
         "[data-my-plans-detail-created-at]",
       );
+      const endedAtRowEl = detailPanel.querySelector(
+        "[data-my-plans-detail-ended-row]",
+      );
+      const endedAtEl = detailPanel.querySelector(
+        "[data-my-plans-detail-ended-at]",
+      );
       const planIdEl = detailPanel.querySelector(
         "[data-my-plans-detail-plan-id]",
       );
@@ -5618,6 +5624,9 @@
       );
       const fundingWrapEl = detailPanel.querySelector(
         "[data-my-plans-detail-funding-wrap]",
+      );
+      const fundingCardEl = detailPanel.querySelector(
+        "[data-my-plans-detail-funding-card]",
       );
       const fundingMainEl = detailPanel.querySelector(
         "[data-my-plans-detail-funding-main]",
@@ -5797,10 +5806,18 @@
         rec.nextBuy || rec.firstBuy || FINANCE_SUMMARY_NEXT_BUY_FALLBACK,
       );
       const flowState = states.flow ?? 1;
+      const isEndedFlowState = flowState === 5;
+      const formatDetailDateTime = (dateInput) => {
+        const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+        if (Number.isNaN(d.getTime())) return "—";
+        const pad2 = (n) => String(n).padStart(2, "0");
+        return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+      };
       if (nextBuyEl)
         nextBuyEl.textContent =
-          flowState === 4 || flowState === 5 ? "- -" : nextBuyText;
-      if (fundingWrapEl) fundingWrapEl.hidden = flowState === 5;
+          flowState === 4 || isEndedFlowState ? "- -" : nextBuyText;
+      if (fundingWrapEl) fundingWrapEl.hidden = isEndedFlowState;
+      if (fundingCardEl) fundingCardEl.hidden = isEndedFlowState;
       const recCompletedBuys = Number.isFinite(rec.completedBuys)
         ? Math.max(0, Math.floor(rec.completedBuys))
         : 0;
@@ -6125,9 +6142,16 @@
       }
 
       if (createdAtEl) {
-        const d = rec.createdAt ? new Date(rec.createdAt) : new Date();
-        const pad2 = (n) => String(n).padStart(2, "0");
-        createdAtEl.textContent = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+        createdAtEl.textContent = formatDetailDateTime(
+          rec.createdAt || new Date(),
+        );
+      }
+      if (endedAtRowEl) endedAtRowEl.hidden = !isEndedFlowState;
+      if (endedAtEl) {
+        if (isEndedFlowState && !rec.endedAt) rec.endedAt = new Date().toISOString();
+        endedAtEl.textContent = isEndedFlowState
+          ? formatDetailDateTime(rec.endedAt || rec.updatedAt || new Date())
+          : "—";
       }
 
       if (planIdEl) {
@@ -6272,7 +6296,7 @@
             : isPausedLog
               ? '<p class="my-plans-detail-panel__act-error">Plan was paused. Automated buys will stop until you resume this plan.</p>'
               : isResumedLog
-                ? '<p class="my-plans-detail-panel__act-error">Plan was resumed. Automated buys will continue on your next scheduled buy.</p>'
+                ? '<p class="my-plans-detail-panel__act-error">Plan was resumed. Automated buys will continue from next upcoming scheduled buy.</p>'
                 : isEndedLog
                   ? '<p class="my-plans-detail-panel__act-error">Plan was ended. Automated buys stopped and any remaining funds were returned to your wallet.</p>'
                   : failed
