@@ -14789,6 +14789,10 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   background: #252627;
 }
 
+.my-plans-detail-panel__activity-card.is-collapsed .my-plans-detail-panel__act-list-footer-divider {
+  display: none;
+}
+
 .phone-container p.my-plans-detail-panel__act-list-footer-text {
   margin: 0;
   width: 100%;
