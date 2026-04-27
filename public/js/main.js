@@ -6172,6 +6172,7 @@
           return;
         }
         const now = new Date();
+        const isSingleAssetPlan = mix.length < 2;
         const perBuyAmount =
           perBuyMoney?.amount && perBuyMoney.amount > 0
             ? perBuyMoney.amount
@@ -6189,7 +6190,8 @@
             const price = px[m.ticker] || 100;
             const qty = amount > 0 ? amount / price : 0;
             const qtyStr = String(qty.toFixed(6)).replace(/\.?0+$/, "") || "0";
-            return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct">${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
+            const pctHiddenAttr = isSingleAssetPlan ? " hidden" : "";
+            return `<div class="my-plans-detail-panel__act-row"><div class="my-plans-detail-panel__act-left"><div class="my-plans-detail-panel__act-name-col"><div class="my-plans-detail-panel__act-ticker-line"><span class="my-plans-detail-panel__act-ticker">${m.ticker}</span><span class="my-plans-detail-panel__act-pct"${pctHiddenAttr}>${m.pct}%</span></div></div></div><div class="my-plans-detail-panel__act-right"><div class="my-plans-detail-panel__act-values"><span class="my-plans-detail-panel__act-gain">+ ${qtyStr}</span><span class="my-plans-detail-panel__act-pay">- ${formatMoneyDisplayCurrency(amount, cur)}</span></div><img class="my-plans-detail-panel__act-icon" src="${meta.icon}" alt="" /><span class="my-plans-detail-panel__act-chevron" aria-hidden="true"><img src="assets/icon_right_graychev.svg" alt="" width="15" height="15" /></span></div></div>`;
           })
           .join("");
         const buildCard = (date, expanded, opts = {}) => {
