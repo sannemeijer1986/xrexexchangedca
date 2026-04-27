@@ -4763,6 +4763,7 @@
       const fundingPrefundAlertEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund]');
       const fundingPrefundAlertTextEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund-text]');
       const fundingPrefundAlertIconEl = fundingPrefundAlertEl?.querySelector('.my-plans-detail-panel__funding-alert-icon');
+      const fundingPrefundAlertLinkEl = detailPanel.querySelector('[data-my-plans-detail-funding-alert-prefund-link]');
       const fundingState = states.funding ?? 1;
       // Pre-funded Figma layout only for prototype funding state 3+; 1–2 use classic row.
       const usePrefundDetailLayout = fundingState >= 3 && flowState !== 5;
@@ -4890,9 +4891,12 @@
         const topUpNum = reservedNum > 0
           ? reservedNum
           : (Number.isFinite(perNum) && perNum > 0 ? perNum * 4 : 0);
+        const lowThresholdNum = Number.isFinite(perNum) && perNum > 0
+          ? perNum
+          : (topUpNum > 0 ? Math.max(1, Math.round(topUpNum * 0.1)) : 0);
         if (fundingPrefundAutorefEl) {
           fundingPrefundAutorefEl.textContent = topUpNum > 0
-            ? `Pre-fund ${topUpNum.toLocaleString('en-US')} ${cur} when 0.00 ${cur} left`
+            ? `Automatically refill ${cur} ${topUpNum.toLocaleString('en-US')} when pre-funded amount drops below ${cur} ${lowThresholdNum.toLocaleString('en-US')}`
             : '—';
         }
         const alertTopUpText = topUpNum > 0
@@ -4904,18 +4908,21 @@
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'warning',
-            `Pre-funded balance is running low. Auto-refill will trigger soon, prepare ${alertTopUpText} in your wallet.`,
+            `Auto-refill coming up: Keep at least ${alertTopUpText} in your wallet.`,
           );
+          if (fundingPrefundAlertLinkEl) fundingPrefundAlertLinkEl.hidden = false;
         } else if (fundingState === 5) {
           applyFundingAlert(
             fundingPrefundAlertEl,
             fundingPrefundAlertTextEl,
             fundingPrefundAlertIconEl,
             'negative',
-            `Pre-funded balance is empty. Auto-refill will trigger soon, prepare ${alertTopUpText} in your wallet.`,
+            `Auto-refill failed: Add ${alertTopUpText} to your wallet to continue.`,
           );
+          if (fundingPrefundAlertLinkEl) fundingPrefundAlertLinkEl.hidden = false;
         } else {
           applyFundingAlert(fundingPrefundAlertEl, fundingPrefundAlertTextEl, fundingPrefundAlertIconEl, 'negative', '');
+          if (fundingPrefundAlertLinkEl) fundingPrefundAlertLinkEl.hidden = true;
         }
       }
 

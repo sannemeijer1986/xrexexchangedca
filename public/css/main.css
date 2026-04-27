@@ -13917,7 +13917,7 @@ button.plan-buffer-funding-hero__how-link {
   padding: 8px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.06);
-  margin: 16px 0px 8px 0px;
+  margin: 8px 0px 8px 0px;
 }
 
 .my-plans-detail-panel__funding-alert[hidden] {
@@ -13943,6 +13943,13 @@ button.plan-buffer-funding-hero__how-link {
 
 .my-plans-detail-panel__funding-alert--negative .my-plans-detail-panel__funding-alert-text {
   color: #eb5347;
+}
+
+.my-plans-detail-panel__funding-prefund-autoref-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4px;
 }
 
 .my-plans-detail-panel__funding-alert-link {
@@ -13976,7 +13983,7 @@ button.plan-buffer-funding-hero__how-link {
   height: 1px;
   width: 100%;
   background: #252627;
-  margin: 4px 0;
+  margin: 4px 0 12px 0;
 }
 
 .my-plans-detail-panel__funding-prefund-autoref-label {
@@ -13984,6 +13991,12 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: 600;
   color: #9b9c9c;
   line-height: normal;
+}
+
+.my-plans-detail-panel__funding-prefund-autoref {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .phone-container p.my-plans-detail-panel__funding-prefund-autoref-copy {
