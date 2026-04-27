@@ -14202,10 +14202,21 @@ button.plan-buffer-funding-hero__how-link {
   width: 100%;
 }
 
+.my-plans-detail-panel__funding-classic {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.my-plans-detail-panel__funding-classic[hidden] {
+  display: none !important;
+}
+
 .my-plans-detail-panel__funding-text-wrap {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  gap: 1px;
 }
 
 .my-plans-detail-panel__funding-action-wrap {
@@ -14479,7 +14490,7 @@ button.plan-buffer-funding-hero__how-link {
 
 .phone-container p.my-plans-detail-panel__funding-prefund-autoref-copy {
   margin: 0;
-  margin-top: 5px;
+  margin-top: 2px;
   font-size: 12px;
   font-weight: 600;
   color: #ffffff;
