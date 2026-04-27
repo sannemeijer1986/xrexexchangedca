@@ -4536,6 +4536,12 @@
         : () => () => {};
     const panel = document.querySelector("[data-my-plans-panel]");
     const detailPanel = document.querySelector("[data-my-plans-detail-panel]");
+    const activityListPanel = document.querySelector(
+      "[data-my-plans-activity-list-panel]",
+    );
+    const activityListContentEl = activityListPanel?.querySelector(
+      "[data-my-plans-activity-list-content]",
+    );
     const activityDetailPanel = document.querySelector(
       "[data-my-plans-activity-detail-panel]",
     );
@@ -5555,6 +5561,65 @@
       setTimeout(onEnd, 380);
     };
 
+    const closeActivityList = (instant = false) => {
+      if (!activityListPanel) return;
+      if (instant) {
+        const prevTransition = activityListPanel.style.transition;
+        activityListPanel.style.transition = "none";
+        activityListPanel.classList.remove("is-open");
+        activityListPanel.hidden = true;
+        void activityListPanel.offsetHeight;
+        activityListPanel.style.transition = prevTransition;
+        return;
+      }
+      activityListPanel.classList.remove("is-open");
+      const onEnd = () => {
+        if (!activityListPanel.classList.contains("is-open"))
+          activityListPanel.hidden = true;
+        activityListPanel.removeEventListener("transitionend", onEnd);
+      };
+      activityListPanel.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    const setActivityCardsExpandedState = (rootEl) => {
+      if (!rootEl) return;
+      const renderedCards = Array.from(
+        rootEl.querySelectorAll("[data-my-plans-activity-card]"),
+      );
+      renderedCards.forEach((rowCard, idx) => {
+        const expanded = idx === 0;
+        rowCard.classList.toggle("is-expanded", expanded);
+        rowCard.classList.toggle("is-collapsed", !expanded);
+        const rowToggle = rowCard.querySelector("[data-my-plans-activity-toggle]");
+        if (!rowToggle) return;
+        rowToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        rowToggle.setAttribute(
+          "aria-label",
+          expanded ? "Collapse activity" : "Expand activity",
+        );
+        const icon = rowCard.querySelector(".my-plans-detail-panel__act-toggle img");
+        if (icon)
+          icon.setAttribute(
+            "src",
+            `assets/icon_chevron_${expanded ? "up" : "down"}_white.svg`,
+          );
+      });
+    };
+
+    const openActivityList = () => {
+      if (!activityListPanel || !activityListContentEl || !detailPanel) return;
+      const sourceActivityEl = detailPanel.querySelector(
+        "[data-my-plans-detail-activity]",
+      );
+      activityListContentEl.innerHTML = sourceActivityEl?.innerHTML || "";
+      setActivityCardsExpandedState(activityListContentEl);
+      activityListPanel.hidden = false;
+      requestAnimationFrame(() => {
+        activityListPanel.classList.add("is-open");
+      });
+    };
+
     const closePlanDetail = (instant = false) => {
       if (!detailPanel) return;
       if (instant) {
@@ -5562,6 +5627,7 @@
         detailPanel.style.transition = "none";
         detailPanel.classList.remove("is-open");
         detailHeader?.classList.remove("is-collapsed");
+        closeActivityList(true);
         closeActivityDetail(true);
         if (detailScroller) detailScroller.scrollTop = 0;
         detailPanel.hidden = true;
@@ -5571,6 +5637,7 @@
       }
       detailPanel.classList.remove("is-open");
       detailHeader?.classList.remove("is-collapsed");
+      closeActivityList(true);
       closeActivityDetail(true);
       const onEnd = () => {
         if (!detailPanel.classList.contains("is-open"))
@@ -6328,31 +6395,7 @@
           cards.unshift(buildCard(d, true, { prefundLogType: prefundLog }));
         }
         activityEl.innerHTML = cards.join("");
-        const renderedCards = Array.from(
-          activityEl.querySelectorAll("[data-my-plans-activity-card]"),
-        );
-        renderedCards.forEach((rowCard, idx) => {
-          const expanded = idx === 0;
-          rowCard.classList.toggle("is-expanded", expanded);
-          rowCard.classList.toggle("is-collapsed", !expanded);
-          const rowToggle = rowCard.querySelector(
-            "[data-my-plans-activity-toggle]",
-          );
-          if (!rowToggle) return;
-          rowToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-          rowToggle.setAttribute(
-            "aria-label",
-            expanded ? "Collapse activity" : "Expand activity",
-          );
-          const icon = rowCard.querySelector(
-            ".my-plans-detail-panel__act-toggle img",
-          );
-          if (icon)
-            icon.setAttribute(
-              "src",
-              `assets/icon_chevron_${expanded ? "up" : "down"}_white.svg`,
-            );
-        });
+        setActivityCardsExpandedState(activityEl);
       }
     };
 
@@ -6466,6 +6509,35 @@
             `assets/icon_chevron_${shouldExpand ? "up" : "down"}_white.svg`,
           );
       });
+    activityListContentEl?.addEventListener("click", (e) => {
+      const toggleBtn = e.target.closest("[data-my-plans-activity-toggle]");
+      if (!toggleBtn || !activityListContentEl.contains(toggleBtn)) return;
+      const card = toggleBtn.closest("[data-my-plans-activity-card]");
+      if (!card) return;
+      const nextExpanded = !card.classList.contains("is-expanded");
+      const cards = Array.from(
+        activityListContentEl.querySelectorAll("[data-my-plans-activity-card]"),
+      );
+      cards.forEach((rowCard) => {
+        const isTarget = rowCard === card;
+        const shouldExpand = isTarget ? nextExpanded : false;
+        rowCard.classList.toggle("is-expanded", shouldExpand);
+        rowCard.classList.toggle("is-collapsed", !shouldExpand);
+        const rowToggle = rowCard.querySelector("[data-my-plans-activity-toggle]");
+        if (!rowToggle) return;
+        rowToggle.setAttribute("aria-expanded", shouldExpand ? "true" : "false");
+        rowToggle.setAttribute(
+          "aria-label",
+          shouldExpand ? "Collapse activity" : "Expand activity",
+        );
+        const icon = rowCard.querySelector(".my-plans-detail-panel__act-toggle img");
+        if (icon)
+          icon.setAttribute(
+            "src",
+            `assets/icon_chevron_${shouldExpand ? "up" : "down"}_white.svg`,
+          );
+      });
+    });
     });
 
     detailPanel?.addEventListener("keydown", (e) => {
@@ -6610,6 +6682,23 @@
       if (!row || !detailPanel.contains(row)) return;
       openActivityDetail(row);
     });
+    activityListContentEl?.addEventListener("click", (e) => {
+      const row = e.target.closest(".my-plans-detail-panel__act-row");
+      if (!row || !activityListContentEl.contains(row)) return;
+      openActivityDetail(row);
+    });
+
+    detailPanel
+      ?.querySelector(".my-plans-detail-panel__show-all")
+      ?.addEventListener("click", () => {
+        openActivityList();
+      });
+
+    activityListPanel
+      ?.querySelector("[data-my-plans-activity-list-close]")
+      ?.addEventListener("click", () => {
+        closeActivityList(false);
+      });
 
     activityDetailPanel
       ?.querySelector("[data-my-plans-activity-detail-close]")

@@ -13215,6 +13215,40 @@ button.plan-buffer-funding-hero__how-link {
   border-radius: inherit;
 }
 
+.my-plans-activity-list-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  width: 100%;
+  height: 100%;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: inherit;
+}
+
+.my-plans-activity-list-panel.is-open {
+  transform: translateX(0);
+}
+
+.my-plans-activity-list-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.my-plans-activity-list-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .my-plans-activity-detail-panel.is-open {
   transform: translateX(0);
 }
@@ -13406,7 +13440,7 @@ button.plan-buffer-funding-hero__how-link {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
   justify-content: center;
 }
 
