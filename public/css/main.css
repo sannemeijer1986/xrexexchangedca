@@ -13731,8 +13731,8 @@ button.plan-buffer-funding-hero__how-link {
 
 .my-plans-detail-panel__ov-funding-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -13765,10 +13765,12 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__prefund-chip {
+  margin-left: auto;
   height: 32px;
   border: 0;
   border-radius: 12px;
   background: #275CFD;
+  margin-top: -4px;
   color: #ffffff;
   font-family: inherit;
   font-size: 12px;
@@ -13780,7 +13782,6 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  margin-top: 12px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -13789,9 +13790,15 @@ button.plan-buffer-funding-hero__how-link {
   display: none !important;
 }
 
+.my-plans-detail-panel__funding-head,
 .my-plans-detail-panel__funding-prefund-head {
   display: flex;
   align-items: flex-end;
+  width: 100%;
+}
+
+.my-plans-detail-panel__funding-head .my-plans-detail-panel__ov-label {
+  margin: 0;
 }
 
 .my-plans-detail-panel__funding-prefund-head-label {
@@ -13821,10 +13828,10 @@ button.plan-buffer-funding-hero__how-link {
 .my-plans-detail-panel__funding-prefund-status-row {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 0px;
   width: 100%;
   min-width: 0;
-  margin-top: -12px;
+  margin-top: -5px;
 }
 
 .my-plans-detail-panel__funding-prefund-status {

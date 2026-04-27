@@ -419,7 +419,7 @@
   "Top up balance": "充值",
   "Tuesday": "週二",
   "Buy order failed due to insufficient balance. Please ensure you have enough balance before the next buy.": "由於餘額不足，買入訂單失敗。請確保下次買入前有足夠的餘額。",
-  "Investment failed": "投資失敗",
+  "Buy failed": "買入失敗",
   "Total": "總計",
   "Total amount": "總金額",
   "Total amount you’ve invested through auto-invest, shown in your preferred currency.": "您透過定期定額投入的總金額，以您的偏好貨幣顯示。",

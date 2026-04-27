@@ -5021,7 +5021,7 @@
           const investedText = hasPrefundLog
             ? `${prefundAmtText} ${isReturnedLog ? 'returned' : 'pre-funded'}`
             : failed
-              ? 'Investment failed'
+              ? 'Buy failed'
               : `${formatMoneyDisplayCurrency(perBuyAmount, cur)} invested`;
           const investedClass = failed
             ? 'my-plans-detail-panel__activity-invested-text my-plans-detail-panel__activity-invested-text--failed'
