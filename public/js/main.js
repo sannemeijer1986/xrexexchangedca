@@ -6777,7 +6777,7 @@
       const titleEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-title]",
       );
-      if (titleEl) titleEl.textContent = "Auto-invest details";
+      if (titleEl) titleEl.textContent = "Auto-invest order";
       if (row) populateActivityDetailFromRow(row);
       activityDetailPanel.hidden = false;
       requestAnimationFrame(() => {
