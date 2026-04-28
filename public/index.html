@@ -54,7 +54,7 @@
                             <img class="app-header__logo-img app-header__logo-img--nolabel" src="assets/logo_nolabel.svg" alt="" />
                             <img class="app-header__logo-img app-header__logo-img--label" src="assets/logo_label.svg" alt="" />
                         </div>
-                        <div class="app-header__page-title" aria-label="Page title">Finance</div>
+                <div class="app-header__page-title" aria-label="Page title" data-app-header-page-title>Finance</div>
                     </div>
                     <div class="app-header__actions">
                         <button class="app-header__icon" type="button" aria-label="Menu">
@@ -65,9 +65,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="app-header__tabs" aria-label="Finance tabs">
-                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto">Auto-invest</button>
-                    <button class="app-header__tab" type="button" data-finance-header-tab="loan">Secured loan</button>
+                <div class="app-header__tabs" aria-label="Finance tabs" data-app-header-tabs>
+                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto" data-app-header-tab="auto">Auto-invest</button>
+                    <button class="app-header__tab" type="button" data-finance-header-tab="loan" data-app-header-tab="loan">Secured loan</button>
                 </div>
             </header>
         </div>
@@ -865,6 +865,17 @@
                         </div>
                     </section>
                 </div>
+
+                <div data-tab-view="trade" hidden>
+                    <section class="finance">
+                        <div data-finance-page="auto">
+                            <div class="finance__body"></div>
+                        </div>
+                        <div data-finance-page="loan" hidden>
+                            <div class="finance__body"></div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
 
@@ -955,7 +966,7 @@
                 <img src="assets/icon_tabbar_markets_inactive.svg" alt="" />
                 <span>Market</span>
             </button>
-            <button class="tabbar__item tabbar__item--trade" type="button">
+            <button class="tabbar__item tabbar__item--trade" type="button" data-tab-target="trade" aria-label="Trade tab">
                 <span>Trade</span>
             </button>
             <button class="tabbar__item" type="button" data-tab-target="finance" aria-label="Finance tab">
@@ -971,8 +982,13 @@
                 <img src="assets/icon_tabbar_wallet_inactive.svg" alt="" />
                 <span>Wallet</span>
             </button>
-            <button class="tabbar__fab" type="button" aria-label="Trade">
-                <img src="assets/icon_tabbar_trade_inactive.svg" alt="" />
+            <button class="tabbar__fab" type="button" aria-label="Trade" data-tab-target="trade">
+                <img
+                    src="assets/icon_tabbar_trade_inactive.svg"
+                    data-src-active="assets/icon_tabbar_trade_active.svg"
+                    data-src-inactive="assets/icon_tabbar_trade_inactive.svg"
+                    alt=""
+                />
             </button>
         </nav>
 

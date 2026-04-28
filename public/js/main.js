@@ -259,6 +259,19 @@
 
     const setActiveTab = (tabId) => {
       document.documentElement.dataset.activeTab = tabId;
+      const pageTitleEl = document.querySelector("[data-app-header-page-title]");
+      const tabsWrapEl = document.querySelector("[data-app-header-tabs]");
+      const autoTabEl = document.querySelector('[data-app-header-tab="auto"]');
+      const loanTabEl = document.querySelector('[data-app-header-tab="loan"]');
+      const isTrade = String(tabId || "") === "trade";
+      if (pageTitleEl) pageTitleEl.textContent = isTrade ? "Trade" : "Finance";
+      if (autoTabEl) autoTabEl.textContent = isTrade ? "Spot" : "Auto-invest";
+      if (loanTabEl) loanTabEl.textContent = isTrade ? "Convert" : "Secured loan";
+      if (tabsWrapEl)
+        tabsWrapEl.setAttribute(
+          "aria-label",
+          isTrade ? "Trade tabs" : "Finance tabs",
+        );
       tabViews.forEach((view) => {
         const isActive = view.getAttribute("data-tab-view") === tabId;
         view.hidden = !isActive;
@@ -310,8 +323,8 @@
     const tabButtons = Array.from(
       document.querySelectorAll("[data-finance-header-tab]"),
     );
-    const pages = Array.from(document.querySelectorAll("[data-finance-page]"));
-    if (tabButtons.length === 0 || pages.length === 0) {
+    const allPages = Array.from(document.querySelectorAll("[data-finance-page]"));
+    if (tabButtons.length === 0 || allPages.length === 0) {
       return { setFinancePage: () => {} };
     }
 
@@ -323,7 +336,16 @@
           btn.getAttribute("data-finance-header-tab") === pageId,
         );
       });
-      pages.forEach((page) => {
+      const activeTab = String(
+        document.documentElement.dataset.activeTab || "home",
+      );
+      const activeView = document.querySelector(
+        `[data-tab-view="${CSS.escape(activeTab)}"]`,
+      );
+      const scopedPages = activeView
+        ? Array.from(activeView.querySelectorAll("[data-finance-page]"))
+        : allPages;
+      scopedPages.forEach((page) => {
         page.hidden = page.getAttribute("data-finance-page") !== pageId;
       });
       const content = document.querySelector("[data-content]");

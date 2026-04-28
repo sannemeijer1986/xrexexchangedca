@@ -389,23 +389,29 @@ body {
   border-radius: 999px;
 }
 
-html[data-active-tab=finance] .app-header {
+html[data-active-tab=finance] .app-header,
+html[data-active-tab=trade] .app-header {
   padding-bottom: 0;
 }
-html[data-active-tab=finance] .content--home {
+html[data-active-tab=finance] .content--home,
+html[data-active-tab=trade] .content--home {
   margin-top: 0;
   padding-top: 0;
 }
-html[data-active-tab=finance] .finance {
+html[data-active-tab=finance] .finance,
+html[data-active-tab=trade] .finance {
   margin-top: 0;
 }
-html[data-active-tab=finance] .app-header__logo-wrap {
+html[data-active-tab=finance] .app-header__logo-wrap,
+html[data-active-tab=trade] .app-header__logo-wrap {
   display: none;
 }
-html[data-active-tab=finance] .app-header__page-title {
+html[data-active-tab=finance] .app-header__page-title,
+html[data-active-tab=trade] .app-header__page-title {
   display: block;
 }
-html[data-active-tab=finance] .app-header__tabs {
+html[data-active-tab=finance] .app-header__tabs,
+html[data-active-tab=trade] .app-header__tabs {
   display: flex;
 }
 

@@ -348,7 +348,8 @@
   border-radius: 999px;
 }
 
-html[data-active-tab="finance"] {
+html[data-active-tab="finance"],
+html[data-active-tab="trade"] {
   .app-header {
     padding-bottom: 0;
   }
