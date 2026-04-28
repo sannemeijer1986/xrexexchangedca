@@ -6878,7 +6878,6 @@
       setText("[data-my-plans-activity-detail-start]", timestamp);
       setText("[data-my-plans-activity-detail-fee]", `0.000001 ${ticker}`);
       setText("[data-my-plans-activity-detail-order-id]", orderId);
-      setText("[data-my-plans-activity-detail-via-title]", viaTitle);
       setText("[data-my-plans-activity-detail-plan-id]", planIdText);
       setText("[data-my-plans-activity-detail-paid-with]", paidWithNormalized);
     };
@@ -7561,17 +7560,21 @@
         showMyPlansCopySnackbar("Copied to clipboard");
       });
 
-    activityDetailPanel
-      ?.querySelector(".my-plans-activity-detail-panel__meta-value--inline-copy")
-      ?.addEventListener("click", async () => {
-        const orderIdEl = activityDetailPanel.querySelector(
-          "[data-my-plans-activity-detail-order-id]",
+    Array.from(
+      activityDetailPanel?.querySelectorAll(
+        ".my-plans-activity-detail-panel__meta-value--inline-copy",
+      ) || [],
+    ).forEach((el) => {
+      el.addEventListener("click", async () => {
+        const valueEl = el.querySelector(
+          "[data-my-plans-activity-detail-order-id], [data-my-plans-activity-detail-plan-id]",
         );
-        const text = String(orderIdEl?.textContent || "").trim();
+        const text = String(valueEl?.textContent || "").trim();
         if (!text) return;
         await copyTextWithFallback(text);
         showMyPlansCopySnackbar("Copied to clipboard");
       });
+    });
 
     detailPanel
       ?.querySelector(".my-plans-detail-panel__prefund-chip")
@@ -8719,7 +8722,6 @@
 
       let funding2SelectedAmount = null;
       let funding2OptionBaseAmount = null;
-      let funding2OverviewConsentChecked = false;
       /** Period-tab integer count (schedule units) for Funding2 clone. */
       let funding2PeriodCount = 0;
       const formatWithCommas = (n) => Number(n).toLocaleString("en-US");
@@ -9445,37 +9447,6 @@
         }
       };
 
-      const syncFunding2OverviewConsentUI = () => {
-        const overviewStep = clone.querySelector(
-          "[data-funding2-overview-step]",
-        );
-        if (!overviewStep) return;
-        const consentToggle = overviewStep.querySelector(
-          "[data-funding2-overview-consent-toggle]",
-        );
-        const consentIcon = overviewStep.querySelector(
-          "[data-funding2-overview-consent-icon]",
-        );
-        const confirmBtn = overviewStep.querySelector(
-          "[data-funding2-overview-confirm]",
-        );
-        if (consentToggle) {
-          consentToggle.setAttribute(
-            "aria-pressed",
-            funding2OverviewConsentChecked ? "true" : "false",
-          );
-        }
-        if (consentIcon) {
-          consentIcon.setAttribute(
-            "src",
-            funding2OverviewConsentChecked
-              ? "assets/icon_checkbox_on.svg"
-              : "assets/icon_checkbox_off.svg",
-          );
-        }
-        if (confirmBtn) confirmBtn.disabled = !funding2OverviewConsentChecked;
-      };
-
       const handleCloneInput = (e) => {
         const target = e.target;
         if (!(target instanceof HTMLInputElement)) return;
@@ -9639,11 +9610,8 @@
             </div>
           </div>
           <div class="plan-overview-panel__footer plan-buffer-funding2-overview-step__footer">
-            <button class="plan-overview-panel__consent" type="button" data-funding2-overview-consent-toggle aria-pressed="false">
-              <img class="plan-overview-panel__consent-icon" data-funding2-overview-consent-icon src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
-              <span class="plan-overview-panel__consent-text">I agree with the ... {$Terms and conditions footnote}</span>
-            </button>
-            <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-funding2-overview-confirm disabled>Confirm</button>
+            <p class="plan-overview-panel__consent-copy">By confirming, you agree with the ... {$Terms and conditions footnote}</p>
+            <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-funding2-overview-confirm>Confirm</button>
             <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-funding2-overview-back>Back</button>
           </div>
         `;
@@ -9683,13 +9651,6 @@
               desc: "When your reserved funds run out, we’ll automatically pre-fund again to keep your plan running.\n\nYou can change or turn off pre-funding any time",
             });
           });
-        step
-          .querySelector("[data-funding2-overview-consent-toggle]")
-          ?.addEventListener("click", () => {
-            funding2OverviewConsentChecked = !funding2OverviewConsentChecked;
-            syncFunding2OverviewConsentUI();
-          });
-        syncFunding2OverviewConsentUI();
         return step;
       };
 
@@ -9703,9 +9664,7 @@
           confirmStepEl.classList.remove("is-open");
         }
         const overviewStepEl = ensureFunding2OverviewStep();
-        funding2OverviewConsentChecked = false;
         syncFromOriginal();
-        syncFunding2OverviewConsentUI();
         overviewStepEl.hidden = false;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => overviewStepEl.classList.add("is-open"));
@@ -10060,7 +10019,6 @@
         window.setTimeout(() => {
           if (gen !== funding2PrefundSuccessLoaderGen) {
             loaderEl.hidden = true;
-            syncFunding2OverviewConsentUI();
             return;
           }
           loaderEl.hidden = true;
