@@ -13721,7 +13721,7 @@ button.plan-buffer-funding-hero__how-link {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .my-plans-activity-detail-panel__card {
@@ -13766,7 +13766,19 @@ button.plan-buffer-funding-hero__how-link {
   top: 32px;
   left: 32px;
   z-index: 3;
-  box-shadow: inset 0 0 0 3px #0d0e0f;
+}
+
+.my-plans-activity-detail-panel__hero-overlap-ring {
+  position: absolute;
+  top: 33px;
+  left: 33px;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 3px solid #0d0e0f;
+  box-sizing: border-box;
+  z-index: 4;
+  pointer-events: none;
 }
 
 .phone-container p.my-plans-activity-detail-panel__hero-pair {
@@ -13899,6 +13911,7 @@ button.plan-buffer-funding-hero__how-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
 }
 
 .my-plans-activity-detail-panel__meta-stack {

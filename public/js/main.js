@@ -7413,6 +7413,26 @@
         closePrefundEndConfirmStackTogether();
       });
 
+    const copyTextWithFallback = async (text) => {
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+        } finally {
+          document.body.removeChild(ta);
+        }
+      }
+    };
+
     detailPanel
       ?.querySelector("[data-my-plans-detail-copy-id]")
       ?.addEventListener("click", async () => {
@@ -7421,22 +7441,19 @@
         );
         const text = String(idEl?.textContent || "").trim();
         if (!text) return;
-        try {
-          await navigator.clipboard.writeText(text);
-        } catch {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.setAttribute("readonly", "");
-          ta.style.position = "fixed";
-          ta.style.left = "-9999px";
-          document.body.appendChild(ta);
-          ta.select();
-          try {
-            document.execCommand("copy");
-          } finally {
-            document.body.removeChild(ta);
-          }
-        }
+        await copyTextWithFallback(text);
+        showMyPlansCopySnackbar("Copied to clipboard");
+      });
+
+    activityDetailPanel
+      ?.querySelector(".my-plans-activity-detail-panel__meta-value--inline-copy")
+      ?.addEventListener("click", async () => {
+        const orderIdEl = activityDetailPanel.querySelector(
+          "[data-my-plans-activity-detail-order-id]",
+        );
+        const text = String(orderIdEl?.textContent || "").trim();
+        if (!text) return;
+        await copyTextWithFallback(text);
         showMyPlansCopySnackbar("Copied to clipboard");
       });
 
