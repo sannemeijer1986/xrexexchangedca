@@ -289,7 +289,19 @@
     tradeQuickMenuSheet
       ?.querySelectorAll("[data-trade-quick-menu-action]")
       .forEach((btn) =>
-        btn.addEventListener("click", () => closeTradeQuickMenu()),
+        btn.addEventListener("click", () => {
+          const action = String(
+            btn.getAttribute("data-trade-quick-menu-action") || "",
+          )
+            .trim()
+            .toLowerCase();
+          closeTradeQuickMenu();
+          if (action === "spot" || action === "convert") {
+            document.dispatchEvent(
+              new CustomEvent("trade-qm-select", { detail: { action } }),
+            );
+          }
+        }),
       );
 
     const setActiveTab = (tabId) => {
@@ -4578,6 +4590,12 @@
   initBadgeControls();
   const tabNavApi = initTabs();
   const financeHeaderApi = initFinanceHeaderTabs();
+  document.addEventListener("trade-qm-select", (e) => {
+    const action = String(e?.detail?.action || "").toLowerCase();
+    if (action !== "spot" && action !== "convert") return;
+    tabNavApi.setActiveTab("trade");
+    financeHeaderApi.setFinancePage(action === "convert" ? "loan" : "auto");
+  });
   const goFinanceAutoInvest = () => {
     tabNavApi.setActiveTab("finance");
     financeHeaderApi.setFinancePage("auto");
