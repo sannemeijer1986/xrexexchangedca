@@ -307,18 +307,12 @@
     const setActiveTab = (tabId) => {
       document.documentElement.dataset.activeTab = tabId;
       const pageTitleEl = document.querySelector("[data-app-header-page-title]");
-      const tabsWrapEl = document.querySelector("[data-app-header-tabs]");
-      const autoTabEl = document.querySelector('[data-app-header-tab="auto"]');
-      const loanTabEl = document.querySelector('[data-app-header-tab="loan"]');
+      const financeTabsEl = document.querySelector("[data-app-header-tabs-finance]");
+      const tradeTabsEl = document.querySelector("[data-app-header-tabs-trade]");
       const isTrade = String(tabId || "") === "trade";
       if (pageTitleEl) pageTitleEl.textContent = isTrade ? "Trade" : "Finance";
-      if (autoTabEl) autoTabEl.textContent = isTrade ? "Spot" : "Auto-invest";
-      if (loanTabEl) loanTabEl.textContent = isTrade ? "Convert" : "Secured loan";
-      if (tabsWrapEl)
-        tabsWrapEl.setAttribute(
-          "aria-label",
-          isTrade ? "Trade tabs" : "Finance tabs",
-        );
+      if (financeTabsEl) financeTabsEl.hidden = isTrade;
+      if (tradeTabsEl) tradeTabsEl.hidden = !isTrade;
       tabViews.forEach((view) => {
         const isActive = view.getAttribute("data-tab-view") === tabId;
         view.hidden = !isActive;
@@ -373,8 +367,9 @@
   };
 
   const initFinanceHeaderTabs = () => {
+    const wrap = document.querySelector("[data-app-header-tabs-finance]");
     const tabButtons = Array.from(
-      document.querySelectorAll("[data-finance-header-tab]"),
+      wrap?.querySelectorAll?.("[data-finance-header-tab]") || [],
     );
     const allPages = Array.from(document.querySelectorAll("[data-finance-page]"));
     if (tabButtons.length === 0 || allPages.length === 0) {
@@ -413,6 +408,45 @@
 
     setPage("auto");
     return { setFinancePage: setPage };
+  };
+
+  const initTradeHeaderTabs = () => {
+    const wrap = document.querySelector("[data-app-header-tabs-trade]");
+    const tabButtons = Array.from(
+      wrap?.querySelectorAll?.("[data-trade-header-tab]") || [],
+    );
+    const pages = Array.from(document.querySelectorAll("[data-trade-page]"));
+    if (tabButtons.length === 0 || pages.length === 0) {
+      return { setTradePage: () => {} };
+    }
+
+    const setPage = (pageId) => {
+      document.documentElement.dataset.tradePage = pageId;
+      tabButtons.forEach((btn) => {
+        btn.classList.toggle(
+          "is-active",
+          btn.getAttribute("data-trade-header-tab") === pageId,
+        );
+      });
+      const tradeView = document.querySelector('[data-tab-view="trade"]');
+      const scopedPages = tradeView
+        ? Array.from(tradeView.querySelectorAll("[data-trade-page]"))
+        : pages;
+      scopedPages.forEach((page) => {
+        page.hidden = page.getAttribute("data-trade-page") !== pageId;
+      });
+      const content = document.querySelector("[data-content]");
+      if (content) content.scrollTop = 0;
+    };
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () =>
+        setPage(btn.getAttribute("data-trade-header-tab")),
+      );
+    });
+
+    setPage("spot");
+    return { setTradePage: setPage };
   };
 
   const initFinanceSectionNav = () => {
@@ -4590,11 +4624,12 @@
   initBadgeControls();
   const tabNavApi = initTabs();
   const financeHeaderApi = initFinanceHeaderTabs();
+  const tradeHeaderApi = initTradeHeaderTabs();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (action !== "spot" && action !== "convert") return;
     tabNavApi.setActiveTab("trade");
-    financeHeaderApi.setFinancePage(action === "convert" ? "loan" : "auto");
+    tradeHeaderApi.setTradePage(action === "convert" ? "convert" : "spot");
   });
   const goFinanceAutoInvest = () => {
     tabNavApi.setActiveTab("finance");

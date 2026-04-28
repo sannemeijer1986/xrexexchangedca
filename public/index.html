@@ -65,9 +65,18 @@
                         </button>
                     </div>
                 </div>
-                <div class="app-header__tabs" aria-label="Finance tabs" data-app-header-tabs>
-                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto" data-app-header-tab="auto">Auto-invest</button>
-                    <button class="app-header__tab" type="button" data-finance-header-tab="loan" data-app-header-tab="loan">Secured loan</button>
+                <div class="app-header__tabs" aria-label="Finance tabs" data-app-header-tabs-finance>
+                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto">Auto-invest</button>
+                    <button class="app-header__tab" type="button" data-finance-header-tab="loan">Secured loan</button>
+                </div>
+                <div class="app-header__tabs" aria-label="Trade tabs" data-app-header-tabs-trade hidden>
+                    <button class="app-header__tab is-active" type="button" data-trade-header-tab="spot">Spot</button>
+                    <button class="app-header__tab" type="button" data-trade-header-tab="margin">Margin</button>
+                    <button class="app-header__tab" type="button" data-trade-header-tab="grid">
+                        <span>Grid bot</span>
+                        <span class="app-header__tab-tag" aria-label="New">NEW</span>
+                    </button>
+                    <button class="app-header__tab" type="button" data-trade-header-tab="convert">Convert</button>
                 </div>
             </header>
         </div>
@@ -868,10 +877,16 @@
 
                 <div data-tab-view="trade" hidden>
                     <section class="finance">
-                        <div data-finance-page="auto">
+                        <div data-trade-page="spot">
                             <div class="finance__body"></div>
                         </div>
-                        <div data-finance-page="loan" hidden>
+                        <div data-trade-page="margin" hidden>
+                            <div class="finance__body"></div>
+                        </div>
+                        <div data-trade-page="grid" hidden>
+                            <div class="finance__body"></div>
+                        </div>
+                        <div data-trade-page="convert" hidden>
                             <div class="finance__body"></div>
                         </div>
                     </section>
