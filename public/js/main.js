@@ -6699,34 +6699,77 @@
         ).trim();
       };
       const parentAvgPrice = getParentAverageBuyPrice();
-      setText("[data-my-plans-activity-detail-pair]", `${ticker} / ${payCur}`);
-      setText(
-        "[data-my-plans-activity-detail-amount]",
-        `≈ ${gainNum} ${ticker} / ${gainNum} ${ticker}`,
-      );
       const fallbackAvg = formatMoneyDisplayCurrency(
         getPrototypeAveragePrice(ticker, payCur),
         payCur,
       );
-      setText(
-        "[data-my-plans-activity-detail-avg-price]",
-        parentAvgPrice || fallbackAvg,
+      const investedText = String(
+        card?.querySelector(".my-plans-detail-panel__activity-invested-text")
+          ?.textContent || "",
+      )
+        .trim()
+        .toLowerCase();
+      const isFailed = investedText.includes("failed");
+      const detailStatusEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-status]",
       );
-      setText("[data-my-plans-activity-detail-total]", `${payAmt} ${payCur}`);
-      setText(
-        "[data-my-plans-activity-detail-actual-amount]",
-        `${gainNum} ${ticker}`,
+      if (detailStatusEl) {
+        detailStatusEl.textContent = isFailed ? "Failed" : "Completed";
+        detailStatusEl.classList.toggle(
+          "my-plans-activity-detail-panel__meta-value--negative",
+          isFailed,
+        );
+        detailStatusEl.classList.toggle(
+          "my-plans-activity-detail-panel__meta-value--positive",
+          !isFailed,
+        );
+      }
+      const paidWithText =
+        String(
+          card?.querySelector(".my-plans-detail-panel__act-list-footer-text")
+            ?.textContent || "",
+        ).trim() || `Paid with ${payCur} balance`;
+      const paidWithNormalized = paidWithText.replace(/^Paid with\s*/i, "");
+      const allocationTickers = Array.from(
+        detailPanel?.querySelectorAll(".plan-overview-panel__chip-ticker") || [],
+      )
+        .map((el) => String(el.textContent || "").trim().toUpperCase())
+        .filter(Boolean);
+      const viaTitle = allocationTickers.length
+        ? allocationTickers.join(" · ")
+        : String(
+            detailPanel?.querySelector("[data-my-plans-detail-title]")
+              ?.textContent || "",
+          ).trim() || ticker;
+      const fromIconEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-icon-from]",
       );
-      setText(
-        "[data-my-plans-activity-detail-actual-total]",
-        `${payAmt} ${payCur}`,
+      if (fromIconEl)
+        fromIconEl.setAttribute(
+          "src",
+          `assets/icon_currency_${String(payCur).toUpperCase()}.svg`,
+        );
+      const toIconEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-icon-to]",
       );
+      const toIconSrc = String(
+        row.querySelector(".my-plans-detail-panel__act-icon")?.getAttribute("src") ||
+          "",
+      );
+      if (toIconEl && toIconSrc) toIconEl.setAttribute("src", toIconSrc);
+      setText(
+        "[data-my-plans-activity-detail-convert-pair]",
+        `${payCur} → ${ticker}`,
+      );
+      setText("[data-my-plans-activity-detail-from]", `- ${payAmt} ${payCur}`);
+      setText("[data-my-plans-activity-detail-to]", `+ ${gainNum} ${ticker}`);
+      setText("[data-my-plans-activity-detail-avg-price]", parentAvgPrice || fallbackAvg);
       setText("[data-my-plans-activity-detail-start]", timestamp);
-      setText("[data-my-plans-activity-detail-end]", timestamp);
       setText("[data-my-plans-activity-detail-fee]", `0.000001 ${ticker}`);
       setText("[data-my-plans-activity-detail-order-id]", orderId);
-      setText("[data-my-plans-activity-detail-order-via]", "Auto-invest");
+      setText("[data-my-plans-activity-detail-via-title]", viaTitle);
       setText("[data-my-plans-activity-detail-plan-id]", planIdText);
+      setText("[data-my-plans-activity-detail-paid-with]", paidWithNormalized);
     };
 
     const openActivityDetail = (row = null) => {
@@ -6734,7 +6777,7 @@
       const titleEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-title]",
       );
-      if (titleEl) titleEl.textContent = "Order history detail";
+      if (titleEl) titleEl.textContent = "Auto-invest details";
       if (row) populateActivityDetailFromRow(row);
       activityDetailPanel.hidden = false;
       requestAnimationFrame(() => {

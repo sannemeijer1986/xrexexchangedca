@@ -13211,7 +13211,6 @@ button.plan-buffer-funding-hero__how-link {
   transform: translateX(100%);
   transition: transform 0.35s ease;
   overflow: hidden;
-  overflow: clip;
   border-radius: inherit;
 }
 
@@ -13268,17 +13267,83 @@ button.plan-buffer-funding-hero__how-link {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 16px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .my-plans-activity-detail-panel__card {
-  background: #1B1D1D;
-  border-radius: 8px;
-  padding: 16px;
+  background: #151718;
+  border-radius: 16px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+}
+
+.my-plans-activity-detail-panel__card--convert .my-plans-activity-detail-panel__meta-row {
+  min-height: 48px;
+}
+
+.my-plans-activity-detail-panel__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-plans-activity-detail-panel__hero-icons {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.my-plans-activity-detail-panel__hero-icons::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #0d0e0f;
+  left: 31px;
+  top: 31px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.my-plans-activity-detail-panel__hero-icon {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+}
+
+.my-plans-activity-detail-panel__hero-icon--from {
+  top: 12px;
+  left: 8px;
+  z-index: 1;
+}
+
+.my-plans-activity-detail-panel__hero-icon--to {
+  top: 32px;
+  left: 32px;
+  z-index: 3;
+}
+
+.phone-container p.my-plans-activity-detail-panel__hero-pair {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: normal;
+  color: #ffffff;
+}
+
+.my-plans-activity-detail-panel__section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
 }
 
 .my-plans-activity-detail-panel__pair-row {
@@ -13301,6 +13366,7 @@ button.plan-buffer-funding-hero__how-link {
 .my-plans-activity-detail-panel__divider {
   height: 1px;
   background: #252627;
+  width: 100%;
 }
 
 .my-plans-activity-detail-panel__amount-wrap {
@@ -13336,18 +13402,21 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-activity-detail-panel__meta-list {
-  margin-top: 16px;
   display: flex;
   flex-direction: column;
+  background: #151718;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .my-plans-activity-detail-panel__meta-row {
-  min-height: 36px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .my-plans-activity-detail-panel__meta-key {
@@ -13356,36 +13425,56 @@ button.plan-buffer-funding-hero__how-link {
   color: #a3a3a3;
 }
 
-.my-plans-activity-detail-panel__meta-key--plan-id {
-  padding-left: 8px;
-}
-
-.my-plans-activity-detail-panel__meta-key--with-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.my-plans-activity-detail-panel__meta-key--with-icon img {
-  width: 14px;
-  height: 14px;
-  display: block;
+.my-plans-activity-detail-panel__meta-key--large {
+  font-size: 16px;
 }
 
 .my-plans-activity-detail-panel__meta-value {
   font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
+  font-weight: 600;
+  line-height: normal;
   color: #ffffff;
   text-align: right;
 }
 
-.my-plans-activity-detail-panel__tag {
-  border-radius: 30px;
-  background: #2a2e34;
-  padding: 2px 6px;
+.my-plans-activity-detail-panel__meta-value--large {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.my-plans-activity-detail-panel__meta-value--positive {
+  color: #5ac47d;
+}
+
+.my-plans-activity-detail-panel__meta-value--negative {
+  color: #eb5347;
+}
+
+.my-plans-activity-detail-panel__meta-value--inline-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.my-plans-activity-detail-panel__meta-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.my-plans-activity-detail-panel__meta-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f78ff;
+  line-height: normal;
+}
+
+.my-plans-activity-detail-panel__meta-link-sub {
   font-size: 12px;
   font-weight: 600;
-  color: #9d9d9d;
+  color: #3f78ff;
+  line-height: normal;
 }
 
 .my-plans-detail-panel__header {
