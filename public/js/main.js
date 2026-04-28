@@ -6420,11 +6420,6 @@
           const investedClass = failed
             ? "my-plans-detail-panel__activity-invested-text my-plans-detail-panel__activity-invested-text--failed"
             : "my-plans-detail-panel__activity-invested-text";
-          const activityPaidWithText =
-            fundingState >= 3
-              ? `Paid with pre-funded ${cur}`
-              : `Paid with ${cur} balance`;
-          const activityRowsFooter = `<div class="my-plans-detail-panel__act-list-footer"><p class="my-plans-detail-panel__act-list-footer-text">${activityPaidWithText}</p></div>`;
           const bodyContent = hasPrefundLog
             ? isReturnedLog
               ? `<p class="my-plans-detail-panel__act-error">Returned ${prefundAmtText} from this plan to your wallet, auto-refill for pre-funding has been disabled.</p>`
@@ -6437,7 +6432,7 @@
                   ? '<p class="my-plans-detail-panel__act-error">Plan was ended. Automated buys stopped and any remaining funds were returned to your wallet.</p>'
                   : failed
                     ? '<p class="my-plans-detail-panel__act-error">Buy order failed due to insufficient balance. Please ensure you have enough balance before the next buy.</p>'
-                    : `${lines}${activityRowsFooter}`;
+                    : lines;
           const failedClass = failed ? " is-failed" : "";
           return `<article class="my-plans-detail-panel__activity-card ${expanded ? "is-expanded" : "is-collapsed"}${failedClass}" data-my-plans-activity-card><div class="my-plans-detail-panel__activity-head" data-my-plans-activity-toggle role="button" tabindex="0" aria-expanded="${expanded ? "true" : "false"}" aria-label="${expanded ? "Collapse activity" : "Expand activity"}"><img class="my-plans-detail-panel__activity-head-icon" src="${headIcon}" alt="" width="20" height="20" aria-hidden="true" /><div class="my-plans-detail-panel__activity-date-col"><div class="my-plans-detail-panel__activity-date-line"><span class="my-plans-detail-panel__activity-date">${mkDate(date)}</span><span class="my-plans-detail-panel__activity-time">, ${mkTime(date)}</span></div><div class="my-plans-detail-panel__activity-invested-line"><img class="my-plans-detail-panel__activity-invested-icon" src="assets/icon_check_gray_s.svg" alt="" width="16" height="16" /><span class="${investedClass}">${investedText}</span></div></div><span class="my-plans-detail-panel__act-toggle" aria-hidden="true"><img src="assets/icon_chevron_${expanded ? "up" : "down"}_white.svg" alt="" width="24" height="24" /></span></div><div class="my-plans-detail-panel__act-list-footer-divider" aria-hidden="true"></div><div class="my-plans-detail-panel__act-list">${bodyContent}</div></article>`;
         };
