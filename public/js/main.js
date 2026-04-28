@@ -252,10 +252,45 @@
     const openTabTriggers = Array.from(
       document.querySelectorAll("[data-open-tab]"),
     );
+    const tradeQuickMenuSheet = document.querySelector(
+      "[data-trade-quick-menu-sheet]",
+    );
+    const tradeQuickMenuPanel = tradeQuickMenuSheet?.querySelector(
+      ".currency-sheet__panel",
+    );
 
     if (!content || tabViews.length === 0) {
       return { setActiveTab: () => {} };
     }
+
+    const openTradeQuickMenu = () => {
+      if (!tradeQuickMenuSheet) return;
+      tradeQuickMenuSheet.hidden = false;
+      requestAnimationFrame(() => {
+        tradeQuickMenuSheet.classList.add("is-open");
+      });
+    };
+
+    const closeTradeQuickMenu = () => {
+      if (!tradeQuickMenuSheet) return;
+      tradeQuickMenuSheet.classList.remove("is-open");
+      const onEnd = () => {
+        if (!tradeQuickMenuSheet.classList.contains("is-open"))
+          tradeQuickMenuSheet.hidden = true;
+        tradeQuickMenuPanel?.removeEventListener("transitionend", onEnd);
+      };
+      tradeQuickMenuPanel?.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    tradeQuickMenuSheet
+      ?.querySelectorAll("[data-trade-quick-menu-close]")
+      .forEach((btn) => btn.addEventListener("click", closeTradeQuickMenu));
+    tradeQuickMenuSheet
+      ?.querySelectorAll("[data-trade-quick-menu-action]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => closeTradeQuickMenu()),
+      );
 
     const setActiveTab = (tabId) => {
       document.documentElement.dataset.activeTab = tabId;
@@ -295,9 +330,15 @@
     };
 
     tabButtons.forEach((btn) => {
-      btn.addEventListener("click", () =>
-        setActiveTab(btn.getAttribute("data-tab-target")),
-      );
+      btn.addEventListener("click", () => {
+        const next = btn.getAttribute("data-tab-target");
+        const active = String(document.documentElement.dataset.activeTab || "");
+        if (next === "trade" && active === "trade") {
+          openTradeQuickMenu();
+          return;
+        }
+        setActiveTab(next);
+      });
     });
 
     const openFinance = () => setActiveTab("finance");

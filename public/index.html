@@ -985,7 +985,7 @@
             <button class="tabbar__fab" type="button" aria-label="Trade" data-tab-target="trade">
                 <img
                     src="assets/icon_tabbar_trade_inactive.svg"
-                    data-src-active="assets/icon_tabbar_trade_active.svg"
+                    data-src-active="assets/icon_trade_active.svg"
                     data-src-inactive="assets/icon_tabbar_trade_inactive.svg"
                     alt=""
                 />
@@ -2329,6 +2329,78 @@
             </div>
         </div>
     </section>
+
+    <!-- Trade quick menu bottom sheet -->
+    <div class="currency-sheet trade-qm-sheet" data-trade-quick-menu-sheet hidden aria-modal="true" role="dialog" aria-label="Trade quick menu">
+        <button class="currency-sheet__backdrop" type="button" data-trade-quick-menu-close aria-label="Close"></button>
+        <div class="currency-sheet__panel trade-qm-sheet__panel">
+            <div class="trade-qm-sheet__header" aria-hidden="true">
+                <div class="trade-qm-sheet__handle"></div>
+            </div>
+            <div class="trade-qm-sheet__content">
+                <div class="trade-qm-sheet__section">
+                    <div class="trade-qm-sheet__label">Advanced</div>
+                    <div class="trade-qm-sheet__card">
+                        <button class="trade-qm-sheet__row" type="button" data-trade-quick-menu-action="spot">
+                            <span class="trade-qm-sheet__icon-circle" aria-hidden="true">
+                                <img src="assets/icon_qm_spottrade.svg" alt="" width="20" height="20" />
+                            </span>
+                            <span class="trade-qm-sheet__row-copy">
+                                <span class="trade-qm-sheet__row-title">Spot trade</span>
+                                <span class="trade-qm-sheet__row-subtitle">Trade crypto with advanced tools</span>
+                            </span>
+                            <img class="trade-qm-sheet__radio" src="assets/icon_radiocheck.svg" alt="" width="24" height="24" aria-hidden="true" />
+                        </button>
+                        <div class="trade-qm-sheet__divider" aria-hidden="true"></div>
+                        <button class="trade-qm-sheet__row" type="button" data-trade-quick-menu-action="margin">
+                            <span class="trade-qm-sheet__icon-circle" aria-hidden="true">
+                                <img src="assets/icon_qm_margin.svg" alt="" width="20" height="20" />
+                            </span>
+                            <span class="trade-qm-sheet__row-copy">
+                                <span class="trade-qm-sheet__row-title">Margin</span>
+                                <span class="trade-qm-sheet__row-subtitle">Leverage trading up to 3x</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="trade-qm-sheet__section">
+                    <div class="trade-qm-sheet__label">Trading bots</div>
+                    <div class="trade-qm-sheet__card">
+                        <button class="trade-qm-sheet__row" type="button" data-trade-quick-menu-action="grid">
+                            <span class="trade-qm-sheet__icon-circle" aria-hidden="true">
+                                <img src="assets/icon_qm_grid.svg" alt="" width="20" height="20" />
+                            </span>
+                            <span class="trade-qm-sheet__row-copy">
+                                <span class="trade-qm-sheet__row-title">Grid bot</span>
+                                <span class="trade-qm-sheet__row-subtitle">Maximize profit when markets fluctuate</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="trade-qm-sheet__section">
+                    <div class="trade-qm-sheet__label">Easy &amp; instant</div>
+                    <div class="trade-qm-sheet__card">
+                        <button class="trade-qm-sheet__row" type="button" data-trade-quick-menu-action="convert">
+                            <span class="trade-qm-sheet__icon-circle" aria-hidden="true">
+                                <img src="assets/icon_qm_convert.svg" alt="" width="20" height="20" />
+                            </span>
+                            <span class="trade-qm-sheet__row-copy">
+                                <span class="trade-qm-sheet__row-title">Convert</span>
+                                <span class="trade-qm-sheet__tag">Beginner</span>
+                                <span class="trade-qm-sheet__row-subtitle">Easily buy, sell or swap any currency</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="trade-qm-sheet__close" type="button" data-trade-quick-menu-close aria-label="Close">
+                    <img src="assets/icon_qm_close.svg" alt="" width="24" height="24" />
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="currency-sheet currency-sheet--schedule-buy-now-info currency-sheet--manage-plan" data-my-plans-manage-sheet data-my-plans-manage-prefund-mode="prefund" hidden aria-modal="true" role="dialog" aria-label="Manage plan">
         <button class="currency-sheet__backdrop" type="button" data-my-plans-manage-sheet-close aria-label="Close"></button>

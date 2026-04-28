@@ -3948,6 +3948,156 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(0);
 }
 
+// Trade quick-menu sheet (Convert 2.1 RFQ design)
+.trade-qm-sheet__panel {
+  padding: 0;
+  background: #1b1d1d;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden;
+}
+
+.trade-qm-sheet__header {
+  width: 100%;
+  padding: 16px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.trade-qm-sheet__handle {
+  width: 48px;
+  height: 6px;
+  border-radius: 12px;
+  background: #47494a;
+}
+
+.trade-qm-sheet__content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.trade-qm-sheet__section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trade-qm-sheet__label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
+}
+
+.trade-qm-sheet__card {
+  width: 100%;
+  background: #2d2f2f;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.trade-qm-sheet__divider {
+  height: 1px;
+  width: 100%;
+  background: #3c4248;
+}
+
+.trade-qm-sheet__row {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: left;
+}
+
+.trade-qm-sheet__icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.trade-qm-sheet__row-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trade-qm-sheet__row-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+
+.trade-qm-sheet__row-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c7c7c;
+  line-height: normal;
+}
+
+.trade-qm-sheet__radio {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.trade-qm-sheet__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  font-weight: 600;
+  color: #5ac47d;
+  line-height: normal;
+  width: fit-content;
+}
+
+.trade-qm-sheet__close {
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  border: 0;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
 // Funding 2 pre-fund preview bottom sheet (Figma 8946:114672)
 .currency-sheet--funding2-preview {
   .currency-sheet__panel.funding2-preview-sheet__panel {
