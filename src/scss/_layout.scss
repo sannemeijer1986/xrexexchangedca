@@ -368,9 +368,9 @@
   width: 24px;
   left: 50%;
   transform: translateX(-50%);
-  bottom: -9px;
+  bottom: 0;
   height: 2px;
-  background: #0184ff;
+  background: #275CFD;
   border-radius: 999px;
 }
 
@@ -4092,6 +4092,13 @@ button.finance-summary__stat-value--chevron {
   line-height: normal;
 }
 
+.trade-qm-sheet__row-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+
 .trade-qm-sheet__row-subtitle {
   font-size: 12px;
   font-weight: 600;
@@ -4101,9 +4108,13 @@ button.finance-summary__stat-value--chevron {
 
 .trade-qm-sheet__radio {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
+}
+
+.trade-qm-sheet__radio[hidden] {
+  display: none !important;
 }
 
 .trade-qm-sheet__tag {

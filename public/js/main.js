@@ -258,6 +258,26 @@
     const tradeQuickMenuPanel = tradeQuickMenuSheet?.querySelector(
       ".currency-sheet__panel",
     );
+    const syncTradeQuickMenuSelection = () => {
+      const activeTradePage = String(
+        document.documentElement.dataset.tradePage || "spot",
+      )
+        .trim()
+        .toLowerCase();
+      Array.from(
+        tradeQuickMenuSheet?.querySelectorAll("[data-trade-quick-menu-action]") ||
+          [],
+      ).forEach((row) => {
+        const action = String(
+          row.getAttribute("data-trade-quick-menu-action") || "",
+        )
+          .trim()
+          .toLowerCase();
+        const isActive = action === activeTradePage;
+        const radio = row.querySelector(".trade-qm-sheet__radio");
+        if (radio) radio.hidden = !isActive;
+      });
+    };
 
     if (!content || tabViews.length === 0) {
       return { setActiveTab: () => {} };
@@ -265,6 +285,7 @@
 
     const openTradeQuickMenu = () => {
       if (!tradeQuickMenuSheet) return;
+      syncTradeQuickMenuSelection();
       tradeQuickMenuSheet.hidden = false;
       requestAnimationFrame(() => {
         tradeQuickMenuSheet.classList.add("is-open");
@@ -296,13 +317,19 @@
             .trim()
             .toLowerCase();
           closeTradeQuickMenu();
-          if (action === "spot" || action === "convert") {
+          if (
+            action === "spot" ||
+            action === "margin" ||
+            action === "grid" ||
+            action === "convert"
+          ) {
             document.dispatchEvent(
               new CustomEvent("trade-qm-select", { detail: { action } }),
             );
           }
         }),
       );
+    document.addEventListener("trade-page-changed", syncTradeQuickMenuSelection);
 
     const setActiveTab = (tabId) => {
       document.documentElement.dataset.activeTab = tabId;
@@ -435,6 +462,9 @@
       scopedPages.forEach((page) => {
         page.hidden = page.getAttribute("data-trade-page") !== pageId;
       });
+      document.dispatchEvent(
+        new CustomEvent("trade-page-changed", { detail: { pageId } }),
+      );
       const content = document.querySelector("[data-content]");
       if (content) content.scrollTop = 0;
     };
@@ -4627,9 +4657,15 @@
   const tradeHeaderApi = initTradeHeaderTabs();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
-    if (action !== "spot" && action !== "convert") return;
+    if (
+      action !== "spot" &&
+      action !== "margin" &&
+      action !== "grid" &&
+      action !== "convert"
+    )
+      return;
     tabNavApi.setActiveTab("trade");
-    tradeHeaderApi.setTradePage(action === "convert" ? "convert" : "spot");
+    tradeHeaderApi.setTradePage(action);
   });
   const goFinanceAutoInvest = () => {
     tabNavApi.setActiveTab("finance");
