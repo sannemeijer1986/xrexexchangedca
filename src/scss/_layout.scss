@@ -3991,6 +3991,335 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(0);
 }
 
+// Trade Spot page (Figma 11207:39273)
+.trade-spot-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #0d0e0f;
+  color: #fff;
+}
+
+.trade-spot-page__top {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #252627;
+}
+
+.trade-spot-page__pair-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.trade-spot-page__pair {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+.trade-spot-page__pair-quote {
+  color: #9b9c9c;
+}
+
+.trade-spot-page__change {
+  color: #5ac47d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trade-spot-page__icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 0;
+  background: #17191d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.trade-spot-page__icon-btn--first {
+  margin-left: auto;
+}
+
+.trade-spot-page__icon-btn img {
+  width: 14px;
+  height: 14px;
+}
+
+.trade-spot-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.trade-spot-page__book-head,
+.trade-spot-page__book-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trade-spot-page__book-head {
+  font-size: 12px;
+  color: #9b9c9c;
+  margin-bottom: 10px;
+}
+
+.trade-spot-page__book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Manrope", system-ui, -apple-system, sans-serif;
+  line-height: 1;
+}
+
+.trade-spot-page__book-list--sell span:first-child {
+  color: #eb5347;
+}
+
+.trade-spot-page__book-list--buy span:first-child {
+  color: #5ac47d;
+}
+
+.trade-spot-page__book-list span:last-child {
+  color: #fff;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.trade-spot-page__mid-price {
+  padding: 10px 0;
+}
+
+.trade-spot-page__mid-price p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trade-spot-page__mid-price p:first-child {
+  color: #5ac47d;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-spot-page__mid-price p:last-child {
+  color: #9b9c9c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.trade-spot-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.trade-spot-page__side-toggle {
+  background: #17191d;
+  border-radius: 10px;
+  padding: 2px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.trade-spot-page__side-toggle button {
+  border: 0;
+  height: 34px;
+  border-radius: 8px;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-spot-page__side-toggle button.is-active {
+  background: #49cc72;
+  color: #fff;
+}
+
+.trade-spot-page__order-type,
+.trade-spot-page__input,
+.trade-spot-page__buy-cta {
+  border: 0;
+  border-radius: 10px;
+  background: #17191d;
+}
+
+.trade-spot-page__order-type {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.trade-spot-page__input {
+  padding: 9px 12px;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.trade-spot-page__input--market {
+  min-height: 70px;
+}
+
+.trade-spot-page__input-label {
+  color: #8f9091;
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.trade-spot-page__input-value-wrap {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+
+.trade-spot-page__input-value {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-spot-page__input-unit {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-spot-page__pct-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #17191d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.trade-spot-page__pct-row button {
+  border: 0;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 0;
+  line-height: 1;
+}
+
+.trade-spot-page__avail {
+  color: #9b9c9c;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trade-spot-page__avail strong {
+  color: #fff;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.trade-spot-page__buy-cta {
+  background: #035b25;
+  color: #5ac47d;
+  min-height: 50px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.trade-spot-page__orders {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trade-spot-page__orders-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #252627;
+  padding: 10px 16px;
+}
+
+.trade-spot-page__orders-head button {
+  border: 0;
+  background: transparent;
+  color: #9b9c9c;
+  font-size: 16px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trade-spot-page__orders-head button.is-active {
+  color: #fff;
+}
+
+.trade-spot-page__orders-filter {
+  padding: 10px 16px;
+  border-bottom: 1px solid #252627;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trade-spot-page__orders-filter input[type="checkbox"] {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid #5e6166;
+  background: transparent;
+  margin: 0;
+}
+
+.trade-spot-page__orders-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.trade-spot-page__orders-empty img {
+  width: 68px;
+  height: 68px;
+  opacity: 0.2;
+}
+
 // Trade quick-menu sheet (Convert 2.1 RFQ design)
 .trade-qm-sheet__panel {
   padding: 0;
@@ -13412,11 +13741,11 @@ button.plan-buffer-funding-hero__how-link {
   flex-shrink: 0;
 }
 
-.my-plans-panel__empty-text {
+.phone-container p.my-plans-panel__empty-text {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: #9B9C9C;
 }
 
 .my-plans-panel__empty[hidden] {

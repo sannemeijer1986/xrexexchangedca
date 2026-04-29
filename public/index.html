@@ -884,7 +884,98 @@
                 <div data-tab-view="trade" hidden>
                     <section class="finance">
                         <div data-trade-page="spot">
-                            <div class="finance__body"></div>
+                            <div class="finance__body trade-spot-page">
+                                <section class="trade-spot-page__top">
+                                    <div class="trade-spot-page__pair-row">
+                                        <button class="trade-spot-page__pair" type="button">
+                                            <span>BTC<span class="trade-spot-page__pair-quote">/USDT</span></span>
+                                            <img src="assets/icon_chevron_down_white.svg" alt="" width="14" height="14" aria-hidden="true" />
+                                        </button>
+                                        <span class="trade-spot-page__change">+1.44 %</span>
+                                        <button class="trade-spot-page__icon-btn trade-spot-page__icon-btn--first" type="button" aria-label="Favorite">
+                                            <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                        </button>
+                                        <button class="trade-spot-page__icon-btn" type="button" aria-label="Candles">
+                                            <img src="assets/icon_info_circle_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                        </button>
+                                    </div>
+
+                                    <div class="trade-spot-page__grid">
+                                        <div class="trade-spot-page__book">
+                                            <div class="trade-spot-page__book-head">
+                                                <span>Price (USDT)</span>
+                                                <span>Amount (BTC)</span>
+                                            </div>
+                                            <div class="trade-spot-page__book-list trade-spot-page__book-list--sell">
+                                                <div><span>89,277.30</span><span>0.594</span></div>
+                                                <div><span>89,272.73</span><span>0.009</span></div>
+                                                <div><span>89,272.11</span><span>0.001</span></div>
+                                                <div><span>89,233.78</span><span>1.170</span></div>
+                                                <div><span>89,197.87</span><span>0.012</span></div>
+                                            </div>
+                                            <div class="trade-spot-page__mid-price">
+                                                <p>89,180.03 <img src="assets/icon_info_circle_white.svg" alt="" width="14" height="14" aria-hidden="true" /></p>
+                                                <p>≈ 89,182.73 USD</p>
+                                            </div>
+                                            <div class="trade-spot-page__book-list trade-spot-page__book-list--buy">
+                                                <div><span>89,162.19</span><span>0.010</span></div>
+                                                <div><span>89,143.03</span><span>0.179</span></div>
+                                                <div><span>89,122.05</span><span>0.107</span></div>
+                                                <div><span>89,074.13</span><span>1.346</span></div>
+                                                <div><span>89,039.71</span><span>2.228</span></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="trade-spot-page__form">
+                                            <div class="trade-spot-page__side-toggle">
+                                                <button class="is-active" type="button">Buy</button>
+                                                <button type="button">Sell</button>
+                                            </div>
+                                            <button class="trade-spot-page__order-type" type="button">
+                                                <span>Market</span>
+                                                <img src="assets/icon_chevron_down_white.svg" alt="" width="12" height="12" aria-hidden="true" />
+                                            </button>
+                                            <div class="trade-spot-page__input trade-spot-page__input--market">
+                                                <div class="trade-spot-page__input-label">Market price</div>
+                                                <div class="trade-spot-page__input-value-wrap">
+                                                    <span class="trade-spot-page__input-value">89,197.87</span>
+                                                    <span class="trade-spot-page__input-unit">USDT</span>
+                                                </div>
+                                            </div>
+                                            <div class="trade-spot-page__input trade-spot-page__input--amount">
+                                                <div class="trade-spot-page__input-label">Amount to buy</div>
+                                                <div class="trade-spot-page__input-value-wrap">
+                                                    <span class="trade-spot-page__input-value">--</span>
+                                                    <span class="trade-spot-page__input-unit">BTC</span>
+                                                </div>
+                                            </div>
+                                            <div class="trade-spot-page__pct-row">
+                                                <button type="button">25%</button>
+                                                <button type="button">50%</button>
+                                                <button type="button">75%</button>
+                                                <button type="button">100%</button>
+                                            </div>
+                                            <div class="trade-spot-page__avail">Avail <strong>2,750.00 USDT</strong> <img src="assets/icon_info_circle_white.svg" alt="" width="14" height="14" aria-hidden="true" /></div>
+                                            <button class="trade-spot-page__buy-cta" type="button">Buy BTC</button>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="trade-spot-page__orders">
+                                    <header class="trade-spot-page__orders-head">
+                                        <button class="is-active" type="button">Open orders (0)</button>
+                                        <button type="button"><img src="assets/icon_info_circle_white.svg" alt="" width="14" height="14" aria-hidden="true" /> History</button>
+                                    </header>
+                                    <div class="trade-spot-page__orders-filter">
+                                        <input id="trade-open-current-pair" type="checkbox" />
+                                        <label for="trade-open-current-pair">Display current pair</label>
+                                    </div>
+                                    <div class="trade-spot-page__orders-empty">
+                                        <img src="assets/intro_illu.svg" alt="" width="88" height="88" aria-hidden="true" />
+                                        <p>No open orders</p>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
                         <div data-trade-page="margin" hidden>
                             <div class="finance__body"></div>
@@ -2066,7 +2157,7 @@
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
                             <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
-                        <p class="my-plans-panel__empty-text">No data</p>
+                        <p class="my-plans-panel__empty-text">No plans</p>
                     </div>
                 </div>
                 <div class="my-plans-panel__view" data-my-plans-view="paused" role="tabpanel" hidden>
@@ -2075,7 +2166,7 @@
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
                             <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
-                        <p class="my-plans-panel__empty-text">No data</p>
+                        <p class="my-plans-panel__empty-text">No plans</p>
                     </div>
                 </div>
                 <div class="my-plans-panel__view" data-my-plans-view="ended" role="tabpanel" hidden>
@@ -2084,7 +2175,7 @@
                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
                             <img class="my-plans-panel__empty-icon" src="assets/icon_nodata.svg" alt="" width="52" height="52" />
                         </div>
-                        <p class="my-plans-panel__empty-text">No data</p>
+                        <p class="my-plans-panel__empty-text">No plans</p>
                     </div>
                 </div>
             </div>
