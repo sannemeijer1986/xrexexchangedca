@@ -258,6 +258,33 @@
     const tradeQuickMenuPanel = tradeQuickMenuSheet?.querySelector(
       ".currency-sheet__panel",
     );
+    const phoneContainer = document.querySelector(".phone-container");
+    const tabbarEl = document.querySelector(".tabbar");
+    const tradeFabBtn = document.querySelector(
+      '.tabbar__fab[data-tab-target="trade"]',
+    );
+    const tradeFabIcon = tradeFabBtn?.querySelector(
+      "img[data-src-active][data-src-inactive]",
+    );
+    let tradeFabRestoreTimer = null;
+    const attachTradeFabFloating = () => {
+      if (!tradeFabBtn || !phoneContainer) return;
+      if (tradeFabRestoreTimer) {
+        clearTimeout(tradeFabRestoreTimer);
+        tradeFabRestoreTimer = null;
+      }
+      tradeFabBtn.classList.add("tabbar__fab--floating");
+      phoneContainer.appendChild(tradeFabBtn);
+    };
+    const restoreTradeFabInlineDelayed = (delayMs = 220) => {
+      if (!tradeFabBtn || !tabbarEl) return;
+      if (tradeFabRestoreTimer) clearTimeout(tradeFabRestoreTimer);
+      tradeFabRestoreTimer = setTimeout(() => {
+        tradeFabRestoreTimer = null;
+        tradeFabBtn.classList.remove("tabbar__fab--floating");
+        tabbarEl.appendChild(tradeFabBtn);
+      }, delayMs);
+    };
     const animateTradeIconSwap = (icon, nextSrc) => {
       if (!icon || !nextSrc) return;
       const currentSrc = String(icon.getAttribute("src") || "").trim();
@@ -315,14 +342,26 @@
         if (radio) radio.hidden = !isActive;
       });
     };
+    const setTradeFabQuickMenuMode = (isOpen) => {
+      if (!tradeFabBtn || !tradeFabIcon) return;
+      tradeFabBtn.classList.toggle("is-qm-open", !!isOpen);
+      const nextSrc = isOpen
+        ? "assets/icon_qm_close.svg"
+        : String(tradeFabIcon.dataset.srcActive || "");
+      if (nextSrc) animateTradeIconSwap(tradeFabIcon, nextSrc);
+    };
 
     if (!content || tabViews.length === 0) {
       return { setActiveTab: () => {} };
     }
 
     const openTradeQuickMenu = () => {
-      if (!tradeQuickMenuSheet) return;
+      if (!tradeQuickMenuSheet || tradeQuickMenuSheet.classList.contains("is-open"))
+        return;
+      attachTradeFabFloating();
       syncTradeQuickMenuSelection();
+      phoneContainer?.classList.add("is-trade-qm-open");
+      setTradeFabQuickMenuMode(true);
       tradeQuickMenuSheet.hidden = false;
       requestAnimationFrame(() => {
         tradeQuickMenuSheet.classList.add("is-open");
@@ -331,7 +370,15 @@
 
     const closeTradeQuickMenu = () => {
       if (!tradeQuickMenuSheet) return;
+      phoneContainer?.classList.remove("is-trade-qm-open");
+      setTradeFabQuickMenuMode(false);
+      if (!tradeQuickMenuSheet.classList.contains("is-open")) {
+        tradeQuickMenuSheet.hidden = true;
+        restoreTradeFabInlineDelayed(0);
+        return;
+      }
       tradeQuickMenuSheet.classList.remove("is-open");
+      restoreTradeFabInlineDelayed(220);
       const onEnd = () => {
         if (!tradeQuickMenuSheet.classList.contains("is-open"))
           tradeQuickMenuSheet.hidden = true;
@@ -377,6 +424,7 @@
       if (pageTitleEl) pageTitleEl.textContent = isTrade ? "Trade" : "Finance";
       if (financeTabsEl) financeTabsEl.hidden = isTrade;
       if (tradeTabsEl) tradeTabsEl.hidden = !isTrade;
+      if (!isTrade) closeTradeQuickMenu();
       tabViews.forEach((view) => {
         const isActive = view.getAttribute("data-tab-view") === tabId;
         view.hidden = !isActive;
@@ -409,6 +457,15 @@
       btn.addEventListener("click", () => {
         const next = btn.getAttribute("data-tab-target");
         const active = String(document.documentElement.dataset.activeTab || "");
+        if (
+          next === "trade" &&
+          active === "trade" &&
+          btn.classList.contains("tabbar__fab") &&
+          tradeQuickMenuSheet?.classList.contains("is-open")
+        ) {
+          closeTradeQuickMenu();
+          return;
+        }
         if (next === "trade" && active === "trade") {
           openTradeQuickMenu();
           return;

@@ -4013,7 +4013,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-qm-sheet__content {
-  padding: 16px;
+  padding: 16px 16px 100px 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -5937,6 +5937,25 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
+  transition: background-color 0.16s ease;
+}
+
+.tabbar__fab--floating {
+  position: absolute;
+  top: auto;
+  bottom: calc(38px + env(safe-area-inset-bottom, 0));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+}
+
+.phone-container.is-trade-qm-open .tabbar__fab--floating {
+  z-index: 60;
+}
+
+.phone-container.is-trade-qm-open .tabbar__fab {
+  background: #ffffff;
 }
 
 .tabbar__fab img {
