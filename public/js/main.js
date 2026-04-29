@@ -390,9 +390,14 @@
     const setTradeFabQuickMenuMode = (isOpen) => {
       if (!tradeFabBtn || !tradeFabIcon) return;
       tradeFabBtn.classList.toggle("is-qm-open", !!isOpen);
+      const activeTabNow = String(
+        document.documentElement.dataset.activeTab || "",
+      ).toLowerCase();
       const nextSrc = isOpen
         ? "assets/icon_qm_close.svg"
-        : String(tradeFabIcon.dataset.srcActive || "");
+        : activeTabNow === "trade"
+          ? String(tradeFabIcon.dataset.srcActive || "")
+          : String(tradeFabIcon.dataset.srcInactive || "");
       if (nextSrc) animateTradeIconSwap(tradeFabIcon, nextSrc);
     };
 
@@ -490,13 +495,16 @@
           const nextSrc = isActive
             ? icon.dataset.srcActive
             : icon.dataset.srcInactive;
+          const currentSrc = String(icon.getAttribute("src") || "").trim();
           const isTradeTabButton =
             btn.getAttribute("data-tab-target") === "trade";
+          const isTradeTransition =
+            (tabId === "trade") !== (prevActiveTab === "trade");
           const shouldAnimateTradeIcon =
             isTradeTabButton &&
-            (tabId === "trade" ||
-              prevActiveTab === "trade" ||
-              tradeQuickMenuSheet?.classList.contains("is-open"));
+            isTradeTransition &&
+            !!nextSrc &&
+            currentSrc !== nextSrc;
           if (nextSrc && shouldAnimateTradeIcon) {
             animateTradeIconSwap(icon, nextSrc);
           } else if (nextSrc) {

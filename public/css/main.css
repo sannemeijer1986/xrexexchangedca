@@ -5812,7 +5812,7 @@ div.currency-sheet__item-icon::before {
 .tabbar__fab--floating {
   position: absolute;
   top: auto;
-  bottom: calc(38px + env(safe-area-inset-bottom, 0));
+  bottom: calc(37px + env(safe-area-inset-bottom, 0));
   left: 50%;
   transform: translateX(-50%);
   z-index: 6;
