@@ -949,7 +949,7 @@
                                                     <span class="trade-spot-page__input-unit">BTC</span>
                                                 </div>
                                             </div>
-                                            <div class="trade-spot-page__input-sub">-- USDT</div>
+                                            <div class="trade-spot-page__input-sub">- - USDT</div>
                                             <div class="trade-spot-page__pct-row">
                                                 <button type="button">25%</button>
                                                 <button type="button">50%</button>
@@ -968,8 +968,12 @@
                                         <button type="button"><img src="assets/icon_history.svg" alt="" width="20" height="20" aria-hidden="true" /> History</button>
                                     </header>
                                     <div class="trade-spot-page__orders-filter">
-                                        <input id="trade-open-current-pair" type="checkbox" />
-                                        <label for="trade-open-current-pair">Display current pair</label>
+                                        <label class="trade-spot-page__orders-filter-toggle" for="trade-open-current-pair">
+                                            <input id="trade-open-current-pair" type="checkbox" />
+                                            <img class="plan-overview-panel__consent-icon trade-spot-page__orders-filter-icon trade-spot-page__orders-filter-icon--off" src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
+                                            <img class="plan-overview-panel__consent-icon trade-spot-page__orders-filter-icon trade-spot-page__orders-filter-icon--on" src="assets/icon_checkbox_on.svg" width="24" height="24" alt="" aria-hidden="true" />
+                                            <span>Display current pair</span>
+                                        </label>
                                     </div>
                                     <div class="my-plans-panel__empty my-plans-panel__empty--nodata">
                                         <div class="my-plans-panel__empty-badge" aria-hidden="true">
