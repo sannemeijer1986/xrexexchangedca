@@ -92,6 +92,34 @@
       'every month on the {dayOrdinal}',
     );
     s = s.replace(
+      /^(\d+)\s+buys$/i,
+      '{count} buys',
+    );
+    s = s.replace(
+      /^(\d+)\s+buy$/i,
+      '{count} buy',
+    );
+    s = s.replace(
+      /^(\d+)\s+coins selected$/i,
+      '{count} coins selected',
+    );
+    s = s.replace(
+      /^(\d+)\s+coin selected$/i,
+      '{count} coin selected',
+    );
+    s = s.replace(
+      /^Allocation \((\d+)\)$/i,
+      'Allocation ({count})',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) · (\d+) buys$/i,
+      '{amount} {currency} · {count} buys',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) · (\d+) buy$/i,
+      '{amount} {currency} · {count} buy',
+    );
+    s = s.replace(
       /^Auto-refill coming up: Keep at least \d[\d,]* ([A-Z]{3,5}) in your wallet\.$/i,
       'Auto-refill coming up: Keep at least {amount} {currency} in your wallet.',
     );
@@ -118,6 +146,42 @@
     s = s.replace(
       /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) invested$/i,
       '{amount} {currency} invested',
+    );
+    s = s.replace(
+      /^[\d.,]+(?:萬|億|K|M|B|k|m|b)? ([A-Z]{3,5}) invested$/i,
+      '{amount} {currency} invested',
+    );
+    s = s.replace(
+      /^[\d.,]+(?:萬|億|K|M|B|k|m|b)? ([A-Z]{3,5}) invested →$/i,
+      '{amount} {currency} invested →',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) left$/i,
+      '{amount} {currency} left',
+    );
+    s = s.replace(
+      /^Pre-funded: \d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) left$/i,
+      'Pre-funded: {amount} {currency} left',
+    );
+    s = s.replace(
+      /^Past (\d+)Y simulation based on your monthly plan setup$/i,
+      'Past {years}Y simulation based on your monthly plan setup',
+    );
+    s = s.replace(
+      /^Past (\d+)Y simulation based on your weekly plan setup$/i,
+      'Past {years}Y simulation based on your weekly plan setup',
+    );
+    s = s.replace(
+      /^Past (\d+)Y simulation based on your daily plan setup$/i,
+      'Past {years}Y simulation based on your daily plan setup',
+    );
+    s = s.replace(
+      /^Past (\d+)Y simulation based on your plan setup$/i,
+      'Past {years}Y simulation based on your plan setup',
+    );
+    s = s.replace(
+      /^Simulated value \(([^)]+)\)$/i,
+      'Simulated value ({tickers})',
     );
     s = s.replace(
       /^Returned \d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) from this plan to your wallet, auto-refill for pre-funding has been disabled\.$/i,

@@ -3278,6 +3278,7 @@
     const nextTitle = String(title || "").trim() || "Deduct from balance";
     const emphasizeLine = "You can change or turn off pre-funding any time.";
     const rawDesc = String(desc || "");
+    const localizedDesc = window.I18N?.t ? window.I18N.t(rawDesc) : rawDesc;
     const escapeHtml = (str) =>
       str
         .replace(/&/g, "&amp;")
@@ -3285,7 +3286,7 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
-    const highlightedDescHtml = escapeHtml(rawDesc)
+    const highlightedDescHtml = escapeHtml(localizedDesc)
       .replace(
         /You can change or turn off pre-funding any time\.?/g,
         '<span class="currency-sheet__desc-highlight">You can change or turn off pre-funding any time.</span>',
@@ -14685,12 +14686,16 @@
         const compactNextBuy = formatFinanceNextBuyCompact(sched);
         let firstBuyText = "—";
         const buyNowOn = panel.dataset?.scheduleBuyNow === "1";
+        const isZhLocale = String(window.I18N?.getLocale?.() || "en") === "zh";
+        const firstBuyLocale = isZhLocale ? "zh-TW" : "en-US";
+        const firstBuyDateFormat = isZhLocale
+          ? { weekday: "long", month: "numeric", day: "numeric" }
+          : { weekday: "long", month: "short", day: "numeric" };
         if (buyNowOn) {
-          firstBuyText = new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          });
+          firstBuyText = new Date().toLocaleDateString(
+            firstBuyLocale,
+            firstBuyDateFormat,
+          );
         }
         if (!buyNowOn && compactNextBuy) {
           const dateToken = compactNextBuy.split("·")[0]?.trim() || "";
@@ -14705,11 +14710,10 @@
               if (guessed.getTime() < Date.now() - 24 * 60 * 60 * 1000) {
                 guessed.setFullYear(guessed.getFullYear() + 1);
               }
-              firstBuyText = guessed.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "short",
-                day: "numeric",
-              });
+              firstBuyText = guessed.toLocaleDateString(
+                firstBuyLocale,
+                firstBuyDateFormat,
+              );
             } else {
               firstBuyText = dateToken || "—";
             }
