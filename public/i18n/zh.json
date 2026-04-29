@@ -575,6 +575,10 @@
   "week": "週",
   "weeks": "週",
   "month": "個月",
+  "Plan detail": "計畫",
+  "Plan is paused": "計劃已暫停",
+  "Active": "進行中",
+  "Paused": "已暫停",
 
   "_comment_card_zh_translations": "── CARD-ZH# frame strings (Figma copywriting pass) ──────────────",
   "Action": "操作",
