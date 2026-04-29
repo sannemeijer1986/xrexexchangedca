@@ -91,6 +91,42 @@
       /^every month on the \d{1,2}(st|nd|rd|th)$/i,
       'every month on the {dayOrdinal}',
     );
+    s = s.replace(
+      /^Auto-refill coming up: Keep at least \d[\d,]* ([A-Z]{3,5}) in your wallet\.$/i,
+      'Auto-refill coming up: Keep at least {amount} {currency} in your wallet.',
+    );
+    s = s.replace(
+      /^Auto-refill failed: Add \d[\d,]* ([A-Z]{3,5}) to your wallet to continue\.$/i,
+      'Auto-refill failed: Add {amount} {currency} to your wallet to continue.',
+    );
+    s = s.replace(
+      /^Auto-refill triggers soon — keep \d[\d,]* ([A-Z]{3,5}) in your wallet\.$/i,
+      'Auto-refill triggers soon — keep {amount} {currency} in your wallet.',
+    );
+    s = s.replace(
+      /^Automatically refill \d[\d,]* ([A-Z]{3,5}) when pre-funded amount drops below \d[\d,]* ([A-Z]{3,5})$/i,
+      'Automatically refill {amount} {currency} when pre-funded amount drops below {thresholdAmount} {thresholdCurrency}',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) returned$/i,
+      '{amount} {currency} returned',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) pre-funded$/i,
+      '{amount} {currency} pre-funded',
+    );
+    s = s.replace(
+      /^\d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) invested$/i,
+      '{amount} {currency} invested',
+    );
+    s = s.replace(
+      /^Returned \d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) from this plan to your wallet, auto-refill for pre-funding has been disabled\.$/i,
+      'Returned {amount} {currency} from this plan to your wallet, auto-refill for pre-funding has been disabled.',
+    );
+    s = s.replace(
+      /^Reserved \d[\d,]*(?:\.\d+)? ([A-Z]{3,5}) from your wallet for this plan, auto-refill for pre-funding has been enabled\.$/i,
+      'Reserved {amount} {currency} from your wallet for this plan, auto-refill for pre-funding has been enabled.',
+    );
     // Generic fallback for count + period label patterns.
     s = s.replace(
       /^(\d+) (buy|buys|day|days|week|weeks|month|months)$/i,
