@@ -322,11 +322,11 @@
         icon.style.opacity = "0";
         icon.style.transform = "rotate(-45deg)";
 
-        const transformDuration = 150;
-        const opacityDuration = 100;
-        const shortDelay = 50;
+        const transformDuration = 200;
+        const opacityDuration = 150;
+        const shortDelay = 40;
         const longDelay = 100;
-        const easing = "ease-in-out";
+        const easing = "ease";
         const outTransformAnim = outgoing.animate(
           [
             { transform: "translate(-50%, -50%) rotate(0deg)" },
@@ -415,18 +415,20 @@
 
     const closeTradeQuickMenu = () => {
       if (!tradeQuickMenuSheet) return;
-      phoneContainer?.classList.remove("is-trade-qm-open");
       setTradeFabQuickMenuMode(false);
       if (!tradeQuickMenuSheet.classList.contains("is-open")) {
         tradeQuickMenuSheet.hidden = true;
+        phoneContainer?.classList.remove("is-trade-qm-open");
         restoreTradeFabInlineDelayed(0);
         return;
       }
       tradeQuickMenuSheet.classList.remove("is-open");
-      restoreTradeFabInlineDelayed(220);
       const onEnd = () => {
-        if (!tradeQuickMenuSheet.classList.contains("is-open"))
+        if (!tradeQuickMenuSheet.classList.contains("is-open")) {
           tradeQuickMenuSheet.hidden = true;
+          phoneContainer?.classList.remove("is-trade-qm-open");
+          restoreTradeFabInlineDelayed(0);
+        }
         tradeQuickMenuPanel?.removeEventListener("transitionend", onEnd);
       };
       tradeQuickMenuPanel?.addEventListener("transitionend", onEnd);
@@ -461,6 +463,9 @@
     document.addEventListener("trade-page-changed", syncTradeQuickMenuSelection);
 
     const setActiveTab = (tabId) => {
+      const prevActiveTab = String(
+        document.documentElement.dataset.activeTab || "",
+      );
       document.documentElement.dataset.activeTab = tabId;
       const pageTitleEl = document.querySelector("[data-app-header-page-title]");
       const financeTabsEl = document.querySelector("[data-app-header-tabs-finance]");
@@ -487,7 +492,12 @@
             : icon.dataset.srcInactive;
           const isTradeTabButton =
             btn.getAttribute("data-tab-target") === "trade";
-          if (nextSrc && isTradeTabButton) {
+          const shouldAnimateTradeIcon =
+            isTradeTabButton &&
+            (tabId === "trade" ||
+              prevActiveTab === "trade" ||
+              tradeQuickMenuSheet?.classList.contains("is-open"));
+          if (nextSrc && shouldAnimateTradeIcon) {
             animateTradeIconSwap(icon, nextSrc);
           } else if (nextSrc) {
             icon.src = nextSrc;
