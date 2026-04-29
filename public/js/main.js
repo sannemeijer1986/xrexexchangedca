@@ -6803,7 +6803,7 @@
               ? `<p class="my-plans-detail-panel__act-error">Returned ${prefundAmtText} from this plan to your wallet, auto-refill for pre-funding has been disabled.</p>`
               : `<p class="my-plans-detail-panel__act-error">Reserved ${prefundAmtText} from your wallet for this plan, auto-refill for pre-funding has been enabled.</p>`
             : isPausedLog
-              ? '<p class="my-plans-detail-panel__act-error">Plan was paused. Automated buys will stop until you resume this plan.</p>'
+              ? '<p class="my-plans-detail-panel__act-error">Plan was paused. No new automated buys will be done until resumed.</p>'
               : isResumedLog
                 ? '<p class="my-plans-detail-panel__act-error">Plan was resumed. Automated buys will continue from next upcoming scheduled buy.</p>'
                 : isEndedLog
