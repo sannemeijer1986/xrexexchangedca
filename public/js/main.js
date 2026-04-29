@@ -18665,7 +18665,6 @@
     const overlay = document.querySelector(".side-menu-overlay");
     const scrollable = document.querySelector(".side-menu__content");
     if (!container || !trigger || !overlay) return;
-    const ENABLE_AVATAR_SIDE_MENU_TRIGGER = false;
 
     const openMenu = () => {
       container.classList.add("is-menu-open");
@@ -18673,12 +18672,7 @@
     };
     const closeMenu = () => container.classList.remove("is-menu-open");
 
-    trigger.addEventListener("click", (event) => {
-      if (!ENABLE_AVATAR_SIDE_MENU_TRIGGER) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
+    trigger.addEventListener("click", () => {
       openMenu();
     });
     overlay.addEventListener("click", (event) => {
