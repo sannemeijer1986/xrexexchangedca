@@ -258,6 +258,43 @@
     const tradeQuickMenuPanel = tradeQuickMenuSheet?.querySelector(
       ".currency-sheet__panel",
     );
+    const animateTradeIconSwap = (icon, nextSrc) => {
+      if (!icon || !nextSrc) return;
+      const currentSrc = String(icon.getAttribute("src") || "").trim();
+      if (!currentSrc || currentSrc === nextSrc) {
+        icon.setAttribute("src", nextSrc);
+        return;
+      }
+      const token = String((Number(icon.dataset.tradeAnimToken || "0") || 0) + 1);
+      icon.dataset.tradeAnimToken = token;
+      try {
+        icon.getAnimations?.().forEach((anim) => anim.cancel());
+        const fadeOut = icon.animate(
+          [
+            { opacity: 1, transform: "rotate(0deg)" },
+            { opacity: 0.75, transform: "rotate(-45deg)" },
+          ],
+          { duration: 100, easing: "ease-in-out", fill: "forwards" },
+        );
+        fadeOut.addEventListener(
+          "finish",
+          () => {
+            if (icon.dataset.tradeAnimToken !== token) return;
+            icon.setAttribute("src", nextSrc);
+            icon.animate(
+              [
+                { opacity: 0.75, transform: "rotate(-45deg)" },
+                { opacity: 1, transform: "rotate(0deg)" },
+              ],
+              { duration: 100, easing: "ease-in-out", fill: "forwards" },
+            );
+          },
+          { once: true },
+        );
+      } catch {
+        icon.setAttribute("src", nextSrc);
+      }
+    };
     const syncTradeQuickMenuSelection = () => {
       const activeTradePage = String(
         document.documentElement.dataset.tradePage || "spot",
@@ -355,7 +392,13 @@
           const nextSrc = isActive
             ? icon.dataset.srcActive
             : icon.dataset.srcInactive;
-          if (nextSrc) icon.src = nextSrc;
+          const isTradeTabButton =
+            btn.getAttribute("data-tab-target") === "trade";
+          if (nextSrc && isTradeTabButton) {
+            animateTradeIconSwap(icon, nextSrc);
+          } else if (nextSrc) {
+            icon.src = nextSrc;
+          }
         }
       });
       content.scrollTop = 0;
