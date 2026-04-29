@@ -486,9 +486,18 @@
       const pageTitleEl = document.querySelector("[data-app-header-page-title]");
       const financeTabsEl = document.querySelector("[data-app-header-tabs-finance]");
       const tradeTabsEl = document.querySelector("[data-app-header-tabs-trade]");
+      const normalizedTabId = String(tabId || "").toLowerCase();
+      const pageTitles = {
+        finance: "Finance",
+        trade: "Trade",
+        markets: "Markets",
+        wallet: "Wallet",
+      };
+      const isFinance = normalizedTabId === "finance";
       const isTrade = String(tabId || "") === "trade";
-      if (pageTitleEl) pageTitleEl.textContent = isTrade ? "Trade" : "Finance";
-      if (financeTabsEl) financeTabsEl.hidden = isTrade;
+      if (pageTitleEl)
+        pageTitleEl.textContent = pageTitles[normalizedTabId] || "Finance";
+      if (financeTabsEl) financeTabsEl.hidden = !isFinance;
       if (tradeTabsEl) tradeTabsEl.hidden = !isTrade;
       if (!isTrade) closeTradeQuickMenu();
       tabViews.forEach((view) => {

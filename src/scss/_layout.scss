@@ -390,7 +390,9 @@
 }
 
 html[data-active-tab="finance"],
-html[data-active-tab="trade"] {
+html[data-active-tab="trade"],
+html[data-active-tab="markets"],
+html[data-active-tab="wallet"] {
   .app-header {
     padding-bottom: 0;
   }

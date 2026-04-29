@@ -430,28 +430,40 @@ body {
 }
 
 html[data-active-tab=finance] .app-header,
-html[data-active-tab=trade] .app-header {
+html[data-active-tab=trade] .app-header,
+html[data-active-tab=markets] .app-header,
+html[data-active-tab=wallet] .app-header {
   padding-bottom: 0;
 }
 html[data-active-tab=finance] .content--home,
-html[data-active-tab=trade] .content--home {
+html[data-active-tab=trade] .content--home,
+html[data-active-tab=markets] .content--home,
+html[data-active-tab=wallet] .content--home {
   margin-top: 0;
   padding-top: 0;
 }
 html[data-active-tab=finance] .finance,
-html[data-active-tab=trade] .finance {
+html[data-active-tab=trade] .finance,
+html[data-active-tab=markets] .finance,
+html[data-active-tab=wallet] .finance {
   margin-top: 0;
 }
 html[data-active-tab=finance] .app-header__logo-wrap,
-html[data-active-tab=trade] .app-header__logo-wrap {
+html[data-active-tab=trade] .app-header__logo-wrap,
+html[data-active-tab=markets] .app-header__logo-wrap,
+html[data-active-tab=wallet] .app-header__logo-wrap {
   display: none;
 }
 html[data-active-tab=finance] .app-header__page-title,
-html[data-active-tab=trade] .app-header__page-title {
+html[data-active-tab=trade] .app-header__page-title,
+html[data-active-tab=markets] .app-header__page-title,
+html[data-active-tab=wallet] .app-header__page-title {
   display: block;
 }
 html[data-active-tab=finance] .app-header__tabs:not([hidden]),
-html[data-active-tab=trade] .app-header__tabs:not([hidden]) {
+html[data-active-tab=trade] .app-header__tabs:not([hidden]),
+html[data-active-tab=markets] .app-header__tabs:not([hidden]),
+html[data-active-tab=wallet] .app-header__tabs:not([hidden]) {
   display: flex;
 }
 

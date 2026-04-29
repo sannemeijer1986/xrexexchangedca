@@ -371,6 +371,12 @@
                 </section>
                 </div>
 
+                <div data-tab-view="markets" hidden>
+                    <section class="finance">
+                        <div class="finance__body"></div>
+                    </section>
+                </div>
+
                 <div data-tab-view="finance" hidden>
                     <section class="finance">
                         <div data-finance-page="auto">
@@ -891,6 +897,12 @@
                         </div>
                     </section>
                 </div>
+
+                <div data-tab-view="wallet" hidden>
+                    <section class="finance">
+                        <div class="finance__body"></div>
+                    </section>
+                </div>
             </div>
         </div>
 
@@ -977,8 +989,13 @@
                 />
                 <span>Home</span>
             </button>
-            <button class="tabbar__item" type="button">
-                <img src="assets/icon_tabbar_markets_inactive.svg" alt="" />
+            <button class="tabbar__item" type="button" data-tab-target="markets" aria-label="Markets tab">
+                <img
+                    src="assets/icon_tabbar_markets_inactive.svg"
+                    data-src-active="assets/icon_tabbar_markets_active.svg"
+                    data-src-inactive="assets/icon_tabbar_markets_inactive.svg"
+                    alt=""
+                />
                 <span>Markets</span>
             </button>
             <button class="tabbar__item tabbar__item--trade" type="button" data-tab-target="trade" aria-label="Trade tab">
@@ -993,8 +1010,13 @@
                 />
                 <span>Finance</span>
             </button>
-            <button class="tabbar__item" type="button">
-                <img src="assets/icon_tabbar_wallet_inactive.svg" alt="" />
+            <button class="tabbar__item" type="button" data-tab-target="wallet" aria-label="Wallet tab">
+                <img
+                    src="assets/icon_tabbar_wallet_inactive.svg"
+                    data-src-active="assets/icon_tabbar_wallet_active.svg"
+                    data-src-inactive="assets/icon_tabbar_wallet_inactive.svg"
+                    alt=""
+                />
                 <span>Wallet</span>
             </button>
             <button class="tabbar__fab" type="button" aria-label="Trade" data-tab-target="trade">
