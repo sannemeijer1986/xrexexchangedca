@@ -6610,7 +6610,7 @@
         if (fundingPrefundAutorefEl) {
           fundingPrefundAutorefEl.textContent =
             topUpNum > 0
-              ? `Automatically refill ${cur} ${topUpNum.toLocaleString("en-US")} when pre-funded amount drops below ${cur} ${lowThresholdNum.toLocaleString("en-US")}`
+              ? `Automatically refill ${topUpNum.toLocaleString("en-US")} ${cur} when pre-funded amount drops below ${lowThresholdNum.toLocaleString("en-US")} ${cur}`
               : "—";
         }
         const alertTopUpText =
