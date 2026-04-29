@@ -5938,7 +5938,7 @@ div.currency-sheet__item-icon {
   align-items: center;
   justify-content: center;
   z-index: 2;
-  transition: background-color 0.16s ease;
+  transition: background-color 0.14s ease-in-out;
 }
 
 .tabbar__fab--floating {
@@ -5954,7 +5954,7 @@ div.currency-sheet__item-icon {
   z-index: 60;
 }
 
-.phone-container.is-trade-qm-open .tabbar__fab {
+.tabbar__fab.is-qm-open {
   background: #ffffff;
 }
 

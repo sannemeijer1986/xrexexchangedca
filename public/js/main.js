@@ -276,7 +276,7 @@
       tradeFabBtn.classList.add("tabbar__fab--floating");
       phoneContainer.appendChild(tradeFabBtn);
     };
-    const restoreTradeFabInlineDelayed = (delayMs = 220) => {
+    const restoreTradeFabInlineDelayed = (delayMs = 500) => {
       if (!tradeFabBtn || !tabbarEl) return;
       if (tradeFabRestoreTimer) clearTimeout(tradeFabRestoreTimer);
       tradeFabRestoreTimer = setTimeout(() => {
@@ -295,29 +295,57 @@
       const token = String((Number(icon.dataset.tradeAnimToken || "0") || 0) + 1);
       icon.dataset.tradeAnimToken = token;
       try {
+        const parent = icon.parentElement;
+        if (!parent) {
+          icon.setAttribute("src", nextSrc);
+          return;
+        }
         icon.getAnimations?.().forEach((anim) => anim.cancel());
-        const fadeOut = icon.animate(
+        Array.from(parent.querySelectorAll(".tabbar__icon-swap-outgoing")).forEach(
+          (el) => el.remove(),
+        );
+        const parentStyle = window.getComputedStyle(parent);
+        if (parentStyle.position === "static") parent.style.position = "relative";
+
+        const outgoing = icon.cloneNode(true);
+        outgoing.classList.add("tabbar__icon-swap-outgoing");
+        outgoing.style.position = "absolute";
+        outgoing.style.left = "50%";
+        outgoing.style.top = "50%";
+        outgoing.style.transform = "translate(-50%, -50%) rotate(0deg)";
+        outgoing.style.opacity = "1";
+        outgoing.style.pointerEvents = "none";
+        outgoing.style.zIndex = "1";
+        parent.appendChild(outgoing);
+
+        icon.setAttribute("src", nextSrc);
+        icon.style.opacity = "0";
+        icon.style.transform = "rotate(-45deg)";
+
+        const duration = 100;
+        const easing = "ease-in-out";
+        const outAnim = outgoing.animate(
           [
-            { opacity: 1, transform: "rotate(0deg)" },
-            { opacity: 0.75, transform: "rotate(-45deg)" },
+            { opacity: 1, transform: "translate(-50%, -50%) rotate(0deg)" },
+            { opacity: 0, transform: "translate(-50%, -50%) rotate(-45deg)" },
           ],
-          { duration: 100, easing: "ease-in-out", fill: "forwards" },
+          { duration, easing, fill: "forwards" },
         );
-        fadeOut.addEventListener(
-          "finish",
-          () => {
-            if (icon.dataset.tradeAnimToken !== token) return;
-            icon.setAttribute("src", nextSrc);
-            icon.animate(
-              [
-                { opacity: 0.75, transform: "rotate(-45deg)" },
-                { opacity: 1, transform: "rotate(0deg)" },
-              ],
-              { duration: 100, easing: "ease-in-out", fill: "forwards" },
-            );
-          },
-          { once: true },
+        const inAnim = icon.animate(
+          [
+            { opacity: 0, transform: "rotate(-45deg)" },
+            { opacity: 1, transform: "rotate(0deg)" },
+          ],
+          { duration, easing, fill: "both", delay: 50 },
         );
+        const cleanup = () => {
+          if (icon.dataset.tradeAnimToken !== token) return;
+          outgoing.remove();
+          icon.style.opacity = "";
+          icon.style.transform = "";
+        };
+        outAnim.addEventListener("finish", cleanup, { once: true });
+        inAnim.addEventListener("finish", cleanup, { once: true });
       } catch {
         icon.setAttribute("src", nextSrc);
       }
