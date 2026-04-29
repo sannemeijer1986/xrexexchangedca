@@ -243,6 +243,29 @@
     });
   };
 
+  const syncContentShellClass = () => {
+    const el = document.querySelector("[data-content]");
+    if (!el) return;
+    const main = String(
+      document.documentElement.dataset.activeTab || "home",
+    ).toLowerCase();
+    Array.from(el.classList).forEach((c) => {
+      if (c.startsWith("content--")) el.classList.remove(c);
+    });
+    el.classList.add(`content--${main}`);
+    if (main === "finance") {
+      const sub = String(
+        document.documentElement.dataset.financePage || "",
+      ).toLowerCase();
+      if (sub) el.classList.add(`content--finance--${sub}`);
+    } else if (main === "trade") {
+      const sub = String(
+        document.documentElement.dataset.tradePage || "",
+      ).toLowerCase();
+      if (sub) el.classList.add(`content--trade--${sub}`);
+    }
+  };
+
   const initTabs = () => {
     const content = document.querySelector("[data-content]");
     const tabButtons = Array.from(
@@ -533,6 +556,7 @@
         }
       });
       content.scrollTop = 0;
+      syncContentShellClass();
       requestAnimationFrame(syncTopChromeHeight);
     };
 
@@ -625,6 +649,7 @@
       });
       const content = document.querySelector("[data-content]");
       if (content) content.scrollTop = 0;
+      syncContentShellClass();
     };
 
     tabButtons.forEach((btn) => {
@@ -667,6 +692,7 @@
       );
       const content = document.querySelector("[data-content]");
       if (content) content.scrollTop = 0;
+      syncContentShellClass();
     };
 
     tabButtons.forEach((btn) => {
