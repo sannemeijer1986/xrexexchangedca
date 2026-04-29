@@ -3978,14 +3978,10 @@ button.finance-summary__stat-value--chevron {
   color: #fff;
 }
 
-.trade-spot-page__top {
-  border-bottom: 1px solid #252627;
-}
-
 .trade-spot-page__pair-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 10px;
   padding: 0 16px;
 }
@@ -4003,11 +3999,8 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__pair > img {
-  width: 24px;
-  height: 24px;
-  padding: 5px;
-  border-radius: 999px;
-  background: #151718;
+  width: 20px;
+  height: 20px;
 }
 
 .trade-spot-page__pair-quote {
@@ -4021,8 +4014,8 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   border: 0;
   background: transparent;
@@ -4037,8 +4030,8 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__icon-btn img {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .trade-spot-page__grid {
@@ -4058,13 +4051,18 @@ button.finance-summary__stat-value--chevron {
 .trade-spot-page__book-head {
   font-size: 12px;
   color: #9b9c9c;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.trade-spot-page__book-head span:last-child {
+  margin-left: auto;
+  text-align: right;
 }
 
 .trade-spot-page__book-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
   font-size: 14px;
   font-weight: 400;
   font-family: "Manrope", system-ui, -apple-system, sans-serif;
@@ -4086,7 +4084,12 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__mid-price {
-  padding: 10px 0;
+  padding: 20px 0 18px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .trade-spot-page__mid-price p {
@@ -4101,6 +4104,10 @@ button.finance-summary__stat-value--chevron {
   font-size: 16px;
   font-weight: 600;
   line-height: 1;
+}
+
+.trade-spot-page__mid-price-main {
+  padding-left: 8px;
 }
 
 .trade-spot-page__mid-price p:last-child {
@@ -4150,7 +4157,7 @@ button.finance-summary__stat-value--chevron {
 
 .trade-spot-page__order-type {
   color: #fff;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   display: flex;
   justify-content: space-between;
@@ -4202,6 +4209,16 @@ button.finance-summary__stat-value--chevron {
   font-size: 14px;
   font-weight: 600;
   line-height: 1;
+}
+
+.trade-spot-page__input-sub {
+  width: 182px;
+  text-align: right;
+  color: #9b9c9c;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  margin-top: -2px;
 }
 
 .trade-spot-page__pct-row {
@@ -4288,7 +4305,6 @@ button.finance-summary__stat-value--chevron {
 
 .trade-spot-page__orders-filter {
   padding: 16px;
-  border-bottom: 1px solid #252627;
   color: #fff;
   font-size: 14px;
   font-weight: 400;
@@ -4299,12 +4315,22 @@ button.finance-summary__stat-value--chevron {
 
 .trade-spot-page__orders-filter input[type=checkbox] {
   appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 3px;
-  border: 1px solid #5e6166;
-  background: transparent;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent url("assets/icon_checkbox_off.svg") center/24px 24px no-repeat;
   margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.trade-spot-page__orders-filter input[type=checkbox]:checked {
+  background-image: url("assets/icon_checkbox_on.svg");
+}
+
+.trade-spot-page__orders-filter label {
+  cursor: pointer;
 }
 
 .trade-spot-page__orders .my-plans-panel__empty {
