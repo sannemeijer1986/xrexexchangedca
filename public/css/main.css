@@ -5783,6 +5783,22 @@ div.currency-sheet__item-icon::before {
   height: 24px;
 }
 
+.tabbar__item img.is-press-pulse {
+  animation: tabbar-icon-press-pulse 190ms ease-out;
+  transform-origin: center center;
+}
+
+@keyframes tabbar-icon-press-pulse {
+  0% {
+    transform: scale(1);
+  }
+  38% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .tabbar__item.is-active {
   color: #ffffff;
 }

@@ -266,6 +266,17 @@
     const tradeFabIcon = tradeFabBtn?.querySelector(
       "img[data-src-active][data-src-inactive]",
     );
+    const triggerTabIconPulse = (btn) => {
+      if (!btn || btn.classList.contains("tabbar__item--trade")) return;
+      const icon = btn.querySelector("img");
+      if (!icon) return;
+      icon.classList.remove("is-press-pulse");
+      void icon.offsetWidth;
+      icon.classList.add("is-press-pulse");
+      window.setTimeout(() => {
+        icon.classList.remove("is-press-pulse");
+      }, 230);
+    };
     let tradeFabRestoreTimer = null;
     const attachTradeFabFloating = () => {
       if (!tradeFabBtn || !phoneContainer) return;
@@ -521,6 +532,13 @@
         const next = btn.getAttribute("data-tab-target");
         const active = String(document.documentElement.dataset.activeTab || "");
         if (
+          btn.classList.contains("tabbar__item") &&
+          next !== "trade" &&
+          next !== active
+        ) {
+          triggerTabIconPulse(btn);
+        }
+        if (
           next === "trade" &&
           active === "trade" &&
           btn.classList.contains("tabbar__fab") &&
@@ -534,6 +552,16 @@
           return;
         }
         setActiveTab(next);
+      });
+    });
+    Array.from(
+      document.querySelectorAll(
+        '.tabbar__item:not(.tabbar__item--trade):not([data-tab-target])',
+      ),
+    ).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.classList.contains("is-active")) return;
+        triggerTabIconPulse(btn);
       });
     });
 
