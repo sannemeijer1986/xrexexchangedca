@@ -322,21 +322,36 @@
         icon.style.opacity = "0";
         icon.style.transform = "rotate(-45deg)";
 
-        const duration = 100;
+        const transformDuration = 150;
+        const opacityDuration = 100;
+        const shortDelay = 50;
+        const longDelay = 100;
         const easing = "ease-in-out";
-        const outAnim = outgoing.animate(
+        const outTransformAnim = outgoing.animate(
           [
-            { opacity: 1, transform: "translate(-50%, -50%) rotate(0deg)" },
-            { opacity: 0, transform: "translate(-50%, -50%) rotate(-45deg)" },
+            { transform: "translate(-50%, -50%) rotate(0deg)" },
+            { transform: "translate(-50%, -50%) rotate(-45deg)" },
           ],
-          { duration, easing, fill: "forwards" },
+          { duration: transformDuration, easing, fill: "forwards" },
         );
-        const inAnim = icon.animate(
+        const outOpacityAnim = outgoing.animate(
+          [{ opacity: 1 }, { opacity: 0 }],
+          { duration: opacityDuration, easing, fill: "forwards", delay: shortDelay },
+        );
+        const inTransformAnim = icon.animate(
+          [{ transform: "rotate(-45deg)" }, { transform: "rotate(0deg)" }],
+          {
+            duration: transformDuration,
+            easing,
+            fill: "both"
+          },
+        );
+        const inOpacityAnim = icon.animate(
           [
-            { opacity: 0, transform: "rotate(-45deg)" },
-            { opacity: 1, transform: "rotate(0deg)" },
+            { opacity: 0 },
+            { opacity: 1 },
           ],
-          { duration, easing, fill: "both", delay: 50 },
+          { duration: opacityDuration, easing, fill: "both", delay: shortDelay },
         );
         const cleanup = () => {
           if (icon.dataset.tradeAnimToken !== token) return;
@@ -344,8 +359,10 @@
           icon.style.opacity = "";
           icon.style.transform = "";
         };
-        outAnim.addEventListener("finish", cleanup, { once: true });
-        inAnim.addEventListener("finish", cleanup, { once: true });
+        outTransformAnim.addEventListener("finish", cleanup, { once: true });
+        outOpacityAnim.addEventListener("finish", cleanup, { once: true });
+        inTransformAnim.addEventListener("finish", cleanup, { once: true });
+        inOpacityAnim.addEventListener("finish", cleanup, { once: true });
       } catch {
         icon.setAttribute("src", nextSrc);
       }
