@@ -16866,12 +16866,22 @@
       };
 
       const buildFirstBuyLine = () => {
+        const t = window.I18N?.t
+          ? window.I18N.t.bind(window.I18N)
+          : (source, params) => {
+              if (!params) return source;
+              return String(source).replace(/\{(\w+)\}/g, (_, key) =>
+                Object.prototype.hasOwnProperty.call(params, key)
+                  ? String(params[key])
+                  : `{${key}}`,
+              );
+            };
         const overviewFirstBuy =
           panel
             .querySelector("[data-plan-overview-first-buy]")
             ?.textContent?.trim() || "";
         if (overviewFirstBuy && overviewFirstBuy !== "—") {
-          return `First buy on ${overviewFirstBuy}`;
+          return t("First buy on {date}", { date: overviewFirstBuy });
         }
         const sched = getPlanDetailScheduleFullTextFromEl(
           panel.querySelector("[data-plan-detail-schedule]"),
@@ -16886,17 +16896,27 @@
         const timeStr = timeMatch ? `~${timeMatch[1]}` : "~12:00";
         const dayMatch = tail.match(/(\d{1,2})(?:st|nd|rd|th)/i);
         if (!dayMatch && tail) {
-          return `First buy on ${tail}`;
+          return t("First buy on {date}", { date: tail });
         }
         const day = dayMatch ? parseInt(dayMatch[1], 10) : 15;
-        const t = new Date();
-        if (t.getDate() >= day) t.setMonth(t.getMonth() + 1);
-        t.setDate(day);
-        const mon = t.toLocaleString("en-US", { month: "short" });
-        return `First buy on ${mon} ${day} at ${timeStr}`;
+        const dateObj = new Date();
+        if (dateObj.getDate() >= day) dateObj.setMonth(dateObj.getMonth() + 1);
+        dateObj.setDate(day);
+        const mon = dateObj.toLocaleString("en-US", { month: "short" });
+        return t("First buy on {date}", { date: `${mon} ${day} at ${timeStr}` });
       };
 
       const syncSuccessCopy = () => {
+        const t = window.I18N?.t
+          ? window.I18N.t.bind(window.I18N)
+          : (source, params) => {
+              if (!params) return source;
+              return String(source).replace(/\{(\w+)\}/g, (_, key) =>
+                Object.prototype.hasOwnProperty.call(params, key)
+                  ? String(params[key])
+                  : `{${key}}`,
+              );
+            };
         const freqKey = (
           document
             .querySelector("[data-plan-freq-item].is-active")
@@ -16918,9 +16938,11 @@
         );
         if (titleEl) {
           if (freqKey === "flexible") {
-            titleEl.textContent = "Your auto-invest plan is set";
+            titleEl.textContent = t("Your auto-invest plan is set");
           } else {
-            titleEl.innerHTML = `Your ${freqWord}<br aria-hidden="true" />auto-invest plan is set`;
+            titleEl.textContent = t("Your {frequency} auto-invest plan is set", {
+              frequency: t(freqWord),
+            });
           }
         }
         const selectedMethodBtn =

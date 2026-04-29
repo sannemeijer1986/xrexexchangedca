@@ -152,6 +152,7 @@
   "Fire promo bottomsheet": "開啟促銷底部彈窗",
   "First buy": "首次買入",
   "First buy on Mar 15 at 12:00": "首次買入：3 月 15 日 12:00",
+  "First buy on {date}": "首次買入於 {date}",
   "First buy today": "今日首次買入",
   "First view": "初始視圖",
   "Flexible": "靈活",
@@ -504,6 +505,7 @@
   "Track your plan and adjust any time": "追蹤您的計畫並隨時調整",
   "Pre-fund set up success": "預儲設定成功",
   "Your auto-invest plan is set": "您的定期定額計畫已設定完成",
+  "Your {frequency} auto-invest plan is set": "您的{frequency}定期定額計畫已設定完成",
   "Select days": "選擇日期",
   "Display currency": "顯示貨幣",
   "Maximum reached": "已達上限",
@@ -639,6 +641,7 @@
   "Verify identity": "驗證身份",
   "Via auto-invest plan": "透過自動投資方案",
   "Guide": "指南",
+  "FEATURED": "精選",
   "XREX only accepts bank accounts\nheld in your name and only accepts bank &\nbank in intermediaries from countries \nlisted here": "XREX 僅接受以您本人名義開立的銀行帳戶，\n且僅接受所列國家的銀行及\n中間銀行所發起的轉帳",
   "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Orders execute at 12:00 PM (GMT +8). Assets are automatically purchased at market price.": "我們在每個排定的定期定額日期自動從您的餘額扣款。訂單於 GMT+8 中午 12:00 執行。資產按市場價格自動買入。"
 }
