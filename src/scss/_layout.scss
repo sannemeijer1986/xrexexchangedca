@@ -4242,6 +4242,19 @@ button.finance-summary__stat-value--chevron {
   line-height: 1;
 }
 
+.trade-spot-page__input-unit-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.trade-spot-page__amount-stack {
+  width: 182px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .trade-spot-page__input-sub {
   width: 182px;
   text-align: left;
@@ -4249,7 +4262,7 @@ button.finance-summary__stat-value--chevron {
   font-size: 12px;
   font-weight: 400;
   line-height: 1;
-  margin-top: -2px;
+  margin-top: 0;
 }
 
 .trade-spot-page__pct-row {
@@ -4292,7 +4305,7 @@ button.finance-summary__stat-value--chevron {
   width: 182px;
   background: #09441c;
   color: #58595a;
-  min-height: 44px;
+  height: 35px;
   font-size: 14px;
   font-weight: 600;
   border-radius: 12px;
@@ -4302,7 +4315,7 @@ button.finance-summary__stat-value--chevron {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #15161a;
+  background: #151718;
 }
 
 .trade-spot-page__orders-head {
@@ -4359,7 +4372,11 @@ button.finance-summary__stat-value--chevron {
   pointer-events: none;
 }
 
-.trade-spot-page__orders-filter-icon--on {
+.trade-spot-page__orders-filter .trade-spot-page__orders-filter-icon--off {
+  display: block;
+}
+
+.trade-spot-page__orders-filter .trade-spot-page__orders-filter-icon--on {
   display: none;
 }
 
@@ -4374,7 +4391,6 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__orders .my-plans-panel__empty {
-  margin: 16px;
   min-height: 250px;
   border-radius: 0;
   border: 0;
