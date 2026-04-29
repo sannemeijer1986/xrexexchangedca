@@ -527,7 +527,7 @@
             currentSrc !== nextSrc;
           if (nextSrc && shouldAnimateTradeIcon) {
             animateTradeIconSwap(icon, nextSrc);
-          } else if (nextSrc) {
+          } else if (nextSrc && currentSrc !== nextSrc) {
             icon.src = nextSrc;
           }
         }
