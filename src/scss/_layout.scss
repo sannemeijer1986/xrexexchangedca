@@ -4001,7 +4001,6 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-spot-page__top {
-  padding: 14px 16px 12px;
   border-bottom: 1px solid #252627;
 }
 
@@ -4300,24 +4299,6 @@ button.finance-summary__stat-value--chevron {
   border: 1px solid #5e6166;
   background: transparent;
   margin: 0;
-}
-
-.trade-spot-page__orders-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #9b9c9c;
-  font-size: 12px;
-  font-weight: 400;
-}
-
-.trade-spot-page__orders-empty img {
-  width: 68px;
-  height: 68px;
-  opacity: 0.2;
 }
 
 // Trade quick-menu sheet (Convert 2.1 RFQ design)
