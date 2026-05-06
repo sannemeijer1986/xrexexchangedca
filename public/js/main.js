@@ -726,6 +726,7 @@
     const recvCurEl = root.querySelector("[data-trade-convert-recv-currency]");
     const maxBtn = root.querySelector("[data-trade-convert-max]");
     const swapBtn = root.querySelector("[data-trade-convert-swap]");
+    const previewBtn = root.querySelector("[data-trade-convert-preview]");
 
     const readRate = () => {
       const n = parseFloat(String(root.getAttribute("data-convert-rate") || ""));
@@ -869,6 +870,18 @@
       }
     };
 
+    const syncConvertPreviewCta = () => {
+      if (!previewBtn) return;
+      const pay = parsePay();
+      const recv = parseRecv();
+      const ok =
+        Number.isFinite(pay) &&
+        pay > 0 &&
+        Number.isFinite(recv) &&
+        recv > 0;
+      previewBtn.disabled = !ok;
+    };
+
     const syncReceiveFromPay = () => {
       try {
         let payAmt = parsePay();
@@ -912,6 +925,7 @@
         recvInp.value = formatReceiveField(out);
       } finally {
         syncTwdAmountHints();
+        syncConvertPreviewCta();
       }
     };
 
@@ -949,6 +963,7 @@
         payInp.value = formatPayField(pay);
       } finally {
         syncTwdAmountHints();
+        syncConvertPreviewCta();
       }
     };
 
@@ -1074,6 +1089,197 @@
 
     openBtn.addEventListener("click", open);
     closeEls.forEach((el) => el.addEventListener("click", () => close()));
+  };
+
+  /** Trade · Convert — confirm quote bottom sheet (Figma 11243:5682). */
+  const initTradeConvertConfirmSheet = () => {
+    const sheet = document.querySelector("[data-trade-convert-confirm-sheet]");
+    const previewBtn = document.querySelector("[data-trade-convert-preview]");
+    if (!sheet || !previewBtn) return;
+
+    const panel = sheet.querySelector(".currency-sheet__panel");
+    const payHeroEl = sheet.querySelector("[data-trade-convert-confirm-pay-hero]");
+    const recvHeroEl = sheet.querySelector("[data-trade-convert-confirm-recv-hero]");
+    const payCodeEl = sheet.querySelector("[data-trade-convert-confirm-pay-code]");
+    const recvCodeEl = sheet.querySelector("[data-trade-convert-confirm-recv-code]");
+    const payIconEl = sheet.querySelector("[data-trade-convert-confirm-pay-icon]");
+    const recvIconEl = sheet.querySelector("[data-trade-convert-confirm-recv-icon]");
+    const fromEl = sheet.querySelector("[data-trade-convert-confirm-from]");
+    const feeEl = sheet.querySelector("[data-trade-convert-confirm-fee]");
+    const netEl = sheet.querySelector("[data-trade-convert-confirm-net]");
+    const rateEl = sheet.querySelector("[data-trade-convert-confirm-rate]");
+    const timerEl = sheet.querySelector("[data-trade-convert-confirm-timer]");
+    const recvLineEl = sheet.querySelector("[data-trade-convert-confirm-receive-line]");
+
+    const FEE_PCT = 0.001;
+    const COUNTDOWN_START = 34;
+    let countdownTimerId = null;
+
+    const roundBtc = (n) => {
+      if (!Number.isFinite(n)) return NaN;
+      return Math.round(n * 1e6) / 1e6;
+    };
+
+    const roundFiat = (n) => {
+      if (!Number.isFinite(n)) return NaN;
+      return Math.round(n * 1e2) / 1e2;
+    };
+
+    const fmtFiat = (n) =>
+      new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(Number.isFinite(n) ? n : 0);
+
+    const fmtFiatFull = (n) =>
+      new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Number.isFinite(n) ? n : 0);
+
+    const fmtBtc = (n) =>
+      Number.isFinite(n) ? roundBtc(n).toFixed(6) : "";
+
+    const fmtTwdRate = (n) =>
+      new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+        Math.round(Number.isFinite(n) ? n : 0),
+      );
+
+    const iconFor = (code) => {
+      const c = String(code || "").toUpperCase();
+      if (c === "BTC") return "assets/icon_currency_btc.svg";
+      if (c === "TWD") return "assets/icon_currency_TWD.svg";
+      return "assets/icon_currency_usdt.svg";
+    };
+
+    const parseField = (raw, code) => {
+      const x = parseFloat(String(raw || "").replace(/,/g, "").trim());
+      if (!Number.isFinite(x)) return NaN;
+      if (code === "BTC") return roundBtc(x);
+      if (code === "TWD") return roundFiat(x);
+      return roundFiat(x);
+    };
+
+    const formatCountdown = (sec) => {
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${m}:${String(r).padStart(2, "0")}`;
+    };
+
+    const stopCountdown = () => {
+      if (countdownTimerId) {
+        clearInterval(countdownTimerId);
+        countdownTimerId = null;
+      }
+    };
+
+    const startCountdown = () => {
+      stopCountdown();
+      let left = COUNTDOWN_START;
+      if (timerEl) timerEl.textContent = formatCountdown(left);
+      countdownTimerId = window.setInterval(() => {
+        left -= 1;
+        if (timerEl) timerEl.textContent = formatCountdown(left);
+        if (left <= 0) stopCountdown();
+      }, 1000);
+    };
+
+    const readRateTwdPerBtc = (root) => {
+      const n = parseFloat(String(root?.getAttribute("data-convert-rate") || ""));
+      return Number.isFinite(n) && n > 0 ? n : 2438104.61;
+    };
+
+    const syncFromConvert = () => {
+      const root = document.querySelector("[data-trade-convert-root]");
+      const payInp = root?.querySelector("[data-trade-convert-pay-input]");
+      const recvInp = root?.querySelector("[data-trade-convert-recv-input]");
+      const payCode =
+        root
+          ?.querySelector("[data-trade-convert-pay-currency]")
+          ?.textContent?.trim() || "TWD";
+      const recvCode =
+        root
+          ?.querySelector("[data-trade-convert-recv-currency]")
+          ?.textContent?.trim() || "BTC";
+
+      if (payIconEl) payIconEl.src = iconFor(payCode);
+      if (recvIconEl) recvIconEl.src = iconFor(recvCode);
+      if (payCodeEl) payCodeEl.textContent = payCode;
+      if (recvCodeEl) recvCodeEl.textContent = recvCode;
+
+      const payAmt = parseField(payInp?.value, payCode);
+      const recvAmt = parseField(recvInp?.value, recvCode);
+
+      if (payHeroEl)
+        payHeroEl.textContent =
+          payCode === "BTC" ? fmtBtc(payAmt) : fmtFiat(payAmt);
+      if (recvHeroEl)
+        recvHeroEl.textContent =
+          recvCode === "BTC" ? fmtBtc(recvAmt) : fmtFiat(recvAmt);
+
+      const fromStr =
+        payCode === "BTC"
+          ? `${fmtBtc(payAmt)} ${payCode}`
+          : `${fmtFiatFull(payAmt)} ${payCode}`;
+      if (fromEl) fromEl.textContent = fromStr;
+
+      let fee = Number.isFinite(payAmt) ? payAmt * FEE_PCT : NaN;
+      if (payCode === "BTC") fee = roundBtc(fee);
+      else fee = roundFiat(fee);
+
+      const net = Number.isFinite(payAmt) && Number.isFinite(fee)
+        ? payCode === "BTC"
+          ? roundBtc(payAmt - fee)
+          : roundFiat(payAmt - fee)
+        : NaN;
+
+      if (feeEl)
+        feeEl.textContent =
+          payCode === "BTC"
+            ? `${fmtBtc(fee)} ${payCode}`
+            : `${fmtFiatFull(fee)} ${payCode}`;
+      if (netEl)
+        netEl.textContent =
+          payCode === "BTC"
+            ? `${fmtBtc(net)} ${payCode}`
+            : `${fmtFiatFull(net)} ${payCode}`;
+
+      const rate = readRateTwdPerBtc(root);
+      if (rateEl)
+        rateEl.textContent = `1 BTC = ${fmtTwdRate(rate)} TWD`;
+
+      if (recvLineEl)
+        recvLineEl.textContent =
+          recvCode === "BTC"
+            ? `${fmtBtc(recvAmt)} ${recvCode}`
+            : `${fmtFiatFull(recvAmt)} ${recvCode}`;
+    };
+
+    const close = () => {
+      stopCountdown();
+      sheet.classList.remove("is-open");
+      const onEnd = () => {
+        if (!sheet.classList.contains("is-open")) sheet.hidden = true;
+        panel?.removeEventListener("transitionend", onEnd);
+      };
+      panel?.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const open = () => {
+      if (previewBtn.disabled) return;
+      syncFromConvert();
+      startCountdown();
+      sheet.hidden = false;
+      requestAnimationFrame(() => sheet.classList.add("is-open"));
+    };
+
+    previewBtn.addEventListener("click", open);
+    sheet.querySelectorAll("[data-trade-convert-confirm-close]").forEach((btn) => {
+      btn.addEventListener("click", close);
+    });
+    sheet.querySelector("[data-trade-convert-confirm-ok]")?.addEventListener("click", close);
   };
 
   const initFinanceSectionNav = () => {
@@ -5255,6 +5461,7 @@
   const tradeHeaderApi = initTradeHeaderTabs();
   initTradeConvertPage();
   initTradeConvertRatePanel();
+  initTradeConvertConfirmSheet();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (

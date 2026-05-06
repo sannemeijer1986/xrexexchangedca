@@ -4441,6 +4441,14 @@ button.finance-summary__stat-value--chevron {
   outline: 2px solid #3f78ff;
   outline-offset: 2px;
 }
+.trade-convert-page__cta {
+  /* Same disabled treatment as .plan-detail-panel__continue:disabled */
+}
+.trade-convert-page__cta:disabled {
+  background: #081b68;
+  color: #58595a;
+  opacity: 1;
+}
 
 .trade-convert-page__head {
   margin-bottom: 32px;
@@ -4528,8 +4536,8 @@ button.finance-summary__stat-value--chevron {
 
 .trade-convert-page__spark {
   flex-shrink: 0;
-  width: 72px;
-  height: 30px;
+  width: 64px;
+  height: 28px;
   display: block;
 }
 
@@ -4725,6 +4733,169 @@ button.finance-summary__stat-value--chevron {
   display: block;
   width: 24px;
   height: 24px;
+}
+
+.convert-confirm-sheet .currency-sheet__panel {
+  padding-bottom: 0;
+}
+
+.convert-confirm-sheet .currency-sheet__body {
+  align-items: stretch;
+  gap: 24px;
+  padding: 0 16px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.convert-confirm-sheet__title {
+  margin: 0;
+  width: 100%;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.convert-confirm-sheet__pair-visual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.convert-confirm-sheet__side {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.convert-confirm-sheet__coin {
+  width: 32px;
+  height: 32px;
+}
+
+.convert-confirm-sheet__amount-lg {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.convert-confirm-sheet__code {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: 1.2;
+}
+
+.convert-confirm-sheet__arrow {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: block;
+  opacity: 0.85;
+}
+
+.convert-confirm-sheet__breakdown {
+  width: 100%;
+  box-sizing: border-box;
+  background: #2d2f2f;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.convert-confirm-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.convert-confirm-sheet__label {
+  flex: 1 1 0;
+  min-width: 0;
+  color: #9b9c9c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.convert-confirm-sheet__label--full {
+  display: block;
+  width: 100%;
+  white-space: normal;
+}
+
+.convert-confirm-sheet__value {
+  flex-shrink: 0;
+  color: #ffffff;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.convert-confirm-sheet__rate-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+
+.convert-confirm-sheet__rate-row-inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.convert-confirm-sheet__rate-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.convert-confirm-sheet__info-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: block;
+  opacity: 0.9;
+}
+
+.convert-confirm-sheet__timer {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: #8fb8ff;
+  white-space: nowrap;
+}
+
+.convert-confirm-sheet__divider {
+  height: 1px;
+  width: 100%;
+  background: #3c4248;
+}
+
+.convert-confirm-sheet__footer.currency-sheet__footer--split {
+  gap: 16px;
 }
 
 .trade-qm-sheet__panel {

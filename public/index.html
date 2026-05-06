@@ -2280,6 +2280,119 @@
         <div class="trade-convert-rate-panel__body"></div>
     </section>
 
+    <!-- Trade · Convert — confirm quote bottom sheet (Figma 11243:5682 / 11230:2002) -->
+    <div
+        class="currency-sheet convert-confirm-sheet"
+        data-trade-convert-confirm-sheet
+        hidden
+        aria-modal="true"
+        role="dialog"
+        aria-label="Confirm order"
+    >
+        <button
+            class="currency-sheet__backdrop"
+            type="button"
+            data-trade-convert-confirm-close
+            aria-label="Close"
+        ></button>
+        <div class="currency-sheet__panel convert-confirm-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body convert-confirm-sheet__body">
+                <h2 class="convert-confirm-sheet__title">Confirm order</h2>
+                <div class="convert-confirm-sheet__pair-visual">
+                    <div class="convert-confirm-sheet__side">
+                        <img
+                            class="plan-detail-panel__amount-icon convert-confirm-sheet__coin"
+                            src="assets/icon_currency_TWD.svg"
+                            alt=""
+                            width="32"
+                            height="32"
+                            data-trade-convert-confirm-pay-icon
+                        />
+                        <span class="convert-confirm-sheet__amount-lg" data-trade-convert-confirm-pay-hero>—</span>
+                        <span class="convert-confirm-sheet__code" data-trade-convert-confirm-pay-code>TWD</span>
+                    </div>
+                    <img
+                        class="convert-confirm-sheet__arrow"
+                        src="assets/icon_chevron_right_white.svg"
+                        alt=""
+                        width="20"
+                        height="20"
+                        aria-hidden="true"
+                    />
+                    <div class="convert-confirm-sheet__side">
+                        <img
+                            class="plan-detail-panel__amount-icon convert-confirm-sheet__coin"
+                            src="assets/icon_currency_btc.svg"
+                            alt=""
+                            width="32"
+                            height="32"
+                            data-trade-convert-confirm-recv-icon
+                        />
+                        <span class="convert-confirm-sheet__amount-lg" data-trade-convert-confirm-recv-hero>—</span>
+                        <span class="convert-confirm-sheet__code" data-trade-convert-confirm-recv-code>BTC</span>
+                    </div>
+                </div>
+                <div class="convert-confirm-sheet__breakdown">
+                    <div class="convert-confirm-sheet__row">
+                        <span class="convert-confirm-sheet__label">Convert from</span>
+                        <span class="convert-confirm-sheet__value" data-trade-convert-confirm-from>—</span>
+                    </div>
+                    <div class="convert-confirm-sheet__row">
+                        <span class="convert-confirm-sheet__label" data-trade-convert-confirm-fee-label
+                            >Conversion fee (0.1%)</span
+                        >
+                        <span class="convert-confirm-sheet__value" data-trade-convert-confirm-fee>—</span>
+                    </div>
+                    <div class="convert-confirm-sheet__row">
+                        <span class="convert-confirm-sheet__label">Net amount to convert</span>
+                        <span class="convert-confirm-sheet__value" data-trade-convert-confirm-net>—</span>
+                    </div>
+                    <div class="convert-confirm-sheet__rate-wrap">
+                        <span class="convert-confirm-sheet__label convert-confirm-sheet__label--full"
+                            >Guaranteed rate</span
+                        >
+                        <div class="convert-confirm-sheet__rate-row-inner">
+                            <span class="convert-confirm-sheet__rate-text" data-trade-convert-confirm-rate>—</span>
+                            <img
+                                class="convert-confirm-sheet__info-icon"
+                                src="assets/icon_info_circle_white.svg"
+                                alt=""
+                                width="16"
+                                height="16"
+                                aria-hidden="true"
+                            />
+                            <span class="convert-confirm-sheet__timer" data-trade-convert-confirm-timer>0:34</span>
+                        </div>
+                    </div>
+                    <div class="convert-confirm-sheet__divider" aria-hidden="true"></div>
+                    <div class="convert-confirm-sheet__row">
+                        <span class="convert-confirm-sheet__label">You receive</span>
+                        <span class="convert-confirm-sheet__value" data-trade-convert-confirm-receive-line>—</span>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer currency-sheet__footer--split convert-confirm-sheet__footer">
+                <button
+                    class="schedule-time-sheet__btn schedule-time-sheet__btn--secondary"
+                    type="button"
+                    data-trade-convert-confirm-close
+                >
+                    Cancel
+                </button>
+                <button
+                    class="schedule-time-sheet__btn schedule-time-sheet__btn--primary"
+                    type="button"
+                    data-trade-convert-confirm-ok
+                >
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- My plans (Figma 8541:11409) — full-screen over Finance; filter tabs + placeholder cards -->
     <section class="my-plans-panel" data-my-plans-panel hidden aria-label="My plans">
         <div class="my-plans-panel__fixed">
