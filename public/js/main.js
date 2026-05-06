@@ -1014,7 +1014,7 @@
     const payFieldLabel = payAmountRow
       ?.closest(".trade-convert-page__field")
       ?.querySelector(".plan-detail-panel__section-label");
-    const scrollConvertContentTo = (el, topOffsetPx = 16) => {
+    const scrollConvertContentTo = (el, topOffsetPx = 24) => {
       const scroller = document.querySelector("[data-content]");
       if (!scroller || !el) return;
       const sr = scroller.getBoundingClientRect();
@@ -1037,14 +1037,14 @@
     payInp.addEventListener("focus", () => {
       document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel, 16));
+        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel));
       });
     });
 
     recvInp.addEventListener("focus", () => {
       document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel, 16));
+        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel));
       });
     });
 

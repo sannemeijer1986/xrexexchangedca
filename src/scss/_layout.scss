@@ -4593,17 +4593,16 @@ button.finance-summary__stat-value--chevron {
 
 .trade-convert-page__inner {
   padding: 0 16px;
-  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
 }
 
-// Footer CTA — fixed to convert page bottom to avoid sticky jump
+// Sticky footer CTA — Figma node 11243:5648
 .trade-convert-page__sticky-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
+  margin-top: auto;
+  position: sticky;
   bottom: 0;
   z-index: 3;
   background: #0d0e0f;
