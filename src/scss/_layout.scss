@@ -4683,6 +4683,16 @@ button.finance-summary__stat-value--chevron {
   padding-bottom: 4px;
 }
 
+/* Whole amount strip (icon + value + hint + spacer) focuses the input — same affordance as plan amount row. */
+.trade-convert-page .plan-detail-panel__amount-row {
+  cursor: text;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trade-convert-page .plan-detail-panel__amount-row .plan-detail-panel__currency-pill {
+  cursor: pointer;
+}
+
 .trade-convert-page .trade-convert-page__amount-input-wrap {
   display: flex;
   align-items: center;
@@ -4786,8 +4796,8 @@ button.finance-summary__stat-value--chevron {
 
 .convert-confirm-sheet .convert-confirm-sheet__body {
   align-items: stretch;
-  gap: 24px;
-  padding: 0 16px 24px;
+  gap: 20px;
+  padding: 16px 16px 24px 16px;
   width: 100%;
   box-sizing: border-box;
 }

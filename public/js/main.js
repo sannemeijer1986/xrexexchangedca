@@ -1003,6 +1003,20 @@
 
     payInp.addEventListener("input", syncReceiveFromPay);
     recvInp.addEventListener("input", syncPayFromReceive);
+
+    const payAmountRow = payInp.closest(".plan-detail-panel__amount-row");
+    const recvAmountRow = recvInp.closest(".plan-detail-panel__amount-row");
+    const bindConvertAmountRowFocus = (row, inp) => {
+      if (!row || !inp) return;
+      row.addEventListener("click", (e) => {
+        if (e.target.closest(".plan-detail-panel__currency-pill")) return;
+        if (e.target.closest("input")) return;
+        inp.focus();
+      });
+    };
+    bindConvertAmountRowFocus(payAmountRow, payInp);
+    bindConvertAmountRowFocus(recvAmountRow, recvInp);
+
     maxBtn?.addEventListener("click", () => {
       const capped = Math.min(availPay, CONVERT_AMOUNT_MAX);
       payInp.value = formatPayField(capped);
@@ -1030,11 +1044,18 @@
     renderAmountPlaceholders();
     renderRate();
     renderAvails();
-    const initialPay = parsePay();
-    if (Number.isFinite(initialPay) && initialPay > 0) {
-      payInp.value = formatPayField(initialPay);
-    }
-    syncReceiveFromPay();
+
+    const resetConvertAmountsToEmpty = () => {
+      payInp.value = "";
+      recvInp.value = "";
+      syncReceiveFromPay();
+    };
+
+    resetConvertAmountsToEmpty();
+
+    document.addEventListener("trade-page-changed", (e) => {
+      if (e?.detail?.pageId === "convert") resetConvertAmountsToEmpty();
+    });
   };
 
   /** Trade · Convert — full-screen rate panel (placeholder body; opened from rate row). */
@@ -1114,7 +1135,7 @@
     const updateRateBtn = sheet.querySelector("[data-trade-convert-confirm-update-rate]");
 
     const FEE_PCT = 0.001;
-    const COUNTDOWN_START = 34;
+    const COUNTDOWN_START = 15;
     let countdownTimerId = null;
 
     const roundBtc = (n) => {
