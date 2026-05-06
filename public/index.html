@@ -3792,9 +3792,40 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
         </div>
     </div>
 
-        <!-- Desktop prototype only (>640px): simulates device keyboard on field focus -->
+        <!-- Desktop prototype only (>640px): simulates device keyboard on convert amount focus -->
         <div class="fake-keyboard" data-fake-keyboard aria-hidden="true">
-            <div class="fake-keyboard__panel" role="presentation"></div>
+            <div class="fake-keyboard__panel" role="presentation">
+                <div class="fake-keyboard__sticky">
+                    <div class="fake-keyboard__top-actions">
+                        <div class="fake-keyboard__pct-bar" aria-label="Quick amount">
+                            <span>25%</span>
+                            <span>50%</span>
+                            <span>75%</span>
+                            <span>100%</span>
+                        </div>
+                        <button class="fake-keyboard__preview" type="button" data-fake-keyboard-preview>Preview</button>
+                    </div>
+                </div>
+                <div class="fake-keyboard__done-row">
+                    <button class="fake-keyboard__done" type="button" data-fake-keyboard-close>Done</button>
+                </div>
+                <div class="fake-keyboard__keys" aria-hidden="true">
+                    <div class="fake-keyboard__key"><span>1</span></div>
+                    <div class="fake-keyboard__key"><span>2</span><small>ABC</small></div>
+                    <div class="fake-keyboard__key"><span>3</span><small>DEF</small></div>
+                    <div class="fake-keyboard__key"><span>4</span><small>GHI</small></div>
+                    <div class="fake-keyboard__key"><span>5</span><small>JKL</small></div>
+                    <div class="fake-keyboard__key"><span>6</span><small>MNO</small></div>
+                    <div class="fake-keyboard__key"><span>7</span><small>PQRS</small></div>
+                    <div class="fake-keyboard__key"><span>8</span><small>TUV</small></div>
+                    <div class="fake-keyboard__key"><span>9</span><small>WXYZ</small></div>
+                    <div class="fake-keyboard__key fake-keyboard__key--empty"></div>
+                    <div class="fake-keyboard__key"><span>0</span></div>
+                    <div class="fake-keyboard__delete" aria-label="Delete">
+                        <span aria-hidden="true">⌫</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

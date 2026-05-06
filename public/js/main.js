@@ -1006,16 +1006,86 @@
 
     const payAmountRow = payInp.closest(".plan-detail-panel__amount-row");
     const recvAmountRow = recvInp.closest(".plan-detail-panel__amount-row");
+    const payFieldLabel = payAmountRow
+      ?.closest(".trade-convert-page__field")
+      ?.querySelector(".plan-detail-panel__section-label");
+    const scrollConvertContentTo = (el, topOffsetPx = 16) => {
+      const scroller = document.querySelector("[data-content]");
+      if (!scroller || !el) return;
+      const sr = scroller.getBoundingClientRect();
+      const er = el.getBoundingClientRect();
+      const nextTop = scroller.scrollTop + (er.top - sr.top) - topOffsetPx;
+      scroller.scrollTo({ top: Math.max(0, nextTop), behavior: "smooth" });
+    };
     const bindConvertAmountRowFocus = (row, inp) => {
       if (!row || !inp) return;
       row.addEventListener("click", (e) => {
         if (e.target.closest(".plan-detail-panel__currency-pill")) return;
         if (e.target.closest("input")) return;
         inp.focus();
+        document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
       });
     };
     bindConvertAmountRowFocus(payAmountRow, payInp);
     bindConvertAmountRowFocus(recvAmountRow, recvInp);
+
+    payInp.addEventListener("focus", () => {
+      document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel, 16));
+      });
+    });
+
+    recvInp.addEventListener("focus", () => {
+      document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollConvertContentTo(payFieldLabel, 16));
+      });
+    });
+
+    const bindKeyboardGestureFocus = (inp, triggerEl) => {
+      if (!inp || !triggerEl) return;
+      const LONG_PRESS_MS = 320;
+      let holdTimer = null;
+      let longPressTriggered = false;
+
+      const showFakeKeyboard = () => {
+        inp.focus();
+        // Ensure the desktop fake keyboard can be re-shown even if this field is already focused.
+        document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
+      };
+
+      triggerEl.addEventListener("dblclick", () => {
+        showFakeKeyboard();
+      });
+
+      triggerEl.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".plan-detail-panel__currency-pill")) return;
+        longPressTriggered = false;
+        if (holdTimer) clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+          longPressTriggered = true;
+          showFakeKeyboard();
+        }, LONG_PRESS_MS);
+      });
+
+      const clearHold = () => {
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+      };
+
+      triggerEl.addEventListener("pointerup", clearHold);
+      triggerEl.addEventListener("pointerleave", clearHold);
+      triggerEl.addEventListener("pointercancel", clearHold);
+      triggerEl.addEventListener("contextmenu", (e) => {
+        if (!longPressTriggered) return;
+        e.preventDefault();
+      });
+    };
+    bindKeyboardGestureFocus(payInp, payAmountRow || payInp);
+    bindKeyboardGestureFocus(recvInp, recvAmountRow || recvInp);
 
     maxBtn?.addEventListener("click", () => {
       const capped = Math.min(availPay, CONVERT_AMOUNT_MAX);
@@ -5790,6 +5860,7 @@
       "assets/icon_aiessentials.svg",
       "assets/icon_noallocation.svg",
     ]);
+    let suppressFocusShow = false;
 
     const resolveMyPlansAllocTickerIcon = (ticker) => {
       const t = String(ticker || "")
@@ -12262,7 +12333,7 @@
             const invest = getPlanDetailInvestTotal();
             const cur = getPlanDetailCurrency();
             const slice = invest > 0 ? Math.round((invest * pcts[i]) / 100) : 0;
-            amountSubEl.textContent = `${slice.toLocaleString("en-US")} ${cur}`;
+            amountSubEl.textContent = `≈ ${slice.toLocaleString("en-US")} ${cur}`;
             amountSubEl.setAttribute("aria-hidden", "false");
           }
         }
@@ -19507,32 +19578,81 @@
 
     const show = () => {
       if (!mq.matches) return;
+      if (document.documentElement.dataset.tradePage !== "convert") return;
+      container.classList.add("is-fake-keyboard-visible");
       keyboard.classList.add("is-visible");
       keyboard.setAttribute("aria-hidden", "false");
     };
 
+    const scrollConvertToTop = () => {
+      if (document.documentElement.dataset.tradePage !== "convert") return;
+      const scroller = document.querySelector("[data-content]");
+      if (!scroller) return;
+      scroller.scrollTo({ top: 0, behavior: "smooth" });
+      window.setTimeout(() => {
+        container.classList.remove("is-fake-keyboard-visible");
+      }, 220);
+    };
+
     const hide = () => {
+      const wasVisible = keyboard.classList.contains("is-visible");
       keyboard.classList.remove("is-visible");
       keyboard.setAttribute("aria-hidden", "true");
+      if (wasVisible) scrollConvertToTop();
+      else container.classList.remove("is-fake-keyboard-visible");
     };
 
     container.addEventListener("focusin", (e) => {
       if (!mq.matches) return;
+      if (suppressFocusShow) return;
       if (!isKeyboardField(e.target)) return;
       show();
     });
 
-    container.addEventListener("focusout", () => {
+    keyboard
+      .querySelector("[data-fake-keyboard-close]")
+      ?.addEventListener("click", () => {
+        hide();
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      });
+
+    keyboard
+      .querySelector("[data-fake-keyboard-preview]")
+      ?.addEventListener("click", () => {
+        const previewBtn = document.querySelector("[data-trade-convert-preview]");
+        if (previewBtn && !previewBtn.disabled) previewBtn.click();
+      });
+
+    document.addEventListener("pointerdown", (e) => {
       if (!mq.matches) return;
+      if (!keyboard.classList.contains("is-visible")) return;
+      if (e.target instanceof Element && keyboard.contains(e.target)) return;
+      if (
+        e.target instanceof Element &&
+        e.target.closest(".trade-convert-page__amount-row")
+      )
+        return;
+
+      suppressFocusShow = true;
+      hide();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
       requestAnimationFrame(() => {
-        const ae = document.activeElement;
-        if (!container.contains(ae) || !isKeyboardField(ae)) hide();
+        suppressFocusShow = false;
       });
     });
 
     const onMqChange = () => {
       if (!mq.matches) hide();
     };
+    document.addEventListener("trade-page-changed", (e) => {
+      if (e?.detail?.pageId !== "convert") hide();
+    });
+    document.addEventListener("fake-keyboard-show", show);
+    document.addEventListener("fake-keyboard-hide", hide);
     if (typeof mq.addEventListener === "function") {
       mq.addEventListener("change", onMqChange);
     } else if (typeof mq.addListener === "function") {
