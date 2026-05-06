@@ -4397,6 +4397,173 @@ button.finance-summary__stat-value--chevron {
   background: transparent;
 }
 
+// Trade · Convert tab (Figma Convert 2.1 RFQ — node 11240:11677)
+.trade-convert-page {
+  background: #0d0e0f;
+  min-height: 100%;
+}
+
+.trade-convert-page__inner {
+  padding: 24px 16px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.trade-convert-page__head {
+  margin-bottom: 32px;
+}
+
+.trade-convert-page__pair-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.trade-convert-page__pair-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-convert-page__icon-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.9;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid #3f78ff;
+    outline-offset: 2px;
+  }
+}
+
+.trade-convert-page__rate-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trade-convert-page__rate {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f78ff;
+}
+
+.trade-convert-page__spark {
+  flex-shrink: 0;
+  width: 70px;
+  height: 29px;
+  display: block;
+}
+
+.trade-convert-page__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.trade-convert-page .plan-detail-panel__amount-header {
+  margin-bottom: 0;
+}
+
+.trade-convert-page .plan-detail-panel__section-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.plan-detail-panel__avail-text--convert-muted {
+  color: #58595a;
+}
+
+.trade-convert-page__amount-row {
+  padding-top: 16px;
+  padding-bottom: 4px;
+}
+
+.trade-convert-page__max-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.trade-convert-page__max-row-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-convert-page__max {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: #3f78ff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid #3f78ff;
+    outline-offset: 2px;
+  }
+}
+
+.trade-convert-page__swap-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.trade-convert-page__swap {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 0;
+  background: #1b1d1d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid #3f78ff;
+    outline-offset: 2px;
+  }
+}
+
+.trade-convert-page__swap img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.trade-convert-page .plan-detail-panel__amount-input[readonly] {
+  cursor: default;
+  color: #ffffff;
+}
+
 // Trade quick-menu sheet (Convert 2.1 RFQ design)
 .trade-qm-sheet__panel {
   padding: 0;

@@ -705,6 +705,150 @@
     return { setTradePage: setPage };
   };
 
+  /** Trade · Convert tab — RFQ layout; reuses plan-detail amount row styling. */
+  const initTradeConvertPage = () => {
+    const root = document.querySelector("[data-trade-convert-root]");
+    const payInp = root?.querySelector("[data-trade-convert-pay-input]");
+    const recvInp = root?.querySelector("[data-trade-convert-recv-input]");
+    if (!root || !payInp || !recvInp) return;
+
+    const pairTitle = root.querySelector("[data-trade-convert-pair-title]");
+    const rateEl = root.querySelector("[data-trade-convert-rate]");
+    const payAvailEl = root.querySelector("[data-trade-convert-pay-avail]");
+    const recvAvailEl = root.querySelector("[data-trade-convert-recv-avail]");
+    const payIcon = root.querySelector("[data-trade-convert-pay-icon]");
+    const recvIcon = root.querySelector("[data-trade-convert-recv-icon]");
+    const payCurEl = root.querySelector("[data-trade-convert-pay-currency]");
+    const recvCurEl = root.querySelector("[data-trade-convert-recv-currency]");
+    const maxBtn = root.querySelector("[data-trade-convert-max]");
+    const swapBtn = root.querySelector("[data-trade-convert-swap]");
+
+    const readRate = () => {
+      const n = parseFloat(String(root.getAttribute("data-convert-rate") || ""));
+      return Number.isFinite(n) && n > 0 ? n : 2438104.61;
+    };
+
+    let rateTwdPerBtc = readRate();
+    let payCurrency = "TWD";
+    let receiveCurrency = "BTC";
+    let availPay = parseFloat(root.getAttribute("data-convert-pay-avail") || "0") || 0;
+    let availReceive =
+      parseFloat(root.getAttribute("data-convert-recv-avail") || "0") || 0;
+
+    const iconFor = (code) => {
+      if (code === "BTC") return "assets/icon_currency_btc.svg";
+      if (code === "TWD") return "assets/icon_currency_TWD.svg";
+      return "assets/icon_currency_usdt.svg";
+    };
+
+    const fmtTwd = (n) =>
+      new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+        Math.round(n),
+      );
+
+    const fmtBtcAvail = (n) => (Number.isFinite(n) ? n.toFixed(5) : "0.00000");
+
+    const parsePay = () => {
+      const raw = String(payInp.value || "").replace(/,/g, "").trim();
+      const x = parseFloat(raw);
+      return Number.isFinite(x) ? x : NaN;
+    };
+
+    const formatPayField = (n) => {
+      if (!Number.isFinite(n) || n < 0) return "";
+      if (payCurrency === "TWD") return fmtTwd(n);
+      const s = n.toFixed(8).replace(/\.?0+$/, "");
+      return s || "0";
+    };
+
+    const convertForward = (payAmt) => {
+      if (!Number.isFinite(payAmt) || payAmt <= 0) return NaN;
+      if (payCurrency === "TWD" && receiveCurrency === "BTC")
+        return payAmt / rateTwdPerBtc;
+      if (payCurrency === "BTC" && receiveCurrency === "TWD")
+        return payAmt * rateTwdPerBtc;
+      return NaN;
+    };
+
+    const syncReceive = () => {
+      const payAmt = parsePay();
+      if (!Number.isFinite(payAmt) || payAmt <= 0) {
+        recvInp.value = "";
+        return;
+      }
+      const out = convertForward(payAmt);
+      if (!Number.isFinite(out)) {
+        recvInp.value = "";
+        return;
+      }
+      recvInp.value =
+        receiveCurrency === "BTC" ? out.toFixed(6) : fmtTwd(out);
+    };
+
+    const renderAvails = () => {
+      if (payAvailEl) {
+        const a =
+          payCurrency === "BTC" ? fmtBtcAvail(availPay) : fmtTwd(availPay);
+        payAvailEl.textContent = `Avail. ${a} ${payCurrency}`;
+      }
+      if (recvAvailEl) {
+        const a =
+          receiveCurrency === "BTC"
+            ? fmtBtcAvail(availReceive)
+            : fmtTwd(availReceive);
+        recvAvailEl.textContent = `Avail. ${a} ${receiveCurrency}`;
+      }
+    };
+
+    const renderRate = () => {
+      if (!rateEl) return;
+      rateEl.textContent = `1 BTC = ${fmtTwd(rateTwdPerBtc)} TWD`;
+    };
+
+    const renderPair = () => {
+      if (pairTitle) pairTitle.textContent = `${payCurrency} → ${receiveCurrency}`;
+    };
+
+    const renderIcons = () => {
+      if (payIcon) payIcon.src = iconFor(payCurrency);
+      if (recvIcon) recvIcon.src = iconFor(receiveCurrency);
+      if (payCurEl) payCurEl.textContent = payCurrency;
+      if (recvCurEl) recvCurEl.textContent = receiveCurrency;
+    };
+
+    payInp.addEventListener("input", syncReceive);
+    maxBtn?.addEventListener("click", () => {
+      payInp.value = formatPayField(availPay);
+      syncReceive();
+    });
+    swapBtn?.addEventListener("click", () => {
+      const pc = payCurrency;
+      payCurrency = receiveCurrency;
+      receiveCurrency = pc;
+      const ap = availPay;
+      availPay = availReceive;
+      availReceive = ap;
+      const pv = payInp.value;
+      payInp.value = recvInp.value;
+      recvInp.value = pv;
+      renderPair();
+      renderIcons();
+      renderAvails();
+      syncReceive();
+    });
+
+    rateTwdPerBtc = readRate();
+    renderPair();
+    renderIcons();
+    renderRate();
+    renderAvails();
+    const initialPay = parsePay();
+    if (Number.isFinite(initialPay) && initialPay > 0) {
+      payInp.value = formatPayField(initialPay);
+    }
+    syncReceive();
+  };
+
   const initFinanceSectionNav = () => {
     const loanPage = document.querySelector('[data-finance-page="loan"]');
     const nav = loanPage?.querySelector("[data-finance-section-nav]");
@@ -4882,6 +5026,7 @@
   const tabNavApi = initTabs();
   const financeHeaderApi = initFinanceHeaderTabs();
   const tradeHeaderApi = initTradeHeaderTabs();
+  initTradeConvertPage();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (

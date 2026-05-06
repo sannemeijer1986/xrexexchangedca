@@ -996,7 +996,125 @@
                             <div class="finance__body"></div>
                         </div>
                         <div data-trade-page="convert" hidden>
-                            <div class="finance__body"></div>
+                            <div
+                                class="finance__body trade-convert-page"
+                                data-trade-convert-root
+                                data-convert-rate="2438104.61"
+                                data-convert-pay-avail="100000"
+                                data-convert-recv-avail="0"
+                            >
+                                <div class="trade-convert-page__inner">
+                                    <header class="trade-convert-page__head">
+                                        <div class="trade-convert-page__pair-row">
+                                            <h1 class="trade-convert-page__pair-title" data-trade-convert-pair-title>TWD → BTC</h1>
+                                            <button class="trade-convert-page__icon-btn" type="button" aria-label="Conversion history">
+                                                <img src="assets/icon_history.svg" alt="" width="20" height="20" />
+                                            </button>
+                                        </div>
+                                        <div class="trade-convert-page__rate-row">
+                                            <p class="trade-convert-page__rate" data-trade-convert-rate>1 BTC = 2,438,104.61 TWD</p>
+                                            <svg class="trade-convert-page__spark" viewBox="0 0 70 29" aria-hidden="true">
+                                                <path
+                                                    d="M0 20 L12 8 L28 18 L42 4 L58 14 L70 6"
+                                                    fill="none"
+                                                    stroke="#3F78FF"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </header>
+
+                                    <section class="trade-convert-page__field" aria-label="You pay">
+                                        <div class="plan-detail-panel__amount-header">
+                                            <span class="plan-detail-panel__section-label">You pay</span>
+                                            <div class="plan-detail-panel__avail-row">
+                                                <span class="plan-detail-panel__avail-text" data-trade-convert-pay-avail>Avail. 100,000 TWD</span>
+                                            </div>
+                                        </div>
+                                        <div class="plan-detail-panel__amount-row trade-convert-page__amount-row">
+                                            <div class="plan-detail-panel__amount-display">
+                                                <img
+                                                    class="plan-detail-panel__amount-icon"
+                                                    src="assets/icon_currency_TWD.svg"
+                                                    alt=""
+                                                    data-trade-convert-pay-icon
+                                                />
+                                                <input
+                                                    class="plan-detail-panel__amount-input"
+                                                    data-trade-convert-pay-input
+                                                    inputmode="decimal"
+                                                    autocomplete="off"
+                                                    value="1500"
+                                                    aria-label="Amount you pay"
+                                                />
+                                            </div>
+                                            <button
+                                                class="plan-detail-panel__currency-pill"
+                                                type="button"
+                                                aria-label="Currency you pay"
+                                                data-trade-convert-pay-currency-btn
+                                            >
+                                                <span data-trade-convert-pay-currency>TWD</span>
+                                                <img src="assets/icon_chevron_down_white.svg" alt="" width="20" height="20" />
+                                            </button>
+                                        </div>
+                                        <div class="plan-detail-panel__amount-divider"></div>
+                                        <div class="trade-convert-page__max-row">
+                                            <span class="trade-convert-page__max-row-spacer" aria-hidden="true"></span>
+                                            <button type="button" class="trade-convert-page__max" data-trade-convert-max>Max</button>
+                                        </div>
+                                    </section>
+
+                                    <div class="trade-convert-page__swap-wrap">
+                                        <button type="button" class="trade-convert-page__swap" aria-label="Swap currencies" data-trade-convert-swap>
+                                            <img src="assets/icon_qm_convert.svg" alt="" width="24" height="24" />
+                                        </button>
+                                    </div>
+
+                                    <section class="trade-convert-page__field" aria-label="You receive">
+                                        <div class="plan-detail-panel__amount-header">
+                                            <span class="plan-detail-panel__section-label">You receive</span>
+                                            <div class="plan-detail-panel__avail-row">
+                                                <span
+                                                    class="plan-detail-panel__avail-text plan-detail-panel__avail-text--convert-muted"
+                                                    data-trade-convert-recv-avail
+                                                    >Avail. 0.00000 BTC</span>
+                                            </div>
+                                        </div>
+                                        <div class="plan-detail-panel__amount-row trade-convert-page__amount-row">
+                                            <div class="plan-detail-panel__amount-display">
+                                                <img
+                                                    class="plan-detail-panel__amount-icon"
+                                                    src="assets/icon_currency_btc.svg"
+                                                    alt=""
+                                                    data-trade-convert-recv-icon
+                                                />
+                                                <input
+                                                    class="plan-detail-panel__amount-input"
+                                                    data-trade-convert-recv-input
+                                                    inputmode="decimal"
+                                                    autocomplete="off"
+                                                    readonly
+                                                    tabindex="-1"
+                                                    aria-label="Amount you receive"
+                                                />
+                                            </div>
+                                            <button
+                                                class="plan-detail-panel__currency-pill"
+                                                type="button"
+                                                aria-label="Currency you receive"
+                                                data-trade-convert-recv-currency-btn
+                                            >
+                                                <span data-trade-convert-recv-currency>BTC</span>
+                                                <img src="assets/icon_chevron_down_white.svg" alt="" width="20" height="20" />
+                                            </button>
+                                        </div>
+                                        <div class="plan-detail-panel__amount-divider"></div>
+                                    </section>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>
