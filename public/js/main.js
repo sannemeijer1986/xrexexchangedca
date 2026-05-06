@@ -1110,6 +1110,8 @@
     const rateEl = sheet.querySelector("[data-trade-convert-confirm-rate]");
     const timerEl = sheet.querySelector("[data-trade-convert-confirm-timer]");
     const recvLineEl = sheet.querySelector("[data-trade-convert-confirm-receive-line]");
+    const confirmBtn = sheet.querySelector("[data-trade-convert-confirm-ok]");
+    const updateRateBtn = sheet.querySelector("[data-trade-convert-confirm-update-rate]");
 
     const FEE_PCT = 0.001;
     const COUNTDOWN_START = 34;
@@ -1174,14 +1176,30 @@
       }
     };
 
+    const clearRateExpired = () => {
+      sheet.classList.remove("convert-confirm-sheet--rate-expired");
+      if (confirmBtn) confirmBtn.disabled = false;
+    };
+
+    const applyRateExpired = () => {
+      stopCountdown();
+      sheet.classList.add("convert-confirm-sheet--rate-expired");
+      if (rateEl) rateEl.textContent = "Rate expired";
+      if (recvHeroEl) recvHeroEl.textContent = "- -";
+      const rc = recvCodeEl?.textContent?.trim() || "BTC";
+      if (recvLineEl) recvLineEl.textContent = `- - ${rc}`;
+      if (confirmBtn) confirmBtn.disabled = true;
+    };
+
     const startCountdown = () => {
       stopCountdown();
+      clearRateExpired();
       let left = COUNTDOWN_START;
       if (timerEl) timerEl.textContent = formatCountdown(left);
       countdownTimerId = window.setInterval(() => {
         left -= 1;
-        if (timerEl) timerEl.textContent = formatCountdown(left);
-        if (left <= 0) stopCountdown();
+        if (timerEl) timerEl.textContent = formatCountdown(Math.max(0, left));
+        if (left <= 0) applyRateExpired();
       }, 1000);
     };
 
@@ -1258,6 +1276,7 @@
 
     const close = () => {
       stopCountdown();
+      clearRateExpired();
       sheet.classList.remove("is-open");
       const onEnd = () => {
         if (!sheet.classList.contains("is-open")) sheet.hidden = true;
@@ -1269,6 +1288,7 @@
 
     const open = () => {
       if (previewBtn.disabled) return;
+      clearRateExpired();
       syncFromConvert();
       startCountdown();
       sheet.hidden = false;
@@ -1279,7 +1299,15 @@
     sheet.querySelectorAll("[data-trade-convert-confirm-close]").forEach((btn) => {
       btn.addEventListener("click", close);
     });
-    sheet.querySelector("[data-trade-convert-confirm-ok]")?.addEventListener("click", close);
+    confirmBtn?.addEventListener("click", () => {
+      if (confirmBtn.disabled) return;
+      close();
+    });
+    updateRateBtn?.addEventListener("click", () => {
+      clearRateExpired();
+      syncFromConvert();
+      startCountdown();
+    });
   };
 
   const initFinanceSectionNav = () => {

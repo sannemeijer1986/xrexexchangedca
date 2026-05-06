@@ -4919,7 +4919,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 .convert-confirm-sheet__rate-text {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   font-size: 14px;
   font-weight: 600;
@@ -4937,14 +4937,71 @@ button.finance-summary__stat-value--chevron {
   opacity: 0.9;
 }
 
-.convert-confirm-sheet__timer {
+.convert-confirm-sheet__rate-action {
   flex: 0 0 auto;
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.convert-confirm-sheet__timer {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   color: #8fb8ff;
   white-space: nowrap;
+}
+
+/* Figma 11243:5684 — rate lock expired */
+.convert-confirm-sheet__update-rate {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  background: #275cfd;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid #3f78ff;
+    outline-offset: 2px;
+  }
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__timer {
+  display: none;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__update-rate {
+  display: inline-flex;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__info-icon {
+  display: none;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-text {
+  color: #8fb8ff;
+  flex: 0 1 auto;
+}
+
+.convert-confirm-sheet .schedule-time-sheet__btn--primary:disabled {
+  opacity: 1;
+  background: #081b68;
+  color: #58595a;
+  cursor: not-allowed;
 }
 
 .convert-confirm-sheet__divider {
