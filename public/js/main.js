@@ -1296,7 +1296,7 @@
       const s = Math.max(0, Math.floor(sec));
       const m = Math.floor(s / 60);
       const r = s % 60;
-      return `Expires in ${m}:${String(r).padStart(2, "0")}s`;
+      return `Rate expires in ${m}:${String(r).padStart(2, "0")}s`;
     };
 
     const stopCountdown = () => {
@@ -1346,7 +1346,11 @@
       if (recvHeroEl) recvHeroEl.textContent = "- -";
       const rc = recvCodeEl?.textContent?.trim() || "BTC";
       if (recvLineEl) recvLineEl.textContent = `- - ${rc}`;
-      if (rateProgressEl) rateProgressEl.style.width = "0%";
+      if (rateProgressEl) {
+        // Snap to 0% at expiry (no trailing animation after 0:00).
+        rateProgressEl.style.transition = "none";
+        rateProgressEl.style.width = "0%";
+      }
       if (confirmBtn) confirmBtn.disabled = true;
     };
 
@@ -1355,7 +1359,14 @@
       clearRateExpired();
       let left = COUNTDOWN_START;
       if (timerEl) timerEl.textContent = formatCountdown(left);
-      if (rateProgressEl) rateProgressEl.style.width = "100%";
+      if (rateProgressEl) {
+        // Refill instantly when a new quote starts.
+        rateProgressEl.style.transition = "none";
+        rateProgressEl.style.width = "100%";
+        // Force style flush so subsequent countdown ticks animate normally.
+        void rateProgressEl.offsetWidth;
+        rateProgressEl.style.transition = "width 1s linear";
+      }
       countdownTimerId = window.setInterval(() => {
         left -= 1;
         if (timerEl) timerEl.textContent = formatCountdown(Math.max(0, left));

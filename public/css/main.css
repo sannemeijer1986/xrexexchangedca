@@ -5060,8 +5060,8 @@ button.finance-summary__stat-value--chevron {
 
 .convert-confirm-sheet__rate-progress {
   width: 100%;
-  height: 5px;
-  border-radius: 5px;
+  height: 3px;
+  border-radius: 3px;
   background: #47494a;
   overflow: hidden;
 }
@@ -5070,7 +5070,7 @@ button.finance-summary__stat-value--chevron {
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 5px;
+  border-radius: 3px;
   background: #8fb8ff;
   transition: width 1s linear;
 }
