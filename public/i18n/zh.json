@@ -643,5 +643,5 @@
   "Guide": "指南",
   "FEATURED": "精選",
   "XREX only accepts bank accounts\nheld in your name and only accepts bank &\nbank in intermediaries from countries \nlisted here": "XREX 僅接受以您本人名義開立的銀行帳戶，\n且僅接受所列國家的銀行及\n中間銀行所發起的轉帳",
-  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Orders execute after 12:00 PM (GMT +8). Assets are automatically purchased at market price.": "我們在每個排定的智能定投日期自動從您的餘額扣款。訂單於 GMT+8 中午 12:00 執行。資產按市場價格自動買入。"
+  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.\n\nOrders execute after 12:00 PM (GMT +8).": "我們將於您的定期定額計劃中，在每個預定日期自動從您的餘額中扣款。\n\n訂單將於每日 12:00 PM（GMT+8）後執行。"
 }
