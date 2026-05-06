@@ -1138,6 +1138,30 @@
     );
     const postSheetEl = document.querySelector("[data-trade-convert-post-sheet]");
     const postSheetPanelEl = postSheetEl?.querySelector(".currency-sheet__panel");
+    const postPayHeroEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-pay-hero]",
+    );
+    const postRecvHeroEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-recv-hero]",
+    );
+    const postPayCodeEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-pay-code]",
+    );
+    const postRecvCodeEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-recv-code]",
+    );
+    const postPayIconEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-pay-icon]",
+    );
+    const postRecvIconEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-recv-icon]",
+    );
+    const postBalanceTwdEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-balance-twd]",
+    );
+    const postBalanceBtcEl = postSheetEl?.querySelector(
+      "[data-trade-convert-post-balance-btc]",
+    );
 
     const FEE_PCT = 0.001;
     const COUNTDOWN_START = 15;
@@ -1330,6 +1354,53 @@
             : `${fmtFiatFull(recvAmt)} ${recvCode}`;
     };
 
+    const syncPostSheetFromConvert = () => {
+      const root = document.querySelector("[data-trade-convert-root]");
+      const payInp = root?.querySelector("[data-trade-convert-pay-input]");
+      const recvInp = root?.querySelector("[data-trade-convert-recv-input]");
+      const payCode =
+        root
+          ?.querySelector("[data-trade-convert-pay-currency]")
+          ?.textContent?.trim() || "TWD";
+      const recvCode =
+        root
+          ?.querySelector("[data-trade-convert-recv-currency]")
+          ?.textContent?.trim() || "BTC";
+      const payAmt = parseField(payInp?.value, payCode);
+      const recvAmt = parseField(recvInp?.value, recvCode);
+
+      if (postPayIconEl) postPayIconEl.src = iconFor(payCode);
+      if (postRecvIconEl) postRecvIconEl.src = iconFor(recvCode);
+      if (postPayCodeEl) postPayCodeEl.textContent = payCode;
+      if (postRecvCodeEl) postRecvCodeEl.textContent = recvCode;
+      if (postPayHeroEl)
+        postPayHeroEl.textContent =
+          payCode === "BTC" ? fmtBtc(payAmt) : fmtFiat(payAmt);
+      if (postRecvHeroEl)
+        postRecvHeroEl.textContent =
+          recvCode === "BTC" ? fmtBtc(recvAmt) : fmtFiat(recvAmt);
+
+      const nextBalances = {
+        TWD: Number(PROTOTYPE_BALANCES.TWD) || 0,
+        BTC: Number(PROTOTYPE_BALANCES.BTC) || 0,
+      };
+      if (Number.isFinite(payAmt) && payAmt > 0 && nextBalances[payCode] != null) {
+        nextBalances[payCode] = Math.max(0, nextBalances[payCode] - payAmt);
+      }
+      if (
+        Number.isFinite(recvAmt) &&
+        recvAmt > 0 &&
+        nextBalances[recvCode] != null
+      ) {
+        nextBalances[recvCode] += recvAmt;
+      }
+
+      if (postBalanceTwdEl)
+        postBalanceTwdEl.textContent = `${fmtFiatFull(nextBalances.TWD)} TWD`;
+      if (postBalanceBtcEl)
+        postBalanceBtcEl.textContent = `${fmtBtc(nextBalances.BTC)} BTC`;
+    };
+
     const close = (opts = {}) => {
       clearSubmitTimer();
       hideSubmitLoader();
@@ -1372,6 +1443,7 @@
         submitTimerId = null;
         hideSubmitLoader();
         close({ instant: true });
+        syncPostSheetFromConvert();
         openPostSheet();
 
         // Reset convert form back to empty after submitting.

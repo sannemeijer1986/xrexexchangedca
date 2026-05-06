@@ -2409,14 +2409,77 @@
         </div>
     </div>
 
-    <!-- Trade · Convert — post-confirm bottom sheet (placeholder) -->
-    <div class="currency-sheet convert-post-submit-sheet" data-trade-convert-post-sheet hidden aria-modal="true" role="dialog" aria-label="Convert submitted">
+    <!-- Trade · Convert — post-confirm bottom sheet (Figma 11246:5914) -->
+    <div class="currency-sheet convert-post-submit-sheet" data-trade-convert-post-sheet hidden aria-modal="true" role="dialog" aria-label="Conversion complete">
         <button class="currency-sheet__backdrop" type="button" data-trade-convert-post-close aria-label="Close"></button>
         <div class="currency-sheet__panel convert-post-submit-sheet__panel">
             <div class="currency-sheet__handle-wrap">
                 <div class="currency-sheet__handle"></div>
             </div>
-            <div class="currency-sheet__body convert-post-submit-sheet__body"></div>
+            <div class="currency-sheet__body convert-post-submit-sheet__body">
+                <div class="convert-post-submit-sheet__hero">
+                    <div class="convert-post-submit-sheet__success-icon" aria-hidden="true">
+                        <img src="assets/icon_timeline_completed.svg" alt="" width="64" height="64" />
+                    </div>
+                    <h2 class="convert-post-submit-sheet__title">Conversion complete</h2>
+                </div>
+
+                <div class="convert-post-submit-sheet__divider" aria-hidden="true"></div>
+
+                <div class="convert-post-submit-sheet__pair-visual">
+                    <div class="convert-post-submit-sheet__side">
+                        <img
+                            class="plan-detail-panel__amount-icon convert-post-submit-sheet__coin"
+                            src="assets/icon_currency_TWD.svg"
+                            alt=""
+                            width="32"
+                            height="32"
+                            data-trade-convert-post-pay-icon
+                        />
+                        <span class="convert-post-submit-sheet__amount-lg" data-trade-convert-post-pay-hero>1,500</span>
+                        <span class="convert-post-submit-sheet__code" data-trade-convert-post-pay-code>TWD</span>
+                    </div>
+                    <img
+                        class="convert-post-submit-sheet__arrow"
+                        src="assets/icon_chevron_right_white.svg"
+                        alt=""
+                        width="20"
+                        height="20"
+                        aria-hidden="true"
+                    />
+                    <div class="convert-post-submit-sheet__side">
+                        <img
+                            class="plan-detail-panel__amount-icon convert-post-submit-sheet__coin"
+                            src="assets/icon_currency_btc.svg"
+                            alt=""
+                            width="32"
+                            height="32"
+                            data-trade-convert-post-recv-icon
+                        />
+                        <span class="convert-post-submit-sheet__amount-lg" data-trade-convert-post-recv-hero>0.000614</span>
+                        <span class="convert-post-submit-sheet__code" data-trade-convert-post-recv-code>BTC</span>
+                    </div>
+                </div>
+
+                <div class="convert-post-submit-sheet__balances">
+                    <p class="convert-post-submit-sheet__balances-title">Your updated wallet balances</p>
+                    <div class="convert-post-submit-sheet__balances-card">
+                        <div class="convert-post-submit-sheet__balance-row">
+                            <span class="convert-post-submit-sheet__balance-label">Taiwan dollar</span>
+                            <span class="convert-post-submit-sheet__balance-value" data-trade-convert-post-balance-twd>—</span>
+                        </div>
+                        <div class="convert-post-submit-sheet__balance-row">
+                            <span class="convert-post-submit-sheet__balance-label">Bitcoin</span>
+                            <span class="convert-post-submit-sheet__balance-value" data-trade-convert-post-balance-btc>—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="currency-sheet__footer convert-post-submit-sheet__footer">
+                <button class="schedule-time-sheet__btn schedule-time-sheet__btn--primary" type="button" data-trade-convert-post-close>
+                    Done
+                </button>
+            </div>
         </div>
     </div>
 
