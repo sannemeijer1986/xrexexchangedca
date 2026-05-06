@@ -950,6 +950,16 @@
       if (recvCurEl) recvCurEl.textContent = receiveCurrency;
     };
 
+    const CONVERT_PLACEHOLDER_BTC = "0";
+    const CONVERT_PLACEHOLDER_TWD = "0";
+
+    const renderAmountPlaceholders = () => {
+      const ph = (code) =>
+        code === "BTC" ? CONVERT_PLACEHOLDER_BTC : CONVERT_PLACEHOLDER_TWD;
+      if (payInp) payInp.placeholder = ph(payCurrency);
+      if (recvInp) recvInp.placeholder = ph(receiveCurrency);
+    };
+
     payInp.addEventListener("input", syncReceiveFromPay);
     recvInp.addEventListener("input", syncPayFromReceive);
     maxBtn?.addEventListener("click", () => {
@@ -968,6 +978,7 @@
       recvInp.value = pv;
       renderPair();
       renderIcons();
+      renderAmountPlaceholders();
       renderAvails();
       syncReceiveFromPay();
     });
@@ -975,6 +986,7 @@
     rateTwdPerBtc = readRate();
     renderPair();
     renderIcons();
+    renderAmountPlaceholders();
     renderRate();
     renderAvails();
     const initialPay = parsePay();
