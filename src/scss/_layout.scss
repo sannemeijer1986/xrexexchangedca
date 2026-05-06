@@ -4784,10 +4784,10 @@ button.finance-summary__stat-value--chevron {
   padding-bottom: 0;
 }
 
-.convert-confirm-sheet .currency-sheet__body {
+.convert-confirm-sheet .convert-confirm-sheet__body {
   align-items: stretch;
   gap: 24px;
-  padding: 0 16px 8px;
+  padding: 0 16px 24px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -4843,6 +4843,7 @@ button.finance-summary__stat-value--chevron {
   width: 20px;
   height: 20px;
   display: block;
+  object-fit: contain;
   opacity: 0.85;
 }
 
@@ -4876,10 +4877,14 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
-.convert-confirm-sheet__label--full {
-  display: block;
+.convert-confirm-sheet__rate-heading {
+  flex: 0 0 auto;
   width: 100%;
-  white-space: normal;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #9b9c9c;
 }
 
 .convert-confirm-sheet__value {
@@ -4900,8 +4905,16 @@ button.finance-summary__stat-value--chevron {
 .convert-confirm-sheet__rate-row-inner {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
+  min-width: 0;
+}
+
+.convert-confirm-sheet__rate-price-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -4929,6 +4942,7 @@ button.finance-summary__stat-value--chevron {
   margin-left: auto;
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.2;
   color: #8fb8ff;
   white-space: nowrap;
 }
