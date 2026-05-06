@@ -270,7 +270,7 @@
   "Order ID": "訂單編號",
   "Order status": "訂單狀態",
   "Order via": "訂單來源",
-  "Orders execute at 12:00 PM (GMT +8)": "訂單於 GMT+8 中午 12:00 執行",
+  "Orders execute after 12:00 PM (GMT +8)": "訂單於 GMT+8 中午 12:00 後執行",
   "Others": "其他",
   "Overview": "總覽",
   "Page title": "頁面標題",
@@ -308,7 +308,7 @@
   "Play to Earn & more": "邊玩邊賺或其他模式的區塊鏈遊戲代幣",
   "Polygon": "Polygon",
   "Portfolio summary": "投資組合摘要",
-  "Pre-fund": "預儲資金",
+  "Pre-fund": "預備資金",
   "Pre-fund log": "預儲資金記錄",
   "Pre-fund log prototype": "預儲資金記錄原型",
   "Pre-fund period count": "預儲期間計數",
@@ -643,5 +643,5 @@
   "Guide": "指南",
   "FEATURED": "精選",
   "XREX only accepts bank accounts\nheld in your name and only accepts bank &\nbank in intermediaries from countries \nlisted here": "XREX 僅接受以您本人名義開立的銀行帳戶，\n且僅接受所列國家的銀行及\n中間銀行所發起的轉帳",
-  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Orders execute at 12:00 PM (GMT +8). Assets are automatically purchased at market price.": "我們在每個排定的定期定額日期自動從您的餘額扣款。訂單於 GMT+8 中午 12:00 執行。資產按市場價格自動買入。"
+  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan. Orders execute after 12:00 PM (GMT +8). Assets are automatically purchased at market price.": "我們在每個排定的定期定額日期自動從您的餘額扣款。訂單於 GMT+8 中午 12:00 執行。資產按市場價格自動買入。"
 }

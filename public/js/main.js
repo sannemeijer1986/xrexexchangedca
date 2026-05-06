@@ -3318,7 +3318,7 @@
     const paygoDesc =
       "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan." +
       "\n\n" +
-      "Orders execute at 12:00 PM (GMT +8). Assets are automatically purchased at market price.";
+      "Orders execute after 12:00 PM (GMT +8).";
 
     const closeSheet = () => {
       sheet.classList.remove("is-open");
