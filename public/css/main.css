@@ -4858,6 +4858,8 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-convert-page__max {
+  position: relative;
+  z-index: 6;
   border: 0;
   background: none;
   padding: 0;
@@ -4998,20 +5000,12 @@ button.finance-summary__stat-value--chevron {
 .convert-confirm-sheet__label {
   flex: 1 1 0;
   min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
   color: #9b9c9c;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.convert-confirm-sheet__rate-heading {
-  flex: 0 0 auto;
-  width: 100%;
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: #9b9c9c;
 }
 
 .convert-confirm-sheet__value {
@@ -5025,7 +5019,7 @@ button.finance-summary__stat-value--chevron {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -5035,13 +5029,13 @@ button.finance-summary__stat-value--chevron {
   gap: 8px;
   width: 100%;
   min-width: 0;
-  height: 12px;
-  margin-bottom: 16px;
+  min-height: 24px;
 }
 
 .convert-confirm-sheet__rate-price-group {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
   flex: 1 1 0;
   min-width: 0;
@@ -5049,13 +5043,11 @@ button.finance-summary__stat-value--chevron {
 
 .convert-confirm-sheet__rate-text {
   flex: 0 1 auto;
-  min-width: 0;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: right;
 }
 
 .convert-confirm-sheet__info-icon {
@@ -5066,58 +5058,68 @@ button.finance-summary__stat-value--chevron {
   opacity: 0.9;
 }
 
-.convert-confirm-sheet__rate-action {
-  flex: 0 0 auto;
-  margin-left: auto;
-  position: relative;
+.convert-confirm-sheet__rate-progress {
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;
+  background: #47494a;
+  overflow: hidden;
+}
+
+.convert-confirm-sheet__rate-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  background: #8fb8ff;
+  transition: width 1s linear;
+}
+
+.convert-confirm-sheet__rate-status-row {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  min-width: 0;
-  width: 92px;
-  height: 32px;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 19px;
 }
 
 .convert-confirm-sheet__timer {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   color: #8fb8ff;
   white-space: nowrap;
-  transition: opacity 0.15s ease;
 }
 
-/* Figma 11243:5684 — rate lock expired */
+.convert-confirm-sheet__rate-expired-text {
+  display: none;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #eb5347;
+  white-space: nowrap;
+}
+
 .convert-confirm-sheet__update-rate {
-  display: inline-flex;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  display: none;
   align-items: center;
   justify-content: center;
-  height: 32px;
-  padding: 4px 10px;
+  height: auto;
+  padding: 0;
   box-sizing: border-box;
   border: 0;
-  border-radius: 12px;
-  background: #275cfd;
-  color: #ffffff;
+  border-radius: 0;
+  background: transparent;
+  color: #3f78ff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.2;
   cursor: pointer;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
 }
 .convert-confirm-sheet__update-rate:focus-visible {
   outline: 2px solid #3f78ff;
@@ -5125,15 +5127,15 @@ button.finance-summary__stat-value--chevron {
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__timer {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-expired-text {
+  display: inline;
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__update-rate {
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
+  display: inline-flex;
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__info-icon {
@@ -5141,8 +5143,11 @@ button.finance-summary__stat-value--chevron {
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-text {
-  color: #8fb8ff;
-  flex: 0 1 auto;
+  color: #ffffff;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-progress-fill {
+  width: 0% !important;
 }
 
 .convert-confirm-sheet .schedule-time-sheet__btn--primary:disabled {

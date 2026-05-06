@@ -1205,6 +1205,9 @@
     const netEl = sheet.querySelector("[data-trade-convert-confirm-net]");
     const rateEl = sheet.querySelector("[data-trade-convert-confirm-rate]");
     const timerEl = sheet.querySelector("[data-trade-convert-confirm-timer]");
+    const rateProgressEl = sheet.querySelector(
+      "[data-trade-convert-confirm-progress]",
+    );
     const recvLineEl = sheet.querySelector("[data-trade-convert-confirm-receive-line]");
     const confirmBtn = sheet.querySelector("[data-trade-convert-confirm-ok]");
     const updateRateBtn = sheet.querySelector("[data-trade-convert-confirm-update-rate]");
@@ -1293,7 +1296,7 @@
       const s = Math.max(0, Math.floor(sec));
       const m = Math.floor(s / 60);
       const r = s % 60;
-      return `${m}:${String(r).padStart(2, "0")}`;
+      return `Expires in ${m}:${String(r).padStart(2, "0")}s`;
     };
 
     const stopCountdown = () => {
@@ -1339,10 +1342,11 @@
     const applyRateExpired = () => {
       stopCountdown();
       sheet.classList.add("convert-confirm-sheet--rate-expired");
-      if (rateEl) rateEl.textContent = "Rate expired";
+      if (rateEl) rateEl.textContent = "- -";
       if (recvHeroEl) recvHeroEl.textContent = "- -";
       const rc = recvCodeEl?.textContent?.trim() || "BTC";
       if (recvLineEl) recvLineEl.textContent = `- - ${rc}`;
+      if (rateProgressEl) rateProgressEl.style.width = "0%";
       if (confirmBtn) confirmBtn.disabled = true;
     };
 
@@ -1351,9 +1355,14 @@
       clearRateExpired();
       let left = COUNTDOWN_START;
       if (timerEl) timerEl.textContent = formatCountdown(left);
+      if (rateProgressEl) rateProgressEl.style.width = "100%";
       countdownTimerId = window.setInterval(() => {
         left -= 1;
         if (timerEl) timerEl.textContent = formatCountdown(Math.max(0, left));
+        if (rateProgressEl) {
+          const pct = (Math.max(0, left) / COUNTDOWN_START) * 100;
+          rateProgressEl.style.width = `${pct}%`;
+        }
         if (left <= 0) applyRateExpired();
       }, 1000);
     };
