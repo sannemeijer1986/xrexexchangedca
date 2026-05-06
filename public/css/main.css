@@ -4536,9 +4536,8 @@ button.finance-summary__stat-value--chevron {
 }
 
 @media (min-width: 641px) {
-  .phone-container.is-fake-keyboard-visible .content--trade--convert .trade-convert-page {
-    padding-bottom: 420px;
-    box-sizing: border-box;
+  .phone-container.is-fake-keyboard-visible .content--trade--convert .trade-convert-page__inner {
+    padding-bottom: calc(532px + env(safe-area-inset-bottom, 0px));
   }
 }
 .trade-convert-page__inner {
