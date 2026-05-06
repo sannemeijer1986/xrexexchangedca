@@ -4978,6 +4978,15 @@ button.finance-summary__stat-value--chevron {
   gap: 16px;
 }
 
+.convert-post-submit-sheet__panel {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.convert-post-submit-sheet__body {
+  min-height: 220px;
+  padding-top: 8px;
+}
+
 .trade-qm-sheet__panel {
   padding: 0;
   background: #1b1d1d;

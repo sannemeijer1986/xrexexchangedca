@@ -1133,10 +1133,17 @@
     const recvLineEl = sheet.querySelector("[data-trade-convert-confirm-receive-line]");
     const confirmBtn = sheet.querySelector("[data-trade-convert-confirm-ok]");
     const updateRateBtn = sheet.querySelector("[data-trade-convert-confirm-update-rate]");
+    const submitLoaderEl = document.querySelector(
+      "[data-trade-convert-submit-loader]",
+    );
+    const postSheetEl = document.querySelector("[data-trade-convert-post-sheet]");
+    const postSheetPanelEl = postSheetEl?.querySelector(".currency-sheet__panel");
 
     const FEE_PCT = 0.001;
     const COUNTDOWN_START = 15;
+    const SUBMIT_LOADER_MS = 2200;
     let countdownTimerId = null;
+    let submitTimerId = null;
 
     const roundBtc = (n) => {
       if (!Number.isFinite(n)) return NaN;
@@ -1195,6 +1202,34 @@
         clearInterval(countdownTimerId);
         countdownTimerId = null;
       }
+    };
+
+    const hideSubmitLoader = () => {
+      if (submitLoaderEl) submitLoaderEl.hidden = true;
+    };
+
+    const clearSubmitTimer = () => {
+      if (submitTimerId) {
+        clearTimeout(submitTimerId);
+        submitTimerId = null;
+      }
+    };
+
+    const closePostSheet = () => {
+      if (!postSheetEl) return;
+      postSheetEl.classList.remove("is-open");
+      const onEnd = () => {
+        if (!postSheetEl.classList.contains("is-open")) postSheetEl.hidden = true;
+        postSheetPanelEl?.removeEventListener("transitionend", onEnd);
+      };
+      postSheetPanelEl?.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 290);
+    };
+
+    const openPostSheet = () => {
+      if (!postSheetEl) return;
+      postSheetEl.hidden = false;
+      requestAnimationFrame(() => postSheetEl.classList.add("is-open"));
     };
 
     const clearRateExpired = () => {
@@ -1295,9 +1330,16 @@
             : `${fmtFiatFull(recvAmt)} ${recvCode}`;
     };
 
-    const close = () => {
+    const close = (opts = {}) => {
+      clearSubmitTimer();
+      hideSubmitLoader();
       stopCountdown();
       clearRateExpired();
+      if (opts.instant) {
+        sheet.hidden = true;
+        sheet.classList.remove("is-open");
+        return;
+      }
       sheet.classList.remove("is-open");
       const onEnd = () => {
         if (!sheet.classList.contains("is-open")) sheet.hidden = true;
@@ -1322,13 +1364,36 @@
     });
     confirmBtn?.addEventListener("click", () => {
       if (confirmBtn.disabled) return;
-      close();
+      clearSubmitTimer();
+      stopCountdown();
+      hideSubmitLoader();
+      if (submitLoaderEl) submitLoaderEl.hidden = false;
+      submitTimerId = window.setTimeout(() => {
+        submitTimerId = null;
+        hideSubmitLoader();
+        close({ instant: true });
+        openPostSheet();
+
+        // Reset convert form back to empty after submitting.
+        const convertRoot = document.querySelector("[data-trade-convert-root]");
+        const payInp = convertRoot?.querySelector("[data-trade-convert-pay-input]");
+        const recvInp = convertRoot?.querySelector(
+          "[data-trade-convert-recv-input]",
+        );
+        if (payInp) payInp.value = "";
+        if (recvInp) recvInp.value = "";
+        // Trigger normal UI sync (hints, disabled Preview, etc.)
+        payInp?.dispatchEvent(new Event("input", { bubbles: true }));
+      }, SUBMIT_LOADER_MS);
     });
     updateRateBtn?.addEventListener("click", () => {
       clearRateExpired();
       syncFromConvert();
       startCountdown();
     });
+    postSheetEl
+      ?.querySelectorAll("[data-trade-convert-post-close]")
+      .forEach((btn) => btn.addEventListener("click", closePostSheet));
   };
 
   const initFinanceSectionNav = () => {

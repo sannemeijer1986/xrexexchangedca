@@ -2401,6 +2401,25 @@
         </div>
     </div>
 
+    <!-- Convert confirm submit loader (reuses plan submit loader UI) -->
+    <div class="plan-submit-loader" data-trade-convert-submit-loader hidden>
+        <div class="plan-submit-loader__backdrop" aria-hidden="true"></div>
+        <div class="plan-submit-loader__card" role="status" aria-live="polite" aria-label="Submitting">
+            <img class="plan-submit-loader__icon" src="assets/icon-loading.svg" alt="" width="40" height="40" aria-hidden="true" />
+        </div>
+    </div>
+
+    <!-- Trade · Convert — post-confirm bottom sheet (placeholder) -->
+    <div class="currency-sheet convert-post-submit-sheet" data-trade-convert-post-sheet hidden aria-modal="true" role="dialog" aria-label="Convert submitted">
+        <button class="currency-sheet__backdrop" type="button" data-trade-convert-post-close aria-label="Close"></button>
+        <div class="currency-sheet__panel convert-post-submit-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body convert-post-submit-sheet__body"></div>
+        </div>
+    </div>
+
     <!-- My plans (Figma 8541:11409) — full-screen over Finance; filter tabs + placeholder cards -->
     <section class="my-plans-panel" data-my-plans-panel hidden aria-label="My plans">
         <div class="my-plans-panel__fixed">
