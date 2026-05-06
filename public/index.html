@@ -1053,15 +1053,18 @@
                                                     alt=""
                                                     data-trade-convert-pay-icon
                                                 />
-                                                <input
-                                                    class="plan-detail-panel__amount-input"
-                                                    data-trade-convert-pay-input
-                                                    inputmode="decimal"
-                                                    autocomplete="off"
-                                                    value="1500"
-                                                    placeholder="10.00 - 100,000.00"
-                                                    aria-label="Amount you pay"
-                                                />
+                                                <div class="trade-convert-page__amount-input-wrap">
+                                                    <input
+                                                        class="plan-detail-panel__amount-input"
+                                                        data-trade-convert-pay-input
+                                                        inputmode="decimal"
+                                                        autocomplete="off"
+                                                        value="1500"
+                                                        placeholder="0"
+                                                        aria-label="Amount you pay"
+                                                    />
+                                                    <span class="trade-convert-page__amount-hint" data-trade-convert-pay-hint hidden>Min 50 / Max 100K</span>
+                                                </div>
                                             </div>
                                             <button
                                                 class="plan-detail-panel__currency-pill"
@@ -1104,14 +1107,17 @@
                                                     alt=""
                                                     data-trade-convert-recv-icon
                                                 />
-                                                <input
-                                                    class="plan-detail-panel__amount-input"
-                                                    data-trade-convert-recv-input
-                                                    inputmode="decimal"
-                                                    autocomplete="off"
-                                                    placeholder="0"
-                                                    aria-label="Amount you receive"
-                                                />
+                                                <div class="trade-convert-page__amount-input-wrap">
+                                                    <input
+                                                        class="plan-detail-panel__amount-input"
+                                                        data-trade-convert-recv-input
+                                                        inputmode="decimal"
+                                                        autocomplete="off"
+                                                        placeholder="0"
+                                                        aria-label="Amount you receive"
+                                                    />
+                                                    <span class="trade-convert-page__amount-hint" data-trade-convert-recv-hint hidden>Min 50 / Max 100K</span>
+                                                </div>
                                             </div>
                                             <button
                                                 class="plan-detail-panel__currency-pill"

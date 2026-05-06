@@ -4605,6 +4605,37 @@ button.finance-summary__stat-value--chevron {
   padding-bottom: 4px;
 }
 
+.trade-convert-page .trade-convert-page__amount-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 8px;
+
+  /* Absorb space after amount + hint so the hint stays beside the value, not at the pill. */
+  &::after {
+    content: "";
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.trade-convert-page .trade-convert-page__amount-input-wrap .plan-detail-panel__amount-input {
+  flex: 0 1 auto;
+  min-width: 0;
+  width: auto;
+  field-sizing: content;
+  min-inline-size: 24px;
+}
+
+.trade-convert-page__amount-hint {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #58595a;
+  white-space: nowrap;
+}
+
 .trade-convert-page__max-row {
   display: flex;
   align-items: center;

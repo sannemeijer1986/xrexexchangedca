@@ -841,79 +841,115 @@
       return NaN;
     };
 
+    const CONVERT_PLACEHOLDER_BTC = "0";
+    const CONVERT_PLACEHOLDER_TWD = "0";
+    const CONVERT_TWD_AMOUNT_HINT = "Min 50 / Max 100K";
+
+    const renderAmountPlaceholders = () => {
+      const ph = (code) =>
+        code === "BTC" ? CONVERT_PLACEHOLDER_BTC : CONVERT_PLACEHOLDER_TWD;
+      if (payInp) payInp.placeholder = ph(payCurrency);
+      if (recvInp) recvInp.placeholder = ph(receiveCurrency);
+    };
+
+    const payHintEl = root.querySelector("[data-trade-convert-pay-hint]");
+    const recvHintEl = root.querySelector("[data-trade-convert-recv-hint]");
+
+    const syncTwdAmountHints = () => {
+      const empty = (inp) => !String(inp?.value || "").trim();
+      if (payHintEl) {
+        const show = payCurrency === "TWD" && empty(payInp);
+        payHintEl.hidden = !show;
+        if (show) payHintEl.textContent = CONVERT_TWD_AMOUNT_HINT;
+      }
+      if (recvHintEl) {
+        const show = receiveCurrency === "TWD" && empty(recvInp);
+        recvHintEl.hidden = !show;
+        if (show) recvHintEl.textContent = CONVERT_TWD_AMOUNT_HINT;
+      }
+    };
+
     const syncReceiveFromPay = () => {
-      let payAmt = parsePay();
-      if (!Number.isFinite(payAmt) || payAmt <= 0) {
-        recvInp.value = "";
-        return;
+      try {
+        let payAmt = parsePay();
+        if (!Number.isFinite(payAmt) || payAmt <= 0) {
+          recvInp.value = "";
+          return;
+        }
+        if (payAmt > CONVERT_AMOUNT_MAX) {
+          payAmt = CONVERT_AMOUNT_MAX;
+          payInp.value = formatPayField(payAmt);
+        }
+        if (payCurrency === "BTC") {
+          payAmt = roundConvertBtc(payAmt);
+          payInp.value = formatPayField(payAmt);
+        } else if (payCurrency === "TWD") {
+          payAmt = roundConvertFiat(payAmt);
+          payInp.value = formatPayField(payAmt);
+        }
+        let out = convertForward(payAmt);
+        if (!Number.isFinite(out)) {
+          recvInp.value = "";
+          return;
+        }
+        if (out > CONVERT_AMOUNT_MAX) {
+          recvInp.value = formatReceiveField(CONVERT_AMOUNT_MAX);
+          const payIdeal = convertFromReceive(CONVERT_AMOUNT_MAX);
+          if (!Number.isFinite(payIdeal) || payIdeal <= 0) return;
+          if (payIdeal > CONVERT_AMOUNT_MAX) {
+            payInp.value = formatPayField(CONVERT_AMOUNT_MAX);
+            const outCapped = convertForward(CONVERT_AMOUNT_MAX);
+            recvInp.value = Number.isFinite(outCapped)
+              ? formatReceiveField(outCapped)
+              : formatReceiveField(CONVERT_AMOUNT_MAX);
+          } else {
+            payInp.value = formatPayField(payIdeal);
+          }
+          return;
+        }
+        if (receiveCurrency === "BTC") out = roundConvertBtc(out);
+        else if (receiveCurrency === "TWD") out = roundConvertFiat(out);
+        recvInp.value = formatReceiveField(out);
+      } finally {
+        syncTwdAmountHints();
       }
-      if (payAmt > CONVERT_AMOUNT_MAX) {
-        payAmt = CONVERT_AMOUNT_MAX;
-        payInp.value = formatPayField(payAmt);
-      }
-      if (payCurrency === "BTC") {
-        payAmt = roundConvertBtc(payAmt);
-        payInp.value = formatPayField(payAmt);
-      } else if (payCurrency === "TWD") {
-        payAmt = roundConvertFiat(payAmt);
-        payInp.value = formatPayField(payAmt);
-      }
-      let out = convertForward(payAmt);
-      if (!Number.isFinite(out)) {
-        recvInp.value = "";
-        return;
-      }
-      if (out > CONVERT_AMOUNT_MAX) {
-        recvInp.value = formatReceiveField(CONVERT_AMOUNT_MAX);
-        const payIdeal = convertFromReceive(CONVERT_AMOUNT_MAX);
-        if (!Number.isFinite(payIdeal) || payIdeal <= 0) return;
-        if (payIdeal > CONVERT_AMOUNT_MAX) {
+    };
+
+    const syncPayFromReceive = () => {
+      try {
+        let recvAmt = parseRecv();
+        if (!Number.isFinite(recvAmt) || recvAmt <= 0) {
+          payInp.value = "";
+          return;
+        }
+        if (recvAmt > CONVERT_AMOUNT_MAX) {
+          recvAmt = CONVERT_AMOUNT_MAX;
+          recvInp.value = formatReceiveField(recvAmt);
+        }
+        if (receiveCurrency === "BTC") {
+          recvAmt = roundConvertBtc(recvAmt);
+          recvInp.value = formatReceiveField(recvAmt);
+        } else if (receiveCurrency === "TWD") {
+          recvAmt = roundConvertFiat(recvAmt);
+          recvInp.value = formatReceiveField(recvAmt);
+        }
+        let pay = convertFromReceive(recvAmt);
+        if (!Number.isFinite(pay)) {
+          payInp.value = "";
+          return;
+        }
+        if (pay > CONVERT_AMOUNT_MAX) {
           payInp.value = formatPayField(CONVERT_AMOUNT_MAX);
           const outCapped = convertForward(CONVERT_AMOUNT_MAX);
           recvInp.value = Number.isFinite(outCapped)
             ? formatReceiveField(outCapped)
             : formatReceiveField(CONVERT_AMOUNT_MAX);
-        } else {
-          payInp.value = formatPayField(payIdeal);
+          return;
         }
-        return;
+        payInp.value = formatPayField(pay);
+      } finally {
+        syncTwdAmountHints();
       }
-      if (receiveCurrency === "BTC") out = roundConvertBtc(out);
-      else if (receiveCurrency === "TWD") out = roundConvertFiat(out);
-      recvInp.value = formatReceiveField(out);
-    };
-
-    const syncPayFromReceive = () => {
-      let recvAmt = parseRecv();
-      if (!Number.isFinite(recvAmt) || recvAmt <= 0) {
-        payInp.value = "";
-        return;
-      }
-      if (recvAmt > CONVERT_AMOUNT_MAX) {
-        recvAmt = CONVERT_AMOUNT_MAX;
-        recvInp.value = formatReceiveField(recvAmt);
-      }
-      if (receiveCurrency === "BTC") {
-        recvAmt = roundConvertBtc(recvAmt);
-        recvInp.value = formatReceiveField(recvAmt);
-      } else if (receiveCurrency === "TWD") {
-        recvAmt = roundConvertFiat(recvAmt);
-        recvInp.value = formatReceiveField(recvAmt);
-      }
-      let pay = convertFromReceive(recvAmt);
-      if (!Number.isFinite(pay)) {
-        payInp.value = "";
-        return;
-      }
-      if (pay > CONVERT_AMOUNT_MAX) {
-        payInp.value = formatPayField(CONVERT_AMOUNT_MAX);
-        const outCapped = convertForward(CONVERT_AMOUNT_MAX);
-        recvInp.value = Number.isFinite(outCapped)
-          ? formatReceiveField(outCapped)
-          : formatReceiveField(CONVERT_AMOUNT_MAX);
-        return;
-      }
-      payInp.value = formatPayField(pay);
     };
 
     const renderAvails = () => {
@@ -948,16 +984,6 @@
       if (recvIcon) recvIcon.src = iconFor(receiveCurrency);
       if (payCurEl) payCurEl.textContent = payCurrency;
       if (recvCurEl) recvCurEl.textContent = receiveCurrency;
-    };
-
-    const CONVERT_PLACEHOLDER_BTC = "0";
-    const CONVERT_PLACEHOLDER_TWD = "0";
-
-    const renderAmountPlaceholders = () => {
-      const ph = (code) =>
-        code === "BTC" ? CONVERT_PLACEHOLDER_BTC : CONVERT_PLACEHOLDER_TWD;
-      if (payInp) payInp.placeholder = ph(payCurrency);
-      if (recvInp) recvInp.placeholder = ph(receiveCurrency);
     };
 
     payInp.addEventListener("input", syncReceiveFromPay);
