@@ -880,6 +880,11 @@
         Number.isFinite(recv) &&
         recv > 0;
       previewBtn.disabled = !ok;
+      document.dispatchEvent(
+        new CustomEvent("convert-preview-state-changed", {
+          detail: { disabled: previewBtn.disabled },
+        }),
+      );
     };
 
     const syncReceiveFromPay = () => {
@@ -19549,6 +19554,10 @@
     const container = document.querySelector(".phone-container");
     const keyboard = document.querySelector("[data-fake-keyboard]");
     if (!container || !keyboard) return;
+    const keyboardPreviewBtn = keyboard.querySelector("[data-fake-keyboard-preview]");
+    const keyboardPctBtns = Array.from(
+      keyboard.querySelectorAll("[data-fake-keyboard-pct]"),
+    );
 
     const mq = window.matchMedia("(min-width: 641px)");
     const nonKeyboardInputTypes = new Set([
@@ -19594,11 +19603,11 @@
       }, 220);
     };
 
-    const hide = () => {
+    const hide = (opts = {}) => {
       const wasVisible = keyboard.classList.contains("is-visible");
       keyboard.classList.remove("is-visible");
       keyboard.setAttribute("aria-hidden", "true");
-      if (wasVisible) scrollConvertToTop();
+      if (wasVisible && opts.scrollToTop !== false) scrollConvertToTop();
       else container.classList.remove("is-fake-keyboard-visible");
     };
 
@@ -19618,12 +19627,49 @@
         }
       });
 
-    keyboard
-      .querySelector("[data-fake-keyboard-preview]")
-      ?.addEventListener("click", () => {
-        const previewBtn = document.querySelector("[data-trade-convert-preview]");
-        if (previewBtn && !previewBtn.disabled) previewBtn.click();
+    const syncKeyboardPreviewDisabled = (disabled) => {
+      if (!keyboardPreviewBtn) return;
+      keyboardPreviewBtn.disabled = !!disabled;
+    };
+
+    keyboardPreviewBtn?.addEventListener("click", () => {
+      const previewBtn = document.querySelector("[data-trade-convert-preview]");
+      if (!previewBtn || previewBtn.disabled) return;
+      hide({ scrollToTop: false });
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      requestAnimationFrame(() => previewBtn.click());
+    });
+
+    keyboardPctBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (document.documentElement.dataset.tradePage !== "convert") return;
+        const pct = Number(btn.getAttribute("data-fake-keyboard-pct"));
+        if (!Number.isFinite(pct) || pct <= 0) return;
+        const root = document.querySelector("[data-trade-convert-root]");
+        const payInp = root?.querySelector("[data-trade-convert-pay-input]");
+        const payCode = (
+          root?.querySelector("[data-trade-convert-pay-currency]")?.textContent ||
+          "TWD"
+        )
+          .trim()
+          .toUpperCase();
+        if (!payInp) return;
+        const avail = Number(PROTOTYPE_BALANCES[payCode]);
+        if (!Number.isFinite(avail) || avail <= 0) {
+          payInp.value = "";
+          payInp.dispatchEvent(new Event("input", { bubbles: true }));
+          return;
+        }
+        let next = (avail * pct) / 100;
+        if (payCode === "BTC") next = Math.round(next * 1e6) / 1e6;
+        else next = Math.round(next * 100) / 100;
+        payInp.value = next > 0 ? String(next) : "";
+        payInp.focus();
+        payInp.dispatchEvent(new Event("input", { bubbles: true }));
       });
+    });
 
     document.addEventListener("pointerdown", (e) => {
       if (!mq.matches) return;
@@ -19646,11 +19692,17 @@
     });
 
     const onMqChange = () => {
-      if (!mq.matches) hide();
+      if (!mq.matches) hide({ scrollToTop: false });
     };
     document.addEventListener("trade-page-changed", (e) => {
-      if (e?.detail?.pageId !== "convert") hide();
+      if (e?.detail?.pageId !== "convert") hide({ scrollToTop: false });
     });
+    document.addEventListener("convert-preview-state-changed", (e) => {
+      syncKeyboardPreviewDisabled(!!e?.detail?.disabled);
+    });
+    syncKeyboardPreviewDisabled(
+      !!document.querySelector("[data-trade-convert-preview]")?.disabled,
+    );
     document.addEventListener("fake-keyboard-show", show);
     document.addEventListener("fake-keyboard-hide", hide);
     if (typeof mq.addEventListener === "function") {
