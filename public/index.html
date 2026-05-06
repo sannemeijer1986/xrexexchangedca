@@ -1000,37 +1000,49 @@
                                 class="finance__body trade-convert-page"
                                 data-trade-convert-root
                                 data-convert-rate="2438104.61"
-                                data-convert-pay-avail="100000"
-                                data-convert-recv-avail="0"
                             >
                                 <div class="trade-convert-page__inner">
                                     <header class="trade-convert-page__head">
                                         <div class="trade-convert-page__pair-row">
-                                            <h1 class="trade-convert-page__pair-title" data-trade-convert-pair-title>TWD → BTC</h1>
+                                            <h1 class="trade-convert-page__pair-title">
+                                                <span data-trade-convert-pair-from>TWD</span>
+                                                <img
+                                                    class="trade-convert-page__pair-arrow"
+                                                    src="assets/icon_convert_fromto.svg"
+                                                    alt=""
+                                                    width="24"
+                                                    height="24"
+                                                    aria-hidden="true"
+                                                />
+                                                <span data-trade-convert-pair-to>BTC</span>
+                                            </h1>
                                             <button class="trade-convert-page__icon-btn" type="button" aria-label="Conversion history">
                                                 <img src="assets/icon_history.svg" alt="" width="20" height="20" />
                                             </button>
                                         </div>
-                                        <div class="trade-convert-page__rate-row">
-                                            <p class="trade-convert-page__rate" data-trade-convert-rate>1 BTC = 2,438,104.61 TWD</p>
-                                            <svg class="trade-convert-page__spark" viewBox="0 0 70 29" aria-hidden="true">
-                                                <path
-                                                    d="M0 20 L12 8 L28 18 L42 4 L58 14 L70 6"
-                                                    fill="none"
-                                                    stroke="#3F78FF"
-                                                    stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                />
-                                            </svg>
-                                        </div>
+                                        <button
+                                            type="button"
+                                            class="trade-convert-page__rate-row"
+                                            data-trade-convert-rate-open
+                                            aria-label="View exchange rate details"
+                                        >
+                                            <span class="trade-convert-page__rate" data-trade-convert-rate>1 BTC = 2,438,104.61 TWD</span>
+                                            <img
+                                                class="trade-convert-page__spark"
+                                                src="assets/convert_rate_spark.svg"
+                                                alt=""
+                                                width="72"
+                                                height="30"
+                                                aria-hidden="true"
+                                            />
+                                        </button>
                                     </header>
 
                                     <section class="trade-convert-page__field" aria-label="You pay">
                                         <div class="plan-detail-panel__amount-header">
                                             <span class="plan-detail-panel__section-label">You pay</span>
                                             <div class="plan-detail-panel__avail-row">
-                                                <span class="plan-detail-panel__avail-text" data-trade-convert-pay-avail>Avail. 100,000 TWD</span>
+                                                <span class="plan-detail-panel__avail-text" data-trade-convert-pay-avail>Avail. 75,000 TWD</span>
                                             </div>
                                         </div>
                                         <div class="plan-detail-panel__amount-row trade-convert-page__amount-row">
@@ -1069,7 +1081,7 @@
 
                                     <div class="trade-convert-page__swap-wrap">
                                         <button type="button" class="trade-convert-page__swap" aria-label="Swap currencies" data-trade-convert-swap>
-                                            <img src="assets/icon_qm_convert.svg" alt="" width="24" height="24" />
+                                            <img src="assets/icon_convertarrow.svg" alt="" width="24" height="24" />
                                         </button>
                                     </div>
 
@@ -1080,7 +1092,7 @@
                                                 <span
                                                     class="plan-detail-panel__avail-text plan-detail-panel__avail-text--convert-muted"
                                                     data-trade-convert-recv-avail
-                                                    >Avail. 0.00000 BTC</span>
+                                                    >Avail. 0.000000 BTC</span>
                                             </div>
                                         </div>
                                         <div class="plan-detail-panel__amount-row trade-convert-page__amount-row">
@@ -1096,8 +1108,6 @@
                                                     data-trade-convert-recv-input
                                                     inputmode="decimal"
                                                     autocomplete="off"
-                                                    readonly
-                                                    tabindex="-1"
                                                     aria-label="Amount you receive"
                                                 />
                                             </div>
@@ -2229,6 +2239,30 @@
                 <button class="plan-breakdown-panel__close-cta" type="button" data-plan-breakdown-close>Close</button>
             </div>
         </div>
+    </section>
+
+    <!-- Convert: rate chart / details (placeholder — opened from Trade · Convert rate row) -->
+    <section class="trade-convert-rate-panel" data-trade-convert-rate-panel hidden aria-label="Convert rate">
+        <header class="trade-convert-rate-panel__header">
+            <button class="trade-convert-rate-panel__close" type="button" data-trade-convert-rate-close aria-label="Close">
+                <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+            </button>
+            <div class="trade-convert-rate-panel__title-wrap">
+                <h2 class="trade-convert-rate-panel__title">
+                    <span data-trade-convert-rate-pair-from>TWD</span>
+                    <img
+                        class="trade-convert-rate-panel__pair-arrow"
+                        src="assets/icon_convert_fromto.svg"
+                        alt=""
+                        width="24"
+                        height="24"
+                        aria-hidden="true"
+                    />
+                    <span data-trade-convert-rate-pair-to>BTC</span>
+                </h2>
+            </div>
+        </header>
+        <div class="trade-convert-rate-panel__body"></div>
     </section>
 
     <!-- My plans (Figma 8541:11409) — full-screen over Finance; filter tabs + placeholder cards -->

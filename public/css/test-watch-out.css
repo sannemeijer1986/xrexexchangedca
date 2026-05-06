@@ -1,22 +1,87 @@
-// Phone container layout
+@charset "UTF-8";
+/* CSS Reset (modern minimal) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+ul[role=list], ol[role=list] {
+  list-style: none;
+}
+
+img, picture {
+  max-width: 100%;
+  display: block;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Base */
+:root {
+  color-scheme: light only;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #FFFFFF;
+  background: #333;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  touch-action: manipulation;
+}
+
+/* Typography */
+.phone-container h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #FFFFFF;
+}
+.phone-container p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+}
+
 .phone-container {
-  width: $phone-width;
-  height: $phone-height;
-  @media (min-height: $bp-viewport-tall) {
-    height: $phone-height-viewport-tall;
+  width: 360px;
+  height: 720px;
+}
+@media (min-height: 821px) {
+  .phone-container {
+    height: 800px;
   }
-  background: $bg-container;
+}
+.phone-container {
+  background: #0D0E0F;
   border-radius: 40px 40px 32px 32px;
-  box-shadow: $shadow-lg;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
   flex-direction: column;
   font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  // Tab switches + opacity on descendants can break border-radius + overflow clipping in
-  // Chromium/WebKit until a repaint. isolation + clip re-assert the rounded mask without
-  // transform (transform would change the containing block for position:fixed tabbar).
   isolation: isolate;
-  overflow: hidden; // fallback
+  overflow: hidden;
   overflow: clip;
 }
 
@@ -74,14 +139,12 @@
   opacity: 0;
 }
 
-// Fake keyboard — only in “phone frame” desktop preview (viewport > 640px)
 .fake-keyboard {
   display: none;
 }
 
-@media (min-width: #{$bp-mobile + 1}) {
+@media (min-width: 641px) {
   .fake-keyboard {
-    //display: block; //TEMP HIDE
     display: none;
     position: absolute;
     left: 0;
@@ -93,74 +156,61 @@
     transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     will-change: transform;
   }
-
   .fake-keyboard.is-visible {
     transform: translateY(0);
   }
-
-  // Asset: public/assets/fakekeyboard.jpg (750×506) — image on ::before so opacity is independent of panel fill
   .fake-keyboard__panel {
     --fake-keyboard-image-opacity: 1;
-
     position: relative;
     width: 100%;
-    aspect-ratio: 750 / 506;
+    aspect-ratio: 750/506;
     max-width: 100%;
     box-sizing: border-box;
     border-radius: 12px 12px 0 0;
     overflow: hidden;
     background-color: #2d2f2f;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background-image: url('../assets/fakekeyboard.jpg');
-      background-repeat: no-repeat;
-      background-position: center bottom;
-      background-size: 100% auto;
-      opacity: var(--fake-keyboard-image-opacity);
-      pointer-events: none;
-      opacity: 0.25;
-    }
+  }
+  .fake-keyboard__panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: url("../assets/fakekeyboard.jpg");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 100% auto;
+    opacity: var(--fake-keyboard-image-opacity);
+    pointer-events: none;
+    opacity: 0.25;
   }
 }
-
-@media (max-width: $bp-mobile) {
+@media (max-width: 640px) {
   .fake-keyboard {
     display: none !important;
   }
-
   .status-bar {
     display: none !important;
     height: 0 !important;
   }
-
   .phone-container {
     width: 100vw;
     height: 100vh;
     border-radius: 0;
     box-shadow: none;
   }
-
   html,
   body {
     height: 100%;
     overflow: hidden;
   }
-
   body {
     padding: 0;
-    background: $bg-container;
+    background: #0D0E0F;
   }
-
   .build-badge {
     bottom: 74px;
   }
 }
-
-// Status bar (iOS 17 style)
 .top-chrome {
   position: sticky;
   top: 0;
@@ -177,44 +227,40 @@
 }
 
 .status-bar {
-  height: $status-bar-height;
+  height: 44px;
   background-color: rgba(13, 14, 15, 0);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 ($spacing-md + 12px);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  padding: 0 28px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: #fff;
   position: relative;
   z-index: 1;
-
-  .status-bar__left {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  .status-bar__right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 600;
-
-    .status-bar__icons {
-      height: 22px;
-      width: auto;
-      display: block;
-      align-self: center;
-    }
-  }
+}
+.status-bar .status-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.status-bar .status-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.status-bar .status-bar__right .status-bar__icons {
+  height: 22px;
+  width: auto;
+  display: block;
+  align-self: center;
 }
 
-// Safe area for notch devices
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0);
 }
@@ -223,15 +269,14 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-// Scrollable content area
 .content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  color: $text-primary;
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none; // IE/Edge legacy
+  color: #FFFFFF;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   position: relative;
 }
 
@@ -240,14 +285,14 @@
   padding-top: var(--top-chrome-height, 124px);
 }
 
-// Content padding
 .content-inner {
   padding: 0px 16px 16px 16px;
   min-height: 100%;
   position: relative;
   z-index: 1;
-
-  @media (max-width: $bp-mobile) {
+}
+@media (max-width: 640px) {
+  .content-inner {
     padding-bottom: 96px;
   }
 }
@@ -257,24 +302,21 @@
   margin: 0;
 }
 
-// Custom scrollbar styling
 .content::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-// Placeholder box styles
 .placeholder-box {
   background: rgba(255, 255, 255, 0.06);
-  border-radius: $radius-md;
-  padding: $spacing-xl;
+  border-radius: 12px;
+  padding: 40px;
   text-align: center;
-  color: $text-placeholder;
-  margin-bottom: $spacing-lg;
-
-  p {
-    color: $text-placeholder;
-  }
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+}
+.placeholder-box p {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .app-header {
@@ -284,11 +326,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 0px 16px 0px;
-  // border-bottom: 1px solid $border-color;
   background-color: transparent;
   flex-wrap: wrap;
-
-  @media (max-width: 640px) {
+}
+@media (max-width: 640px) {
+  .app-header {
     padding: 48px 0px 16px 0px;
   }
 }
@@ -329,10 +371,9 @@
   flex-wrap: nowrap;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.app-header__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .app-header__tabs[hidden] {
@@ -368,7 +409,7 @@
 }
 
 .app-header__tab.is-active::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 24px;
   left: 50%;
@@ -394,36 +435,43 @@
   transform: translateY(-6px);
 }
 
-html[data-active-tab="finance"],
-html[data-active-tab="trade"],
-html[data-active-tab="markets"],
-html[data-active-tab="wallet"] {
-  .app-header {
-    padding-bottom: 0;
-  }
-
-  .content--home {
-    margin-top: 0;
-    padding-top: 0;
-  }
-
-  .finance {
-    margin-top: 0;
-  }
-
-  .app-header__logo-wrap {
-    display: none;
-  }
-
-  .app-header__page-title {
-    display: block;
-  }
-
-  .app-header__tabs:not([hidden]) {
-    display: flex;
-  }
+html[data-active-tab=finance] .app-header,
+html[data-active-tab=trade] .app-header,
+html[data-active-tab=markets] .app-header,
+html[data-active-tab=wallet] .app-header {
+  padding-bottom: 0;
 }
-
+html[data-active-tab=finance] .content--home,
+html[data-active-tab=trade] .content--home,
+html[data-active-tab=markets] .content--home,
+html[data-active-tab=wallet] .content--home {
+  margin-top: 0;
+  padding-top: 0;
+}
+html[data-active-tab=finance] .finance,
+html[data-active-tab=trade] .finance,
+html[data-active-tab=markets] .finance,
+html[data-active-tab=wallet] .finance {
+  margin-top: 0;
+}
+html[data-active-tab=finance] .app-header__logo-wrap,
+html[data-active-tab=trade] .app-header__logo-wrap,
+html[data-active-tab=markets] .app-header__logo-wrap,
+html[data-active-tab=wallet] .app-header__logo-wrap {
+  display: none;
+}
+html[data-active-tab=finance] .app-header__page-title,
+html[data-active-tab=trade] .app-header__page-title,
+html[data-active-tab=markets] .app-header__page-title,
+html[data-active-tab=wallet] .app-header__page-title {
+  display: block;
+}
+html[data-active-tab=finance] .app-header__tabs:not([hidden]),
+html[data-active-tab=trade] .app-header__tabs:not([hidden]),
+html[data-active-tab=markets] .app-header__tabs:not([hidden]),
+html[data-active-tab=wallet] .app-header__tabs:not([hidden]) {
+  display: flex;
+}
 
 .app-header__logo-wrap {
   position: relative;
@@ -470,8 +518,6 @@ html[data-active-tab="wallet"] {
   gap: 16px;
   align-items: center;
 }
-
-
 
 .app-header__icon,
 .app-header__avatar {
@@ -704,7 +750,6 @@ html[data-active-tab="wallet"] {
   transform: translateX(0);
 }
 
-
 .setup-checklist__header {
   display: flex;
   align-items: center;
@@ -789,7 +834,7 @@ html[data-active-tab="wallet"] {
 }
 
 .setup-checklist__avatar-ring::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 999px;
@@ -833,7 +878,7 @@ html[data-active-tab="wallet"] {
 }
 
 .setup-checklist__card-title.setup-checklist__card-title--under-review {
-  color: $color-accent-blue;
+  color: #8fb8ff;
 }
 
 .setup-checklist__card-title.setup-checklist__card-title--completed {
@@ -1063,7 +1108,7 @@ html[data-active-tab="wallet"] {
   cursor: pointer;
 }
 
-.setup-checklist__item[data-checklist-item-action][data-nonclickable='true'] {
+.setup-checklist__item[data-checklist-item-action][data-nonclickable=true] {
   cursor: default;
 }
 
@@ -1413,10 +1458,9 @@ html[data-active-tab="wallet"] {
 .asset-card__actions {
   display: flex;
   gap: 8px;
-
-  .asset-btn {
-    width: 120px;
-  }
+}
+.asset-card__actions .asset-btn {
+  width: 120px;
 }
 
 .asset-btn {
@@ -1449,12 +1493,11 @@ html[data-active-tab="wallet"] {
   gap: 8px;
 }
 
-@media (max-width: $bp-mobile) {
+@media (max-width: 640px) {
   .explore__grid {
     grid-template-columns: 63% 37%;
   }
 }
-
 .explore-card {
   background: #1B1D1D;
   border-radius: 8px;
@@ -1524,8 +1567,9 @@ html[data-active-tab="wallet"] {
   gap: 1px;
   align-items: center;
   justify-content: center;
-
-  @media (max-width: $bp-mobile) {
+}
+@media (max-width: 640px) {
+  .explore-side__card {
     padding: 10px 8px;
   }
 }
@@ -1738,17 +1782,16 @@ html[data-active-tab="wallet"] {
   z-index: 4;
   padding: 16px 0px 0px 0px;
   background: #0D0E0F;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -16px;
-    height: 16px;
-    background: linear-gradient(to bottom, rgba(13, 14, 15, 1), rgba(13, 14, 15, 0));
-    pointer-events: none;
-  }
+}
+.finance__section-nav-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -16px;
+  height: 16px;
+  background: linear-gradient(to bottom, rgb(13, 14, 15), rgba(13, 14, 15, 0));
+  pointer-events: none;
 }
 
 .finance__section-nav-item {
@@ -1780,7 +1823,6 @@ html[data-active-tab="wallet"] {
   margin-top: 24px;
 }
 
-// Secured loan → Explore: full-width placeholder art (edge-to-edge in content column)
 .finance-loan-explore {
   margin-top: -56px;
   margin-left: -16px;
@@ -1800,8 +1842,6 @@ html[data-active-tab="wallet"] {
   gap: 56px;
 }
 
-// Single bottom spacing on the wrapper — margin on the compact state was outside its offsetHeight,
-// so the height animation targeted the wrong value and layout jumped when inline height was cleared.
 .finance-intro {
   margin-bottom: 24px;
 }
@@ -1836,9 +1876,7 @@ html[data-active-tab="wallet"] {
 
 .finance-intro__first-top {
   padding: 20px 16px 8px 16px;
-  background-image:
-    linear-gradient(0deg, #1b1d1d 0%, rgba(45, 47, 47, 0.75) 100%),
-    linear-gradient(90deg, #1b1d1d 0%, #1b1d1d 100%);
+  background-image: linear-gradient(0deg, #1b1d1d 0%, rgba(45, 47, 47, 0.75) 100%), linear-gradient(90deg, #1b1d1d 0%, #1b1d1d 100%);
 }
 
 .finance-intro__first-header {
@@ -1857,7 +1895,6 @@ html[data-active-tab="wallet"] {
   justify-content: flex-start;
 }
 
-// Out of flow so the row height stays tight; 48px target extends left of the icon (same right edge).
 .finance-intro__first-close {
   position: absolute;
   right: -14px;
@@ -2084,7 +2121,6 @@ html[data-active-tab="wallet"] {
   display: block;
 }
 
-// Figma 8793:164987 — illustration first, then title + body copy (centered), 32px / 16px gaps.
 .finance-intro-learn-more-panel__body {
   flex: 1 1 auto;
   min-height: 0;
@@ -2439,7 +2475,6 @@ button.finance-summary__stat-value--chevron {
   align-items: center;
 }
 
-// Flow state 1: no summary top — actions sit under intro with full 24px rounding on all corners
 .finance-summary__actions--full-radius {
   border-radius: 24px;
 }
@@ -2803,11 +2838,6 @@ button.finance-summary__stat-value--chevron {
   color: #0D0E0F;
 }
 
-// .plan-strategy__freq-widget .plan-strategy__freq-item {
-//   font-size: 12px;
-//   height: 28px;
-// }
-
 .plan-strategy__return {
   margin-top: 32px;
 }
@@ -2831,7 +2861,6 @@ button.finance-summary__stat-value--chevron {
   color: #5AC47D;
 }
 
-// Return metrics cluster: finance widget, plan detail footer, breakdown profit row (shared layout + tokens)
 .plan-strategy__return-metrics,
 .plan-detail-panel__return-metrics,
 .plan-breakdown-panel__profit-metrics {
@@ -2843,7 +2872,6 @@ button.finance-summary__stat-value--chevron {
   --prm-pct-inline-fw: 700;
   --prm-pct-inline-gap: 3px;
   --prm-arrow-wh: 14px;
-
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -2865,7 +2893,6 @@ button.finance-summary__stat-value--chevron {
   flex-direction: column;
 }
 
-
 .plan-strategy__return-metrics-values-row,
 .plan-strategy__return-metrics-captions-row,
 .plan-detail-panel__return-metrics-values-row,
@@ -2879,7 +2906,6 @@ button.finance-summary__stat-value--chevron {
   gap: 12px;
   width: 100%;
 }
-
 
 .plan-strategy__return-metrics-captions-row,
 .plan-detail-panel__return-metrics-captions-row,
@@ -2925,12 +2951,6 @@ button.finance-summary__stat-value--chevron {
   width: 24px;
   height: 24px;
 }
-
-// .plan-strategy__return-pct-line--simulated,
-// .plan-detail-panel__return-pct-inline--simulated,
-// .plan-breakdown-panel__profit-pct-line--simulated {
-//   margin-top: 1px;
-// }
 
 .plan-strategy__return-pct-line--historic,
 .plan-detail-panel__return-pct-inline--historic,
@@ -2999,7 +3019,6 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(3px);
 }
 
-// `display:flex` above can override UA `[hidden]` when we suppress invalid simulated return.
 .plan-detail-panel__return-pct-inline.plan-return-metric__pct-line--simulated[hidden] {
   display: none !important;
 }
@@ -3017,7 +3036,6 @@ button.finance-summary__stat-value--chevron {
 .plan-return-metric__pct-line--historic {
   display: none;
 }
-
 
 .plan-strategy__return-arrow,
 .plan-detail-panel__return-arrow {
@@ -3066,7 +3084,6 @@ button.finance-summary__stat-value--chevron {
   font-size: 22px;
 }
 
-// Keep Plan detail + Breakdown simulated outcome values blue without changing shared token defaults.
 .plan-detail-panel__return-abs,
 .plan-detail-panel__return-currency,
 .plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
@@ -3082,7 +3099,6 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
-// Return-metric asset stack (JS: buildReturnMetricProductIconWrapHtml) — single size for widget, detail, breakdown
 .plan-detail-panel__product-icon-wrap.plan-return-metric__product-icon-wrap {
   width: 24px;
   height: 24px;
@@ -3104,34 +3120,30 @@ button.finance-summary__stat-value--chevron {
 
 .plan-return-metric__group--loss {
   color: #ff6b6b;
-
-  .plan-strategy__return-abs,
-  .plan-strategy__return-currency,
-  .plan-strategy__return-pct.plan-return-metric__pct--simulated,
-  .plan-strategy__return-pct-line:not(.plan-return-metric__pct-line--historic) {
-    color: #ff6b6b;
-  }
-
-  .plan-detail-panel__return-abs,
-  .plan-detail-panel__return-currency,
-  .plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
-  .plan-detail-panel__return-pct-inline:not(.plan-return-metric__pct-line--historic) {
-    color: #ff6b6b;
-  }
-
-  .plan-breakdown-panel__profit-abs,
-  .plan-breakdown-panel__profit-currency,
-  .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
-  .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
-    color: #ff6b6b;
-  }
-
-  .plan-return-metric__pct-line--historic,
-  .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
-  .plan-return-metric__pct-line--historic .plan-strategy__return-pct,
-  .plan-return-metric__pct-line--historic .plan-detail-panel__return-pct {
-    color: #c44221;
-  }
+}
+.plan-return-metric__group--loss .plan-strategy__return-abs,
+.plan-return-metric__group--loss .plan-strategy__return-currency,
+.plan-return-metric__group--loss .plan-strategy__return-pct.plan-return-metric__pct--simulated,
+.plan-return-metric__group--loss .plan-strategy__return-pct-line:not(.plan-return-metric__pct-line--historic) {
+  color: #ff6b6b;
+}
+.plan-return-metric__group--loss .plan-detail-panel__return-abs,
+.plan-return-metric__group--loss .plan-detail-panel__return-currency,
+.plan-return-metric__group--loss .plan-detail-panel__return-pct.plan-return-metric__pct--simulated,
+.plan-return-metric__group--loss .plan-detail-panel__return-pct-inline:not(.plan-return-metric__pct-line--historic) {
+  color: #ff6b6b;
+}
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-abs,
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-currency,
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic),
+.plan-return-metric__group--loss .plan-breakdown-panel__profit-pct-line:not(.plan-return-metric__pct-line--historic) span {
+  color: #ff6b6b;
+}
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-return-metric__pct--historic,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-strategy__return-pct,
+.plan-return-metric__group--loss .plan-return-metric__pct-line--historic .plan-detail-panel__return-pct {
+  color: #c44221;
 }
 
 .plan-strategy__view-breakdown-link {
@@ -3150,17 +3162,15 @@ button.finance-summary__stat-value--chevron {
   padding: 6px 0px 0px 0px;
   margin-top: 3px;
   margin-bottom: 0;
-
-  img {
-    margin-top: 3px;
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    display: block;
-  }
+}
+.plan-strategy__view-breakdown-link img {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
 }
 
-// Plan detail sticky footer: secondary Breakdown (Figma btn-bg-secondary-active #2d2f2f, 48px, 16px radius)
 .plan-detail-panel__view-breakdown-link {
   flex: 1 1 0;
   min-width: 0;
@@ -3174,34 +3184,30 @@ button.finance-summary__stat-value--chevron {
   border-radius: 16px;
   background: #2d2f2f;
   color: #ffffff;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-
-  img {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
-
-  span {
-    white-space: nowrap;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 1;
-    background: #1f2020;
-    color: #58595a;
-
-    img {
-      opacity: 1;
-      filter: brightness(0) invert(0.35);
-    }
-  }
+}
+.plan-detail-panel__view-breakdown-link img {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+.plan-detail-panel__view-breakdown-link span {
+  white-space: nowrap;
+}
+.plan-detail-panel__view-breakdown-link:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  background: #1f2020;
+  color: #58595a;
+}
+.plan-detail-panel__view-breakdown-link:disabled img {
+  opacity: 1;
+  filter: brightness(0) invert(0.35);
 }
 
 .plan-strategy__cta-wrap {
@@ -3221,8 +3227,6 @@ button.finance-summary__stat-value--chevron {
   font-size: 14px;
   font-weight: 600;
 }
-
-// ─── Curated portfolios ───────────────────────────────────────────────────────
 
 .curated-portfolios {
   margin: 0;
@@ -3257,11 +3261,10 @@ button.finance-summary__stat-value--chevron {
   flex-direction: column;
   gap: 12px;
   cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid #275cfd;
-    outline-offset: 2px;
-  }
+}
+.curated-portfolios__card:focus-visible {
+  outline: 2px solid #275cfd;
+  outline-offset: 2px;
 }
 
 .curated-portfolios__card-main {
@@ -3365,8 +3368,6 @@ button.finance-summary__stat-value--chevron {
   white-space: nowrap;
 }
 
-// ─── Start from a theme (Finance Auto-invest) ───────────────────────────────
-
 .start-theme {
   margin: 0;
 }
@@ -3402,11 +3403,10 @@ button.finance-summary__stat-value--chevron {
   text-align: left;
   color: #ffffff;
   cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid #275cfd;
-    outline-offset: 2px;
-  }
+}
+.start-theme__card:focus-visible {
+  outline: 2px solid #275cfd;
+  outline-offset: 2px;
 }
 
 .start-theme__icon {
@@ -3509,8 +3509,6 @@ button.finance-summary__stat-value--chevron {
   cursor: pointer;
 }
 
-// ─── All themes page (Finance Auto-invest) ───────────────────────────────────
-
 .finance-themes-page {
   position: absolute;
   inset: 0;
@@ -3548,12 +3546,11 @@ button.finance-summary__stat-value--chevron {
   justify-content: center;
   padding: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.finance-themes-page__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .finance-themes-page__title-wrap {
@@ -3581,10 +3578,9 @@ button.finance-summary__stat-value--chevron {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.finance-themes-page__body::-webkit-scrollbar {
+  display: none;
 }
 
 .finance-themes-page__list {
@@ -3687,10 +3683,6 @@ button.finance-summary__stat-value--chevron {
   display: none;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ─── Cryptos in the Spotlight ─────────────────────────────────────────────────
-
 .spotlight {
   margin: 0;
   padding: 0;
@@ -3720,14 +3712,12 @@ button.finance-summary__stat-value--chevron {
   padding: 0 16px;
   cursor: grab;
   user-select: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  &.is-dragging {
-    cursor: grabbing;
-  }
+}
+.spotlight__scroll::-webkit-scrollbar {
+  display: none;
+}
+.spotlight__scroll.is-dragging {
+  cursor: grabbing;
 }
 
 .spotlight__grid {
@@ -3755,10 +3745,9 @@ button.finance-summary__stat-value--chevron {
   flex-shrink: 0;
   cursor: pointer;
   user-select: none;
-
-  .spotlight__scroll.is-dragging & {
-    cursor: grabbing;
-  }
+}
+.spotlight__scroll.is-dragging .crypto-pill {
+  cursor: grabbing;
 }
 
 .crypto-pill__icon {
@@ -3834,8 +3823,6 @@ button.finance-summary__stat-value--chevron {
   margin-top: 16px;
 }
 
-// ─── FAQ ──────────────────────────────────────────────────────────────────────
-
 .faq {
   margin: 0 0 80px;
   padding: 0;
@@ -3863,10 +3850,9 @@ button.finance-summary__stat-value--chevron {
   height: 56px;
   padding: 16px;
   box-sizing: border-box;
-
-  & + & {
-    border-top: 1px solid #2d2f2f;
-  }
+}
+.faq__row + .faq__row {
+  border-top: 1px solid #2d2f2f;
 }
 
 .faq__icon {
@@ -3892,9 +3878,6 @@ button.finance-summary__stat-value--chevron {
   display: block;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ─── Shared scrim: schedule stack (main + time + end-date + buys) ───────────
 .phone-container__nested-sheet-scrim {
   position: absolute;
   inset: 0;
@@ -3921,7 +3904,6 @@ button.finance-summary__stat-value--chevron {
   background: rgba(0, 0, 0, 0) !important;
 }
 
-// Participant sheets draw no scrim — shared layer above provides the dim.
 .phone-container--nested-sheet-scrim [data-schedule-sheet] .currency-sheet__backdrop,
 .phone-container--nested-sheet-scrim [data-schedule-time-sheet] .currency-sheet__backdrop,
 .phone-container--nested-sheet-scrim [data-schedule-buys-sheet] .currency-sheet__backdrop {
@@ -3929,12 +3911,9 @@ button.finance-summary__stat-value--chevron {
   transition: none !important;
 }
 
-// ─── Currency bottom sheet ────────────────────────────────────────────────────
-
 .currency-sheet {
   position: absolute;
   inset: 0;
-  // Must sit above plan overlays (e.g. breakdown z-index 32)
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -3962,20 +3941,16 @@ button.finance-summary__stat-value--chevron {
   background: rgba(0, 0, 0, 0.72);
 }
 
-// Nested bottom-sheet swap: keep dimmer steady (no fade) while the panel slides.
 .currency-sheet.currency-sheet--backdrop-handoff .currency-sheet__backdrop {
   background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
 }
 
-// Bottom sheet stacking: dismissing a child — clear this sheet’s scrim at once so the parent’s dim shows
-// while the panel still slides down. (Non-stacking keeps using --backdrop-handoff instead.)
 .currency-sheet.currency-sheet--stack-pop-dismiss .currency-sheet__backdrop {
   background: rgba(0, 0, 0, 0) !important;
   transition: none !important;
 }
 
-// Next sheet in chain: scrim at full dim immediately (no fade-in) until class is removed.
 .currency-sheet.currency-sheet--backdrop-instant-in .currency-sheet__backdrop {
   background: rgba(0, 0, 0, 0.72) !important;
   transition: none !important;
@@ -3996,7 +3971,6 @@ button.finance-summary__stat-value--chevron {
   transform: translateY(0);
 }
 
-// Trade Spot page (Figma 11207:39273)
 .trade-spot-page {
   display: flex;
   flex-direction: column;
@@ -4004,10 +3978,6 @@ button.finance-summary__stat-value--chevron {
   background: #0d0e0f;
   color: #fff;
 }
-
-// .trade-spot-page__top {
-//   border-bottom: 1px solid #252627;
-// }
 
 .trade-spot-page__pair-row {
   display: flex;
@@ -4349,7 +4319,6 @@ button.finance-summary__stat-value--chevron {
 
 .trade-spot-page__orders-filter {
   padding: 16px;
-  // border-bottom: 1px solid #252627;
   color: #fff;
   font-size: 14px;
   font-weight: 400;
@@ -4366,7 +4335,7 @@ button.finance-summary__stat-value--chevron {
   cursor: pointer;
 }
 
-.trade-spot-page__orders-filter-toggle input[type="checkbox"] {
+.trade-spot-page__orders-filter-toggle input[type=checkbox] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
@@ -4380,13 +4349,11 @@ button.finance-summary__stat-value--chevron {
   display: none;
 }
 
-.trade-spot-page__orders-filter-toggle input[type="checkbox"]:checked
-  ~ .trade-spot-page__orders-filter-icon--off {
+.trade-spot-page__orders-filter-toggle input[type=checkbox]:checked ~ .trade-spot-page__orders-filter-icon--off {
   display: none;
 }
 
-.trade-spot-page__orders-filter-toggle input[type="checkbox"]:checked
-  ~ .trade-spot-page__orders-filter-icon--on {
+.trade-spot-page__orders-filter-toggle input[type=checkbox]:checked ~ .trade-spot-page__orders-filter-icon--on {
   display: block;
 }
 
@@ -4397,7 +4364,6 @@ button.finance-summary__stat-value--chevron {
   background: transparent;
 }
 
-// Trade · Convert tab (Figma Convert 2.1 RFQ — node 11240:11677)
 .trade-convert-page {
   background: #0d0e0f;
   min-height: 100%;
@@ -4456,11 +4422,10 @@ button.finance-summary__stat-value--chevron {
   padding: 0;
   opacity: 0.9;
   -webkit-tap-highlight-color: transparent;
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-  }
+}
+.trade-convert-page__icon-btn:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .trade-convert-page__rate-row {
@@ -4478,12 +4443,11 @@ button.finance-summary__stat-value--chevron {
   color: inherit;
   -webkit-tap-highlight-color: transparent;
   justify-content: flex-start;
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-    border-radius: 8px;
-  }
+}
+.trade-convert-page__rate-row:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .trade-convert-page__rate {
@@ -4502,7 +4466,6 @@ button.finance-summary__stat-value--chevron {
   display: block;
 }
 
-// Convert · rate detail subpage (slide-up; content TBD)
 .trade-convert-rate-panel {
   position: absolute;
   inset: 0;
@@ -4542,11 +4505,10 @@ button.finance-summary__stat-value--chevron {
   justify-content: center;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-  }
+}
+.trade-convert-rate-panel__close:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .trade-convert-rate-panel__title-wrap {
@@ -4629,11 +4591,10 @@ button.finance-summary__stat-value--chevron {
   color: #3f78ff;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-  }
+}
+.trade-convert-page__max:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .trade-convert-page__swap-wrap {
@@ -4657,11 +4618,10 @@ button.finance-summary__stat-value--chevron {
   box-sizing: border-box;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-  }
+}
+.trade-convert-page__swap:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .trade-convert-page__swap img {
@@ -4670,7 +4630,6 @@ button.finance-summary__stat-value--chevron {
   height: 24px;
 }
 
-// Trade quick-menu sheet (Convert 2.1 RFQ design)
 .trade-qm-sheet__panel {
   padding: 0;
   background: #1b1d1d;
@@ -4750,12 +4709,11 @@ button.finance-summary__stat-value--chevron {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-
-  img {
-    display: block;
-    width: 20px;
-    height: 20px;
-  }
+}
+.trade-qm-sheet__icon-circle img {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 
 .trade-qm-sheet__row-copy {
@@ -4823,133 +4781,115 @@ button.finance-summary__stat-value--chevron {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.trade-qm-sheet__close img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
-// Funding 2 pre-fund preview bottom sheet (Figma 8946:114672)
-.currency-sheet--funding2-preview {
-  .currency-sheet__panel.funding2-preview-sheet__panel {
-    background: #1b1d1d;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    padding-bottom: 0;
-    overflow: hidden;
-  }
-
-  .funding2-preview-sheet__handle-wrap {
-    padding: 16px 156px;
-  }
-
-  .funding2-preview-sheet__handle {
-    width: 48px;
-    height: 6px;
-    background: #47494a;
-    border-radius: 12px;
-  }
-
-  .funding2-preview-sheet__body {
-    padding: 16px 16px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    box-sizing: border-box;
-  }
-
-  .funding2-preview-sheet__top {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  p.funding2-preview-sheet__kicker {
-    margin: 0;
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: normal;
-  }
-
-  p.funding2-preview-sheet__amount {
-    margin: 0;
-    font-family: 'Manrope', sans-serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: #ffffff;
-    line-height: normal;
-  }
-
-  p.funding2-preview-sheet__covers-line {
-    margin: 0;
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #9b9c9c;
-  }
-
-  p.funding2-preview-sheet__covers-line[hidden] {
-    display: none !important;
-  }
-
-  .funding2-preview-sheet__middle {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  p.funding2-preview-sheet__hero {
-    margin: 0;
-    font-family: 'Manrope', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #ffffff;
-    line-height: normal;
-  }
-
-  .funding2-preview-sheet__hl {
-    color: #8fb8ff;
-  }
-
-  .funding2-preview-sheet__how {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    font-family: 'Manrope', sans-serif;
-    text-align: left;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #3f78ff;
-    margin-top: 4px;
-    cursor: pointer;
-  }
-
-  .funding2-preview-sheet__footer {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    background: #1b1d1d;
-    box-sizing: border-box;
-  }
-
-  .funding2-preview-sheet__btn {
-    margin: 0;
-    width: 100%;
-    flex: auto;
-    font-family: 'Manrope', sans-serif;
-  }
+.currency-sheet--funding2-preview .currency-sheet__panel.funding2-preview-sheet__panel {
+  background: #1b1d1d;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__handle-wrap {
+  padding: 16px 156px;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__handle {
+  width: 48px;
+  height: 6px;
+  background: #47494a;
+  border-radius: 12px;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__body {
+  padding: 16px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  box-sizing: border-box;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__top {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.currency-sheet--funding2-preview p.funding2-preview-sheet__kicker {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: normal;
+}
+.currency-sheet--funding2-preview p.funding2-preview-sheet__amount {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: normal;
+}
+.currency-sheet--funding2-preview p.funding2-preview-sheet__covers-line {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
+}
+.currency-sheet--funding2-preview p.funding2-preview-sheet__covers-line[hidden] {
+  display: none !important;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__middle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+}
+.currency-sheet--funding2-preview p.funding2-preview-sheet__hero {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: normal;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__hl {
+  color: #8fb8ff;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__how {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: "Manrope", sans-serif;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #3f78ff;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: #1b1d1d;
+  box-sizing: border-box;
+}
+.currency-sheet--funding2-preview .funding2-preview-sheet__btn {
+  margin: 0;
+  width: 100%;
+  flex: auto;
+  font-family: "Manrope", sans-serif;
 }
 
 .currency-sheet__handle-wrap {
@@ -4965,7 +4905,6 @@ button.finance-summary__stat-value--chevron {
   border-radius: 12px;
 }
 
-// Promo intro (Figma DCA1.0_modal_intro — node 8383:64209)
 .currency-sheet--promo-intro .currency-sheet__panel {
   padding-bottom: 0;
 }
@@ -5062,7 +5001,6 @@ button.finance-summary__stat-value--chevron {
 }
 
 .build-badge__promo-trigger {
-  // display: block;
   width: 100%;
   margin-top: 8px;
   padding: 6px 10px;
@@ -5252,7 +5190,6 @@ button.finance-summary__stat-value--chevron {
   padding: 2px 0;
 }
 
-// Action rows (e.g. top-up sheet: Deposit / Convert) — no radio
 .currency-sheet__item--action {
   padding-right: 16px;
 }
@@ -5261,7 +5198,6 @@ button.finance-summary__stat-value--chevron {
   padding: 2px 0;
 }
 
-// Top-up sheet only: trailing chevron after row text
 .currency-sheet__item-chevron {
   width: 24px;
   height: 24px;
@@ -5298,7 +5234,6 @@ button.finance-summary__stat-value--chevron {
   opacity: 0.6;
 }
 
-// img icons (display + investment currency sheets): no circle fill
 .currency-sheet__item-icon {
   width: 32px;
   height: 32px;
@@ -5307,35 +5242,28 @@ button.finance-summary__stat-value--chevron {
   overflow: hidden;
 }
 
-// div row icons (top-up, schedule, etc.): keep circular keyline background
 div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   background: #47494a;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 20px;
-    background-size: contain;
-  }
+}
+div.currency-sheet__item-icon::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
 }
 
-.currency-sheet__item-icon--convert {
-  &::before {
-    background: url('../assets/icon_convert.svg') no-repeat center;
- }
+.currency-sheet__item-icon--convert::before {
+  background: url("../assets/icon_convert.svg") no-repeat center;
 }
 
-.currency-sheet__item-icon--deposit {
-  &::before {
-    background: url('../assets/icon_deposit.svg') no-repeat center;
-  }
+.currency-sheet__item-icon--deposit::before {
+  background: url("../assets/icon_deposit.svg") no-repeat center;
 }
 
-// My plans → Manage plan sheet (Figma 8900:126245 — same row pattern as Get TWD / top-up)
 .currency-sheet__body--manage-plan {
   gap: 24px;
   padding-top: 16px;
@@ -5345,7 +5273,6 @@ div.currency-sheet__item-icon {
   margin-top: 0;
 }
 
-// My plans → Edit pre-funding (Figma 8992:143624)
 .currency-sheet__body--prefund-edit {
   gap: 24px;
   padding-top: 16px;
@@ -5396,12 +5323,12 @@ div.currency-sheet__item-icon {
   flex-shrink: 0;
 }
 
-[data-my-plans-manage-sheet][data-plan-status='paused'] .currency-sheet__manage-plan-status {
+[data-my-plans-manage-sheet][data-plan-status=paused] .currency-sheet__manage-plan-status {
   color: #a3a3a3;
   background: rgba(255, 255, 255, 0.06);
 }
 
-[data-my-plans-manage-sheet][data-plan-status='ended'] .currency-sheet__manage-plan-status {
+[data-my-plans-manage-sheet][data-plan-status=ended] .currency-sheet__manage-plan-status {
   color: #9b9c9c;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -5410,10 +5337,8 @@ div.currency-sheet__item-icon {
   gap: 12px;
 }
 
-.currency-sheet__item--manage-prefund {
-  .currency-sheet__item-name {
-    margin-bottom: 0;
-  }
+.currency-sheet__item--manage-prefund .currency-sheet__item-name {
+  margin-bottom: 0;
 }
 
 .currency-sheet__item-desc--manage-prefund {
@@ -5424,7 +5349,6 @@ div.currency-sheet__item-icon {
   color: #9b9c9c;
 }
 
-// `display: block` on `.currency-sheet__item-desc` beats UA `[hidden]`; force-hide when toggled in JS.
 .currency-sheet__item-desc--manage-prefund[hidden] {
   display: none !important;
 }
@@ -5439,29 +5363,27 @@ div.currency-sheet__item-icon {
   justify-content: center;
   position: relative;
   background: #47494a;
-
-  &::before {
-    display: none;
-  }
-
-  img {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    max-width: 20px;
-    max-height: 20px;
-    flex-shrink: 0;
-    object-fit: contain;
-    transform: translate(-50%, -50%);
-  }
+}
+.currency-sheet__item-icon--manage-img::before {
+  display: none;
+}
+.currency-sheet__item-icon--manage-img img {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 20px;
+  max-height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
 }
 
 .currency-sheet__item--manage-prefund .currency-sheet__item-icon--manage-img {
   background: #275cfd;
 }
 
-[data-my-plans-manage-sheet][data-my-plans-manage-prefund-mode='edit'] .currency-sheet__item--manage-prefund .currency-sheet__item-icon--manage-img {
+[data-my-plans-manage-sheet][data-my-plans-manage-prefund-mode=edit] .currency-sheet__item--manage-prefund .currency-sheet__item-icon--manage-img {
   background: #2f9752;
 }
 
@@ -5469,7 +5391,6 @@ div.currency-sheet__item-icon {
   z-index: 48;
 }
 
-// Stacks above edit pre-funding sheet (47) when “Bottom sheet stacking” is on.
 [data-my-plans-prefund-end-confirm-sheet] {
   z-index: 49;
 }
@@ -5492,11 +5413,6 @@ div.currency-sheet__item-icon {
   font-weight: 400;
   line-height: 23px;
 }
-
-// .phone-container .currency-sheet__prefund-end-confirm-copy-highlight {
-//   color: #ffffff !important;
-//   font-weight: 600;
-// }
 
 .phone-container .currency-sheet__prefund-end-confirm-copy p {
   margin: 0;
@@ -5585,7 +5501,6 @@ div.currency-sheet__item-icon {
   color: #ffffff;
 }
 
-// Plan detail: auto-invest schedule bottom sheet (Figma 8510:9549)
 .currency-sheet__body--schedule {
   align-items: stretch;
   width: 100%;
@@ -5617,7 +5532,6 @@ div.currency-sheet__item-icon {
   line-height: 22px;
 }
 
-// Set a limit: subtitle under row title — hidden until it has text (Confirm on nested sheet or reopen from plan)
 [data-schedule-sheet] [data-schedule-endlimit-desc]:empty {
   display: none;
 }
@@ -5627,12 +5541,12 @@ div.currency-sheet__item-icon {
   color: #ff6d47;
 }
 
-[data-schedule-sheet] [data-schedule-end='enddate'].schedule-end-limit-row--disabled {
+[data-schedule-sheet] [data-schedule-end=enddate].schedule-end-limit-row--disabled {
   pointer-events: none;
   cursor: default;
 }
 
-[data-schedule-sheet] [data-schedule-end='enddate'].schedule-end-limit-row--disabled .currency-sheet__item-radio {
+[data-schedule-sheet] [data-schedule-end=enddate].schedule-end-limit-row--disabled .currency-sheet__item-radio {
   opacity: 0.5;
 }
 
@@ -5679,15 +5593,14 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 20px;
-    background: url('../assets/icon_calendar_gray.svg') no-repeat center;
-    background-size: contain;
-  }
+}
+.schedule-sheet__timing-cal::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: url("../assets/icon_calendar_gray.svg") no-repeat center;
+  background-size: contain;
 }
 
 .schedule-sheet__timing-value {
@@ -5782,17 +5695,14 @@ div.currency-sheet__item-icon {
   color: #8fb8ff;
 }
 
-// Schedule time wheel (Figma 8514:6906) — stacks above main schedule sheet
 .currency-sheet--schedule-time {
   z-index: 45;
 }
 
-// Schedule nested follow-ups (end date, # buys) — above time picker layer
 .currency-sheet--schedule-followup {
   z-index: 46;
 }
 
-// Buy-now info should stack above any currently open schedule-related sheet.
 .currency-sheet--schedule-buy-now-info {
   z-index: 47;
 }
@@ -5805,7 +5715,6 @@ div.currency-sheet__item-icon {
   min-height: 120px;
 }
 
-// Schedule: flexible days picker (Figma 9005:156146)
 .currency-sheet__body--schedule-flex-days {
   align-items: stretch;
   width: 100%;
@@ -5875,14 +5784,6 @@ div.currency-sheet__item-icon {
   line-height: normal;
 }
 
-// .currency-sheet__body--schedule-followup .currency-sheet__title {
-//   text-align: center;
-//   font-size: 18px;
-//   font-weight: 700;
-// }
-
-// Figma 8520:8386 — inline set-limit stepper (expand/collapse with grid + subtle fade/slide)
-// Collapsed: max-height 0 so no stray gap under the list (0fr grid could still leave subpixel space)
 .schedule-setlimit-inline {
   width: 100%;
   box-sizing: border-box;
@@ -5891,15 +5792,13 @@ div.currency-sheet__item-icon {
   padding: 0;
   overflow: hidden;
   transition: max-height 0.32s cubic-bezier(0.32, 0.72, 0, 1);
-
-  &:not(.schedule-setlimit-inline--open) {
-    pointer-events: none;
-  }
-
-  &--open {
-    max-height: 260px;
-    pointer-events: auto;
-  }
+}
+.schedule-setlimit-inline:not(.schedule-setlimit-inline--open) {
+  pointer-events: none;
+}
+.schedule-setlimit-inline--open {
+  max-height: 260px;
+  pointer-events: auto;
 }
 
 .schedule-setlimit-inline__inner {
@@ -5912,9 +5811,7 @@ div.currency-sheet__item-icon {
   box-sizing: border-box;
   opacity: 0;
   transform: translateY(-6px);
-  transition:
-    opacity 0.24s ease-out,
-    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: opacity 0.24s ease-out, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .schedule-setlimit-inline--open .schedule-setlimit-inline__inner {
@@ -5922,36 +5819,30 @@ div.currency-sheet__item-icon {
   transform: translateY(0);
 }
 
-// Stepper lives in nested [data-schedule-buys-sheet]; skip collapsed max-height / fade-in
 .schedule-setlimit-inline--in-sheet {
   max-height: none;
   overflow: visible;
   transition: none;
   pointer-events: auto;
-
-  .schedule-setlimit-inline__inner {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
+}
+.schedule-setlimit-inline--in-sheet .schedule-setlimit-inline__inner {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .schedule-setlimit-inline {
     transition-duration: 0.01ms;
   }
-
   .schedule-setlimit-inline__inner {
     transition-duration: 0.01ms;
     transform: none;
   }
-
   .schedule-setlimit-inline--open .schedule-setlimit-inline__inner {
     transform: none;
   }
 }
-
-// Figma 8520:9994 — set-limit pill (surface tertiary + secondary jump + primary circles)
 .schedule-setlimit-inline__pill {
   display: flex;
   align-items: center;
@@ -6033,7 +5924,6 @@ div.currency-sheet__item-icon {
   height: 32px;
   padding: 4px 10px;
   border-radius: 12px;
-  // background: #2d2f2f;
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
@@ -6213,7 +6103,6 @@ div.currency-sheet__item-icon {
   font-size: 14px;
 }
 
-
 .setlimit-sheet__summary-label {
   color: #9b9c9c;
   overflow: hidden;
@@ -6240,8 +6129,6 @@ div.currency-sheet__item-icon {
   gap: 8px;
   padding-bottom: 8px;
 }
-
-
 
 .currency-sheet__footer--split {
   display: flex;
@@ -6368,11 +6255,10 @@ div.currency-sheet__item-icon {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
+}
+.schedule-time-sheet__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .schedule-time-sheet__btn--secondary {
@@ -6419,10 +6305,9 @@ div.currency-sheet__item-icon {
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.schedule-time-sheet__col::-webkit-scrollbar {
+  display: none;
 }
 
 .schedule-time-sheet__col--primary[hidden] {
@@ -6440,10 +6325,6 @@ div.currency-sheet__item-icon {
   margin-right: auto;
   border-left: 0;
 }
-
-// .schedule-time-sheet__col--time:not(:only-child) {
-//   border-left: 1px solid #2d2f2f;
-// }
 
 .schedule-time-sheet__spacer {
   flex-shrink: 0;
@@ -6475,21 +6356,7 @@ div.currency-sheet__item-icon {
   min-height: 74px;
 }
 
-// // End-condition subtitles (schedule sheet only)
-// .currency-sheet--schedule [data-schedule-end='continuous'] .currency-sheet__item-desc {
-//   color: #8fb8ff;
-//   transition: color 0.22s ease-out;
-// }
-
-// // Unselected Continuous row when "Set a limit" is active — mute subtitle, keep layout
-// .currency-sheet--schedule.schedule-sheet--end-limit-selected
-//   [data-schedule-end='continuous']
-//   .currency-sheet__item-desc {
-//   color: #58595a;
-// }
-
-// Enddate row subtitle is [data-schedule-endlimit-desc] — toggled via .schedule-sheet--end-limit-selected; do not force display:none here.
-.currency-sheet--schedule [data-schedule-end='buys'] .currency-sheet__item-desc {
+.currency-sheet--schedule [data-schedule-end=buys] .currency-sheet__item-desc {
   display: none;
   color: #8fb8ff;
 }
@@ -6502,23 +6369,19 @@ div.currency-sheet__item-icon {
   border-radius: 50%;
   background: #47494a;
   overflow: hidden;
-
-  &::before {
-    display: none;
-  }
-
-  img {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 20px;
-    height: 20px;
-    display: block;
-    transform: translate(-50%, -50%);
-  }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
+.currency-sheet__item-icon--ec::before {
+  display: none;
+}
+.currency-sheet__item-icon--ec img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  display: block;
+  transform: translate(-50%, -50%);
+}
 
 .support__card {
   height: 52px;
@@ -6561,15 +6424,16 @@ div.currency-sheet__item-icon {
   right: auto;
   bottom: 0;
   z-index: 5;
-  background: $bg-container;
-  border-top: 1px solid $border-color;
+  background: #0D0E0F;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   height: 68px;
   display: flex;
   align-items: center;
   padding: 6px 0 22px;
   justify-content: space-around;
-
-  @media (max-width: $bp-mobile) {
+}
+@media (max-width: 640px) {
+  .tabbar {
     position: fixed;
     left: 0;
     right: 0;
@@ -6612,7 +6476,6 @@ div.currency-sheet__item-icon {
     transform: scale(1);
   }
 }
-
 .tabbar__item.is-active {
   color: #ffffff;
 }
@@ -6683,11 +6546,11 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   color-scheme: dark;
-
   pointer-events: auto;
   transition: width 0.15s ease, max-height 0.25s ease, opacity 0.2s ease;
-
-  @media (max-width: $bp-mobile) {
+}
+@media (max-width: 640px) {
+  .build-badge {
     bottom: 84px;
   }
 }
@@ -6735,7 +6598,6 @@ div.currency-sheet__item-icon {
 .build-badge__chevron .build-badge__chevron-icon--collapsed {
   display: none;
 }
-
 
 .build-badge.is-collapsed .build-badge__chevron {
   width: 40px;
@@ -6804,7 +6666,6 @@ div.currency-sheet__item-icon {
   cursor: pointer;
 }
 
-// ── Prototype start overlay ───────────────────────────────────────────────────
 .proto-start {
   position: fixed;
   inset: 0;
@@ -6827,13 +6688,13 @@ div.currency-sheet__item-icon {
 
 .proto-start__modal {
   position: relative;
-  width: min(420px, calc(100vw - 44px));
+  width: min(420px, 100vw - 44px);
   border-radius: 18px;
   background: #ffffff;
   color: #0d0e0f;
   padding: 18px 16px 14px;
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 .proto-start__kicker {
@@ -6855,7 +6716,7 @@ div.currency-sheet__item-icon {
   margin-top: 8px;
   font-size: 13px;
   line-height: 1.4;
-  color: rgba(13, 14, 15,  0.7);
+  color: rgba(13, 14, 15, 0.7);
 }
 
 .proto-start__actions {
@@ -6902,7 +6763,6 @@ div.currency-sheet__item-icon {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 6px 8px;
-
 }
 
 .build-badge__group.is-locked {
@@ -6939,7 +6799,6 @@ div.currency-sheet__item-icon {
   position: relative;
   height: 100%;
   width: calc(100% - 30px);
-  // max-width: 328px;
   transform: translateX(100%);
   transition: transform 0.25s ease;
 }
@@ -7115,7 +6974,6 @@ div.currency-sheet__item-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  // background: rgba(255, 255, 255, 0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7365,7 +7223,6 @@ div.currency-sheet__item-icon {
     width: 100%;
   }
 }
-
 .snackbar {
   position: absolute;
   top: 24px;
@@ -7462,7 +7319,6 @@ div.currency-sheet__item-icon {
   align-items: center;
   gap: 6px;
   background: rgba(255, 255, 255, 0.08);
-
   border-radius: 999px;
   padding: 4px 4px;
   line-height: 1.2;
@@ -7505,8 +7361,6 @@ div.currency-sheet__item-icon {
   opacity: 1;
 }
 
-// ─── Plan Detail Panel ────────────────────────────────────────────────────────
-
 .plan-detail-panel {
   position: absolute;
   inset: 0;
@@ -7525,12 +7379,10 @@ div.currency-sheet__item-icon {
   transform: translateX(0);
 }
 
-// Temporary z-layer bump for direct handoff from My plans -> Plan.
 .plan-detail-panel.plan-detail-panel--handoff-top {
   z-index: 37;
 }
 
-// Breakdown overlay: stop underlying plan scroller (avoids visible scrollbar beside overlay)
 .plan-detail-panel.is-plan-breakdown-open .plan-detail-panel__scroller {
   overflow: hidden;
 }
@@ -7543,8 +7395,6 @@ div.currency-sheet__item-icon {
   overflow: hidden;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 .plan-detail-panel__header {
   flex-shrink: 0;
   position: relative;
@@ -7556,11 +7406,10 @@ div.currency-sheet__item-icon {
   padding: 52px 16px 16px;
   gap: 12px;
   transition: background 0.25s ease;
-
-  &.is-collapsed {
-    background: #0d0e0f;
-    border-bottom-color: #252627;
-  }
+}
+.plan-detail-panel__header.is-collapsed {
+  background: #0d0e0f;
+  border-bottom-color: #252627;
 }
 
 .plan-detail-panel__header-divider {
@@ -7573,10 +7422,9 @@ div.currency-sheet__item-icon {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
-
-  .plan-detail-panel__header.is-collapsed & {
-    opacity: 1;
-  }
+}
+.plan-detail-panel__header.is-collapsed .plan-detail-panel__header-divider {
+  opacity: 1;
 }
 
 .plan-detail-panel__icon-btn {
@@ -7590,15 +7438,13 @@ div.currency-sheet__item-icon {
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.plan-detail-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
-// Title area: two overlapping states inside a fixed-height slot
 .plan-detail-panel__header-title-area {
   flex: 1;
   min-width: 0;
@@ -7619,11 +7465,10 @@ div.currency-sheet__item-icon {
   text-overflow: ellipsis;
   opacity: 1;
   transition: opacity 0.2s ease;
-
-  .plan-detail-panel__header.is-collapsed & {
-    opacity: 0;
-    pointer-events: none;
-  }
+}
+.plan-detail-panel__header.is-collapsed .plan-detail-panel__page-title {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .plan-detail-panel__header-collapsed {
@@ -7636,11 +7481,10 @@ div.currency-sheet__item-icon {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
-
-  .plan-detail-panel__header.is-collapsed & {
-    opacity: 1;
-    pointer-events: auto;
-  }
+}
+.plan-detail-panel__header.is-collapsed .plan-detail-panel__header-collapsed {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .plan-detail-panel__header-name {
@@ -7675,10 +7519,9 @@ div.currency-sheet__item-icon {
   justify-content: center;
   opacity: 0;
   transition: opacity 0.2s ease;
-
-  .plan-detail-panel__header.is-collapsed & {
-    opacity: 1;
-  }
+}
+.plan-detail-panel__header.is-collapsed .plan-detail-panel__header-icon-wrap {
+  opacity: 1;
 }
 
 .plan-detail-panel__header-icon {
@@ -7690,22 +7533,19 @@ div.currency-sheet__item-icon {
   object-fit: cover;
 }
 
-// ── Single scroller ───────────────────────────────────────────────────────────
-
 .plan-detail-panel__scroller {
   flex: 1;
   background-color: #1b1d1d;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.plan-detail-panel__scroller::-webkit-scrollbar {
+  display: none;
+}
+.plan-detail-panel__scroller {
   scrollbar-width: none;
 }
-
-// ── Product hero ──────────────────────────────────────────────────────────────
 
 .plan-detail-panel__product {
   background: #1b1d1d;
@@ -7762,7 +7602,7 @@ div.currency-sheet__item-icon {
   min-width: 0;
   font-size: 22px;
   font-weight: 700;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: #ffffff;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -7793,7 +7633,6 @@ div.currency-sheet__item-icon {
   display: none !important;
 }
 
-// Curated portfolio tagline (same copy/tokens as Finance Auto-invest .curated-portfolios__desc; no card left-padding)
 .phone-container .plan-detail-panel__product-info .plan-detail-panel__product-desc.curated-portfolios__desc {
   padding-left: 0;
   margin-top: 1px;
@@ -7821,7 +7660,6 @@ div.currency-sheet__item-icon {
   object-fit: cover;
 }
 
-// Multi-coin hero (Figma 8534:9831 3-asset / 8534:9852 2-asset + placeholder)
 .plan-detail-panel__icon-stack {
   position: relative;
   width: 100%;
@@ -7833,13 +7671,12 @@ div.currency-sheet__item-icon {
   border-radius: 50%;
   overflow: hidden;
   box-sizing: border-box;
-
-  img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-  }
+}
+.plan-detail-panel__icon-slot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .plan-detail-panel__icon-slot--top {
@@ -7877,8 +7714,6 @@ div.currency-sheet__item-icon {
 }
 
 .plan-detail-panel__icon-stack-placeholder {
-  // Slot is ~22.41px in the 44px overview icon wrap; placeholder should be ~18.67px.
-  // 18.67 / 22.41 ≈ 0.8333 → 83.33%.
   position: absolute;
   inset: 0;
   margin: auto;
@@ -7888,8 +7723,6 @@ div.currency-sheet__item-icon {
   border-radius: 50%;
   background: #47494a;
 }
-
-// ── Content body ──────────────────────────────────────────────────────────────
 
 .plan-detail-panel__content {
   background: #0d0e0f;
@@ -7907,9 +7740,6 @@ div.currency-sheet__item-icon {
   margin-bottom: -16px;
 }
 
-
-// ── Section label ─────────────────────────────────────────────────────────────
-
 .plan-detail-panel__section-label {
   font-size: 16px;
   font-weight: 700;
@@ -7917,8 +7747,6 @@ div.currency-sheet__item-icon {
   display: block;
   margin-bottom: 12px;
 }
-
-// ── Amount section ────────────────────────────────────────────────────────────
 
 .plan-detail-panel__amount-header {
   display: flex;
@@ -7963,17 +7791,15 @@ div.currency-sheet__item-icon {
   justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-
-  img {
-    width: 20px;
-    height: 20px;
-    display: block;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #3f78ff;
-    outline-offset: 2px;
-  }
+}
+.plan-detail-panel__topup-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+.plan-detail-panel__topup-btn:focus-visible {
+  outline: 2px solid #3f78ff;
+  outline-offset: 2px;
 }
 
 .plan-detail-panel__amount-row {
@@ -8011,10 +7837,9 @@ div.currency-sheet__item-icon {
   width: 100%;
   font-family: inherit;
   caret-color: #8FB8FF;
-
-  &::placeholder {
-    color: #58595A;
-  }
+}
+.plan-detail-panel__amount-input::placeholder {
+  color: #58595A;
 }
 
 .plan-detail-panel__currency-pill {
@@ -8030,12 +7855,11 @@ div.currency-sheet__item-icon {
   font-weight: 600;
   color: #ffffff;
   border: 0;
-
-  img {
-    width: 20px;
-    height: 20px;
-    display: block;
-  }
+}
+.plan-detail-panel__currency-pill img {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .phone-container p.plan-detail-panel__amount-error {
@@ -8045,10 +7869,9 @@ div.currency-sheet__item-icon {
   margin: 4px 0 8px 0;
   padding: 0;
   opacity: 0;
-
-  &.is-visible {
-    opacity: 1;
-  }
+}
+.phone-container p.plan-detail-panel__amount-error.is-visible {
+  opacity: 1;
 }
 
 .plan-detail-panel__amount-divider {
@@ -8057,8 +7880,6 @@ div.currency-sheet__item-icon {
   margin-top: 4px;
 }
 
-// ── Repeats section ───────────────────────────────────────────────────────────
-
 .plan-detail-panel__repeats-stack {
   display: flex;
   flex-direction: column;
@@ -8066,13 +7887,10 @@ div.currency-sheet__item-icon {
   width: 100%;
 }
 
-
 .plan-detail-panel__repeats-buy-now-block {
   width: 100%;
   box-sizing: border-box;
   margin: 0;
-  // padding: 16px;
-  // background: #151718;
   border-radius: 24px;
   gap: 12px;
 }
@@ -8101,7 +7919,6 @@ div.currency-sheet__item-icon {
   padding: 4px;
 }
 
-
 .plan-detail-panel__cal-icon {
   width: 32px;
   height: 32px;
@@ -8111,15 +7928,14 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 20px;
-    background: url('../assets/icon_calendar_gray.svg') no-repeat center;
-    background-size: contain; //icon_calendar_gray.svg
-  }
+}
+.plan-detail-panel__cal-icon::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: url("../assets/icon_calendar_gray.svg") no-repeat center;
+  background-size: contain;
 }
 
 .plan-detail-panel__repeats-info {
@@ -8165,13 +7981,11 @@ div.currency-sheet__item-icon {
   background: #3c4248;
 }
 
-// Details block sits below Repeats in .plan-detail-panel__content (same column gap as siblings).
 .plan-detail-panel__details-section {
   width: 100%;
   display: none;
 }
 
-// Figma 8527:4738 (collapsed) / 8527:4757 (expanded) — Details disclosure + coverage rows
 .plan-detail-panel__details-collapse {
   display: flex;
   flex-direction: column;
@@ -8193,15 +8007,13 @@ div.currency-sheet__item-icon {
   font-family: inherit;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    border-radius: 8px;
-    box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
-  }
+}
+.plan-detail-panel__details-toggle:focus {
+  outline: none;
+}
+.plan-detail-panel__details-toggle:focus-visible {
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
 }
 
 .plan-detail-panel__details-toggle-label {
@@ -8251,7 +8063,6 @@ div.currency-sheet__item-icon {
   box-sizing: border-box;
 }
 
-// Figma 8527:4820 / 8527:4835 — cover row + blue caption (hint text right-aligned; row must stretch full width)
 .plan-detail-panel__coverage-stack {
   display: flex;
   flex-direction: column;
@@ -8270,30 +8081,26 @@ div.currency-sheet__item-icon {
   text-align: right;
   display: none;
   opacity: 0;
-
-  &.plan-detail-panel__coverage-hint--neutral {
-    color: #8fb8ff;
-  }
-
-  &.plan-detail-panel__coverage-hint--error {
-    color: #eb5347;
-  }
-
-  &.plan-detail-panel__coverage-hint--ok {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 2px;
-    color: #5ac47d;
-
-    &::before {
-      content: '';
-      width: 16px;
-      height: 16px;
-      flex: 0 0 16px;
-      background: url('../assets/icon_check_green.svg') center / 16px 16px no-repeat;
-    }
-  }
+}
+.phone-container p.plan-detail-panel__coverage-hint.plan-detail-panel__coverage-hint--neutral {
+  color: #8fb8ff;
+}
+.phone-container p.plan-detail-panel__coverage-hint.plan-detail-panel__coverage-hint--error {
+  color: #eb5347;
+}
+.phone-container p.plan-detail-panel__coverage-hint.plan-detail-panel__coverage-hint--ok {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  color: #5ac47d;
+}
+.phone-container p.plan-detail-panel__coverage-hint.plan-detail-panel__coverage-hint--ok::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background: url("../assets/icon_check_green.svg") center/16px 16px no-repeat;
 }
 
 .plan-detail-panel__coverage-row {
@@ -8309,7 +8116,6 @@ div.currency-sheet__item-icon {
   box-sizing: border-box;
 }
 
-// `display: flex` above beats the UA `[hidden]` rule; re-assert hide (e.g. total planned when Continuous).
 .plan-detail-panel__coverage-row[hidden] {
   display: none;
 }
@@ -8338,9 +8144,6 @@ div.currency-sheet__item-icon {
     transition-duration: 0.01ms;
   }
 }
-
-// ── Allocation section ────────────────────────────────────────────────────────
-
 .plan-detail-panel__allocation-list {
   background: #151718;
   border-radius: 16px;
@@ -8350,7 +8153,6 @@ div.currency-sheet__item-icon {
   gap: 12px;
 }
 
-// Historic performance row (Figma: “5Y historical performance”)
 .plan-detail-panel__historic-performance-row {
   margin-top: 12px;
   display: flex;
@@ -8374,7 +8176,6 @@ div.currency-sheet__item-icon {
   display: none !important;
 }
 
-// The existing historic pct component class hides itself globally; re-enable in header (multi) or alloc row (single).
 .plan-detail-panel__alloc-header-historic-inline .plan-return-metric__pct-line--historic {
   display: flex;
 }
@@ -8389,7 +8190,6 @@ div.currency-sheet__item-icon {
   height: 16px;
 }
 
-// Single-asset allocation: historic caption in header (12px); % sits in the alloc row (not below list)
 .plan-detail-panel__historic-performance-label--header {
   display: none;
   font-size: 12px;
@@ -8402,7 +8202,6 @@ div.currency-sheet__item-icon {
   margin: 0;
 }
 
-// Combined #Y performance sits beside "Allocation (n)" for 2+ assets (single-asset uses row + --header).
 .plan-detail-panel__alloc-header-historic-inline {
   display: none;
   flex-direction: column;
@@ -8434,18 +8233,16 @@ div.currency-sheet__item-icon {
   cursor: pointer;
   line-height: 0;
   color: inherit;
-
-  &:focus-visible {
-    outline: 2px solid #4d88ff;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  img {
-    display: block;
-    width: 16px;
-    height: 16px;
-  }
+}
+.phone-container .plan-detail-panel__alloc-historic-info-btn:focus-visible {
+  outline: 2px solid #4d88ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.phone-container .plan-detail-panel__alloc-historic-info-btn img {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .plan-detail-panel__alloc-header-historic-single {
@@ -8491,53 +8288,42 @@ div.currency-sheet__item-icon {
   line-height: normal;
 }
 
-.plan-detail-panel__allocation-section.is-single-asset {
-  .plan-detail-panel__alloc-header-historic-single {
-    display: none;
-    // display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
-    align-self: center;
-    cursor: pointer;
-  }
-
-  .plan-detail-panel__historic-performance-label--header {
-    display: block;
-    align-self: center;
-  }
-
-  .plan-detail-panel__historic-performance-row {
-    display: none;
-  }
-
-  .plan-detail-panel__alloc-header {
-    align-items: center;
-  }
-
-  .plan-detail-panel__alloc-item {
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: nowrap;
-  }
-
-  .plan-detail-panel__alloc-info {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  [data-plan-detail-historic-performance-tone] {
-    flex-shrink: 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    margin-left: auto;
-    min-width: 0;
-  }
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-header-historic-single {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  cursor: pointer;
+}
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__historic-performance-label--header {
+  display: block;
+  align-self: center;
+}
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__historic-performance-row {
+  display: none;
+}
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-header {
+  align-items: center;
+}
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-item {
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+.plan-detail-panel__allocation-section.is-single-asset .plan-detail-panel__alloc-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.plan-detail-panel__allocation-section.is-single-asset [data-plan-detail-historic-performance-tone] {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-left: auto;
+  min-width: 0;
 }
 
-// Historic % is globally `display:none` on `.plan-return-metric__pct-line--historic`; ensure it shows when the
-// tone node lives in a single-asset row even if section modifier classes were briefly out of sync.
 .plan-detail-panel__alloc-item [data-plan-detail-historic-performance-tone] .plan-return-metric__pct-line--historic {
   display: flex !important;
 }
@@ -8608,7 +8394,6 @@ div.currency-sheet__item-icon {
   display: block;
 }
 
-// Allocation section header (label + reset + mode toggle)
 .plan-detail-panel__alloc-header {
   display: flex;
   align-items: flex-start;
@@ -8616,10 +8401,9 @@ div.currency-sheet__item-icon {
   width: 100%;
   margin-bottom: 12px;
   gap: 12px;
-
-  .plan-detail-panel__section-label {
-    margin-bottom: 0;
-  }
+}
+.plan-detail-panel__alloc-header .plan-detail-panel__section-label {
+  margin-bottom: 0;
 }
 
 .plan-detail-panel__alloc-header-main {
@@ -8641,13 +8425,11 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__alloc-total {
   width: 100%;
-
-  &[hidden] {
-    display: none !important;
-  }
+}
+.plan-detail-panel__alloc-total[hidden] {
+  display: none !important;
 }
 
-// Remaining allocation row (Figma 8736:82837)
 .plan-detail-panel__alloc-total-row {
   display: flex;
   align-items: flex-end;
@@ -8659,7 +8441,7 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__alloc-total-label {
   flex: 1 1 auto;
   min-width: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-weight: 600;
   font-size: 14px;
   line-height: normal;
@@ -8673,7 +8455,7 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-weight: 700;
   font-size: 20px;
   line-height: normal;
@@ -8686,18 +8468,16 @@ div.currency-sheet__item-icon {
   height: 16px;
   display: block;
   object-fit: contain;
-
-  &[hidden] {
-    display: none !important;
-  }
+}
+.plan-detail-panel__alloc-total-check[hidden] {
+  display: none !important;
 }
 
 .plan-detail-panel__alloc-total-current {
   color: #5ac47d;
-
-  &.is-error {
-    color: #eb5347;
-  }
+}
+.plan-detail-panel__alloc-total-current.is-error {
+  color: #eb5347;
 }
 
 .plan-detail-panel__alloc-total-target {
@@ -8708,15 +8488,14 @@ div.currency-sheet__item-icon {
 .plan-detail-panel__alloc-total-error {
   display: block;
   text-align: right;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-weight: 600;
   font-size: 12px;
   line-height: normal;
   color: #eb5347;
-
-  &[hidden] {
-    display: none !important;
-  }
+}
+.plan-detail-panel__alloc-total-error[hidden] {
+  display: none !important;
 }
 
 .plan-detail-panel__alloc-total-hint-row {
@@ -8737,17 +8516,15 @@ div.currency-sheet__item-icon {
   font-size: 12px;
   font-weight: 600;
   margin-top: 2px;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: #3f78ff;
   cursor: pointer;
   white-space: nowrap;
-
-  &[hidden] {
-    display: none !important;
-  }
+}
+.plan-detail-panel__alloc-reset[hidden] {
+  display: none !important;
 }
 
-// Amount / % mode toggle
 .alloc-mode-toggle {
   background: #1b1d1d;
   border-radius: 12px;
@@ -8755,10 +8532,9 @@ div.currency-sheet__item-icon {
   align-items: center;
   overflow: hidden;
   height: 32px;
-
-  &.is-hidden {
-    display: none;
-  }
+}
+.alloc-mode-toggle.is-hidden {
+  display: none;
 }
 
 .alloc-mode-toggle__btn {
@@ -8769,7 +8545,7 @@ div.currency-sheet__item-icon {
   color: #9b9c9c;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   cursor: pointer;
   border-radius: 12px;
   transition: none;
@@ -8777,14 +8553,12 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &.is-active {
-    background: #ffffff;
-    color: #000000;
-  }
+}
+.alloc-mode-toggle__btn.is-active {
+  background: #ffffff;
+  color: #000000;
 }
 
-// Multi-asset allocation layout (2–3 assets)
 .alloc-multi {
   background: #151718;
   border-radius: 16px;
@@ -8796,20 +8570,17 @@ div.currency-sheet__item-icon {
   flex-direction: column;
   gap: 4px;
   padding-bottom: 12px;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid #2d2f2f;
-  }
+}
+.alloc-multi__item:not(:last-child) {
+  border-bottom: 1px solid #2d2f2f;
 }
 
-// Manual multi-asset list: tighter rows, no dividers (Figma 9052:47717)
 .alloc-multi:not(.alloc-multi--auto) .alloc-multi__item {
   gap: 2px;
   padding-bottom: 0px;
-
-  &:not(:last-child) {
-    border-bottom: none;
-  }
+}
+.alloc-multi:not(.alloc-multi--auto) .alloc-multi__item:not(:last-child) {
+  border-bottom: none;
 }
 
 .alloc-multi__row {
@@ -8853,7 +8624,6 @@ div.currency-sheet__item-icon {
   display: block;
 }
 
-// % field + right-aligned amount subtitle (Figma 8733:20964)
 .alloc-multi__pct-col {
   display: flex;
   flex-direction: column;
@@ -8872,15 +8642,13 @@ div.currency-sheet__item-icon {
   height: 40px;
   padding: 4px;
   box-sizing: border-box;
-
-  &:focus-within {
-    border-color: #ffffff;
-  }
+}
+.alloc-multi__pct-wrap:focus-within {
+  border-color: #ffffff;
 }
 
-// 2+ asset validation state: subtle 8x8 red dot beside each % field.
 .alloc-multi.alloc-multi--pct-invalid .alloc-multi__pct-wrap::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 22%;
   left: -1px;
@@ -8891,7 +8659,6 @@ div.currency-sheet__item-icon {
   transform: translateY(calc(-50% - 4px));
 }
 
-// While allocation is invalid, tint the slider track until values are fixed.
 .alloc-multi.alloc-multi--pct-invalid .alloc-multi__slider-fill {
   background: #FFE5E5;
 }
@@ -8905,7 +8672,7 @@ div.currency-sheet__item-icon {
   padding: 0;
   width: max-content;
   max-width: 100%;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 14px;
   margin-bottom: 2px;
   font-weight: 600;
@@ -8915,7 +8682,6 @@ div.currency-sheet__item-icon {
   white-space: nowrap;
 }
 
-// Manual multi-asset: Figma 9055:72568 — bottom-align row; asset + slider left; amount above % field right
 .alloc-multi__manual-layout {
   display: flex;
   align-items: flex-end;
@@ -9011,7 +8777,6 @@ div.currency-sheet__item-icon {
   display: none;
 }
 
-// Amount mode when total is 0 or too small to give each asset ≥1 unit: read-only controls
 .alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__pct-wrap,
 .alloc-multi.alloc-multi--amount-wrap-disabled .alloc-multi__slider {
   opacity: 0.35;
@@ -9037,16 +8802,14 @@ div.currency-sheet__item-icon {
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   caret-color: #3f78ff;
   text-align: left;
   padding: 0;
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+}
+.alloc-multi__pct-input::-webkit-inner-spin-button, .alloc-multi__pct-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .alloc-multi__pct-symbol {
@@ -9056,14 +8819,12 @@ div.currency-sheet__item-icon {
   flex-shrink: 0;
 }
 
-// Slider row (slider track + optional lock button)
 .alloc-multi__slider-row {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-// Slider (reuses same visual as plan-strategy slider)
 .alloc-multi__slider {
   flex: 1;
   height: 18px;
@@ -9110,14 +8871,12 @@ div.currency-sheet__item-icon {
   pointer-events: none;
 }
 
-// Lock cap hint — legacy tooltip node (kept hidden; no longer wired from allocation UI)
 .alloc-multi__lock-tooltip {
   position: absolute;
   display: none;
   z-index: 60;
   left: 0;
   top: 0;
-  // Fixed width — JS edge-clamp uses getBoundingClientRect().width from this
   width: 240px;
   box-sizing: border-box;
   overflow-wrap: break-word;
@@ -9127,53 +8886,45 @@ div.currency-sheet__item-icon {
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: #ffffff;
   line-height: 1.45;
   text-align: center;
   pointer-events: none;
-  box-shadow:
-    0 14px 48px rgba(0, 0, 0, 0.62),
-    0 8px 28px rgba(0, 0, 0, 0.5),
-    0 3px 10px rgba(0, 0, 0, 0.4);
-  // --alloc-tip-nudge: horizontal shift (px) after edge clamp; set in JS
+  box-shadow: 0 14px 48px rgba(0, 0, 0, 0.62), 0 8px 28px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.4);
   transform: translate(calc(-50% + var(--alloc-tip-nudge, 0px)), calc(-100% - 14px));
   opacity: 0;
   visibility: hidden;
   transition: none;
-
-  // Arrow (border + fill) — bottom; --alloc-tip-arrow-left = px from tooltip left to aim at knob
-  &::before {
-    content: '';
-    position: absolute;
-    left: var(--alloc-tip-arrow-left, 50%);
-    bottom: -9px;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    border-top: 9px solid #47494A;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: var(--alloc-tip-arrow-left, 50%);
-    bottom: -7px;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid #47494A;
-  }
-
-  &.is-visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
+}
+.alloc-multi__lock-tooltip::before {
+  content: "";
+  position: absolute;
+  left: var(--alloc-tip-arrow-left, 50%);
+  bottom: -9px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid #47494A;
+}
+.alloc-multi__lock-tooltip::after {
+  content: "";
+  position: absolute;
+  left: var(--alloc-tip-arrow-left, 50%);
+  bottom: -7px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #47494A;
+}
+.alloc-multi__lock-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .alloc-multi__lock-tooltip--intro {
@@ -9224,28 +8975,23 @@ div.currency-sheet__item-icon {
   justify-content: center;
   padding: 0;
   color: transparent;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    width: 12px;
-    height: 1.5px;
-    border-radius: 999px;
-    background: #ffffff;
-  }
-
-  &::before {
-    transform: rotate(45deg);
-  }
-
-  &::after {
-    transform: rotate(-45deg);
-  }
-
-  &[hidden] {
-    display: none;
-  }
+}
+.alloc-multi__lock-tooltip-close::before, .alloc-multi__lock-tooltip-close::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+.alloc-multi__lock-tooltip-close::before {
+  transform: rotate(45deg);
+}
+.alloc-multi__lock-tooltip-close::after {
+  transform: rotate(-45deg);
+}
+.alloc-multi__lock-tooltip-close[hidden] {
+  display: none;
 }
 
 .plan-detail-panel__allocation-section {
@@ -9296,12 +9042,11 @@ div.currency-sheet__item-icon {
   cursor: pointer;
   line-height: 0;
   color: inherit;
-
-  &:focus-visible {
-    outline: 2px solid #4d88ff;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
+}
+.phone-container .plan-detail-panel__alloc-auto-tagline-info:focus-visible {
+  outline: 2px solid #4d88ff;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .phone-container .plan-detail-panel__alloc-auto-tagline-info img {
@@ -9315,7 +9060,7 @@ div.currency-sheet__item-icon {
   margin: 0;
   padding: 0;
   max-width: 100%;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
@@ -9359,7 +9104,7 @@ div.currency-sheet__item-icon {
 .phone-container .alloc-multi__auto-lock-label {
   margin: 0;
   padding: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
@@ -9408,32 +9153,24 @@ div.currency-sheet__item-icon {
   pointer-events: none;
 }
 
-// Empty allocation state (New plan — no assets selected yet)
-.plan-detail-panel__allocation-section.is-empty {
-  .plan-detail-panel__allocation-list {
-    display: none;
-  }
-
-  .plan-detail-panel__historic-performance-row {
-    display: none;
-  }
-
-  .plan-detail-panel__alloc-empty {
-    display: flex;
-  }
-
-  // Duplicate button below list is hidden — only the in-card button shows
-  .plan-detail-panel__add-assets-wrap--below-list {
-    display: none;
-  }
-
-  .plan-detail-panel__add-assets {
-    width: 100%;
-    height: 48px;
-    border-radius: 16px;
-    background: #275cfd;
-    font-size: 16px;
-  }
+.plan-detail-panel__allocation-section.is-empty .plan-detail-panel__allocation-list {
+  display: none;
+}
+.plan-detail-panel__allocation-section.is-empty .plan-detail-panel__historic-performance-row {
+  display: none;
+}
+.plan-detail-panel__allocation-section.is-empty .plan-detail-panel__alloc-empty {
+  display: flex;
+}
+.plan-detail-panel__allocation-section.is-empty .plan-detail-panel__add-assets-wrap--below-list {
+  display: none;
+}
+.plan-detail-panel__allocation-section.is-empty .plan-detail-panel__add-assets {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+  background: #275cfd;
+  font-size: 16px;
 }
 
 .plan-detail-panel__alloc-empty {
@@ -9452,7 +9189,6 @@ div.currency-sheet__item-icon {
   gap: 12px;
 }
 
-// Same treatment as .plan-detail-panel__cal-icon — grey circle + centred glyph
 .plan-detail-panel__alloc-empty-icon {
   width: 32px;
   height: 32px;
@@ -9462,15 +9198,14 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 20px;
-    background: url('../assets/icon_addassets.svg') no-repeat center;
-    background-size: contain;
-  }
+}
+.plan-detail-panel__alloc-empty-icon::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: url("../assets/icon_addassets.svg") no-repeat center;
+  background-size: contain;
 }
 
 .plan-detail-panel__alloc-empty-label {
@@ -9507,7 +9242,6 @@ div.currency-sheet__item-icon {
   font-weight: 600;
 }
 
-// ── Footer — Figma 9055:63075 (plan page footer safe base)
 .plan-detail-panel__footer {
   flex-shrink: 0;
   background: #151718;
@@ -9524,7 +9258,6 @@ div.currency-sheet__item-icon {
   width: 100%;
 }
 
-// Title row + metrics + alert: gap 6px between title row and metrics block
 .plan-detail-panel__footer-main {
   display: flex;
   flex-direction: column;
@@ -9539,7 +9272,6 @@ div.currency-sheet__item-icon {
   gap: 8px;
 }
 
-// Subtitle/Subtitle 2 — 14px Semibold
 .plan-detail-panel__footer .plan-detail-panel__return-label {
   flex: 1;
   min-width: 0;
@@ -9562,31 +9294,27 @@ div.currency-sheet__item-icon {
   width: 100%;
 }
 
-.plan-detail-panel__footer-metrics--dimmed {
-  .plan-detail-panel__footer-value-amount {
-    color: #ffffff;
-    opacity: 1;
-  }
+.plan-detail-panel__footer-metrics--dimmed .plan-detail-panel__footer-value-amount {
+  color: #ffffff;
+  opacity: 1;
 }
 
-// Caption 12 Semibold — "50.2K TWD invested →"
 .phone-container p.plan-detail-panel__footer-invested-line {
   margin: 0;
   padding: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
   color: #ffffff;
 }
 
-// H5 amount + suffix — 18px Bold + 12px Semibold, highlight
 .plan-detail-panel__footer-value-line {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   min-height: 22px;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: #8fb8ff;
 }
 
@@ -9612,14 +9340,13 @@ div.currency-sheet__item-icon {
 
 .plan-detail-panel__footer-alert {
   width: 100%;
-  // border-top: 1px solid #3C4248;
   padding-top: 0px;
   overflow: hidden;
 }
 
 .phone-container .plan-detail-panel__footer-alert-text {
   margin: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 12px;
   font-weight: 600;
   line-height: normal;
@@ -9627,60 +9354,44 @@ div.currency-sheet__item-icon {
   color: #9b9c9c;
 }
 
-.plan-detail-panel__footer--state-ok {
-  .plan-detail-panel__return-label {
-    color: #ffffff;
-  }
-
-  .plan-detail-panel__footer-alert-text {
-    color: #9b9c9c;
-  }
+.plan-detail-panel__footer--state-ok .plan-detail-panel__return-label {
+  color: #ffffff;
+}
+.plan-detail-panel__footer--state-ok .plan-detail-panel__footer-alert-text {
+  color: #9b9c9c;
 }
 
-.plan-detail-panel__footer--state-missing {
-  .plan-detail-panel__return-label {
-    color: #ffffff;
-  }
-
-  .plan-detail-panel__footer-invested-line {
-    color: #ffffff;
-  }
-
-  .plan-detail-panel__footer-value-line,
-  .plan-detail-panel__footer-value-amount,
-  .plan-detail-panel__footer-value-suffix {
-    color: #6b8fc9;
-  }
-
-  .plan-detail-panel__footer-value-amount {
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .plan-detail-panel__footer-alert-text {
-    color: #9b9c9c;
-  }
+.plan-detail-panel__footer--state-missing .plan-detail-panel__return-label {
+  color: #ffffff;
+}
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-invested-line {
+  color: #ffffff;
+}
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-value-line,
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-value-amount,
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-value-suffix {
+  color: #6b8fc9;
+}
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-value-amount {
+  font-size: 18px;
+  font-weight: 700;
+}
+.plan-detail-panel__footer--state-missing .plan-detail-panel__footer-alert-text {
+  color: #9b9c9c;
 }
 
-.plan-detail-panel__footer--state-error {
-  .plan-detail-panel__return-label {
-    color: #ffffff;
-  }
-
-  .plan-detail-panel__footer-invested-line {
-    color: #ffffff;
-  }
-
-
-
-  .plan-detail-panel__footer-value-amount {
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .plan-detail-panel__footer-alert-text {
-    color: #9b9c9c;
-  }
+.plan-detail-panel__footer--state-error .plan-detail-panel__return-label {
+  color: #ffffff;
+}
+.plan-detail-panel__footer--state-error .plan-detail-panel__footer-invested-line {
+  color: #ffffff;
+}
+.plan-detail-panel__footer--state-error .plan-detail-panel__footer-value-amount {
+  font-size: 18px;
+  font-weight: 700;
+}
+.plan-detail-panel__footer--state-error .plan-detail-panel__footer-alert-text {
+  color: #9b9c9c;
 }
 
 .plan-detail-panel__footer-btns {
@@ -9699,7 +9410,7 @@ div.currency-sheet__item-icon {
   border: 0;
   background: #275cfd;
   color: #ffffff;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 1;
@@ -9712,12 +9423,9 @@ div.currency-sheet__item-icon {
   opacity: 1;
 }
 
-// ── Breakdown subpage (slides up from bottom) ───────────────────────────────
-
 .plan-breakdown-panel {
   position: absolute;
   inset: 0;
-  // Above plan-detail (20); below plan-success (33) + my-plans (34)
   z-index: 32;
   background: #0d0e0f;
   display: flex;
@@ -9728,12 +9436,11 @@ div.currency-sheet__item-icon {
   overflow: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.plan-breakdown-panel::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .plan-breakdown-panel.is-open {
@@ -9781,7 +9488,6 @@ div.currency-sheet__item-icon {
   transform: translateY(-50%);
 }
 
-// Breakdown detail range uses the shared trigger class; scale it up only in this context.
 .plan-breakdown-panel__range-slot .plan-breakdown-panel__range--detail {
   width: 72px;
   height: 40px;
@@ -9797,8 +9503,6 @@ div.currency-sheet__item-icon {
   height: 20px;
 }
 
-// `.plan-detail-panel__return-range` sets `display:inline-flex`, which can override UA `[hidden]`.
-// Force-hide the inactive shared-breakdown range trigger so clicks map to the correct context.
 .plan-detail-panel__return-range[hidden],
 .plan-breakdown-panel__range[hidden] {
   display: none !important;
@@ -9824,13 +9528,12 @@ div.currency-sheet__item-icon {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0 !important;
-    height: 0 !important;
-    background: transparent;
-  }
+}
+.plan-breakdown-panel__body::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent;
 }
 
 .plan-breakdown-panel__content {
@@ -9865,11 +9568,10 @@ div.currency-sheet__item-icon {
   text-align: center;
   font-family: inherit;
   cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid #4d88ff;
-    outline-offset: 1px;
-  }
+}
+.plan-breakdown-panel__segment:focus-visible {
+  outline: 2px solid #4d88ff;
+  outline-offset: 1px;
 }
 
 .plan-breakdown-panel__segment.is-active {
@@ -10041,7 +9743,6 @@ div.currency-sheet__item-icon {
   justify-content: center;
 }
 
-// Single asset: same footprint as plan-detail icon stack (64px), left-aligned; same coin size as product hero (56px), not pyramid markup
 .plan-breakdown-panel__asset-wrap--single {
   align-self: center;
   margin: 0;
@@ -10120,7 +9821,6 @@ div.currency-sheet__item-icon {
   align-items: center;
 }
 
-// `display:flex` / `inline-flex` above can override UA `[hidden]`.
 .plan-breakdown-panel__legend-sp[hidden],
 .plan-breakdown-panel__legend-item[hidden] {
   display: none !important;
@@ -10190,21 +9890,18 @@ div.currency-sheet__item-icon {
   gap: 12px;
   font-size: 14px;
   font-weight: 600;
-
-  > span:first-child {
-    color: #9b9c9c;
-  }
-
-  > span:last-child {
-    color: #ffffff;
-    text-align: right;
-  }
-
-  > span[data-plan-breakdown-value] {
-    color: #8fb8ff;
-    font-size: 16px;
-    font-weight: 700;
-  }
+}
+.plan-breakdown-panel__row > span:first-child {
+  color: #9b9c9c;
+}
+.plan-breakdown-panel__row > span:last-child {
+  color: #ffffff;
+  text-align: right;
+}
+.plan-breakdown-panel__row > span[data-plan-breakdown-value] {
+  color: #8fb8ff;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .plan-breakdown-panel__divider {
@@ -10220,14 +9917,12 @@ div.currency-sheet__item-icon {
 .plan-breakdown-panel__row--profit {
   height: auto;
   flex-direction: column;
-  // Reset base row: space-between on a column pushes blocks apart; last span also inherited text-align: right
   justify-content: flex-start;
   align-items: stretch;
   gap: 2px;
-
-  > span:last-child {
-    text-align: left;
-  }
+}
+.plan-breakdown-panel__row--profit > span:last-child {
+  text-align: left;
 }
 
 .plan-breakdown-panel__profit-range-label {
@@ -10279,8 +9974,6 @@ div.currency-sheet__item-icon {
   cursor: pointer;
 }
 
-// ── Auto-invest plan overview (Figma 8538:77120) ───────────────────────────────
-
 .plan-overview-panel {
   position: absolute;
   inset: 0;
@@ -10299,7 +9992,6 @@ div.currency-sheet__item-icon {
   transform: translateX(0);
 }
 
-// Top inset matches alloc-picker + plan-detail headers (status / safe area), not Figma’s cropped 24px
 .plan-overview-panel__header {
   flex-shrink: 0;
   display: flex;
@@ -10314,7 +10006,7 @@ div.currency-sheet__item-icon {
 }
 
 .plan-overview-panel__header::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
@@ -10341,12 +10033,11 @@ div.currency-sheet__item-icon {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.plan-overview-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .plan-overview-panel__header-main {
@@ -10362,7 +10053,6 @@ div.currency-sheet__item-icon {
   line-height: 1.2;
 }
 
-// Match plan detail / limits nav titles; override .phone-container h1 from _base.scss (28px)
 .phone-container h1.plan-overview-panel__title {
   margin: 0;
   padding-bottom: 1px;
@@ -10381,14 +10071,12 @@ div.currency-sheet__item-icon {
   height: 1px;
   width: 100%;
   background: #252627;
-
-  &--light {
-    background: #3c4248;
-  }
-
-  &--dark {
-    background: #252627;
-  }
+}
+.plan-overview-panel__divider--light {
+  background: #3c4248;
+}
+.plan-overview-panel__divider--dark {
+  background: #252627;
 }
 
 .plan-overview-panel__scroller {
@@ -10402,12 +10090,11 @@ div.currency-sheet__item-icon {
   background: #0d0e0f;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.plan-overview-panel__scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .plan-overview-panel.is-reserve-info-open .plan-overview-panel__scroller {
@@ -10436,7 +10123,6 @@ div.currency-sheet__item-icon {
   padding: 28px 0 0 0;
 }
 
-// Figma 8538:77120 — 8px between chips block and Invest row; 8px between each row + divider stack
 .plan-overview-panel__summary {
   display: flex;
   flex-direction: column;
@@ -10447,7 +10133,6 @@ div.currency-sheet__item-icon {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  // padding: 16px;
   background: linear-gradient(180deg, #0d0e0f 0%, #151718 100%);
 }
 
@@ -10584,10 +10269,9 @@ div.currency-sheet__item-icon {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
-
-  &--stack {
-    align-items: center;
-  }
+}
+.plan-overview-panel__row--stack {
+  align-items: center;
 }
 
 .plan-overview-panel__row-label {
@@ -10867,11 +10551,9 @@ div.currency-sheet__item-icon {
   color: #ffffff;
 }
 
-// ── Set end condition (between Plan and Funding; same motion as buffer) ───
 .plan-end-condition-panel {
   position: absolute;
   inset: 0;
-  // Below Funding + overview so those can stack on top.
   z-index: 29;
   width: 100%;
   height: 100%;
@@ -10888,11 +10570,9 @@ div.currency-sheet__item-icon {
   transform: translateX(0);
 }
 
-// ── Plan buffer (Figma 8527:8567 — “Set a buffer”) ─────────────────────────
 .plan-buffer-panel {
   position: absolute;
   inset: 0;
-  // Must be below plan-overview-panel so overview can slide over buffer.
   z-index: 30;
   width: 100%;
   height: 100%;
@@ -10905,9 +10585,6 @@ div.currency-sheet__item-icon {
   overflow: hidden;
 }
 
-// Override global typography for this panel:
-// The base `.phone-container p` rule sets font-size/color/margins that can fight the
-// buffer-specific styling. Scoping these resets keeps the buffer design consistent.
 .plan-buffer-panel p {
   margin: 0;
   font-size: inherit;
@@ -10919,7 +10596,6 @@ div.currency-sheet__item-icon {
   transform: translateX(0);
 }
 
-// Match plan-overview header inset so the title aligns with the main header.
 .plan-buffer-panel__header {
   flex-shrink: 0;
   display: flex;
@@ -10930,7 +10606,6 @@ div.currency-sheet__item-icon {
 }
 
 .plan-buffer-panel__header--funding {
-  // Match other full-screen panels; use the divider for separation
   padding-top: 52px;
   padding-bottom: 12px;
   border-bottom: 0;
@@ -10948,12 +10623,11 @@ div.currency-sheet__item-icon {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.plan-buffer-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .phone-container h1.plan-buffer-panel__title {
@@ -10978,10 +10652,9 @@ div.currency-sheet__item-icon {
   height: 1px;
   width: 100%;
   background: #252627;
-
-  &--header {
-    background: rgba(255, 255, 255, 0.04);
-  }
+}
+.plan-buffer-panel__divider--header {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .plan-buffer-panel__scroller {
@@ -10994,12 +10667,11 @@ div.currency-sheet__item-icon {
   overflow-x: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.plan-buffer-panel__scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .plan-buffer-panel__scroller > .plan-buffer-panel__footer {
@@ -11022,13 +10694,11 @@ div.currency-sheet__item-icon {
   line-height: 1.15;
 }
 
-// Funding method (Figma 8593:8069 / 8593:7934)
 .plan-buffer-panel__body--funding {
   padding: 16px;
   gap: 24px;
 }
 
-// Funding segmented control + heroes (Figma 8768:75036 / 8768:75164)
 .phone-container .plan-buffer-panel__header--funding h1.plan-buffer-panel__title {
   font-size: 18px;
   line-height: 1.3;
@@ -11055,7 +10725,6 @@ div.currency-sheet__item-icon {
   margin: 8px 16px 8px 16px;
 }
 
-// Prototype control (checkbox): hide By amount / By period seg.
 html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffer-funding-seg--hero {
   display: none !important;
 }
@@ -11113,11 +10782,10 @@ html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffe
   align-items: center;
   justify-content: center;
   line-height: 0;
-
-  svg,
-  .plan-buffer-funding-hero__illu-img {
-    display: block;
-  }
+}
+.plan-buffer-funding-hero__illu svg,
+.plan-buffer-funding-hero__illu .plan-buffer-funding-hero__illu-img {
+  display: block;
 }
 
 .plan-buffer-panel p.plan-buffer-funding-hero__title {
@@ -11216,10 +10884,9 @@ html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffe
   color: #ffffff;
   font-family: inherit;
   caret-color: #8fb8ff;
-
-  &::placeholder {
-    color: #58595a;
-  }
+}
+.plan-buffer-funding-input__field::placeholder {
+  color: #58595a;
 }
 
 .plan-buffer-funding-input__hint {
@@ -11350,7 +11017,6 @@ html.proto-hide-plan-buffer-funding-seg-hero .plan-buffer-funding-seg.plan-buffe
   color: #8fb8ff;
 }
 
-// Match Funding2 `plan-buffer-funding2-hero-head` spacing + per-buy / link type (Figma 8934:126307).
 .plan-buffer-funding-hero.plan-buffer-funding-hero--period {
   display: flex;
   flex-direction: column;
@@ -11423,7 +11089,6 @@ button.plan-buffer-funding-hero__how-link {
   text-transform: lowercase;
 }
 
-// Same layout as Funding2 amount meta strip: flat rows, no card (By period + clone).
 .plan-buffer-funding2-meta {
   width: 100%;
   display: flex;
@@ -11446,6 +11111,7 @@ button.plan-buffer-funding-hero__how-link {
 .plan-buffer-funding2-meta__row:first-child {
   margin-bottom: 5px;
 }
+
 .plan-buffer-funding2-meta__label {
   font-size: 14px;
   font-weight: 600;
@@ -11473,7 +11139,6 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: 700;
 }
 
-// By period: show only when count is 1+ (`plan-buffer-panel--period-has-count` on panel).
 .plan-buffer-funding2-meta.plan-buffer-funding-period-summary {
   display: none;
   margin-bottom: 24px;
@@ -11495,7 +11160,6 @@ button.plan-buffer-funding-hero__how-link {
   gap: 12px;
 }
 
-// `display:flex` above can override UA `[hidden]`; force-hide when inactive.
 .plan-buffer-funding-round[hidden] {
   display: none !important;
 }
@@ -11542,7 +11206,6 @@ button.plan-buffer-funding-hero__how-link {
   cursor: not-allowed;
 }
 
-// Between 0 and 1 buy: left control matches Figma secondary “0 {cur} / Pay as you go” (8797:433389).
 .plan-buffer-funding-round__btn.plan-buffer-funding-round__btn--secondary-paygo {
   background: #2d2f2f;
 }
@@ -11577,12 +11240,10 @@ button.plan-buffer-funding-hero__how-link {
   gap: 4px;
 }
 
-// `display:flex` can override UA `[hidden]`; keep action fully hidden when inactive.
 .plan-buffer-funding-action[hidden] {
   display: none !important;
 }
 
-// Beat `.plan-buffer-panel p { color: inherit }`, which would pull in panel white.
 .plan-buffer-panel p.plan-buffer-funding-action__title {
   color: #8fb8ff;
 }
@@ -11713,435 +11374,365 @@ button.plan-buffer-funding-hero__how-link {
   display: block;
 }
 
-// Funding 2 redesign (clone panel only): simplified pre-fund UX
-[data-plan-buffer-panel-2] {
-  .plan-buffer-funding-input__max-btn {
-    margin-left: auto;
-    margin-right: 0;
-  }
-
-  .plan-buffer-funding2-seg-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 8px 16px;
-  }
-
-  .plan-buffer-funding2-seg-row .plan-buffer-funding-seg.plan-buffer-funding-seg--hero {
-    margin: 0;
-    flex: 0 0 auto;
-  }
-
-  .plan-buffer-panel__details {
-    gap: 24px;
-    margin-top: 0;
-  }
-
-  .plan-buffer-panel__body--funding {
-    gap: 24px;
-  }
-
-  .plan-buffer-funding-stack {
-    margin-top: 0;
-  }
-
-  .plan-buffer-funding-input {
-    gap: 12px;
-  }
-
-  .plan-buffer-funding-round,
-  .plan-buffer-funding-action,
-  .plan-buffer-funding-autorefill,
-  .plan-buffer-funding-summary,
-  .plan-buffer-funding-summary-autorefill-divider {
-    display: none !important;
-  }
-
-  .plan-buffer-panel__header {
-    align-items: center;
-  }
-
-  h1.plan-buffer-panel__title[data-funding2-plan-line]::after {
-    content: attr(data-funding2-plan-line);
-    display: block;
-    margin-top: 2px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #9b9c9c;
-    line-height: normal;
-    letter-spacing: 0;
-  }
-
-  p.plan-buffer-funding-hero__subtitle {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #9b9c9c;
-  }
-
-  .plan-buffer-funding-hero__subtitle-prefix {
-    color: #9b9c9c;
-  }
-
-  .plan-buffer-funding-hero__subtitle-amount {
-    color: #8FB8FF;
-  }
-
-  // Figma 8934:126307 — title + link block, then per-buy line (gap 12 between blocks)
-  .plan-buffer-funding-hero {
-    gap: 12px;
-  }
-
-  // By period: same vertical rhythm as `plan-buffer-funding2-hero-head` (8px), not the amount hero stack.
-  .plan-buffer-funding-hero.plan-buffer-funding-hero--period {
-    gap: 8px;
-  }
-
-  .plan-buffer-funding2-hero-head {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .plan-buffer-funding2-hero-explained {
-    width: auto;
-    display: flex;
-    justify-content: flex-end;
-    margin-left: auto;
-  }
-
-  .plan-buffer-funding2-explained-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-    color: #3f78ff;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .plan-buffer-funding2-explained-link__icon {
-    width: 20px;
-    height: 20px;
-    display: block;
-    flex-shrink: 0;
-  }
-
-  .plan-buffer-funding2-learn-more-stepper {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .plan-buffer-funding2-learn-more-step {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #3c4248;
-  }
-
-  .plan-buffer-funding2-learn-more-step.is-active {
-    background: #ffffff;
-  }
-
-  .plan-buffer-funding2-learn-more-next--full {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-
-  .plan-buffer-funding2-confirm-step {
-    position: absolute;
-    inset: 0;
-    z-index: 6;
-    display: flex;
-    flex-direction: column;
-    background: #0d0e0f;
-    border-radius: inherit;
-    overflow: hidden;
-    transform: translateX(100%);
-    transition: transform 0.32s ease;
-  }
-
-  .plan-buffer-funding2-confirm-step.is-open {
-    transform: translateX(0);
-  }
-
-  .plan-buffer-funding2-confirm-step[hidden] {
-    display: none !important;
-  }
-
-  // Pre-fund set up success (Figma 8946:36485) — stacked over overview
-  .plan-buffer-funding2-success-step {
-    position: absolute;
-    inset: 0;
-    z-index: 7;
-    display: flex;
-    flex-direction: column;
-    background: #0d0e0f;
-    border-radius: inherit;
-    overflow: hidden;
-    transform: translateX(100%);
-    transition: transform 0.32s ease;
-  }
-
-  .plan-buffer-funding2-success-step.is-open {
-    transform: translateX(0);
-  }
-
-  .plan-buffer-funding2-success-step[hidden] {
-    display: none !important;
-  }
-
-  .plan-buffer-funding2-success-step__header {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 52px 16px 12px;
-    box-sizing: border-box;
-    min-height: 48px;
-  }
-
-  .plan-buffer-funding2-success-step__icon-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    cursor: pointer;
-
-    img {
-      width: 24px;
-      height: 24px;
-      display: block;
-    }
-  }
-
-  .plan-buffer-funding2-success-step__header-spacer {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .plan-buffer-funding2-success-step__scroller {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .plan-buffer-funding2-success-step__body {
-    flex: 1;
-    min-height: 0;
-    padding: 24px 16px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-  }
-
-  .plan-buffer-funding2-success-step__hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    max-width: 328px;
-  }
-
-  .plan-buffer-funding2-success-step__icon {
-    width: 60px;
-    height: 60px;
-    display: block;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .plan-buffer-funding2-success-step__headline {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffffff;
-    text-align: center;
-    line-height: normal;
-  }
-
-  p.plan-buffer-funding2-success-step__reserved {
-    margin: 0;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 600;
-    color: #5ac47d;
-    text-align: center;
-    line-height: normal;
-  }
-
-  .plan-buffer-funding2-success-step__footer {
-    flex-shrink: 0;
-    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
-    box-sizing: border-box;
-  }
-
-  .plan-buffer-funding2-success-step__btn {
-    width: 100%;
-    height: 48px;
-    border: 0;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .plan-buffer-funding2-success-step__btn--done {
-    background: #2d2f2f;
-    color: #ffffff;
-  }
-
-  .plan-buffer-funding2-confirm-step__header {
-    flex-shrink: 0;
-  }
-
-  .plan-buffer-funding2-confirm-step__body {
-    flex: 1;
-    min-height: 0;
-    padding: 16px 16px;
-    box-sizing: border-box;
-  }
-
-  .plan-buffer-funding2-overview-step__body {
-    padding: 0;
-    overflow: auto;
-  }
-
-  .plan-buffer-funding2-overview-note-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 16px;
-  }
-
-  .plan-buffer-funding2-overview-note {
-    margin: 0;
-    flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.35;
-    color: #5ac47d;
-  }
-
-  .plan-buffer-funding2-overview-note-icon {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-  }
-
-  .plan-buffer-funding2-confirm-hero__amount {
-    color: #f6b656;
-  }
-
-  // Keep learn-more sheet above the Auto-refill confirm overlay.
-  .plan-buffer-learn-more-panel {
-    z-index: 10;
-  }
-
-  // When closing Funding 2 entirely: snap stacked steps off without animating each layer.
-  &.plan-buffer-funding2--instant-inner-close {
-    .plan-buffer-funding2-confirm-step,
-    .plan-buffer-funding2-success-step,
-    .plan-buffer-learn-more-panel {
-      transition: none !important;
-    }
-  }
-
-  .plan-buffer-funding2-options {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .plan-buffer-funding2-options[hidden] {
-    display: none !important;
-  }
-
-  .plan-buffer-funding2-options__title {
-    margin: 8px 0 0 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffffff;
-    line-height: normal;
-  }
-
-  .plan-buffer-funding2-options__list {
-    width: 100%;
-    display: flex;
-    gap: 12px;
-  }
-
-  .plan-buffer-funding2-option {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 68px;
-    border: 0;
-    border-radius: 8px;
-    background: #2d2f2f;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1px;
-    cursor: pointer;
-    padding: 12px 8px;
-    box-sizing: border-box;
-  }
-
-  .plan-buffer-funding2-option.is-active {
-    background: #47494a;
-    outline: 2px solid #ffffff;
-    outline-offset: -2px;
-  }
-
-  .plan-buffer-funding2-option:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .plan-buffer-funding2-option__main {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: normal;
-  }
-
-  .plan-buffer-funding2-option__sub {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: normal;
-  }
-
-  .plan-buffer-panel__btn--primary.is-disabled,
-  .plan-buffer-panel__btn--primary:disabled {
-    background: #081b68;
-    color: #58595a;
-  }
+[data-plan-buffer-panel-2] .plan-buffer-funding-input__max-btn {
+  margin-left: auto;
+  margin-right: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-seg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 16px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-seg-row .plan-buffer-funding-seg.plan-buffer-funding-seg--hero {
+  margin: 0;
+  flex: 0 0 auto;
+}
+[data-plan-buffer-panel-2] .plan-buffer-panel__details {
+  gap: 24px;
+  margin-top: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-panel__body--funding {
+  gap: 24px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-stack {
+  margin-top: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-input {
+  gap: 12px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-round,
+[data-plan-buffer-panel-2] .plan-buffer-funding-action,
+[data-plan-buffer-panel-2] .plan-buffer-funding-autorefill,
+[data-plan-buffer-panel-2] .plan-buffer-funding-summary,
+[data-plan-buffer-panel-2] .plan-buffer-funding-summary-autorefill-divider {
+  display: none !important;
+}
+[data-plan-buffer-panel-2] .plan-buffer-panel__header {
+  align-items: center;
+}
+[data-plan-buffer-panel-2] h1.plan-buffer-panel__title[data-funding2-plan-line]::after {
+  content: attr(data-funding2-plan-line);
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9b9c9c;
+  line-height: normal;
+  letter-spacing: 0;
+}
+[data-plan-buffer-panel-2] p.plan-buffer-funding-hero__subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-hero__subtitle-prefix {
+  color: #9b9c9c;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-hero__subtitle-amount {
+  color: #8FB8FF;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-hero {
+  gap: 12px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding-hero.plan-buffer-funding-hero--period {
+  gap: 8px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-hero-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-hero-explained {
+  width: auto;
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-explained-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: #3f78ff;
+  cursor: pointer;
+  text-align: left;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-explained-link__icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-learn-more-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-learn-more-step {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #3c4248;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-learn-more-step.is-active {
+  background: #ffffff;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-learn-more-next--full {
+  flex: 1 1 auto;
+  width: 100%;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-step {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  background: #0d0e0f;
+  border-radius: inherit;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.32s ease;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-step.is-open {
+  transform: translateX(0);
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-step[hidden] {
+  display: none !important;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  background: #0d0e0f;
+  border-radius: inherit;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.32s ease;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step.is-open {
+  transform: translateX(0);
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step[hidden] {
+  display: none !important;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 52px 16px 12px;
+  box-sizing: border-box;
+  min-height: 48px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__header-spacer {
+  flex: 1;
+  min-width: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__body {
+  flex: 1;
+  min-height: 0;
+  padding: 24px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 328px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__icon {
+  width: 60px;
+  height: 60px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__headline {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  line-height: normal;
+}
+[data-plan-buffer-panel-2] p.plan-buffer-funding2-success-step__reserved {
+  margin: 0;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  color: #5ac47d;
+  text-align: center;
+  line-height: normal;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__footer {
+  flex-shrink: 0;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__btn {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-success-step__btn--done {
+  background: #2d2f2f;
+  color: #ffffff;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-step__header {
+  flex-shrink: 0;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-step__body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 16px;
+  box-sizing: border-box;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-overview-step__body {
+  padding: 0;
+  overflow: auto;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-overview-note-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-overview-note {
+  margin: 0;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #5ac47d;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-overview-note-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-confirm-hero__amount {
+  color: #f6b656;
+}
+[data-plan-buffer-panel-2] .plan-buffer-learn-more-panel {
+  z-index: 10;
+}
+[data-plan-buffer-panel-2].plan-buffer-funding2--instant-inner-close .plan-buffer-funding2-confirm-step,
+[data-plan-buffer-panel-2].plan-buffer-funding2--instant-inner-close .plan-buffer-funding2-success-step,
+[data-plan-buffer-panel-2].plan-buffer-funding2--instant-inner-close .plan-buffer-learn-more-panel {
+  transition: none !important;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-options {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-options[hidden] {
+  display: none !important;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-options__title {
+  margin: 8px 0 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: normal;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-options__list {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 68px;
+  border: 0;
+  border-radius: 8px;
+  background: #2d2f2f;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  padding: 12px 8px;
+  box-sizing: border-box;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option.is-active {
+  background: #47494a;
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option__main {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+}
+[data-plan-buffer-panel-2] .plan-buffer-funding2-option__sub {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+}
+[data-plan-buffer-panel-2] .plan-buffer-panel__btn--primary.is-disabled,
+[data-plan-buffer-panel-2] .plan-buffer-panel__btn--primary:disabled {
+  background: #081b68;
+  color: #58595a;
 }
 
 .plan-buffer-panel__method-block {
@@ -12218,7 +11809,6 @@ button.plan-buffer-funding-hero__how-link {
   display: block;
 }
 
-// Default state shows "off" illustration
 .plan-buffer-panel__method-illu-img--on {
   display: none;
 }
@@ -12312,13 +11902,11 @@ button.plan-buffer-funding-hero__how-link {
   transform: translateY(0);
 }
 
-// Row chrome matches Funding header: close left, flex middle, spacer right (same inset as `plan-buffer-panel__header`).
 .plan-buffer-learn-more-panel__header-middle {
   flex: 1;
   min-width: 0;
 }
 
-// Match `finance-intro-learn-more-panel__body` — illustration slot, then title + body, centered column, 32px / 16px gaps.
 .plan-buffer-learn-more-panel__body {
   flex: 1 1 auto;
   min-height: 0;
@@ -12407,7 +11995,7 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .plan-buffer-panel__method-row.is-selected .plan-buffer-panel__method-radio::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 6px;
   border-radius: 50%;
@@ -12522,7 +12110,7 @@ button.plan-buffer-funding-hero__how-link {
 
 .plan-buffer-panel__reserve-covers-amount {
   display: flex;
-  grid-column: 1 / -1;
+  grid-column: 1/-1;
   justify-content: flex-end;
   align-items: center;
   gap: 2px;
@@ -12593,7 +12181,7 @@ button.plan-buffer-funding-hero__how-link {
   color: #275cfd;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   cursor: pointer;
   text-align: right;
 }
@@ -12687,7 +12275,7 @@ button.plan-buffer-funding-hero__how-link {
   align-items: center;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   line-height: normal;
   gap: 2px;
 }
@@ -12726,7 +12314,7 @@ button.plan-buffer-funding-hero__how-link {
 .plan-buffer-panel__autofill-info-text {
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   line-height: normal;
   color: #8fb8ff;
   text-align: right;
@@ -12811,14 +12399,11 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: 700;
 }
 
-.plan-buffer-panel--continuous {
-  .plan-buffer-panel__reserve-covers-now {
-    color: #ffffff;
-  }
-
-  .plan-buffer-panel__reserve-covers-buys {
-    color: #ffffff;
-  }
+.plan-buffer-panel--continuous .plan-buffer-panel__reserve-covers-now {
+  color: #ffffff;
+}
+.plan-buffer-panel--continuous .plan-buffer-panel__reserve-covers-buys {
+  color: #ffffff;
 }
 
 .plan-buffer-panel__reserve-track {
@@ -13229,7 +12814,6 @@ button.plan-buffer-funding-hero__how-link {
   background: #2d2f2f;
 }
 
-// ── Plan overview: reserve info panel (bottom-sheet style) ────────────────────
 .plan-overview-reserve-info-panel {
   position: absolute;
   inset: 0;
@@ -13267,12 +12851,11 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.plan-overview-reserve-info-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .phone-container h2.plan-overview-reserve-info-panel__title {
@@ -13300,12 +12883,11 @@ button.plan-buffer-funding-hero__how-link {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.plan-overview-reserve-info-panel__body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .plan-overview-reserve-info-panel__content {
@@ -13467,8 +13049,6 @@ button.plan-buffer-funding-hero__how-link {
   cursor: pointer;
 }
 
-// ── Plan submit loader (Figma 8539:12955) ─────────────────────────────────────
-
 .plan-submit-loader {
   position: absolute;
   inset: 0;
@@ -13478,10 +13058,9 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   padding: 24px;
   pointer-events: auto;
-
-  &[hidden] {
-    display: none !important;
-  }
+}
+.plan-submit-loader[hidden] {
+  display: none !important;
 }
 
 .plan-submit-loader__backdrop {
@@ -13502,7 +13081,6 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
 }
 
-// Discrete 45° ticks: steps(8) holds each eighth of a turn—no tween between angles
 .plan-submit-loader__icon {
   display: block;
   width: 40px;
@@ -13515,14 +13093,10 @@ button.plan-buffer-funding-hero__how-link {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
 }
-
-// ── Plan submitted success (Figma 8539:10986) ──────────────────────────────────
-
 .plan-success-panel {
   position: absolute;
   inset: 0;
@@ -13562,12 +13136,11 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.plan-success-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .plan-success-panel__header-spacer {
@@ -13591,7 +13164,6 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .plan-success-panel__body {
-  // flex: 1;
   min-height: 0;
   padding: 32px 16px 16px;
   margin-top: 64px;
@@ -13622,9 +13194,7 @@ button.plan-buffer-funding-hero__how-link {
 
 .plan-success-panel__reserve-top {
   padding: 20px 16px 0;
-  background:
-    linear-gradient(180deg, rgba(45, 47, 47, 0.75) 0%, #1B1D1D 100%),
-    linear-gradient(90deg, #1B1D1D 0%, #1B1D1D 100%);
+  background: linear-gradient(180deg, rgba(45, 47, 47, 0.75) 0%, #1B1D1D 100%), linear-gradient(90deg, #1B1D1D 0%, #1B1D1D 100%);
 }
 
 .phone-container p.plan-success-panel__reserve-tip {
@@ -13659,12 +13229,11 @@ button.plan-buffer-funding-hero__how-link {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-
-  img {
-    display: block;
-    width: 48px;
-    height: 48px;
-  }
+}
+.plan-success-panel__reserve-illu img {
+  display: block;
+  width: 48px;
+  height: 48px;
 }
 
 .phone-container p.plan-success-panel__reserve-copy {
@@ -13812,12 +13381,9 @@ button.plan-buffer-funding-hero__how-link {
   line-height: 23px;
 }
 
-// ─── My plans panel (Figma 8541:11409) ───────────────────────────────────────
-
 .my-plans-panel {
   position: absolute;
   inset: 0;
-  // Above plan-success-panel (33) so “My plans” can slide in over the completed screen
   z-index: 34;
   width: 100%;
   height: 100%;
@@ -13903,14 +13469,12 @@ button.plan-buffer-funding-hero__how-link {
   opacity: 0.65;
 }
 
-// Top inset matches plan-overview / plan-detail (status area), not extra wrapper padding
 .my-plans-panel__header {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 52px 16px 12px;
   box-sizing: border-box;
-  // border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .my-plans-panel__icon-btn {
@@ -13925,12 +13489,11 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.my-plans-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .phone-container h1.my-plans-panel__title {
@@ -13954,10 +13517,9 @@ button.plan-buffer-funding-hero__how-link {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.my-plans-panel__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .my-plans-panel__tab {
@@ -13973,22 +13535,20 @@ button.plan-buffer-funding-hero__how-link {
   color: #9b9c9c;
   cursor: pointer;
   white-space: nowrap;
-
-  &.is-active {
-    color: #ffffff;
-  }
-
-  &.is-active::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 2px;
-    background: #275cfd;
-    border-radius: 1px;
-  }
+}
+.my-plans-panel__tab.is-active {
+  color: #ffffff;
+}
+.my-plans-panel__tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: #275cfd;
+  border-radius: 1px;
 }
 
 .my-plans-panel__scroller {
@@ -13999,15 +13559,13 @@ button.plan-buffer-funding-hero__how-link {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.my-plans-panel__scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
-// Flow progress = 1 (prototype): empty list — cards not shown yet
 .my-plans-panel.my-plans-panel--hide-cards .my-plans-panel__card {
   display: none;
 }
@@ -14026,7 +13584,6 @@ button.plan-buffer-funding-hero__how-link {
   box-sizing: border-box;
 }
 
-// Our display:flex wins over UA [hidden] — must hide inactive tab panels or all views stack
 .my-plans-panel__view[hidden] {
   display: none !important;
 }
@@ -14102,15 +13659,12 @@ button.plan-buffer-funding-hero__how-link {
   display: none !important;
 }
 
-// ─── My plans position card (Figma 8821:38051 — flat top + divider) ─────────
-
 .my-plans-position-card {
   width: 100%;
   border-radius: 16px;
   background: #151718;
   overflow: hidden;
   box-sizing: border-box;
-  // border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
@@ -14142,7 +13696,6 @@ button.plan-buffer-funding-hero__how-link {
   gap: 12px;
   padding: 10px 16px;
   box-sizing: border-box;
-  // border-bottom: 1px solid #252627;
 }
 
 .my-plans-position-card__head-left {
@@ -14304,7 +13857,7 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-position-card__invest-summary-line.my-plans-position-card__invest-summary-line--amount {
-  font-size: 16px;   
+  font-size: 16px;
 }
 
 .my-plans-position-card__invest-summary-line.my-plans-position-card__invest-summary-line--schedule {
@@ -14357,7 +13910,6 @@ button.plan-buffer-funding-hero__how-link {
   min-width: 0;
   padding: 12px 12px;
   border-radius: 12px;
-  // background: #1b1d1d;
   border: 1px solid #252627;
   box-sizing: border-box;
 }
@@ -14370,10 +13922,6 @@ button.plan-buffer-funding-hero__how-link {
   min-width: 0;
   height: 100%;
 }
-
-// .my-plans-position-card__kv--right {
-//   text-align: right;
-// }
 
 .my-plans-position-card__kv-label {
   font-size: 12px;
@@ -14555,7 +14103,6 @@ button.plan-buffer-funding-hero__how-link {
   color: #ffffff;
 }
 
-// My plans → View details (slides over list; z-index above .my-plans-panel)
 .my-plans-detail-panel {
   position: absolute;
   inset: 0;
@@ -14877,7 +14424,7 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__header::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
@@ -14904,12 +14451,11 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    display: block;
-  }
+}
+.my-plans-detail-panel__icon-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .my-plans-detail-panel__header-main {
@@ -14929,7 +14475,6 @@ button.plan-buffer-funding-hero__how-link {
   line-height: normal;
 }
 
-// Match plan-detail-panel collapsed subtitle (plan-detail-panel__header-ticker).
 .phone-container p.my-plans-detail-panel__header-kicker {
   margin: 0;
   font-size: 12px;
@@ -14965,7 +14510,6 @@ button.plan-buffer-funding-hero__how-link {
   height: 24px;
 }
 
-// Status is a <p>; beat `.phone-container p` from _base.scss (16px / white).
 .phone-container p.my-plans-detail-panel__status {
   margin: 0;
   border-radius: 30px;
@@ -14982,12 +14526,12 @@ button.plan-buffer-funding-hero__how-link {
   flex-shrink: 0;
 }
 
-.phone-container .my-plans-detail-panel[data-plan-status='paused'] p.my-plans-detail-panel__status {
+.phone-container .my-plans-detail-panel[data-plan-status=paused] p.my-plans-detail-panel__status {
   color: #9b9c9c;
   background: rgba(255, 255, 255, 0.06);
 }
 
-.phone-container .my-plans-detail-panel[data-plan-status='ended'] p.my-plans-detail-panel__status {
+.phone-container .my-plans-detail-panel[data-plan-status=ended] p.my-plans-detail-panel__status {
   color: #9b9c9c;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -15002,15 +14546,15 @@ button.plan-buffer-funding-hero__how-link {
   overflow-x: hidden;
   background: #0d0e0f;
   -webkit-overflow-scrolling: touch;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.my-plans-detail-panel__scroller::-webkit-scrollbar {
+  display: none;
+}
+.my-plans-detail-panel__scroller {
   scrollbar-width: none;
   padding-bottom: 120px;
 }
 
-// Figma MCP 8874:39851 — single gradient behind Auto-investing + Allocation (px 16, py 20, to #15161a).
 .my-plans-detail-panel__gradient-wrap {
   box-sizing: border-box;
   padding: 20px 16px 0;
@@ -15125,7 +14669,6 @@ button.plan-buffer-funding-hero__how-link {
   justify-content: space-between;
   align-items: center;
   gap: 4px;
-  // display: none;
 }
 
 .my-plans-detail-panel__section-head[hidden] {
@@ -15140,7 +14683,6 @@ button.plan-buffer-funding-hero__how-link {
   margin-top: 16px;
 }
 
-// Created / Plan ID + Overview: grouped with consistent internal rhythm.
 .my-plans-detail-panel__stack-overview-meta {
   display: flex;
   flex-direction: column;
@@ -15174,7 +14716,7 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__ov-card--full {
-  grid-column: 1 / span 2;
+  grid-column: 1/span 2;
 }
 
 .my-plans-detail-panel__ov-total-section,
@@ -15196,7 +14738,6 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__ov-value {
-  // margin-top: 2px;
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
@@ -15212,7 +14753,6 @@ button.plan-buffer-funding-hero__how-link {
 }
 
 .my-plans-detail-panel__ov-total-row {
-  // margin-top: 2px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -15251,12 +14791,11 @@ button.plan-buffer-funding-hero__how-link {
   cursor: pointer;
   flex-shrink: 0;
   line-height: 0;
-
-  img {
-    display: block;
-    width: 16px;
-    height: 16px;
-  }
+}
+.my-plans-detail-panel__funding-info-btn img {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .my-plans-detail-panel__ov-funding-row {
@@ -15312,7 +14851,6 @@ button.plan-buffer-funding-hero__how-link {
   height: 16px;
 }
 
-// `.my-plans-detail-panel__ov-funding-check { display:block; }` can beat UA `[hidden]`.
 .my-plans-detail-panel__ov-funding-check[hidden] {
   display: none !important;
 }
@@ -15339,7 +14877,6 @@ button.plan-buffer-funding-hero__how-link {
   padding: 0 10px;
 }
 
-// My plan detail — pre-funded funding block (Figma 8982:121547)
 .my-plans-detail-panel__funding-prefund {
   display: flex;
   flex-direction: column;
@@ -15576,7 +15113,6 @@ button.plan-buffer-funding-hero__how-link {
   gap: 10px;
 }
 
-// Recent activity — Figma MCP 8874:43471 (12px title → list, 16px between cards).
 .my-plans-detail-panel__activity-stack {
   display: flex;
   flex-direction: column;
@@ -15585,8 +15121,7 @@ button.plan-buffer-funding-hero__how-link {
   margin-bottom: 24px;
 }
 
-// Flow progress "State 2" (build badge): no recent-activity block on plan detail.
-html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-stack {
+html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-stack {
   display: none !important;
 }
 
@@ -15599,7 +15134,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   margin: 0;
 }
 
-// "You have bought": flat list on page bg (Figma MCP — not a filled card stack).
 .my-plans-detail-panel__cards[data-my-plans-detail-accumulated] {
   gap: 0;
 }
@@ -15608,7 +15142,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   border-radius: 0;
   background: transparent;
   padding: 0;
-  // border-bottom: 1px solid #252627;
 }
 
 .my-plans-detail-panel__asset-card:last-child {
@@ -15805,12 +15338,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-
-  img {
-    display: block;
-    width: 24px;
-    height: 24px;
-  }
+}
+.my-plans-detail-panel__act-toggle img {
+  display: block;
+  width: 24px;
+  height: 24px;
 }
 
 .my-plans-detail-panel__act-divider {
@@ -15978,12 +15510,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   align-items: center;
   justify-content: center;
   line-height: 0;
-
-  img {
-    display: block;
-    width: 15px;
-    height: 15px;
-  }
+}
+.my-plans-detail-panel__act-chevron img {
+  display: block;
+  width: 15px;
+  height: 15px;
 }
 
 .my-plans-detail-panel__activity-card.is-collapsed .my-plans-detail-panel__act-divider,
@@ -16021,7 +15552,6 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   font-weight: 600;
 }
 
-// Beat `.phone-container p` (line-height / margin) so values align with icons.
 .phone-container p.my-plans-detail-panel__meta-value {
   margin: 0;
   line-height: 1;
@@ -16067,12 +15597,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   width: 16px;
   height: 16px;
   line-height: 0;
-
-  img {
-    display: block;
-    width: 16px;
-    height: 16px;
-  }
+}
+.my-plans-detail-panel__copy-btn img {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .my-plans-detail-panel__footer {
@@ -16135,12 +15664,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   align-items: center;
   justify-content: center;
   padding: 0;
-
-  img {
-    display: block;
-    width: 24px;
-    height: 24px;
-  }
+}
+.my-plans-detail-panel__footer-btn--icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
 }
 
 .alloc-picker-panel {
@@ -16157,12 +15685,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   overflow: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.alloc-picker-panel::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .alloc-picker-panel.is-open {
@@ -16226,22 +15753,20 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   padding: 0 0 172px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.alloc-picker-panel__body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
-// Coins tab: flex + gap avoids margin collapse between search and hint row
-.alloc-picker-panel__view[data-alloc-picker-view='coins'] {
+.alloc-picker-panel__view[data-alloc-picker-view=coins] {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.alloc-picker-panel__view[data-alloc-picker-view='curated'] {
+.alloc-picker-panel__view[data-alloc-picker-view=curated] {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -16268,17 +15793,14 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   margin: 0 16px;
 }
 
-// `display: flex` on the view beats UA `[hidden]`; keep tab panels mutually exclusive
 .alloc-picker-panel__view[hidden] {
   display: none !important;
 }
 
-.alloc-picker-panel__view[data-alloc-picker-view='coins'] .alloc-picker-panel__search-wrap {
+.alloc-picker-panel__view[data-alloc-picker-view=coins] .alloc-picker-panel__search-wrap {
   margin: 16px 0 0;
   gap: 20px;
 }
-
-// Hint row spacing: edit `.alloc-picker-panel__hint-row` below (do not zero it out here)
 
 .alloc-picker-panel__search-wrap {
   position: relative;
@@ -16416,10 +15938,8 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   display: block;
 }
 
-.theme-guide-sheet {
-  .currency-sheet__panel {
-    max-height: min(76vh, 620px);
-  }
+.theme-guide-sheet .currency-sheet__panel {
+  max-height: min(76vh, 620px);
 }
 
 .theme-guide-sheet__body {
@@ -16451,10 +15971,9 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.theme-guide-sheet__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .theme-guide-sheet__tab {
@@ -16496,10 +16015,9 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   cursor: grab;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.theme-guide-sheet__cards::-webkit-scrollbar {
+  display: none;
 }
 
 .theme-guide-sheet__cards.is-dragging {
@@ -16594,12 +16112,11 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   margin: 0 -8px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+}
+.alloc-picker-panel__theme-cats::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .alloc-picker-panel__theme-cat {
@@ -16653,7 +16170,7 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   color: #ffffff;
 }
 
-.alloc-picker-panel__view[data-alloc-picker-view='curated'] .alloc-picker-panel__coins {
+.alloc-picker-panel__view[data-alloc-picker-view=curated] .alloc-picker-panel__coins {
   margin-top: 4px;
 }
 
@@ -16874,15 +16391,13 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   -webkit-tap-highlight-color: transparent;
   font: inherit;
   color: inherit;
-
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    border-radius: 6px;
-    box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
-  }
+}
+.alloc-picker-panel__chip-dismiss:focus {
+  outline: none;
+}
+.alloc-picker-panel__chip-dismiss:focus-visible {
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px rgba(143, 184, 255, 0.55);
 }
 
 .alloc-picker-panel__chip-close {
@@ -16908,3 +16423,5 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   color: #58595a;
   opacity: 1;
 }
+
+/*# sourceMappingURL=test-watch-out.css.map */

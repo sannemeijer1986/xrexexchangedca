@@ -40,6 +40,9 @@
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const states = {};
 
+  /** Prototype wallet balances — single source of truth (finance, plan detail, convert, …). */
+  const PROTOTYPE_BALANCES = { TWD: 75000, USDT: 2750, BTC: 0 };
+
   /** Exposes flow progress on `<html>` so prototype-only SCSS can key off it. */
   const syncPrototypeFlowToDocument = () => {
     document.documentElement.dataset.prototypeFlow = String(states.flow ?? 1);
@@ -712,7 +715,8 @@
     const recvInp = root?.querySelector("[data-trade-convert-recv-input]");
     if (!root || !payInp || !recvInp) return;
 
-    const pairTitle = root.querySelector("[data-trade-convert-pair-title]");
+    const pairFromEl = root.querySelector("[data-trade-convert-pair-from]");
+    const pairToEl = root.querySelector("[data-trade-convert-pair-to]");
     const rateEl = root.querySelector("[data-trade-convert-rate]");
     const payAvailEl = root.querySelector("[data-trade-convert-pay-avail]");
     const recvAvailEl = root.querySelector("[data-trade-convert-recv-avail]");
@@ -731,9 +735,37 @@
     let rateTwdPerBtc = readRate();
     let payCurrency = "TWD";
     let receiveCurrency = "BTC";
-    let availPay = parseFloat(root.getAttribute("data-convert-pay-avail") || "0") || 0;
-    let availReceive =
-      parseFloat(root.getAttribute("data-convert-recv-avail") || "0") || 0;
+
+    const availForCurrency = (code) => {
+      const c = String(code || "").toUpperCase();
+      const n = Number(PROTOTYPE_BALANCES[c]);
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    };
+
+    let availPay = availForCurrency(payCurrency);
+    let availReceive = availForCurrency(receiveCurrency);
+
+    /** Max value for either amount field on the convert form. */
+    const CONVERT_AMOUNT_MAX = 999999.99;
+
+    const CONVERT_BTC_DECIMALS = 6;
+    const roundConvertBtc = (n) => {
+      if (!Number.isFinite(n)) return NaN;
+      const f = 10 ** CONVERT_BTC_DECIMALS;
+      return Math.round(n * f) / f;
+    };
+
+    const fmtConvertBtc = (n) => {
+      if (!Number.isFinite(n) || n < 0) return "";
+      return roundConvertBtc(n).toFixed(CONVERT_BTC_DECIMALS);
+    };
+
+    const CONVERT_FIAT_DECIMALS = 2;
+    const roundConvertFiat = (n) => {
+      if (!Number.isFinite(n)) return NaN;
+      const f = 10 ** CONVERT_FIAT_DECIMALS;
+      return Math.round(n * f) / f;
+    };
 
     const iconFor = (code) => {
       if (code === "BTC") return "assets/icon_currency_btc.svg";
@@ -746,19 +778,49 @@
         Math.round(n),
       );
 
-    const fmtBtcAvail = (n) => (Number.isFinite(n) ? n.toFixed(5) : "0.00000");
+    const fmtBtcAvail = (n) =>
+      Number.isFinite(n)
+        ? roundConvertBtc(n).toFixed(CONVERT_BTC_DECIMALS)
+        : "0." + "0".repeat(CONVERT_BTC_DECIMALS);
+
+    /** TWD (and other fiat on this screen) — up to 2 decimals so cap 999,999.99 renders correctly. */
+    const fmtConvertFiat = (n) =>
+      new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(Number.isFinite(n) ? n : 0);
 
     const parsePay = () => {
       const raw = String(payInp.value || "").replace(/,/g, "").trim();
       const x = parseFloat(raw);
-      return Number.isFinite(x) ? x : NaN;
+      if (!Number.isFinite(x)) return NaN;
+      if (payCurrency === "BTC") return roundConvertBtc(x);
+      if (payCurrency === "TWD") return roundConvertFiat(x);
+      return x;
     };
 
     const formatPayField = (n) => {
       if (!Number.isFinite(n) || n < 0) return "";
-      if (payCurrency === "TWD") return fmtTwd(n);
-      const s = n.toFixed(8).replace(/\.?0+$/, "");
-      return s || "0";
+      if (payCurrency === "TWD")
+        return fmtConvertFiat(roundConvertFiat(n));
+      return fmtConvertBtc(n);
+    };
+
+    const formatReceiveField = (n) => {
+      if (!Number.isFinite(n) || n < 0) return "";
+      if (receiveCurrency === "BTC") return fmtConvertBtc(n);
+      if (receiveCurrency === "TWD")
+        return fmtConvertFiat(roundConvertFiat(n));
+      return fmtConvertFiat(n);
+    };
+
+    const parseRecv = () => {
+      const raw = String(recvInp.value || "").replace(/,/g, "").trim();
+      const x = parseFloat(raw);
+      if (!Number.isFinite(x)) return NaN;
+      if (receiveCurrency === "BTC") return roundConvertBtc(x);
+      if (receiveCurrency === "TWD") return roundConvertFiat(x);
+      return x;
     };
 
     const convertForward = (payAmt) => {
@@ -770,32 +832,103 @@
       return NaN;
     };
 
-    const syncReceive = () => {
-      const payAmt = parsePay();
+    const convertFromReceive = (recvAmt) => {
+      if (!Number.isFinite(recvAmt) || recvAmt <= 0) return NaN;
+      if (payCurrency === "TWD" && receiveCurrency === "BTC")
+        return recvAmt * rateTwdPerBtc;
+      if (payCurrency === "BTC" && receiveCurrency === "TWD")
+        return recvAmt / rateTwdPerBtc;
+      return NaN;
+    };
+
+    const syncReceiveFromPay = () => {
+      let payAmt = parsePay();
       if (!Number.isFinite(payAmt) || payAmt <= 0) {
         recvInp.value = "";
         return;
       }
-      const out = convertForward(payAmt);
+      if (payAmt > CONVERT_AMOUNT_MAX) {
+        payAmt = CONVERT_AMOUNT_MAX;
+        payInp.value = formatPayField(payAmt);
+      }
+      if (payCurrency === "BTC") {
+        payAmt = roundConvertBtc(payAmt);
+        payInp.value = formatPayField(payAmt);
+      } else if (payCurrency === "TWD") {
+        payAmt = roundConvertFiat(payAmt);
+        payInp.value = formatPayField(payAmt);
+      }
+      let out = convertForward(payAmt);
       if (!Number.isFinite(out)) {
         recvInp.value = "";
         return;
       }
-      recvInp.value =
-        receiveCurrency === "BTC" ? out.toFixed(6) : fmtTwd(out);
+      if (out > CONVERT_AMOUNT_MAX) {
+        recvInp.value = formatReceiveField(CONVERT_AMOUNT_MAX);
+        const payIdeal = convertFromReceive(CONVERT_AMOUNT_MAX);
+        if (!Number.isFinite(payIdeal) || payIdeal <= 0) return;
+        if (payIdeal > CONVERT_AMOUNT_MAX) {
+          payInp.value = formatPayField(CONVERT_AMOUNT_MAX);
+          const outCapped = convertForward(CONVERT_AMOUNT_MAX);
+          recvInp.value = Number.isFinite(outCapped)
+            ? formatReceiveField(outCapped)
+            : formatReceiveField(CONVERT_AMOUNT_MAX);
+        } else {
+          payInp.value = formatPayField(payIdeal);
+        }
+        return;
+      }
+      if (receiveCurrency === "BTC") out = roundConvertBtc(out);
+      else if (receiveCurrency === "TWD") out = roundConvertFiat(out);
+      recvInp.value = formatReceiveField(out);
+    };
+
+    const syncPayFromReceive = () => {
+      let recvAmt = parseRecv();
+      if (!Number.isFinite(recvAmt) || recvAmt <= 0) {
+        payInp.value = "";
+        return;
+      }
+      if (recvAmt > CONVERT_AMOUNT_MAX) {
+        recvAmt = CONVERT_AMOUNT_MAX;
+        recvInp.value = formatReceiveField(recvAmt);
+      }
+      if (receiveCurrency === "BTC") {
+        recvAmt = roundConvertBtc(recvAmt);
+        recvInp.value = formatReceiveField(recvAmt);
+      } else if (receiveCurrency === "TWD") {
+        recvAmt = roundConvertFiat(recvAmt);
+        recvInp.value = formatReceiveField(recvAmt);
+      }
+      let pay = convertFromReceive(recvAmt);
+      if (!Number.isFinite(pay)) {
+        payInp.value = "";
+        return;
+      }
+      if (pay > CONVERT_AMOUNT_MAX) {
+        payInp.value = formatPayField(CONVERT_AMOUNT_MAX);
+        const outCapped = convertForward(CONVERT_AMOUNT_MAX);
+        recvInp.value = Number.isFinite(outCapped)
+          ? formatReceiveField(outCapped)
+          : formatReceiveField(CONVERT_AMOUNT_MAX);
+        return;
+      }
+      payInp.value = formatPayField(pay);
     };
 
     const renderAvails = () => {
       if (payAvailEl) {
         const a =
-          payCurrency === "BTC" ? fmtBtcAvail(availPay) : fmtTwd(availPay);
+          payCurrency === "BTC"
+            ? fmtBtcAvail(availPay)
+            : fmtConvertFiat(roundConvertFiat(availPay));
         payAvailEl.textContent = `Avail. ${a} ${payCurrency}`;
       }
       if (recvAvailEl) {
         const a =
           receiveCurrency === "BTC"
             ? fmtBtcAvail(availReceive)
-            : fmtTwd(availReceive);
+            : fmtConvertFiat(roundConvertFiat(availReceive));
         recvAvailEl.textContent = `Avail. ${a} ${receiveCurrency}`;
       }
     };
@@ -806,7 +939,8 @@
     };
 
     const renderPair = () => {
-      if (pairTitle) pairTitle.textContent = `${payCurrency} → ${receiveCurrency}`;
+      if (pairFromEl) pairFromEl.textContent = payCurrency;
+      if (pairToEl) pairToEl.textContent = receiveCurrency;
     };
 
     const renderIcons = () => {
@@ -816,25 +950,26 @@
       if (recvCurEl) recvCurEl.textContent = receiveCurrency;
     };
 
-    payInp.addEventListener("input", syncReceive);
+    payInp.addEventListener("input", syncReceiveFromPay);
+    recvInp.addEventListener("input", syncPayFromReceive);
     maxBtn?.addEventListener("click", () => {
-      payInp.value = formatPayField(availPay);
-      syncReceive();
+      const capped = Math.min(availPay, CONVERT_AMOUNT_MAX);
+      payInp.value = formatPayField(capped);
+      syncReceiveFromPay();
     });
     swapBtn?.addEventListener("click", () => {
       const pc = payCurrency;
       payCurrency = receiveCurrency;
       receiveCurrency = pc;
-      const ap = availPay;
-      availPay = availReceive;
-      availReceive = ap;
+      availPay = availForCurrency(payCurrency);
+      availReceive = availForCurrency(receiveCurrency);
       const pv = payInp.value;
       payInp.value = recvInp.value;
       recvInp.value = pv;
       renderPair();
       renderIcons();
       renderAvails();
-      syncReceive();
+      syncReceiveFromPay();
     });
 
     rateTwdPerBtc = readRate();
@@ -846,7 +981,61 @@
     if (Number.isFinite(initialPay) && initialPay > 0) {
       payInp.value = formatPayField(initialPay);
     }
-    syncReceive();
+    syncReceiveFromPay();
+  };
+
+  /** Trade · Convert — full-screen rate panel (placeholder body; opened from rate row). */
+  const initTradeConvertRatePanel = () => {
+    const panel = document.querySelector("[data-trade-convert-rate-panel]");
+    const openBtn = document.querySelector("[data-trade-convert-rate-open]");
+    if (!panel || !openBtn) return;
+
+    const closeEls = panel.querySelectorAll("[data-trade-convert-rate-close]");
+    const ratePairFromEl = panel.querySelector(
+      "[data-trade-convert-rate-pair-from]",
+    );
+    const ratePairToEl = panel.querySelector("[data-trade-convert-rate-pair-to]");
+
+    const syncRatePanelTitleFromConvert = () => {
+      const root = document.querySelector("[data-trade-convert-root]");
+      const fromMain = root?.querySelector("[data-trade-convert-pair-from]");
+      const toMain = root?.querySelector("[data-trade-convert-pair-to]");
+      if (fromMain && ratePairFromEl)
+        ratePairFromEl.textContent = fromMain.textContent || "";
+      if (toMain && ratePairToEl)
+        ratePairToEl.textContent = toMain.textContent || "";
+    };
+
+    const finishClose = () => {
+      panel.hidden = true;
+    };
+
+    const close = (opts = {}) => {
+      if (opts.instant) {
+        panel.style.transition = "none";
+        panel.classList.remove("is-open");
+        void panel.offsetHeight;
+        panel.style.transition = "";
+        finishClose();
+        return;
+      }
+      panel.classList.remove("is-open");
+      const onEnd = () => {
+        if (!panel.classList.contains("is-open")) finishClose();
+        panel.removeEventListener("transitionend", onEnd);
+      };
+      panel.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 380);
+    };
+
+    const open = () => {
+      syncRatePanelTitleFromConvert();
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add("is-open"));
+    };
+
+    openBtn.addEventListener("click", open);
+    closeEls.forEach((el) => el.addEventListener("click", () => close()));
   };
 
   const initFinanceSectionNav = () => {
@@ -5027,6 +5216,7 @@
   const financeHeaderApi = initFinanceHeaderTabs();
   const tradeHeaderApi = initTradeHeaderTabs();
   initTradeConvertPage();
+  initTradeConvertRatePanel();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (
@@ -10942,8 +11132,7 @@
       }
     };
 
-    // Static balances for the prototype
-    const BALANCES = { TWD: 75000, USDT: 2750 };
+    const BALANCES = PROTOTYPE_BALANCES;
 
     const applyPlanDetailAllocTweakToSim = (sim, amount) => {
       if (!sim || typeof detailPanelAllocPctTweakFn !== "function") return sim;

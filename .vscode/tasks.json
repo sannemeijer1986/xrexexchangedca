@@ -13,7 +13,7 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": ".",
-          "endsPattern": "Sass is watching"
+          "endsPattern": "Sass is watching for changes"
         }
       },
       "isBackground": true,
@@ -42,7 +42,7 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": ".",
-          "endsPattern": "Sass is watching"
+          "endsPattern": "Sass is watching for changes"
         }
       },
       "isBackground": true,
