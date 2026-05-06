@@ -189,9 +189,10 @@ body {
   .fake-keyboard__pct-wrap {
     flex: 1 1 0;
     min-width: 0;
-    border: 1px solid #363636;
+    border: 1px solid #252627;
     border-radius: 16px;
-    padding: 8px 10px;
+    padding: 9px 10px;
+    height: 40px;
     box-sizing: border-box;
   }
   .fake-keyboard__preview {
@@ -4529,6 +4530,7 @@ button.finance-summary__stat-value--chevron {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
 }
@@ -4541,20 +4543,23 @@ button.finance-summary__stat-value--chevron {
 }
 .trade-convert-page__inner {
   padding: 0 16px;
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
 }
 
 .trade-convert-page__sticky-footer {
-  flex-shrink: 0;
-  margin-top: auto;
-  position: sticky;
+  position: absolute;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 3;
   background: #0d0e0f;
   padding: 16px 16px 32px 16px;
   padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  opacity: 1;
+  transition: opacity 180ms ease;
 }
 
 @media (min-width: 641px) {

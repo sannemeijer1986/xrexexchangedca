@@ -19672,35 +19672,67 @@
       }
     };
 
+    const getConvertPayContext = () => {
+      const root = document.querySelector("[data-trade-convert-root]");
+      const payInp = root?.querySelector("[data-trade-convert-pay-input]");
+      const payCode = (
+        root?.querySelector("[data-trade-convert-pay-currency]")?.textContent ||
+        "TWD"
+      )
+        .trim()
+        .toUpperCase();
+      const avail = Number(PROTOTYPE_BALANCES[payCode]);
+      return { payInp, payCode, avail };
+    };
+
+    const getAmountForPct = (avail, payCode, pct) => {
+      let next = (avail * pct) / 100;
+      if (payCode === "BTC") next = Math.round(next * 1e6) / 1e6;
+      else next = Math.round(next * 100) / 100;
+      return next;
+    };
+
+    const getMatchedPctForPayInput = () => {
+      const { payInp, payCode, avail } = getConvertPayContext();
+      if (!payInp || !Number.isFinite(avail) || avail <= 0) return null;
+      const typed = Number((payInp.value || "").replace(/,/g, "").trim());
+      if (!Number.isFinite(typed) || typed <= 0) return null;
+      const pctOptions = [25, 50, 75, 100];
+      return (
+        pctOptions.find((pct) => {
+          const target = getAmountForPct(avail, payCode, pct);
+          return Math.abs(typed - target) < 1e-9;
+        }) ?? null
+      );
+    };
+
+    const syncPctStateFromPayInput = () => {
+      const matchedPct = getMatchedPctForPayInput();
+      setPctActiveState(matchedPct ?? 0);
+    };
+
     keyboardPctBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (document.documentElement.dataset.tradePage !== "convert") return;
         const pct = Number(btn.getAttribute("data-fake-keyboard-pct"));
         if (!Number.isFinite(pct) || pct <= 0) return;
         setPctActiveState(pct);
-        const root = document.querySelector("[data-trade-convert-root]");
-        const payInp = root?.querySelector("[data-trade-convert-pay-input]");
-        const payCode = (
-          root?.querySelector("[data-trade-convert-pay-currency]")?.textContent ||
-          "TWD"
-        )
-          .trim()
-          .toUpperCase();
+        const { payInp, payCode, avail } = getConvertPayContext();
         if (!payInp) return;
-        const avail = Number(PROTOTYPE_BALANCES[payCode]);
         if (!Number.isFinite(avail) || avail <= 0) {
           payInp.value = "";
           payInp.dispatchEvent(new Event("input", { bubbles: true }));
           return;
         }
-        let next = (avail * pct) / 100;
-        if (payCode === "BTC") next = Math.round(next * 1e6) / 1e6;
-        else next = Math.round(next * 100) / 100;
+        const next = getAmountForPct(avail, payCode, pct);
         payInp.value = next > 0 ? String(next) : "";
         payInp.focus();
         payInp.dispatchEvent(new Event("input", { bubbles: true }));
       });
     });
+
+    getConvertPayContext().payInp?.addEventListener("input", syncPctStateFromPayInput);
+    syncPctStateFromPayInput();
 
     document.addEventListener("pointerdown", (e) => {
       if (!mq.matches) return;
