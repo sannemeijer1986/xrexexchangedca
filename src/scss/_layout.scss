@@ -4657,6 +4657,19 @@ button.finance-summary__stat-value--chevron {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.phone-container p.trade-convert-rate-panel__placeholder {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #9b9c9c;
 }
 
 .trade-convert-page__field {
@@ -4918,6 +4931,8 @@ button.finance-summary__stat-value--chevron {
   gap: 8px;
   width: 100%;
   min-width: 0;
+  height: 12px;
+  margin-bottom: 16px;
 }
 
 .convert-confirm-sheet__rate-price-group {
@@ -4950,23 +4965,35 @@ button.finance-summary__stat-value--chevron {
 .convert-confirm-sheet__rate-action {
   flex: 0 0 auto;
   margin-left: auto;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
+  width: 92px;
+  height: 32px;
 }
 
 .convert-confirm-sheet__timer {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   color: #8fb8ff;
   white-space: nowrap;
+  transition: opacity 0.15s ease;
 }
 
 /* Figma 11243:5684 — rate lock expired */
 .convert-confirm-sheet__update-rate {
-  display: none;
+  display: inline-flex;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   align-items: center;
   justify-content: center;
   height: 32px;
@@ -4983,6 +5010,10 @@ button.finance-summary__stat-value--chevron {
   cursor: pointer;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 
   &:focus-visible {
     outline: 2px solid #3f78ff;
@@ -4991,11 +5022,15 @@ button.finance-summary__stat-value--chevron {
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__timer {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__update-rate {
-  display: inline-flex;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__info-icon {
