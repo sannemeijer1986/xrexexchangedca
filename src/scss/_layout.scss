@@ -127,6 +127,15 @@
     width: 100%;
   }
 
+  .fake-keyboard__pct-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1px solid #363636;
+    border-radius: 16px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+  }
+
   .fake-keyboard__preview {
     flex-shrink: 0;
     width: 100px;
@@ -149,8 +158,6 @@
   }
 
   .fake-keyboard__pct-bar {
-    flex: 1 1 0;
-    min-width: 0;
     height: 20px;
     border-radius: 8px;
     background: #2d2f2f;
@@ -164,16 +171,32 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px;
+    padding: 0;
     box-sizing: border-box;
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
     color: #9b9c9c;
     border: 0;
+    border-radius: 0;
     background: transparent;
     font-family: inherit;
     cursor: pointer;
+  }
+
+  .fake-keyboard__pct-bar button.is-active {
+    background: #ffffff;
+    color: #151718;
+  }
+
+  .fake-keyboard__pct-bar button.is-active-start {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+
+  .fake-keyboard__pct-bar button.is-active-end {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
 
   .fake-keyboard__done-row {
@@ -4587,7 +4610,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 @media (min-width: #{$bp-mobile + 1}) {
-  .phone-container.is-fake-keyboard-visible .content--trade--convert .trade-convert-page__sticky-footer {
+  .phone-container.is-fake-keyboard-visible:not(.is-fake-keyboard-dismissing) .content--trade--convert .trade-convert-page__sticky-footer {
     opacity: 0;
     pointer-events: none;
   }

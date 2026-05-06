@@ -19588,6 +19588,7 @@
     const show = () => {
       if (!mq.matches) return;
       if (document.documentElement.dataset.tradePage !== "convert") return;
+      container.classList.remove("is-fake-keyboard-dismissing");
       container.classList.add("is-fake-keyboard-visible");
       keyboard.classList.add("is-visible");
       keyboard.setAttribute("aria-hidden", "false");
@@ -19598,17 +19599,30 @@
       const scroller = document.querySelector("[data-content]");
       if (!scroller) return;
       scroller.scrollTo({ top: 0, behavior: "smooth" });
-      window.setTimeout(() => {
-        container.classList.remove("is-fake-keyboard-visible");
-      }, 220);
     };
 
     const hide = (opts = {}) => {
       const wasVisible = keyboard.classList.contains("is-visible");
       keyboard.classList.remove("is-visible");
       keyboard.setAttribute("aria-hidden", "true");
-      if (wasVisible && opts.scrollToTop !== false) scrollConvertToTop();
-      else container.classList.remove("is-fake-keyboard-visible");
+      if (!wasVisible) return;
+      if (opts.scrollToTop === false) {
+        container.classList.remove(
+          "is-fake-keyboard-visible",
+          "is-fake-keyboard-dismissing",
+        );
+        return;
+      }
+      // Keep extra scroll room briefly so smooth scroll remains visible,
+      // while allowing the page CTA to reappear immediately.
+      container.classList.add("is-fake-keyboard-dismissing");
+      scrollConvertToTop();
+      setTimeout(() => {
+        container.classList.remove(
+          "is-fake-keyboard-visible",
+          "is-fake-keyboard-dismissing",
+        );
+      }, 220);
     };
 
     container.addEventListener("focusin", (e) => {
@@ -19642,11 +19656,28 @@
       requestAnimationFrame(() => previewBtn.click());
     });
 
+    const setPctActiveState = (selectedPct) => {
+      keyboardPctBtns.forEach((b) => {
+        const btnPct = Number(b.getAttribute("data-fake-keyboard-pct"));
+        const isActive = Number.isFinite(btnPct) && btnPct <= selectedPct;
+        b.classList.toggle("is-active", isActive);
+        b.classList.remove("is-active-start", "is-active-end");
+      });
+      const activeBtns = keyboardPctBtns.filter((b) =>
+        b.classList.contains("is-active"),
+      );
+      if (activeBtns.length > 0) {
+        activeBtns[0].classList.add("is-active-start");
+        activeBtns[activeBtns.length - 1].classList.add("is-active-end");
+      }
+    };
+
     keyboardPctBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (document.documentElement.dataset.tradePage !== "convert") return;
         const pct = Number(btn.getAttribute("data-fake-keyboard-pct"));
         if (!Number.isFinite(pct) || pct <= 0) return;
+        setPctActiveState(pct);
         const root = document.querySelector("[data-trade-convert-root]");
         const payInp = root?.querySelector("[data-trade-convert-pay-input]");
         const payCode = (
