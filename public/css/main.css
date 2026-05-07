@@ -4029,27 +4029,25 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-convert-history-page__empty {
-  min-height: 220px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px 16px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 24px 16px 16px;
 }
 
 .trade-convert-history-page__empty-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   color: #ffffff;
 }
 
-.trade-convert-history-page__empty-subtitle {
-  margin: 8px 0 0;
-  font-size: 14px;
+.phone-container p.trade-convert-history-page__empty-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.35;
   color: #9b9c9c;
@@ -4890,10 +4888,11 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-convert-page__rate-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
