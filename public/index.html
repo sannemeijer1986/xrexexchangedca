@@ -1213,16 +1213,23 @@
                 </button>
             </header>
             <nav class="app-header__tabs trade-convert-history-page__tabs" aria-label="History categories">
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="spot">Spot</button>
-                <button class="app-header__tab is-active" type="button" data-trade-convert-history-tab="convert">Convert</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="margin">Margin</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="grid-bot">Grid bot</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="auto-invest">Auto-invest</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="loan">Loan</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="deposit">Deposit</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="withdrawal">Withdrawal</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="bitcheck">BitCheck</button>
-                <button class="app-header__tab" type="button" data-trade-convert-history-tab="nfts">NFTs</button>
+                <div class="trade-convert-history-page__tabs-scroll" data-trade-convert-history-tabs-scroll>
+                    <span
+                        class="trade-convert-history-page__tabs-indicator"
+                        data-trade-convert-history-tabs-indicator
+                        aria-hidden="true"
+                    ></span>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="spot">Spot</button>
+                    <button class="app-header__tab is-active" type="button" data-trade-convert-history-tab="convert">Convert</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="margin">Margin</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="grid-bot">Grid bot</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="auto-invest">Auto-invest</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="loan">Loan</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="deposit">Deposit</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="withdrawal">Withdrawal</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="bitcheck">BitCheck</button>
+                    <button class="app-header__tab" type="button" data-trade-convert-history-tab="nfts">NFTs</button>
+                </div>
             </nav>
             <div class="trade-convert-history-page__body">
                 <div class="trade-convert-history-page__filters" data-trade-convert-history-filters aria-label="History filters">
@@ -1235,97 +1242,139 @@
                         <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
                     </button>
                 </div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="convert">
-                <div class="trade-convert-history-page__list" aria-label="Convert history">
-                    <button class="trade-convert-history-item" type="button">
-                        <span class="trade-convert-history-item__icons" aria-hidden="true">
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
-                        </span>
-                        <span class="trade-convert-history-item__main">
-                            <span class="trade-convert-history-item__pair">TWD → BTC</span>
-                            <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
-                        </span>
-                        <span class="trade-convert-history-item__amounts">
-                            <span class="trade-convert-history-item__receive">+ 0.000308 BTC</span>
-                            <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
-                        </span>
-                    </button>
-                    <button class="trade-convert-history-item" type="button">
-                        <span class="trade-convert-history-item__icons" aria-hidden="true">
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
-                        </span>
-                        <span class="trade-convert-history-item__main">
-                            <span class="trade-convert-history-item__pair">TWD → ETH</span>
-                            <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
-                        </span>
-                        <span class="trade-convert-history-item__amounts">
-                            <span class="trade-convert-history-item__receive">+ 0.000308 ETH</span>
-                            <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
-                        </span>
-                    </button>
-                    <button class="trade-convert-history-item" type="button">
-                        <span class="trade-convert-history-item__icons" aria-hidden="true">
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
-                            <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_solana.svg" alt="" />
-                        </span>
-                        <span class="trade-convert-history-item__main">
-                            <span class="trade-convert-history-item__pair">TWD → SOL</span>
-                            <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
-                        </span>
-                        <span class="trade-convert-history-item__amounts">
-                            <span class="trade-convert-history-item__receive">+ 0.000308 SOL</span>
-                            <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
-                        </span>
-                    </button>
-                </div>
-                </div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="auto-invest" hidden>
-                    <div class="trade-convert-history-page__list" aria-label="Auto-invest history">
-                        <button class="trade-convert-history-item" type="button">
-                            <span class="trade-convert-history-item__icons" aria-hidden="true">
-                                <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
-                                <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
-                            </span>
-                            <span class="trade-convert-history-item__main">
-                                <span class="trade-convert-history-item__pair">Auto-invest: TWD → BTC</span>
-                                <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
-                            </span>
-                            <span class="trade-convert-history-item__amounts">
-                                <span class="trade-convert-history-item__receive">+ 0.000250 BTC</span>
-                                <span class="trade-convert-history-item__pay">- 4,000.00 TWD</span>
-                            </span>
-                        </button>
-                        <button class="trade-convert-history-item" type="button">
-                            <span class="trade-convert-history-item__icons" aria-hidden="true">
-                                <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
-                                <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
-                            </span>
-                            <span class="trade-convert-history-item__main">
-                                <span class="trade-convert-history-item__pair">Auto-invest: TWD → ETH</span>
-                                <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
-                            </span>
-                            <span class="trade-convert-history-item__amounts">
-                                <span class="trade-convert-history-item__receive">+ 0.000310 ETH</span>
-                                <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
-                            </span>
-                        </button>
+                <div class="trade-convert-history-page__panels-viewport" data-trade-convert-history-panels-viewport>
+                    <div
+                        class="trade-convert-history-page__panels-track"
+                        data-trade-convert-history-panels-track
+                    >
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="spot">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="convert">
+                            <div class="trade-convert-history-page__list" aria-label="Convert history">
+                                <button class="trade-convert-history-item" type="button">
+                                    <span class="trade-convert-history-item__icons" aria-hidden="true">
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
+                                    </span>
+                                    <span class="trade-convert-history-item__main">
+                                        <span class="trade-convert-history-item__pair">TWD → BTC</span>
+                                        <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
+                                    </span>
+                                    <span class="trade-convert-history-item__amounts">
+                                        <span class="trade-convert-history-item__receive">+ 0.000308 BTC</span>
+                                        <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
+                                    </span>
+                                </button>
+                                <button class="trade-convert-history-item" type="button">
+                                    <span class="trade-convert-history-item__icons" aria-hidden="true">
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
+                                    </span>
+                                    <span class="trade-convert-history-item__main">
+                                        <span class="trade-convert-history-item__pair">TWD → ETH</span>
+                                        <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
+                                    </span>
+                                    <span class="trade-convert-history-item__amounts">
+                                        <span class="trade-convert-history-item__receive">+ 0.000308 ETH</span>
+                                        <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
+                                    </span>
+                                </button>
+                                <button class="trade-convert-history-item" type="button">
+                                    <span class="trade-convert-history-item__icons" aria-hidden="true">
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_solana.svg" alt="" />
+                                    </span>
+                                    <span class="trade-convert-history-item__main">
+                                        <span class="trade-convert-history-item__pair">TWD → SOL</span>
+                                        <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
+                                    </span>
+                                    <span class="trade-convert-history-item__amounts">
+                                        <span class="trade-convert-history-item__receive">+ 0.000308 SOL</span>
+                                        <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="margin">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="grid-bot">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="auto-invest">
+                            <div class="trade-convert-history-page__list" aria-label="Auto-invest history">
+                                <button class="trade-convert-history-item" type="button">
+                                    <span class="trade-convert-history-item__icons" aria-hidden="true">
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
+                                    </span>
+                                    <span class="trade-convert-history-item__main">
+                                        <span class="trade-convert-history-item__pair">Auto-invest: TWD → BTC</span>
+                                        <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
+                                    </span>
+                                    <span class="trade-convert-history-item__amounts">
+                                        <span class="trade-convert-history-item__receive">+ 0.000250 BTC</span>
+                                        <span class="trade-convert-history-item__pay">- 4,000.00 TWD</span>
+                                    </span>
+                                </button>
+                                <button class="trade-convert-history-item" type="button">
+                                    <span class="trade-convert-history-item__icons" aria-hidden="true">
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
+                                        <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
+                                    </span>
+                                    <span class="trade-convert-history-item__main">
+                                        <span class="trade-convert-history-item__pair">Auto-invest: TWD → ETH</span>
+                                        <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
+                                    </span>
+                                    <span class="trade-convert-history-item__amounts">
+                                        <span class="trade-convert-history-item__receive">+ 0.000310 ETH</span>
+                                        <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="loan">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="deposit">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="withdrawal">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="bitcheck">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
+                        <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="nfts">
+                            <div class="trade-convert-history-page__empty">
+                                <h3 class="trade-convert-history-page__empty-title">No results</h3>
+                                <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="spot" hidden>
-                    <div class="trade-convert-history-page__empty">
-                        <h3 class="trade-convert-history-page__empty-title">No results</h3>
-                        <p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p>
-                    </div>
-                </div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="margin" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="grid-bot" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="loan" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="deposit" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="withdrawal" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="bitcheck" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
-                <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="nfts" hidden><div class="trade-convert-history-page__empty"><h3 class="trade-convert-history-page__empty-title">No results</h3><p class="trade-convert-history-page__empty-subtitle">Reset filter to view all</p></div></div>
             </div>
         </section>
 

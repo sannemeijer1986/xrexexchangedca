@@ -1619,24 +1619,80 @@
     const tabBtns = Array.from(
       page.querySelectorAll("[data-trade-convert-history-tab]"),
     );
+    const panelsViewport = page.querySelector(
+      "[data-trade-convert-history-panels-viewport]",
+    );
+    const panelsTrack = page.querySelector(
+      "[data-trade-convert-history-panels-track]",
+    );
     const panels = Array.from(
-      page.querySelectorAll("[data-trade-convert-history-panel]"),
+      panelsTrack?.querySelectorAll("[data-trade-convert-history-panel]") || [],
     );
     const filters = page.querySelector("[data-trade-convert-history-filters]");
+    const tabsScroll = page.querySelector("[data-trade-convert-history-tabs-scroll]");
+    const tabsIndicator = page.querySelector("[data-trade-convert-history-tabs-indicator]");
+    const tabCount = tabBtns.length;
 
-    const setHistoryTab = (tabId) => {
-      tabBtns.forEach((btn) => {
-        btn.classList.toggle(
-          "is-active",
-          btn.getAttribute("data-trade-convert-history-tab") === tabId,
-        );
-      });
-      panels.forEach((panel) => {
-        panel.hidden = panel.getAttribute("data-trade-convert-history-panel") !== tabId;
-      });
-      if (filters) {
-        filters.hidden = tabId !== "convert" && tabId !== "auto-invest";
+    if (panelsViewport && tabCount > 0) {
+      panelsViewport.style.setProperty("--history-tab-count", String(tabCount));
+    }
+
+    const syncHistoryTabsIndicator = () => {
+      if (!tabsScroll || !tabsIndicator) return;
+      const active = tabsScroll.querySelector(".app-header__tab.is-active");
+      if (!active) return;
+      const tabLeft = active.offsetLeft - tabsScroll.scrollLeft;
+      const tabW = active.offsetWidth;
+      const indicatorW = Math.min(24, Math.max(16, tabW - 8));
+      const x = tabLeft + (tabW - indicatorW) / 2;
+      tabsIndicator.style.width = `${indicatorW}px`;
+      tabsIndicator.style.transform = `translateX(${x}px)`;
+    };
+
+    const applyHistoryPanelsOffset = (index, instant) => {
+      if (!panelsTrack || tabCount <= 0) return;
+      const pct = (index / tabCount) * 100;
+      if (instant) panelsTrack.classList.add("is-instant");
+      panelsTrack.style.transform = `translateX(-${pct}%)`;
+      if (instant) {
+        requestAnimationFrame(() => {
+          panelsTrack.classList.remove("is-instant");
+        });
       }
+    };
+
+    const setHistoryTab = (tabId, opts = {}) => {
+      const { scrollTab = true, instant = false } = opts;
+      const idx = tabBtns.findIndex(
+        (b) => b.getAttribute("data-trade-convert-history-tab") === tabId,
+      );
+      if (idx < 0) return;
+
+      tabBtns.forEach((btn, i) => {
+        btn.classList.toggle("is-active", i === idx);
+      });
+
+      applyHistoryPanelsOffset(idx, instant);
+
+      const activePanel = panels[idx];
+      if (filters) {
+        filters.hidden = Boolean(
+          activePanel?.querySelector(".trade-convert-history-page__empty"),
+        );
+      }
+
+      const activeBtn = tabBtns[idx];
+      if (scrollTab && activeBtn && tabsScroll) {
+        activeBtn.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest",
+        });
+      }
+      requestAnimationFrame(() => {
+        syncHistoryTabsIndicator();
+        requestAnimationFrame(() => syncHistoryTabsIndicator());
+      });
     };
 
     const close = (opts = {}) => {
@@ -1657,18 +1713,27 @@
 
     const open = () => {
       document.dispatchEvent(new CustomEvent("fake-keyboard-hide"));
-      setHistoryTab("convert");
+      setHistoryTab("convert", { scrollTab: false, instant: true });
       page.hidden = false;
-      page.querySelector(".trade-convert-history-page__body")?.scrollTo({
-        top: 0,
-        behavior: "auto",
+      panels.forEach((p) => {
+        if (p.getAttribute("data-trade-convert-history-panel") === "convert") {
+          p.scrollTop = 0;
+        }
       });
       requestAnimationFrame(() => {
         page.classList.add("is-open");
+        syncHistoryTabsIndicator();
+        requestAnimationFrame(() => syncHistoryTabsIndicator());
       });
     };
 
     openBtn.addEventListener("click", open);
+    tabsScroll?.addEventListener("scroll", () => syncHistoryTabsIndicator(), {
+      passive: true,
+    });
+    window.addEventListener("resize", () => {
+      if (page.classList.contains("is-open")) syncHistoryTabsIndicator();
+    });
     tabBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         setHistoryTab(btn.getAttribute("data-trade-convert-history-tab"));
@@ -1679,7 +1744,7 @@
       .forEach((btn) => {
         btn.addEventListener("click", close);
       });
-    setHistoryTab("convert");
+    setHistoryTab("convert", { scrollTab: false, instant: true });
   };
 
   const initFinanceSectionNav = () => {
