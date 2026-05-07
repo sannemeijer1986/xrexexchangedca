@@ -1641,7 +1641,7 @@
       if (!tabsScroll || !tabsIndicator) return;
       const active = tabsScroll.querySelector(".app-header__tab.is-active");
       if (!active) return;
-      const tabLeft = active.offsetLeft - tabsScroll.scrollLeft;
+      const tabLeft = active.offsetLeft;
       const tabW = active.offsetWidth;
       const indicatorW = Math.min(24, Math.max(16, tabW - 8));
       const x = tabLeft + (tabW - indicatorW) / 2;
