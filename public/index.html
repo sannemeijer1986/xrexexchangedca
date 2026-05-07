@@ -2354,7 +2354,12 @@
                     <div class="convert-confirm-sheet__rate-wrap">
                         <div class="convert-confirm-sheet__rate-row-inner">
                             <span class="convert-confirm-sheet__label">Rate</span>
-                            <div class="convert-confirm-sheet__rate-price-group">
+                            <button
+                                type="button"
+                                class="convert-confirm-sheet__rate-price-group"
+                                data-trade-convert-rate-info-open
+                                aria-label="View rate info"
+                            >
                                 <span class="convert-confirm-sheet__rate-text" data-trade-convert-confirm-rate>—</span>
                                 <img
                                     class="convert-confirm-sheet__info-icon"
@@ -2364,7 +2369,7 @@
                                     height="16"
                                     aria-hidden="true"
                                 />
-                            </div>
+                            </button>
                         </div>
                         <div class="convert-confirm-sheet__rate-progress" aria-hidden="true">
                             <span class="convert-confirm-sheet__rate-progress-fill" data-trade-convert-confirm-progress></span>
@@ -2402,6 +2407,42 @@
                     data-trade-convert-confirm-ok
                 >
                     Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="currency-sheet currency-sheet--schedule-buy-now-info"
+        data-trade-convert-rate-info-sheet
+        hidden
+        aria-modal="true"
+        role="dialog"
+        aria-label="Rate info"
+    >
+        <button
+            class="currency-sheet__backdrop"
+            type="button"
+            data-trade-convert-rate-info-close
+            aria-label="Close"
+        ></button>
+        <div class="currency-sheet__panel">
+            <div class="currency-sheet__handle-wrap">
+                <div class="currency-sheet__handle"></div>
+            </div>
+            <div class="currency-sheet__body">
+                <h2 class="currency-sheet__title">Reference price</h2>
+                <p class="currency-sheet__desc">
+                    The Reference price shows real-time fair value of an asset by aggregating prices from XREX and other major exchanges.
+                </p>
+            </div>
+            <div class="currency-sheet__footer">
+                <button
+                    class="currency-sheet__cancel"
+                    type="button"
+                    data-trade-convert-rate-info-close
+                >
+                    Understood
                 </button>
             </div>
         </div>

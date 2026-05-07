@@ -1211,6 +1211,11 @@
     const recvLineEl = sheet.querySelector("[data-trade-convert-confirm-receive-line]");
     const confirmBtn = sheet.querySelector("[data-trade-convert-confirm-ok]");
     const updateRateBtn = sheet.querySelector("[data-trade-convert-confirm-update-rate]");
+    const rateInfoOpenBtn = sheet.querySelector("[data-trade-convert-rate-info-open]");
+    const rateInfoSheet = document.querySelector(
+      "[data-trade-convert-rate-info-sheet]",
+    );
+    const rateInfoPanel = rateInfoSheet?.querySelector(".currency-sheet__panel");
     const submitLoaderEl = document.querySelector(
       "[data-trade-convert-submit-loader]",
     );
@@ -1296,7 +1301,7 @@
       const s = Math.max(0, Math.floor(sec));
       const m = Math.floor(s / 60);
       const r = s % 60;
-      return `Rate expires in ${m}:${String(r).padStart(2, "0")}s`;
+      return `Rate guaranteed for ${m}:${String(r).padStart(2, "0")}s`;
     };
 
     const stopCountdown = () => {
@@ -1501,6 +1506,10 @@
       hideSubmitLoader();
       stopCountdown();
       clearRateExpired();
+      if (rateInfoSheet) {
+        rateInfoSheet.classList.remove("is-open");
+        rateInfoSheet.hidden = true;
+      }
       if (opts.instant) {
         sheet.hidden = true;
         sheet.classList.remove("is-open");
@@ -1520,6 +1529,10 @@
       clearRateExpired();
       syncFromConvert();
       startCountdown();
+      if (rateInfoSheet) {
+        rateInfoSheet.classList.remove("is-open");
+        rateInfoSheet.hidden = true;
+      }
       sheet.hidden = false;
       requestAnimationFrame(() => sheet.classList.add("is-open"));
     };
@@ -1558,6 +1571,42 @@
       syncFromConvert();
       startCountdown();
     });
+    rateInfoOpenBtn?.addEventListener("click", () => {
+      if (!rateInfoSheet || !rateInfoPanel) return;
+      if (getBottomSheetStacking()) {
+        sheetOpenWithInstantBackdrop(rateInfoSheet);
+        return;
+      }
+      sheetCloseWithBackdropHandoff(
+        sheet,
+        panel,
+        () => {
+          sheetOpenWithInstantBackdrop(rateInfoSheet);
+        },
+        { suppressNestedScrim: true },
+      );
+    });
+    rateInfoSheet
+      ?.querySelectorAll("[data-trade-convert-rate-info-close]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => {
+          if (!rateInfoPanel) return;
+          if (getBottomSheetStacking()) {
+            sheetCloseWithBackdropHandoff(rateInfoSheet, rateInfoPanel, null, {
+              suppressNestedScrim: true,
+            });
+            return;
+          }
+          sheetCloseWithBackdropHandoff(
+            rateInfoSheet,
+            rateInfoPanel,
+            () => {
+              sheetOpenWithInstantBackdrop(sheet);
+            },
+            { suppressNestedScrim: true },
+          );
+        }),
+      );
     postSheetEl
       ?.querySelectorAll("[data-trade-convert-post-close]")
       .forEach((btn) => btn.addEventListener("click", closePostSheet));
