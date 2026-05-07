@@ -1232,16 +1232,6 @@
                 </div>
             </nav>
             <div class="trade-convert-history-page__body">
-                <div class="trade-convert-history-page__filters" data-trade-convert-history-filters aria-label="History filters">
-                    <button class="trade-convert-history-page__filter" type="button">
-                        <span>All time</span>
-                        <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
-                    </button>
-                    <button class="trade-convert-history-page__filter" type="button">
-                        <span>All currencies</span>
-                        <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
-                    </button>
-                </div>
                 <div class="trade-convert-history-page__panels-viewport" data-trade-convert-history-panels-viewport>
                     <div
                         class="trade-convert-history-page__panels-track"
@@ -1254,6 +1244,20 @@
                             </div>
                         </div>
                         <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="convert">
+                            <div class="trade-convert-history-page__filters" aria-label="History filters">
+                                <button class="trade-convert-history-page__filter" type="button">
+                                    <span>All time</span>
+                                    <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                </button>
+                                <button
+                                    class="trade-convert-history-page__filter"
+                                    type="button"
+                                    data-trade-convert-history-filter-currency-trigger
+                                >
+                                    <span data-trade-convert-history-filter-currency-label>All currency</span>
+                                    <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                </button>
+                            </div>
                             <div class="trade-convert-history-page__list" aria-label="Convert history">
                                 <button class="trade-convert-history-item" type="button">
                                     <span class="trade-convert-history-item__icons" aria-hidden="true">
@@ -1312,6 +1316,20 @@
                             </div>
                         </div>
                         <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="auto-invest">
+                            <div class="trade-convert-history-page__filters" aria-label="History filters">
+                                <button class="trade-convert-history-page__filter" type="button">
+                                    <span>All time</span>
+                                    <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                </button>
+                                <button
+                                    class="trade-convert-history-page__filter"
+                                    type="button"
+                                    data-trade-convert-history-filter-currency-trigger
+                                >
+                                    <span data-trade-convert-history-filter-currency-label>All currency</span>
+                                    <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
+                                </button>
+                            </div>
                             <div class="trade-convert-history-page__list" aria-label="Auto-invest history">
                                 <button class="trade-convert-history-item" type="button">
                                     <span class="trade-convert-history-item__icons" aria-hidden="true">
@@ -1319,7 +1337,7 @@
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
                                     </span>
                                     <span class="trade-convert-history-item__main">
-                                        <span class="trade-convert-history-item__pair">Auto-invest: TWD → BTC</span>
+                                        <span class="trade-convert-history-item__pair">TWD → BTC</span>
                                         <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
                                     </span>
                                     <span class="trade-convert-history-item__amounts">
@@ -1333,7 +1351,7 @@
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
                                     </span>
                                     <span class="trade-convert-history-item__main">
-                                        <span class="trade-convert-history-item__pair">Auto-invest: TWD → ETH</span>
+                                        <span class="trade-convert-history-item__pair">TWD → ETH</span>
                                         <span class="trade-convert-history-item__date">18/12/2025, 08:38:29</span>
                                     </span>
                                     <span class="trade-convert-history-item__amounts">
@@ -1376,6 +1394,78 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <section
+            class="trade-convert-history-currency-page"
+            data-trade-convert-history-currency-sheet
+            hidden
+            aria-label="Filter currency"
+        >
+                <div class="trade-convert-history-currency-sheet__header">
+                    <button class="trade-convert-history-currency-sheet__close" type="button" data-trade-convert-history-currency-close aria-label="Close">
+                        <img src="assets/icon_close.svg" alt="" width="24" height="24" />
+                    </button>
+                    <h2 class="trade-convert-history-currency-sheet__title">Filter currency</h2>
+                    <button class="trade-convert-history-currency-sheet__support" type="button" aria-label="Support">
+                        <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
+                    </button>
+                </div>
+                <div class="trade-convert-history-currency-sheet__divider"></div>
+                <div class="trade-convert-history-currency-sheet__search-wrap">
+                    <label class="trade-convert-history-currency-sheet__search" aria-label="Search currency">
+                        <img src="assets/icon_search_gray.svg" alt="" width="20" height="20" />
+                        <input
+                            type="text"
+                            class="trade-convert-history-currency-sheet__search-input"
+                            data-trade-convert-history-currency-search
+                            placeholder="Search currency"
+                            autocomplete="off"
+                        />
+                    </label>
+                </div>
+                <div class="trade-convert-history-currency-sheet__list" data-trade-convert-history-currency-list role="radiogroup" aria-label="Currency options">
+                    <button class="trade-convert-history-currency-sheet__item is-selected" type="button" data-trade-convert-history-currency-option="all" data-trade-convert-history-currency-option-label="All pairs">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_allcrypto.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">All pairs</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_on.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="usd" data-trade-convert-history-currency-option-label="USD">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_USD.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">USD</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="twd" data-trade-convert-history-currency-option-label="TWD">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_TWD.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">TWD</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="usdt" data-trade-convert-history-currency-option-label="USDT">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_usdt.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">USDT</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="usdc" data-trade-convert-history-currency-option-label="USDC">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_USD.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">USDC</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="btc" data-trade-convert-history-currency-option-label="BTC">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_btc.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">BTC</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="eth" data-trade-convert-history-currency-option-label="ETH">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_currency_eth.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">ETH</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                    <button class="trade-convert-history-currency-sheet__item" type="button" data-trade-convert-history-currency-option="sol" data-trade-convert-history-currency-option-label="SOL">
+                        <img class="trade-convert-history-currency-sheet__icon" src="assets/icon_solana.svg" alt="" width="32" height="32" />
+                        <span class="trade-convert-history-currency-sheet__name">SOL</span>
+                        <img class="trade-convert-history-currency-sheet__radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                    </button>
+                </div>
         </section>
 
         <div class="currency-sheet theme-guide-sheet" data-theme-guide-sheet hidden aria-modal="true" role="dialog" aria-label="Theme guide">

@@ -4020,6 +4020,144 @@ button.finance-summary__stat-value--chevron {
   height: 16px;
 }
 
+.trade-convert-history-currency-page {
+  position: absolute;
+  inset: 0;
+  z-index: 38;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+  overflow: hidden;
+}
+
+.trade-convert-history-currency-page.is-open {
+  transform: translateY(0);
+}
+
+.trade-convert-history-currency-sheet__header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.trade-convert-history-currency-sheet__close,
+.trade-convert-history-currency-sheet__support {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.trade-convert-history-currency-sheet__title {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trade-convert-history-currency-sheet__divider {
+  width: 100%;
+  height: 1px;
+  background: #252627;
+  flex: 0 0 auto;
+}
+
+.trade-convert-history-currency-sheet__search-wrap {
+  padding: 16px;
+  flex: 0 0 auto;
+}
+
+.trade-convert-history-currency-sheet__search {
+  height: 40px;
+  width: 100%;
+  border-radius: 12px;
+  background: #1b1d1d;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  cursor: text;
+}
+
+.trade-convert-history-currency-sheet__search-input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-convert-history-currency-sheet__search-input::placeholder {
+  color: #58595a;
+}
+
+.trade-convert-history-currency-sheet__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.trade-convert-history-currency-sheet__list::-webkit-scrollbar {
+  display: none;
+}
+
+.trade-convert-history-currency-sheet__item {
+  width: 100%;
+  min-height: 64px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+  text-align: left;
+  font-family: inherit;
+}
+
+.trade-convert-history-currency-sheet__icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: block;
+}
+
+.trade-convert-history-currency-sheet__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-convert-history-currency-sheet__radio {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: block;
+}
+
 .trade-convert-history-page__list {
   display: flex;
   flex-direction: column;

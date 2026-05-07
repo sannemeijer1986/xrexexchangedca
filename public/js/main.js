@@ -1628,7 +1628,6 @@
     const panels = Array.from(
       panelsTrack?.querySelectorAll("[data-trade-convert-history-panel]") || [],
     );
-    const filters = page.querySelector("[data-trade-convert-history-filters]");
     const tabsScroll = page.querySelector("[data-trade-convert-history-tabs-scroll]");
     const tabsIndicator = page.querySelector("[data-trade-convert-history-tabs-indicator]");
     const tabCount = tabBtns.length;
@@ -1673,13 +1672,6 @@
       });
 
       applyHistoryPanelsOffset(idx, instant);
-
-      const activePanel = panels[idx];
-      if (filters) {
-        filters.hidden = Boolean(
-          activePanel?.querySelector(".trade-convert-history-page__empty"),
-        );
-      }
 
       const activeBtn = tabBtns[idx];
       if (scrollTab && activeBtn && tabsScroll) {
@@ -1745,6 +1737,123 @@
         btn.addEventListener("click", close);
       });
     setHistoryTab("convert", { scrollTab: false, instant: true });
+  };
+
+  const initTradeConvertHistoryCurrencySheet = () => {
+    const sheet = document.querySelector(
+      "[data-trade-convert-history-currency-sheet]",
+    );
+    if (!sheet) return;
+    const searchInput = sheet.querySelector(
+      "[data-trade-convert-history-currency-search]",
+    );
+    const options = Array.from(
+      sheet.querySelectorAll("[data-trade-convert-history-currency-option]"),
+    );
+    const triggers = Array.from(
+      document.querySelectorAll(
+        "[data-trade-convert-history-filter-currency-trigger]",
+      ),
+    );
+    const triggerLabels = Array.from(
+      document.querySelectorAll("[data-trade-convert-history-filter-currency-label]"),
+    );
+    let selectedValue = "all";
+    const RADIO_OFF_ICON = "assets/icon_radio_off.svg";
+    const RADIO_ON_ICON = "assets/icon_radio_on.svg";
+
+    const applySelected = (value) => {
+      selectedValue = value;
+      options.forEach((opt) => {
+        const isSelected =
+          opt.getAttribute("data-trade-convert-history-currency-option") === value;
+        opt.classList.toggle("is-selected", isSelected);
+        const radioImg = opt.querySelector(
+          ".trade-convert-history-currency-sheet__radio",
+        );
+        if (radioImg) radioImg.setAttribute("src", isSelected ? RADIO_ON_ICON : RADIO_OFF_ICON);
+      });
+      const selected = options.find(
+        (opt) =>
+          opt.getAttribute("data-trade-convert-history-currency-option") === value,
+      );
+      const selectedLabel =
+        selected?.getAttribute("data-trade-convert-history-currency-option-label") ||
+        "All pairs";
+      const chipLabel = value === "all" ? "All currency" : selectedLabel;
+      triggerLabels.forEach((el) => {
+        el.textContent = chipLabel;
+      });
+    };
+
+    const close = (opts = {}) => {
+      const finish = () => {
+        if (!sheet.classList.contains("is-open")) sheet.hidden = true;
+      };
+      if (opts.instant) {
+        sheet.style.transition = "none";
+        sheet.classList.remove("is-open");
+        void sheet.offsetHeight;
+        sheet.style.transition = "";
+        finish();
+        return;
+      }
+      sheet.classList.remove("is-open");
+      const onEnd = () => {
+        sheet.removeEventListener("transitionend", onEnd);
+        finish();
+      };
+      sheet.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 360);
+    };
+
+    const open = () => {
+      if (searchInput) searchInput.value = "";
+      options.forEach((opt) => {
+        opt.hidden = false;
+      });
+      applySelected(selectedValue);
+      sheet.hidden = false;
+      requestAnimationFrame(() => {
+        sheet.classList.add("is-open");
+      });
+      requestAnimationFrame(() => {
+        searchInput?.focus();
+      });
+    };
+
+    triggers.forEach((btn) => {
+      btn.addEventListener("click", open);
+    });
+    sheet
+      .querySelectorAll("[data-trade-convert-history-currency-close]")
+      .forEach((btn) => {
+        btn.addEventListener("click", close);
+      });
+    options.forEach((opt) => {
+      opt.addEventListener("click", () => {
+        const value = opt.getAttribute(
+          "data-trade-convert-history-currency-option",
+        );
+        if (!value) return;
+        applySelected(value);
+        close();
+      });
+    });
+    searchInput?.addEventListener("input", () => {
+      const q = String(searchInput.value || "")
+        .trim()
+        .toLowerCase();
+      options.forEach((opt) => {
+        const label = String(
+          opt.getAttribute("data-trade-convert-history-currency-option-label") ||
+            "",
+        ).toLowerCase();
+        opt.hidden = !!q && !label.includes(q);
+      });
+    });
+
+    applySelected(selectedValue);
   };
 
   const initFinanceSectionNav = () => {
@@ -5928,6 +6037,7 @@
   initTradeConvertRatePanel();
   initTradeConvertConfirmSheet();
   initTradeConvertHistoryPage();
+  initTradeConvertHistoryCurrencySheet();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (
