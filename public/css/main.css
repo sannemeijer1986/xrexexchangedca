@@ -15378,6 +15378,10 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  scrollbar-width: none;
+}
+.my-plans-activity-detail-panel__body::-webkit-scrollbar {
+  display: none;
 }
 
 .my-plans-activity-detail-panel__card {
@@ -15386,6 +15390,10 @@ button.plan-buffer-funding-hero__how-link {
   padding: 0;
   display: flex;
   flex-direction: column;
+}
+
+.my-plans-activity-detail-panel__card--convert {
+  background: #1b1d1d;
 }
 
 .my-plans-activity-detail-panel__card--convert .my-plans-activity-detail-panel__meta-row {
@@ -15443,6 +15451,14 @@ button.plan-buffer-funding-hero__how-link {
   font-weight: 700;
   line-height: normal;
   color: #ffffff;
+}
+
+.phone-container p.my-plans-activity-detail-panel__hero-date {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  color: #9b9c9c;
 }
 
 .my-plans-activity-detail-panel__section-title {
@@ -15530,6 +15546,10 @@ button.plan-buffer-funding-hero__how-link {
   gap: 12px;
   padding: 0 16px;
   box-sizing: border-box;
+}
+
+.my-plans-activity-detail-panel__meta-row[hidden] {
+  display: none !important;
 }
 
 .my-plans-activity-detail-panel__meta-key {

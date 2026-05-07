@@ -1259,7 +1259,7 @@
                                 </button>
                             </div>
                             <div class="trade-convert-history-page__list" aria-label="Convert history">
-                                <button class="trade-convert-history-item" type="button">
+                                <button class="trade-convert-history-item" type="button" data-trade-convert-history-open-detail>
                                     <span class="trade-convert-history-item__icons" aria-hidden="true">
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_btc.svg" alt="" />
@@ -1274,7 +1274,7 @@
                                         <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
                                     </span>
                                 </button>
-                                <button class="trade-convert-history-item" type="button">
+                                <button class="trade-convert-history-item" type="button" data-trade-convert-history-open-detail>
                                     <span class="trade-convert-history-item__icons" aria-hidden="true">
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_currency_eth.svg" alt="" />
@@ -1289,7 +1289,7 @@
                                         <span class="trade-convert-history-item__pay">- 5,000.00 TWD</span>
                                     </span>
                                 </button>
-                                <button class="trade-convert-history-item" type="button">
+                                <button class="trade-convert-history-item" type="button" data-trade-convert-history-open-detail>
                                     <span class="trade-convert-history-item__icons" aria-hidden="true">
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--from" src="assets/icon_currency_TWD.svg" alt="" />
                                         <img class="trade-convert-history-item__coin trade-convert-history-item__coin--to" src="assets/icon_solana.svg" alt="" />
@@ -3101,6 +3101,7 @@
                     <span class="my-plans-activity-detail-panel__hero-overlap-ring"></span>
                 </div>
                 <p class="my-plans-activity-detail-panel__hero-pair" data-my-plans-activity-detail-convert-pair>TWD → BTC</p>
+                <p class="my-plans-activity-detail-panel__hero-date" data-my-plans-activity-detail-hero-date hidden>18/12/2025, 08:38:29</p>
             </div>
 
             <div class="my-plans-activity-detail-panel__card my-plans-activity-detail-panel__card--convert">
@@ -3110,7 +3111,7 @@
                 </div>
                 <div class="my-plans-activity-detail-panel__divider"></div>
                 <div class="my-plans-activity-detail-panel__meta-row">
-                    <span class="my-plans-activity-detail-panel__meta-key my-plans-activity-detail-panel__meta-key--large">To</span>
+                    <span class="my-plans-activity-detail-panel__meta-key my-plans-activity-detail-panel__meta-key--large" data-my-plans-activity-detail-to-label>To</span>
                     <span class="my-plans-activity-detail-panel__meta-value my-plans-activity-detail-panel__meta-value--large my-plans-activity-detail-panel__meta-value--positive" data-my-plans-activity-detail-to>+ 0.0453 BTC</span>
                 </div>
             </div>
@@ -3118,37 +3119,37 @@
             <div class="my-plans-activity-detail-panel__details-wrap">
                 <div class="my-plans-activity-detail-panel__section-title">Details</div>
                 <div class="my-plans-activity-detail-panel__meta-list my-plans-activity-detail-panel__card">
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="status">
                         <span class="my-plans-activity-detail-panel__meta-key">Status</span>
                         <span class="my-plans-activity-detail-panel__meta-value my-plans-activity-detail-panel__meta-value--positive" data-my-plans-activity-detail-status>Completed</span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="date">
                         <span class="my-plans-activity-detail-panel__meta-key">Date</span>
                         <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-start>08/07/2024, 21:32:07</span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="price">
                         <span class="my-plans-activity-detail-panel__meta-key">Price</span>
                         <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-avg-price>1 BTC = 594,004.23 TWD</span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="fee">
                         <span class="my-plans-activity-detail-panel__meta-key">Fee</span>
                         <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-fee>3.25159 TWD</span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="order-id">
                         <span class="my-plans-activity-detail-panel__meta-key">Order ID</span>
                         <span class="my-plans-activity-detail-panel__meta-value my-plans-activity-detail-panel__meta-value--inline-copy"><span data-my-plans-activity-detail-order-id>1453537</span><img src="assets/icon_n_copy.svg" alt="" width="14" height="14" aria-hidden="true" /></span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="via-plan">
                         <span class="my-plans-activity-detail-panel__meta-key">Via auto-invest plan</span>
                         <span class="my-plans-activity-detail-panel__meta-value my-plans-activity-detail-panel__meta-value--inline-copy"><span data-my-plans-activity-detail-plan-id>5419286689</span><img src="assets/icon_n_copy.svg" alt="" width="14" height="14" aria-hidden="true" /></span>
                     </div>
                     <div class="my-plans-activity-detail-panel__divider"></div>
-                    <div class="my-plans-activity-detail-panel__meta-row">
+                    <div class="my-plans-activity-detail-panel__meta-row" data-my-plans-activity-detail-row="paid-with">
                         <span class="my-plans-activity-detail-panel__meta-key">Paid with</span>
                         <span class="my-plans-activity-detail-panel__meta-value" data-my-plans-activity-detail-paid-with>pre-funded TWD</span>
                     </div>
