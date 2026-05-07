@@ -1773,16 +1773,8 @@
         );
         if (radioImg) radioImg.setAttribute("src", isSelected ? RADIO_ON_ICON : RADIO_OFF_ICON);
       });
-      const selected = options.find(
-        (opt) =>
-          opt.getAttribute("data-trade-convert-history-currency-option") === value,
-      );
-      const selectedLabel =
-        selected?.getAttribute("data-trade-convert-history-currency-option-label") ||
-        "All pairs";
-      const chipLabel = value === "all" ? "All currency" : selectedLabel;
       triggerLabels.forEach((el) => {
-        el.textContent = chipLabel;
+        el.textContent = "All currencies";
       });
     };
 
