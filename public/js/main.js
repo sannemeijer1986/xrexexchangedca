@@ -1845,6 +1845,123 @@
       });
     };
 
+    const openAutoInvestHistoryDetail = (row) => {
+      if (!activityDetailPanel || !row) return;
+      const setText = (selector, value) => {
+        const el = activityDetailPanel.querySelector(selector);
+        if (!el) return;
+        el.textContent = String(value ?? "");
+      };
+      const titleEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-title]",
+      );
+      if (titleEl) titleEl.textContent = "Auto-invest order";
+      const toLabelEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-to-label]",
+      );
+      if (toLabelEl) toLabelEl.textContent = "To";
+      const heroDateEl = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-hero-date]",
+      );
+      if (heroDateEl) heroDateEl.hidden = false;
+
+      const pairText = String(
+        row.querySelector(".trade-convert-history-item__pair")?.textContent || "",
+      ).trim();
+      const dateText = String(
+        row.querySelector(".trade-convert-history-item__date")?.textContent || "",
+      ).trim();
+      const receiveText = String(
+        row.querySelector(".trade-convert-history-item__receive")?.textContent || "",
+      ).trim();
+      const payText = String(
+        row.querySelector(".trade-convert-history-item__pay")?.textContent || "",
+      ).trim();
+      setText("[data-my-plans-activity-detail-convert-pair]", pairText || "TWD → BTC");
+      setText(
+        "[data-my-plans-activity-detail-hero-date]",
+        dateText || "18/12/2025, 08:38:29",
+      );
+      setText("[data-my-plans-activity-detail-from]", payText || "- 5,000.00 TWD");
+      setText("[data-my-plans-activity-detail-to]", receiveText || "+ 0.0453 BTC");
+
+      const fromIcon = row.querySelector(".trade-convert-history-item__coin--from");
+      const toIcon = row.querySelector(".trade-convert-history-item__coin--to");
+      const detailFromIcon = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-icon-from]",
+      );
+      const detailToIcon = activityDetailPanel.querySelector(
+        "[data-my-plans-activity-detail-icon-to]",
+      );
+      if (detailFromIcon && fromIcon?.getAttribute("src")) {
+        detailFromIcon.setAttribute("src", fromIcon.getAttribute("src"));
+      }
+      if (detailToIcon && toIcon?.getAttribute("src")) {
+        detailToIcon.setAttribute("src", toIcon.getAttribute("src"));
+      }
+
+      const payParsed = extractAmountAndCurrency(payText);
+      const recvParsed = extractAmountAndCurrency(receiveText);
+      let priceText = "1 BTC = 594,004.23 TWD";
+      if (
+        Number.isFinite(payParsed.amount) &&
+        Number.isFinite(recvParsed.amount) &&
+        Math.abs(recvParsed.amount) > 0 &&
+        payParsed.currency &&
+        recvParsed.currency
+      ) {
+        const unitPrice = Math.abs(payParsed.amount) / Math.abs(recvParsed.amount);
+        priceText = `1 ${recvParsed.currency} = ${unitPrice.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })} ${payParsed.currency}`;
+      }
+      setText("[data-my-plans-activity-detail-avg-price]", priceText);
+      setText(
+        "[data-my-plans-activity-detail-fee]",
+        `3.25159 ${payParsed.currency || "TWD"}`,
+      );
+      setText("[data-my-plans-activity-detail-order-id]", "1453537");
+      setText("[data-my-plans-activity-detail-plan-id]", "5419286689");
+      setText(
+        "[data-my-plans-activity-detail-paid-with]",
+        `pre-funded ${payParsed.currency || "TWD"}`,
+      );
+
+      setActivityDetailRowVisibility([
+        "price",
+        "fee",
+        "order-id",
+        "via-plan",
+        "paid-with",
+      ]);
+      ["status", "date"].forEach((k) => {
+        const rowEl = activityDetailPanel.querySelector(
+          `[data-my-plans-activity-detail-row="${k}"]`,
+        );
+        if (rowEl) rowEl.hidden = true;
+      });
+      const metaList = activityDetailPanel.querySelector(
+        ".my-plans-activity-detail-panel__meta-list",
+      );
+      const rows = Array.from(
+        metaList?.querySelectorAll("[data-my-plans-activity-detail-row]") || [],
+      );
+      const dividers = Array.from(
+        metaList?.querySelectorAll(".my-plans-activity-detail-panel__divider") || [],
+      );
+      dividers.forEach((divider, idx) => {
+        const prev = rows[idx];
+        const next = rows[idx + 1];
+        divider.hidden = !prev || !next || prev.hidden || next.hidden;
+      });
+
+      activityDetailPanel.hidden = false;
+      requestAnimationFrame(() => {
+        activityDetailPanel.classList.add("is-open");
+      });
+    };
+
     openBtn.addEventListener("click", open);
     tabsScroll?.addEventListener("scroll", () => syncHistoryTabsIndicator(), {
       passive: true,
@@ -1861,6 +1978,13 @@
       .querySelectorAll("[data-trade-convert-history-open-detail]")
       .forEach((rowBtn) => {
         rowBtn.addEventListener("click", () => openConvertHistoryDetail(rowBtn));
+      });
+    page
+      .querySelectorAll("[data-trade-convert-history-open-auto-invest-detail]")
+      .forEach((rowBtn) => {
+        rowBtn.addEventListener("click", () =>
+          openAutoInvestHistoryDetail(rowBtn),
+        );
       });
     page
       .querySelectorAll("[data-trade-convert-history-close]")
