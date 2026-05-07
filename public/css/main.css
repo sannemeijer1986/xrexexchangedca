@@ -4042,7 +4042,7 @@ button.finance-summary__stat-value--chevron {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 56px 16px 0;
+  padding: 48px 16px 0;
 }
 
 .trade-convert-history-currency-sheet__close,
@@ -4195,13 +4195,28 @@ button.finance-summary__stat-value--chevron {
 }
 
 .trade-convert-history-item__coin--from {
-  left: 2px;
-  top: 2px;
+  left: 0px;
+  top: 0px;
+  z-index: 1;
 }
 
 .trade-convert-history-item__coin--to {
-  right: 0;
-  bottom: 0;
+  right: 0px;
+  bottom: 0px;
+  z-index: 2;
+}
+
+.trade-convert-history-item__overlap-ring {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  border: 1.5px solid #0d0e0f;
+  box-sizing: border-box;
+  z-index: 3;
+  pointer-events: none;
 }
 
 .trade-convert-history-item__main,
