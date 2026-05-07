@@ -1612,6 +1612,76 @@
       .forEach((btn) => btn.addEventListener("click", closePostSheet));
   };
 
+  const initTradeConvertHistoryPage = () => {
+    const page = document.querySelector("[data-trade-convert-history-page]");
+    const openBtn = document.querySelector("[data-trade-convert-history-open]");
+    if (!page || !openBtn) return;
+    const tabBtns = Array.from(
+      page.querySelectorAll("[data-trade-convert-history-tab]"),
+    );
+    const panels = Array.from(
+      page.querySelectorAll("[data-trade-convert-history-panel]"),
+    );
+    const filters = page.querySelector("[data-trade-convert-history-filters]");
+
+    const setHistoryTab = (tabId) => {
+      tabBtns.forEach((btn) => {
+        btn.classList.toggle(
+          "is-active",
+          btn.getAttribute("data-trade-convert-history-tab") === tabId,
+        );
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.getAttribute("data-trade-convert-history-panel") !== tabId;
+      });
+      if (filters) {
+        filters.hidden = tabId !== "convert" && tabId !== "auto-invest";
+      }
+    };
+
+    const close = (opts = {}) => {
+      if (!page.classList.contains("is-open") && page.hidden) return;
+      if (opts.instant) {
+        page.classList.remove("is-open");
+        page.hidden = true;
+        return;
+      }
+      page.classList.remove("is-open");
+      const onEnd = () => {
+        if (!page.classList.contains("is-open")) page.hidden = true;
+        page.removeEventListener("transitionend", onEnd);
+      };
+      page.addEventListener("transitionend", onEnd);
+      setTimeout(onEnd, 320);
+    };
+
+    const open = () => {
+      document.dispatchEvent(new CustomEvent("fake-keyboard-hide"));
+      setHistoryTab("convert");
+      page.hidden = false;
+      page.querySelector(".trade-convert-history-page__body")?.scrollTo({
+        top: 0,
+        behavior: "auto",
+      });
+      requestAnimationFrame(() => {
+        page.classList.add("is-open");
+      });
+    };
+
+    openBtn.addEventListener("click", open);
+    tabBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setHistoryTab(btn.getAttribute("data-trade-convert-history-tab"));
+      });
+    });
+    page
+      .querySelectorAll("[data-trade-convert-history-close]")
+      .forEach((btn) => {
+        btn.addEventListener("click", close);
+      });
+    setHistoryTab("convert");
+  };
+
   const initFinanceSectionNav = () => {
     const loanPage = document.querySelector('[data-finance-page="loan"]');
     const nav = loanPage?.querySelector("[data-finance-section-nav]");
@@ -5792,6 +5862,7 @@
   initTradeConvertPage();
   initTradeConvertRatePanel();
   initTradeConvertConfirmSheet();
+  initTradeConvertHistoryPage();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (

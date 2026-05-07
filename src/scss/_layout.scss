@@ -469,7 +469,7 @@
   margin: 24px 2px 0 2px;
   gap: 0;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid #252627;
   padding-bottom: 0;
   overflow-x: auto;
   overflow-y: hidden;
@@ -3677,7 +3677,7 @@ button.finance-summary__stat-value--chevron {
 }
 
 .finance-themes-page__header {
-  padding: 52px 16px 16px;
+  padding: 56px 16px 16px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -3833,6 +3833,248 @@ button.finance-summary__stat-value--chevron {
 
 .finance-themes-page__item-chev {
   display: none;
+}
+
+// ─── Trade Convert Pending & History page ─────────────────────────────────────
+
+.trade-convert-history-page {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  background: #0d0e0f;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  pointer-events: none;
+  transition: transform 0.28s ease;
+}
+
+.trade-convert-history-page.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.trade-convert-history-page__header {
+  padding: 56px 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.trade-convert-history-page__icon-btn {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+.trade-convert-history-page__title-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.trade-convert-history-page__title {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-convert-history-page__tabs.app-header__tabs {
+  display: flex;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.trade-convert-history-page__tabs .app-header__tab {
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+.trade-convert-history-page__divider {
+  width: 100%;
+  height: 1px;
+  flex-shrink: 0;
+  background: #252627;
+}
+
+.trade-convert-history-page__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.trade-convert-history-page__panel[hidden] {
+  display: none !important;
+}
+
+.trade-convert-history-page__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px 10px;
+}
+
+.trade-convert-history-page__filter {
+  height: 24px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 16px;
+  background: #1b1d1d;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.trade-convert-history-page__filter img {
+  width: 16px;
+  height: 16px;
+}
+
+.trade-convert-history-page__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.trade-convert-history-item {
+  width: 100%;
+  min-height: 70px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trade-convert-history-item__icons {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+
+.trade-convert-history-item__coin {
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  display: block;
+  border-radius: 999px;
+}
+
+.trade-convert-history-item__coin--from {
+  left: 2px;
+  top: 2px;
+}
+
+.trade-convert-history-item__coin--to {
+  right: 0;
+  bottom: 0;
+}
+
+.trade-convert-history-item__main,
+.trade-convert-history-item__amounts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 38px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.trade-convert-history-item__main {
+  flex: 1 1 auto;
+}
+
+.trade-convert-history-item__amounts {
+  flex: 0 0 auto;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.trade-convert-history-item__pair,
+.trade-convert-history-item__receive {
+  font-size: 16px;
+  line-height: 1.35;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.trade-convert-history-item__pair {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-convert-history-item__date,
+.trade-convert-history-item__pay {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #9b9c9c;
+  white-space: nowrap;
+}
+
+.trade-convert-history-page__empty {
+  min-height: 220px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.trade-convert-history-page__empty-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.trade-convert-history-page__empty-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #9b9c9c;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -8289,7 +8531,7 @@ div.currency-sheet__item-icon {
   border-bottom: 1px solid transparent;
   display: flex;
   align-items: center;
-  padding: 52px 16px 16px;
+  padding: 56px 16px 16px;
   gap: 12px;
   transition: background 0.25s ease;
 
@@ -11041,7 +11283,7 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 52px 16px 16px;
+  padding: 56px 16px 16px;
   box-sizing: border-box;
   background: #0d0e0f;
   position: relative;
@@ -11661,13 +11903,13 @@ div.currency-sheet__item-icon {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 52px 16px 12px;
+  padding: 56px 16px 12px;
   box-sizing: border-box;
 }
 
 .plan-buffer-panel__header--funding {
   // Match other full-screen panels; use the divider for separation
-  padding-top: 52px;
+  padding-top: 56px;
   padding-bottom: 12px;
   border-bottom: 0;
 }
@@ -12643,7 +12885,7 @@ button.plan-buffer-funding-hero__how-link {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 52px 16px 12px;
+    padding: 56px 16px 12px;
     box-sizing: border-box;
     min-height: 48px;
   }
@@ -13986,7 +14228,7 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 52px 16px 12px;
+  padding: 56px 16px 12px;
   box-sizing: border-box;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -14282,7 +14524,7 @@ button.plan-buffer-funding-hero__how-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 52px 16px 12px;
+  padding: 56px 16px 12px;
   box-sizing: border-box;
 }
 
