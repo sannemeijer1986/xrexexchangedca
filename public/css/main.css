@@ -5426,7 +5426,6 @@ button.finance-summary__stat-value--chevron {
 .trade-convert-page__swap-wrap {
   display: flex;
   justify-content: center;
-  margin-top: -16px;
   padding: 0 0 4px 0;
   position: relative;
   z-index: 1;
