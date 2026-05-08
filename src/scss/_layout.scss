@@ -4043,6 +4043,85 @@ button.finance-summary__stat-value--chevron {
   height: 16px;
 }
 
+.trade-convert-history-time-sheet__panel {
+  padding-bottom: 0;
+}
+
+.trade-convert-history-time-sheet__body {
+  padding: 16px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.trade-convert-history-time-sheet__title {
+  margin: 0;
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trade-convert-history-time-sheet__list {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #2d2f2f;
+  display: flex;
+  flex-direction: column;
+}
+
+.trade-convert-history-time-sheet__item {
+  min-height: 56px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  font-family: inherit;
+}
+
+.trade-convert-history-time-sheet__item-name {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.trade-convert-history-time-sheet__item-radio {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.trade-convert-history-time-sheet__divider {
+  height: 1px;
+  width: 100%;
+  background: #3c4248;
+}
+
+.trade-convert-history-time-sheet__footer {
+  padding: 16px;
+}
+
+.trade-convert-history-time-sheet__cancel {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 16px;
+  border: 0;
+  background: #2d2f2f;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .trade-convert-history-currency-page {
   position: absolute;
   inset: 0;

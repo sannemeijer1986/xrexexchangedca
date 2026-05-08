@@ -1245,8 +1245,8 @@
                         </div>
                         <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="convert">
                             <div class="trade-convert-history-page__filters" aria-label="History filters">
-                                <button class="trade-convert-history-page__filter" type="button">
-                                    <span>All time</span>
+                                <button class="trade-convert-history-page__filter" type="button" data-trade-convert-history-filter-time-trigger>
+                                    <span data-trade-convert-history-filter-time-label>All time</span>
                                     <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
                                 </button>
                                 <button
@@ -1320,8 +1320,8 @@
                         </div>
                         <div class="trade-convert-history-page__panel" data-trade-convert-history-panel="auto-invest">
                             <div class="trade-convert-history-page__filters" aria-label="History filters">
-                                <button class="trade-convert-history-page__filter" type="button">
-                                    <span>All time</span>
+                                <button class="trade-convert-history-page__filter" type="button" data-trade-convert-history-filter-time-trigger>
+                                    <span data-trade-convert-history-filter-time-label>All time</span>
                                     <img src="assets/icon_chevron_down_white.svg" alt="" width="16" height="16" aria-hidden="true" />
                                 </button>
                                 <button
@@ -1401,17 +1401,60 @@
             </div>
         </section>
 
+        <div
+            class="currency-sheet trade-convert-history-time-sheet"
+            data-trade-convert-history-time-sheet
+            hidden
+            aria-modal="true"
+            role="dialog"
+            aria-label="Time range"
+        >
+            <button class="currency-sheet__backdrop" type="button" data-trade-convert-history-time-close aria-label="Close"></button>
+            <div class="currency-sheet__panel trade-convert-history-time-sheet__panel">
+                <div class="currency-sheet__handle-wrap">
+                    <div class="currency-sheet__handle"></div>
+                </div>
+                <div class="trade-convert-history-time-sheet__body">
+                    <h2 class="trade-convert-history-time-sheet__title">Time range</h2>
+                    <div class="trade-convert-history-time-sheet__list" role="radiogroup" aria-label="Time range options">
+                        <button class="trade-convert-history-time-sheet__item is-selected" type="button" data-trade-convert-history-time-option="All time">
+                            <span class="trade-convert-history-time-sheet__item-name">All time</span>
+                            <img class="trade-convert-history-time-sheet__item-radio" src="assets/icon_radio_on.svg" alt="" width="24" height="24" aria-hidden="true" />
+                        </button>
+                        <div class="trade-convert-history-time-sheet__divider"></div>
+                        <button class="trade-convert-history-time-sheet__item" type="button" data-trade-convert-history-time-option="Past 7 days">
+                            <span class="trade-convert-history-time-sheet__item-name">Past 7 days</span>
+                            <img class="trade-convert-history-time-sheet__item-radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                        </button>
+                        <div class="trade-convert-history-time-sheet__divider"></div>
+                        <button class="trade-convert-history-time-sheet__item" type="button" data-trade-convert-history-time-option="Past 30 days">
+                            <span class="trade-convert-history-time-sheet__item-name">Past 30 days</span>
+                            <img class="trade-convert-history-time-sheet__item-radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                        </button>
+                        <div class="trade-convert-history-time-sheet__divider"></div>
+                        <button class="trade-convert-history-time-sheet__item" type="button" data-trade-convert-history-time-option="Past 90 days">
+                            <span class="trade-convert-history-time-sheet__item-name">Past 90 days</span>
+                            <img class="trade-convert-history-time-sheet__item-radio" src="assets/icon_radio_off.svg" alt="" width="24" height="24" aria-hidden="true" />
+                        </button>
+                    </div>
+                </div>
+                <div class="trade-convert-history-time-sheet__footer">
+                    <button class="trade-convert-history-time-sheet__cancel" type="button" data-trade-convert-history-time-close>Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <section
             class="trade-convert-history-currency-page"
             data-trade-convert-history-currency-sheet
             hidden
-            aria-label="Filter currency"
+            aria-label="Shown currencies"
         >
                 <div class="trade-convert-history-currency-sheet__header">
                     <button class="trade-convert-history-currency-sheet__close" type="button" data-trade-convert-history-currency-close aria-label="Close">
                         <img src="assets/icon_close.svg" alt="" width="24" height="24" />
                     </button>
-                    <h2 class="trade-convert-history-currency-sheet__title">Filter currency</h2>
+                    <h2 class="trade-convert-history-currency-sheet__title">Shown currencies</h2>
                     <button class="trade-convert-history-currency-sheet__support" type="button" aria-label="Support">
                         <img src="assets/icon_intercom.svg" alt="" width="24" height="24" />
                     </button>

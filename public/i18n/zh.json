@@ -11,13 +11,13 @@
   "About pre-funded": "關於預儲資金",
   "About themes": "關於主題",
   "About total invested": "關於總投入金額",
-  "About total reserved": "關於總預留金額",
+  "About total reserved": "關於總預備金額", // changed: 預留 → 預備
   "Account": "帳戶",
   "Account & Security": "帳戶與安全",
   "Account checklist": "帳戶清單",
   "Account type": "帳戶類型",
-  "Active (0)": "啟用中（0）",
-  "Active ({count})": "啟用中（{count}）",
+  "Active (0)": "進行中（0）", // changed: 啟用中 → 進行中
+  "Active ({count})": "進行中（{count}）", // changed: 啟用中 → 進行中
   "Activity details": "活動詳情",
   "Actual amount": "實際數量",
   "Actual results may vary. Newer assets use earliest available data.": "實際結果可能有所不同。較新資產使用最早可用資料。",

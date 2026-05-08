@@ -2099,6 +2099,70 @@
     applySelected(selectedValue);
   };
 
+  const initTradeConvertHistoryTimeSheet = () => {
+    const sheet = document.querySelector("[data-trade-convert-history-time-sheet]");
+    if (!sheet) return;
+    const panel = sheet.querySelector(".currency-sheet__panel");
+    if (!panel) return;
+    const options = Array.from(
+      sheet.querySelectorAll("[data-trade-convert-history-time-option]"),
+    );
+    const triggers = Array.from(
+      document.querySelectorAll("[data-trade-convert-history-filter-time-trigger]"),
+    );
+    const triggerLabels = Array.from(
+      document.querySelectorAll("[data-trade-convert-history-filter-time-label]"),
+    );
+    const RADIO_OFF_ICON = "assets/icon_radio_off.svg";
+    const RADIO_ON_ICON = "assets/icon_radio_on.svg";
+    let selectedValue = "All time";
+
+    const applySelected = (value) => {
+      selectedValue = value;
+      options.forEach((opt) => {
+        const optionValue =
+          opt.getAttribute("data-trade-convert-history-time-option") || "";
+        const isSelected = optionValue === value;
+        opt.classList.toggle("is-selected", isSelected);
+        const radioEl = opt.querySelector(
+          ".trade-convert-history-time-sheet__item-radio",
+        );
+        if (radioEl) radioEl.setAttribute("src", isSelected ? RADIO_ON_ICON : RADIO_OFF_ICON);
+      });
+      triggerLabels.forEach((el) => {
+        el.textContent = selectedValue;
+      });
+    };
+
+    const open = () => {
+      applySelected(selectedValue);
+      sheetOpenWithInstantBackdrop(sheet);
+    };
+
+    const close = () => {
+      sheetCloseWithBackdropHandoff(sheet, panel);
+    };
+
+    triggers.forEach((btn) => {
+      btn.addEventListener("click", open);
+    });
+    sheet
+      .querySelectorAll("[data-trade-convert-history-time-close]")
+      .forEach((btn) => {
+        btn.addEventListener("click", close);
+      });
+    options.forEach((opt) => {
+      opt.addEventListener("click", () => {
+        const value =
+          opt.getAttribute("data-trade-convert-history-time-option") || "All time";
+        applySelected(value);
+        close();
+      });
+    });
+
+    applySelected(selectedValue);
+  };
+
   const initFinanceSectionNav = () => {
     const loanPage = document.querySelector('[data-finance-page="loan"]');
     const nav = loanPage?.querySelector("[data-finance-section-nav]");
@@ -6281,6 +6345,7 @@
   initTradeConvertConfirmSheet();
   initTradeConvertHistoryPage();
   initTradeConvertHistoryCurrencySheet();
+  initTradeConvertHistoryTimeSheet();
   document.addEventListener("trade-qm-select", (e) => {
     const action = String(e?.detail?.action || "").toLowerCase();
     if (
