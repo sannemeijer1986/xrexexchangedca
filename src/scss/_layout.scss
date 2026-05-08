@@ -5632,8 +5632,8 @@ button.finance-summary__stat-value--chevron {
 .convert-confirm-sheet__rate-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: flex-end;
+  gap: 2px;
   width: 100%;
 }
 
@@ -5709,8 +5709,8 @@ button.finance-summary__stat-value--chevron {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 5px;
   min-height: 19px;
 }
 
@@ -5729,6 +5729,17 @@ button.finance-summary__stat-value--chevron {
   font-weight: 600;
   line-height: 1.2;
   color: #eb5347;
+  white-space: nowrap;
+}
+
+.convert-confirm-sheet__rate-expired-seperator {
+  display: none;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #9B9C9C;
+  padding: 0 1px;
   white-space: nowrap;
 }
 
@@ -5762,6 +5773,10 @@ button.finance-summary__stat-value--chevron {
 }
 
 .convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-expired-text {
+  display: inline;
+}
+
+.convert-confirm-sheet--rate-expired .convert-confirm-sheet__rate-expired-seperator {
   display: inline;
 }
 
@@ -5907,7 +5922,7 @@ button.finance-summary__stat-value--chevron {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: #9B9C9C;
   line-height: 1.2;
 }
 
