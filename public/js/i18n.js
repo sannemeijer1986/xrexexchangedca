@@ -34,7 +34,10 @@
   };
 
   const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const toCanonicalSource = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+  const toCanonicalSource = (value) => String(value || '')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
   const toTemplatedSource = (value) => {
     let s = toCanonicalSource(value);
     if (!s) return s;
@@ -44,12 +47,16 @@
       'Not enough balance for {count} {periodLabel}',
     );
     s = s.replace(
-      /^Covers \d+ (buy|buys|day|days|week|weeks|month|months) • runs out [A-Za-z]{3} \d{1,2}, \d{4}$/i,
-      'Covers {count} {periodLabel} • runs out {date}',
+      /^Covers \d+ (buy|buys|day|days|week|weeks|month|months) · Runs out [A-Za-z]{3} \d{1,2}, \d{4}$/i,
+      'Covers {count} {periodLabel} · Runs out {date}',
     );
     s = s.replace(
-      /^runs out [A-Za-z]{3} \d{1,2}, \d{4}$/i,
-      'runs out {date}',
+      /^Runs out [A-Za-z]{3} \d{1,2}, \d{4}$/i,
+      'Runs out {date}',
+    );
+    s = s.replace(
+      /^When these reserved funds run out, we'll automatically pre-fund (.+?) again to keep your plan running\.$/i,
+      "When these reserved funds run out, we'll automatically pre-fund {amount} again to keep your plan running.",
     );
     s = s.replace(
       /^This will resume your automated buys: The next buy will be on .+\.$/i,
@@ -297,7 +304,7 @@
     // If no explicit params were supplied but the localized string still has {placeholders},
     // extract the dynamic values from the original raw string using the canonical template.
     const autoParams = (!params && canonical !== raw && /\{[^}]+\}/.test(String(localized)))
-      ? extractParamsFromTemplate(raw, canonical)
+      ? extractParamsFromTemplate(toCanonicalSource(raw), canonical)
       : null;
     const mergedParams = autoParams ? { ...autoParams, ...(params || {}) } : params;
     return interpolate(localized, mergedParams);

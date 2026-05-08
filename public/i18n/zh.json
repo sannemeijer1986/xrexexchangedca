@@ -574,7 +574,7 @@
   "_comment_templates": "── i18n.js template patterns (toTemplatedSource normalises these) ────",
   "{count} {periodLabel}": "{count} {periodLabel}",
   "Not enough balance for {count} {periodLabel}": "餘額不足以完成 {count} 次{periodLabel}",
-  "Covers {count} {periodLabel} • runs out {date}": "涵蓋 {count} 次{periodLabel} · 於 {date} 耗盡",
+  "Covers {count} {periodLabel} · Runs out {date}": "涵蓋 {count} 次{periodLabel}  ·  於 {date} 耗盡",
   "runs out {date}": "於 {date} 耗盡",
   "Max {amount} {currency}": "最高 {amount} {currency}",
   "_comment_period_labels": "── Period label atoms used inside {periodLabel} ──────────────────",

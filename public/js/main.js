@@ -8069,7 +8069,7 @@
           fundingPrefundMetaEl.textContent =
             fundingState === 5
               ? "Funds have run out"
-              : `Covers ${buyN} buys • runs out around ${runShort}`;
+              : `Covers ${buyN} buys  ·  Runs out around ${runShort}`;
           fundingPrefundMetaEl.classList.toggle(
             "my-plans-detail-panel__funding-prefund-meta--negative",
             fundingState === 5,
@@ -10923,7 +10923,7 @@
             );
             overviewCoversSubEl.textContent =
               hasActiveSelection && completeBuys > 0 && runsOutDate
-                ? `runs out ${runsOutDate}`
+                ? `Runs out ${runsOutDate}`
                 : "";
           }
           if (overviewAutorefillAmountEl)
@@ -11079,7 +11079,7 @@
           );
           overviewCoversSubEl.textContent =
             hasActiveSelection && completeBuys > 0 && runsOutDate
-              ? `runs out ${runsOutDate}`
+              ? `Runs out ${runsOutDate}`
               : "";
         }
         const overviewAutorefillAmountEl = clone.querySelector(
@@ -11487,7 +11487,19 @@
               .replace(/</g, "&lt;")
               .replace(/>/g, "&gt;");
           const t = esc(amountToken);
-          heroEl.innerHTML = `When these reserved funds run out, we’ll automatically pre-fund <span class="funding2-preview-sheet__hl">${t}</span> <span class="funding2-preview-sheet__hl">again</span> to keep your plan running.`;
+          const rawSentence = window.I18N?.t
+            ? window.I18N.t(
+                "When these reserved funds run out, we'll automatically pre-fund {amount} again to keep your plan running.",
+                { amount: amountToken },
+              )
+            : `When these reserved funds run out, we'll automatically pre-fund ${amountToken} again to keep your plan running.`;
+          const sentenceEsc = esc(rawSentence);
+          heroEl.innerHTML = sentenceEsc.includes(t)
+            ? sentenceEsc.replace(
+                t,
+                `<span class="funding2-preview-sheet__hl">${t}</span>`,
+              )
+            : sentenceEsc;
         }
         if (coversLineEl) {
           const isPeriodView = !!clone.querySelector(
@@ -11508,7 +11520,7 @@
           );
           if (periods > 0 && activeAmount > 0 && runsOutDate) {
             const coverPhrase = `Covers ${periods} ${periods === 1 ? unit : unitPlural}`;
-            coversLineEl.textContent = `${coverPhrase} • runs out ${runsOutDate}`;
+            coversLineEl.textContent = `${coverPhrase}  ·  Runs out ${runsOutDate}`;
             coversLineEl.hidden = false;
             coversLineEl.setAttribute("aria-hidden", "false");
           } else if (periods > 0 && activeAmount > 0) {
