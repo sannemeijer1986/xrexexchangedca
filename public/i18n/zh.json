@@ -24,8 +24,8 @@
   "Actual total": "實際總金額",
   "Add assets": "新增資產",
   "Add / remove assets": "新增 / 移除資產",
-  "Add funds": "加值資金",
-  "Add funds automatically": "自動補充資金",
+  "Add funds": "加值", // changed: 加值資金 → 加值
+  "Add funds automatically": "自動加值", // changed: 自動補充資金 → 自動加值
   "Adjusting one asset automatically shifts the others to keep your total at 100%. When your plan contains 3 assets, you can use the \"Hold this %\" function on any asset to fix it in place while the rest adjust around it.": "調整一個資產時，系統將自動調整其他資產以維持總額為 100%。當您的計畫包含 3 個資產時，可使用任一資產上的「鎖定此 %」功能，將其固定，其餘資產將自動調整。",
   "All": "全部",
   "All themes": "所有主題",
@@ -36,7 +36,7 @@
   "Amount": "金額",
   "Amount per buy": "每次買入金額",
   "Amount slider": "金額滑桿",
-  "Artificial Intelligence": "人工智能",
+  "Artificial Intelligence": "人工智慧", // changed: 人工智能 → 人工智慧
   "Athena Garcia": "Athena Garcia",
   "Auto buy low, sell high.": "低買高賣全自動！",
   "Auto-balanced to 100%": "已自動平衡至 100%",
@@ -47,7 +47,7 @@
   "Auto-invest plan overview": "智能定投計畫總覽",
   "Auto-invest schedule": "智能定投排程",
   "Auto-investing explained": "智能定投說明",
-  "Auto-refill": "自動補充",
+  "Auto-refill": "自動加值", // changed: 自動補充 → 自動加值
   "Automated buys will stop. Pre-funded funds, if any, will be returned to your wallet. This plan cannot be resumed once ended.": "自動買入將停止。如有預儲資金，將退回您的錢包。計畫一旦結束無法恢復。",
   "Avail. {amount} {currency}": "餘額{amount} {currency}",
   "Avail. —": "餘額—",
