@@ -5633,7 +5633,7 @@ button.finance-summary__stat-value--chevron {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 4px;
   width: 100%;
 }
 
@@ -5693,6 +5693,7 @@ button.finance-summary__stat-value--chevron {
   border-radius: 3px;
   background: #47494a;
   overflow: hidden;
+  display: none;
 }
 
 .convert-confirm-sheet__rate-progress-fill {
