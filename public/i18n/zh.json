@@ -20,7 +20,7 @@
   "Active ({count})": "進行中（{count}）", // changed: 啟用中 → 進行中
   "Activity details": "活動詳情",
   "Actual amount": "實際數量",
-  "Actual results may vary. Newer assets use earliest available data.": "實際結果可能有所不同。較新資產使用最早可用資料。",
+  "actual results may vary. For newer assets, calculations are based on the earliest available data.": "僅供參考。針對較新的資產，會以最早可取得的價格資料來計算。",
   "Actual total": "實際總金額",
   "Add assets": "新增資產",
   "Add / remove assets": "新增 / 移除資產",
@@ -158,9 +158,9 @@
   "Flexible": "靈活",
   "Flexible investing options": "靈活的投資選項",
   "for one buy": "用於一次買入",
-  "For reference only. Calculated using past data;": "僅供參考。根據過去資料計算；",
-  "For reference only. Simulated using past data;": "僅供參考。根據過去資料模擬；",
-  "For reference only. Simulated using past data; Actual results may vary": "僅供參考。根據過去資料模擬；實際結果可能有所不同。",
+  "For reference only. Calculated using past data,": "根據歷史數據計算，實際結果可能有所不同，",
+  "For reference only. Simulated using past data,": "根據歷史數據模擬，實際結果可能有所不同，",
+  "For reference only. Simulated using past data, actual results may vary": "根據歷史數據模擬，實際結果可能有所不同，僅供參考。",
   "Frequency": "頻率",
   "Frequently asked": "常見問題",
   "Funding": "資金方式",
@@ -168,7 +168,7 @@
   "Funding setup mode": "資金設定模式",
   "Funding state": "資金狀態",
   "Funding summary": "資金摘要",
-  "Funds currently set aside for your auto-invest plans, shown in your preferred currency.": "目前為智能定投計畫預備的資金總額，以您的偏好貨幣顯示。", // changed: 預留 → 預備
+  "Funds currently set aside for your auto-invest plans, shown in your preferred currency.": "目前您的智能定投計畫的總預備金額，以您的偏好貨幣顯示。", // changed: 預留 → 預備
   "Funds returned": "資金已退還",
   "Gainers": "漲幅榜",
   "Gaming": "鏈遊",
@@ -240,7 +240,7 @@
   "Net assets ≈": "淨資產≈",
   "New": "新上架",
   "New on XREX": "XREX 新功能",
-  "New plan": "新增計畫",
+  "New plan": "建立新計畫",
   "New Taiwan Dollar": "新台幣",
   "New XREX feature": "XREX 新功能",
   "Next": "下一步",
@@ -278,7 +278,7 @@
   "Past 5Y perf.": "5 年表現",
   "Past 5Y simulation · your setup": "過去 5 年模擬 · 您的設定",
   "Past 5Y simulation based on setup": "基於設定的過去 5 年模擬",
-  "Past performance": "歷史表現",
+  "Past performance": "歷史績效",
   "Pause any time": "隨時暫停",
   "pause plan": "暫停計畫",
   "Pause plan": "暫停計畫",
@@ -522,7 +522,7 @@
   "Reserved directly": "直接預備", // changed: 預留 → 預備
   "Hold this %": "鎖定此 %", // changed: 保留此比例 % → 鎖定此 %
   "Re-create this plan": "重新建立此計畫",
-  "Stay": "停留",
+  "Stay": "留在這頁",
   "Each buy =": "每次買入 =",
   "Each daily buy =": "每日買入 =", // changed: 每日每次買入 → 每日買入
   "- - per buy": "- - 每次買入",

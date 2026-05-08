@@ -385,11 +385,81 @@
     locale = normalizeLocale(localStorage.getItem(STORAGE_KEY) || DEFAULT_LOCALE);
   };
 
+  const parseJsonc = (raw) => {
+    const src = String(raw || '');
+    let out = '';
+    let inString = false;
+    let quote = '';
+    let escaped = false;
+    let inLineComment = false;
+    let inBlockComment = false;
+
+    for (let i = 0; i < src.length; i += 1) {
+      const ch = src[i];
+      const next = src[i + 1];
+
+      if (inLineComment) {
+        if (ch === '\n') {
+          inLineComment = false;
+          out += ch;
+        }
+        continue;
+      }
+      if (inBlockComment) {
+        if (ch === '*' && next === '/') {
+          inBlockComment = false;
+          i += 1;
+        }
+        continue;
+      }
+
+      if (inString) {
+        out += ch;
+        if (escaped) {
+          escaped = false;
+          continue;
+        }
+        if (ch === '\\') {
+          escaped = true;
+          continue;
+        }
+        if (ch === quote) {
+          inString = false;
+          quote = '';
+        }
+        continue;
+      }
+
+      if ((ch === '"' || ch === "'") && !inString) {
+        inString = true;
+        quote = ch;
+        out += ch;
+        continue;
+      }
+
+      if (ch === '/' && next === '/') {
+        inLineComment = true;
+        i += 1;
+        continue;
+      }
+      if (ch === '/' && next === '*') {
+        inBlockComment = true;
+        i += 1;
+        continue;
+      }
+
+      out += ch;
+    }
+
+    return JSON.parse(out);
+  };
+
   const loadExternalZhTranslations = async () => {
     try {
       const response = await fetch(EXTERNAL_ZH_PATH, { cache: 'no-store' });
       if (!response.ok) return;
-      const data = await response.json();
+      const raw = await response.text();
+      const data = parseJsonc(raw);
       if (!data || typeof data !== 'object' || Array.isArray(data)) return;
       const next = { ...data };
       delete next['_meta.locale'];
