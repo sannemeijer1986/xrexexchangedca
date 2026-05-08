@@ -1708,7 +1708,10 @@
 
     const open = () => {
       document.dispatchEvent(new CustomEvent("fake-keyboard-hide"));
-      setHistoryTab("convert", { scrollTab: false, instant: true });
+      setHistoryTab("convert", {
+        scrollTab: false,
+        instant: true,
+      });
       page.hidden = false;
       panels.forEach((p) => {
         if (p.getAttribute("data-trade-convert-history-panel") === "convert") {
@@ -1717,8 +1720,20 @@
       });
       requestAnimationFrame(() => {
         page.classList.add("is-open");
+        const activeBtn = tabBtns.find((b) =>
+          b.classList.contains("is-active"),
+        );
+        if (activeBtn && tabsScroll) {
+          activeBtn.scrollIntoView({
+            behavior: "instant",
+            inline: "center",
+            block: "nearest",
+          });
+        }
         syncHistoryTabsIndicator();
-        requestAnimationFrame(() => syncHistoryTabsIndicator());
+        requestAnimationFrame(() => {
+          syncHistoryTabsIndicator();
+        });
       });
     };
 
