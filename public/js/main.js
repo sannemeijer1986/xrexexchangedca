@@ -10858,7 +10858,7 @@
           if (periodBalanceErrorEl) {
             if (hasPeriodBalanceError && funding2PeriodCount > 0) {
               const periodLabel = funding2PeriodCount === 1 ? unit : unitPlural;
-              periodBalanceErrorEl.textContent = `Not enough balance for ${funding2PeriodCount} ${periodLabel}`;
+              periodBalanceErrorEl.textContent = `Not enough balance`;
             } else {
               periodBalanceErrorEl.textContent = "Not enough balance";
             }
