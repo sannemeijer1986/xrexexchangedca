@@ -317,6 +317,127 @@ body {
     font-size: 24px;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   }
+  .fake-keyboard--alloc-picker .fake-keyboard__sticky--alloc {
+    display: none;
+  }
+  .fake-keyboard__alloc-heading-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .fake-keyboard__alloc-heading {
+    margin: 0;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .fake-keyboard__alloc-max {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #8fb8ff;
+  }
+  .fake-keyboard__alloc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  .fake-keyboard__alloc-chips:empty, .fake-keyboard__alloc-chips[hidden] {
+    display: none !important;
+  }
+  .fake-keyboard__alloc-chips .alloc-picker-panel__chip {
+    pointer-events: none;
+  }
+  .fake-keyboard__suggest-bar {
+    flex-shrink: 0;
+    height: 16px;
+    background: #323233;
+    padding-top: 10px;
+    box-sizing: border-box;
+  }
+  .fake-keyboard__keys--alpha {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 3px;
+    grid-template-columns: none;
+    grid-auto-rows: auto;
+  }
+  .fake-keyboard__alpha-row {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+  }
+  .fake-keyboard__alpha-row--mid {
+    padding: 0 18px;
+    box-sizing: border-box;
+  }
+  .fake-keyboard__alpha-row--shift {
+    gap: 1px;
+    align-items: stretch;
+  }
+  .fake-keyboard__alpha-row-mid {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    gap: 5px;
+    padding: 0 13px;
+    box-sizing: border-box;
+  }
+  .fake-keyboard__alpha-row--bottom {
+    gap: 6px;
+  }
+  .fake-keyboard__alpha-key {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 42px;
+    border: 0;
+    border-radius: 5px;
+    background: #646465;
+    box-shadow: 0 1px 0 #000000;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 28px;
+    padding: 7px;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  .fake-keyboard__alpha-key--utility {
+    flex: 0 0 auto;
+    background: #484848;
+    border-radius: 4.6px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 21px;
+    padding: 11px;
+  }
+  .fake-keyboard__alpha-row--shift .fake-keyboard__alpha-key--utility {
+    width: 42px;
+    flex: 0 0 42px;
+  }
+  .fake-keyboard__alpha-key--nums {
+    width: 87px;
+    flex: 0 0 87px;
+  }
+  .fake-keyboard__alpha-key--go {
+    width: 88px;
+    flex: 0 0 88px;
+  }
+  .fake-keyboard__alpha-key--space {
+    font-size: 16px;
+    line-height: 21px;
+    padding: 11px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .phone-container.is-fake-keyboard-alloc-visible .alloc-picker-panel.is-open .alloc-picker-panel__body {
+    padding-bottom: 300px;
+  }
 }
 @media (max-width: 640px) {
   .fake-keyboard {

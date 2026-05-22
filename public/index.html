@@ -4159,8 +4159,8 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
         </div>
     </div>
 
-        <!-- Desktop prototype only (>640px): simulates device keyboard on convert amount focus -->
-        <div class="fake-keyboard" data-fake-keyboard aria-hidden="true">
+        <!-- Desktop prototype only (>640px): Convert page numeric keyboard -->
+        <div class="fake-keyboard fake-keyboard--convert" data-fake-keyboard="convert" aria-hidden="true">
             <div class="fake-keyboard__panel" role="presentation">
                 <div class="fake-keyboard__sticky">
                     <div class="fake-keyboard__top-actions">
@@ -4192,6 +4192,66 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                     <div class="fake-keyboard__key"><span>0</span></div>
                     <div class="fake-keyboard__delete" aria-label="Delete">
                         <span aria-hidden="true">⌫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop prototype only (>640px): Allocation picker search keyboard -->
+        <div class="fake-keyboard fake-keyboard--alloc-picker" data-fake-keyboard="alloc-picker" aria-hidden="true" hidden>
+            <div class="fake-keyboard__panel" role="presentation">
+                <div class="fake-keyboard__sticky fake-keyboard__sticky--alloc">
+                    <div class="fake-keyboard__alloc-heading-row">
+                        <p class="fake-keyboard__alloc-heading" data-fake-keyboard-alloc-heading>No coins selected</p>
+                        <span class="fake-keyboard__alloc-max">Max 3</span>
+                    </div>
+                    <div class="fake-keyboard__alloc-chips" data-fake-keyboard-alloc-chips hidden></div>
+                </div>
+                <div class="fake-keyboard__done-row">
+                    <button class="fake-keyboard__done" type="button" data-fake-keyboard-alloc-close>Done</button>
+                </div>
+                <div class="fake-keyboard__suggest-bar" aria-hidden="true"></div>
+                <div class="fake-keyboard__keys fake-keyboard__keys--alpha" aria-hidden="true">
+                    <div class="fake-keyboard__alpha-row">
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="q">Q</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="w">W</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="e">E</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="r">R</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="t">T</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="y">Y</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="u">U</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="i">I</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="o">O</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="p">P</button>
+                    </div>
+                    <div class="fake-keyboard__alpha-row fake-keyboard__alpha-row--mid">
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="a">A</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="s">S</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="d">D</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="f">F</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="g">G</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="h">H</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="j">J</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="k">K</button>
+                        <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="l">L</button>
+                    </div>
+                    <div class="fake-keyboard__alpha-row fake-keyboard__alpha-row--shift">
+                        <button type="button" class="fake-keyboard__alpha-key fake-keyboard__alpha-key--utility" data-fake-keyboard-action="shift" aria-label="Shift">⇧</button>
+                        <div class="fake-keyboard__alpha-row-mid">
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="z">Z</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="x">X</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="c">C</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="v">V</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="b">B</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="n">N</button>
+                            <button type="button" class="fake-keyboard__alpha-key" data-fake-keyboard-char="m">M</button>
+                        </div>
+                        <button type="button" class="fake-keyboard__alpha-key fake-keyboard__alpha-key--utility fake-keyboard__alpha-key--delete" data-fake-keyboard-action="delete" aria-label="Delete">⌫</button>
+                    </div>
+                    <div class="fake-keyboard__alpha-row fake-keyboard__alpha-row--bottom">
+                        <button type="button" class="fake-keyboard__alpha-key fake-keyboard__alpha-key--utility fake-keyboard__alpha-key--nums" data-fake-keyboard-action="nums">123</button>
+                        <button type="button" class="fake-keyboard__alpha-key fake-keyboard__alpha-key--space" data-fake-keyboard-action="space">space</button>
+                        <button type="button" class="fake-keyboard__alpha-key fake-keyboard__alpha-key--utility fake-keyboard__alpha-key--go" data-fake-keyboard-action="go">Go</button>
                     </div>
                 </div>
             </div>

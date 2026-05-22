@@ -14550,6 +14550,7 @@
       let selectedThemeCoinKeys = [];
       let activeThemeCategory = "all";
       let themeCategoryBeforeSearchFocus = "all";
+      let searchForcedAllCategory = false;
       let allocPickerOpenSource = "plan";
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
@@ -14710,20 +14711,21 @@
           syncCoinRowSelectionOnly();
           return;
         }
-        const cat = themeCategoryByKey.get(activeThemeCategory);
+        const q = String(searchInput?.value || "")
+          .trim()
+          .toLowerCase();
+        const filterCategory = q ? "all" : activeThemeCategory;
+        const cat = themeCategoryByKey.get(filterCategory);
         if (themeTitleEl) {
           themeTitleEl.textContent = cat?.hintLabel || cat?.label || "All coins";
         }
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;
-        const q = String(searchInput?.value || "")
-          .trim()
-          .toLowerCase();
         const filteredByCategory =
-          activeThemeCategory === "all"
+          filterCategory === "all"
             ? pickableCoins
             : pickableCoins.filter((c) =>
-                (c.categories || []).includes(activeThemeCategory),
+                (c.categories || []).includes(filterCategory),
               );
         const visible = filteredByCategory.filter(
           (c) =>
@@ -14858,6 +14860,7 @@
           chipsEl.replaceChildren(
             ...selected.map((c) => createAllocPickerChip(c)),
           );
+          document.dispatchEvent(new CustomEvent("fake-keyboard-alloc-sync"));
           return;
         }
 
@@ -14876,17 +14879,20 @@
           if (!chip) chip = createAllocPickerChip(c);
           chipsEl.appendChild(chip);
         });
+        document.dispatchEvent(new CustomEvent("fake-keyboard-alloc-sync"));
       };
 
-      const isThemeSearchModeActive = () =>
+      const hasThemeSearchQuery = () =>
+        !!(searchInput && String(searchInput.value || "").trim());
+
+      const isAllocSearchEngaged = () =>
         !!(
           searchInput &&
-          (document.activeElement === searchInput ||
-            String(searchInput.value || "").trim())
+          (document.activeElement === searchInput || hasThemeSearchQuery())
         );
 
       const syncSearchClearUi = () => {
-        const show = isThemeSearchModeActive();
+        const show = isAllocSearchEngaged();
         if (searchClearBtn) searchClearBtn.hidden = !show;
         if (searchWrap)
           searchWrap.classList.toggle(
@@ -14896,31 +14902,41 @@
       };
 
       const syncThemeSearchMode = () => {
-        const active = isThemeSearchModeActive();
-        if (active) {
-          const entering = !themeTopEl?.classList.contains(
-            "alloc-picker-panel__theme-top--search-focused",
-          );
-          if (entering) themeCategoryBeforeSearchFocus = activeThemeCategory;
+        const hasQuery = hasThemeSearchQuery();
+        if (hasQuery) {
           themeTopEl?.classList.add(
             "alloc-picker-panel__theme-top--search-focused",
           );
-          if (activeThemeCategory !== "all") {
+          if (!searchForcedAllCategory && activeThemeCategory !== "all") {
+            themeCategoryBeforeSearchFocus = activeThemeCategory;
             activeThemeCategory = "all";
+            searchForcedAllCategory = true;
+            renderThemeCategories();
             renderThemeCoins();
           }
         } else {
           themeTopEl?.classList.remove(
             "alloc-picker-panel__theme-top--search-focused",
           );
-          if (activeThemeCategory !== themeCategoryBeforeSearchFocus) {
+          if (searchForcedAllCategory) {
             activeThemeCategory = themeCategoryBeforeSearchFocus;
+            searchForcedAllCategory = false;
             renderThemeCategories();
             scrollActiveThemeCategoryIntoView();
             renderThemeCoins();
           }
         }
         syncSearchClearUi();
+        syncAllocPickerFakeKeyboard();
+      };
+
+      const syncAllocPickerFakeKeyboard = () => {
+        const panelOpen = allocPickerPanel.classList.contains("is-open");
+        if (!panelOpen || !isAllocSearchEngaged()) {
+          document.dispatchEvent(new CustomEvent("fake-keyboard-alloc-hide"));
+          return;
+        }
+        document.dispatchEvent(new CustomEvent("fake-keyboard-alloc-show"));
       };
 
       const applySelectedCoins = () => {
@@ -15002,6 +15018,8 @@
         selectedThemeCoinKeys =
           openSource === "finance" ? [] : selectedCoinKeys.slice();
         activeThemeCategory = initialThemeCategory;
+        themeCategoryBeforeSearchFocus = initialThemeCategory;
+        searchForcedAllCategory = false;
         activeTab = initialTab;
         if (searchInput) searchInput.value = "";
         syncThemeSearchMode();
@@ -15011,6 +15029,7 @@
         renderCoins();
         renderThemeCoins();
         renderChips({ full: true });
+        document.dispatchEvent(new CustomEvent("fake-keyboard-hide"));
         allocPickerPanel.hidden = false;
         requestAnimationFrame(() => {
           allocPickerPanel.classList.add("is-open");
@@ -15019,6 +15038,7 @@
       };
 
       const close = (closeOpts = {}) => {
+        document.dispatchEvent(new CustomEvent("fake-keyboard-alloc-hide"));
         if (closeOpts.instant) {
           allocPickerPanel.style.transition = "none";
           allocPickerPanel.classList.remove("is-open");
@@ -15152,6 +15172,7 @@
         );
         if (!next || next === activeThemeCategory) return;
         activeThemeCategory = next;
+        searchForcedAllCategory = false;
         renderThemeCategories();
         scrollActiveThemeCategoryIntoView("smooth");
         renderThemeCoins();
@@ -20290,62 +20311,88 @@
 
   initSideMenu();
 
-  /** Desktop viewport only: show a sliding fake keyboard when a field inside the phone is focused. */
+  /** Desktop viewport only: sliding fake keyboards (Convert + allocation picker). */
   const initFakeKeyboard = () => {
     const container = document.querySelector(".phone-container");
-    const keyboard = document.querySelector("[data-fake-keyboard]");
-    if (!container || !keyboard) return;
-    const keyboardPreviewBtn = keyboard.querySelector("[data-fake-keyboard-preview]");
-    const keyboardPctBtns = Array.from(
-      keyboard.querySelectorAll("[data-fake-keyboard-pct]"),
+    const convertKeyboard = document.querySelector('[data-fake-keyboard="convert"]');
+    const allocKeyboard = document.querySelector(
+      '[data-fake-keyboard="alloc-picker"]',
     );
+    if (!container || !convertKeyboard) return;
+
+    const keyboardPreviewBtn = convertKeyboard.querySelector(
+      "[data-fake-keyboard-preview]",
+    );
+    const keyboardPctBtns = Array.from(
+      convertKeyboard.querySelectorAll("[data-fake-keyboard-pct]"),
+    );
+    const allocKbHeading = allocKeyboard?.querySelector(
+      "[data-fake-keyboard-alloc-heading]",
+    );
+    const allocKbChips = allocKeyboard?.querySelector(
+      "[data-fake-keyboard-alloc-chips]",
+    );
+    const allocSearchInput = document.querySelector("[data-alloc-picker-search]");
 
     const mq = window.matchMedia("(min-width: 641px)");
-    const nonKeyboardInputTypes = new Set([
-      "button",
-      "submit",
-      "reset",
-      "hidden",
-      "checkbox",
-      "radio",
-      "file",
-      "image",
-      "range",
-      "color",
-    ]);
+    let suppressFocusShow = false;
 
-    const isKeyboardField = (el) => {
-      if (!el || el.closest("[data-fake-keyboard]")) return false;
-      if (el.disabled || el.getAttribute("aria-hidden") === "true")
-        return false;
-      const tag = el.tagName;
-      if (tag === "TEXTAREA") return true;
-      if (tag === "SELECT") return true;
-      if (tag !== "INPUT") return false;
-      const t = (el.getAttribute("type") || "text").toLowerCase();
-      return !nonKeyboardInputTypes.has(t);
+    const isOnConvertPage = () =>
+      String(document.documentElement.dataset.activeTab || "") === "trade" &&
+      String(document.documentElement.dataset.tradePage || "") === "convert";
+
+    const isConvertKeyboardField = (el) =>
+      !!(
+        el &&
+        el.closest('[data-trade-page="convert"]') &&
+        (el.matches(
+          "[data-trade-convert-pay-input], [data-trade-convert-receive-input]",
+        ) ||
+          el.closest(".trade-convert-page__amount-row"))
+      );
+
+    const isAllocPickerSearchField = (el) =>
+      !!(
+        el?.matches?.("[data-alloc-picker-search]") &&
+        el.closest("[data-alloc-picker-panel].is-open")
+      );
+
+    const hideAllocKeyboard = () => {
+      if (!allocKeyboard) return;
+      allocKeyboard.classList.remove("is-visible");
+      allocKeyboard.setAttribute("aria-hidden", "true");
+      allocKeyboard.hidden = true;
+      container.classList.remove("is-fake-keyboard-alloc-visible");
     };
 
-    const show = () => {
-      if (!mq.matches) return;
-      if (document.documentElement.dataset.tradePage !== "convert") return;
-      container.classList.remove("is-fake-keyboard-dismissing");
-      container.classList.add("is-fake-keyboard-visible");
-      keyboard.classList.add("is-visible");
-      keyboard.setAttribute("aria-hidden", "false");
+    const syncAllocKeyboardSticky = () => {
+      if (!allocKeyboard || !allocKbHeading || !allocKbChips) return;
+      const headingEl = document.querySelector(
+        "[data-alloc-picker-selected-heading]",
+      );
+      const chipsEl = document.querySelector("[data-alloc-picker-chips]");
+      if (headingEl) allocKbHeading.textContent = headingEl.textContent || "";
+      allocKbChips.replaceChildren();
+      if (chipsEl) {
+        chipsEl.querySelectorAll("[data-alloc-picker-chip-key]").forEach((chip) => {
+          allocKbChips.appendChild(chip.cloneNode(true));
+        });
+      }
+      const hasChips = allocKbChips.childElementCount > 0;
+      allocKbChips.hidden = !hasChips;
     };
 
     const scrollConvertToTop = () => {
-      if (document.documentElement.dataset.tradePage !== "convert") return;
+      if (!isOnConvertPage()) return;
       const scroller = document.querySelector("[data-content]");
       if (!scroller) return;
       scroller.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const hide = (opts = {}) => {
-      const wasVisible = keyboard.classList.contains("is-visible");
-      keyboard.classList.remove("is-visible");
-      keyboard.setAttribute("aria-hidden", "true");
+    const hideConvertKeyboard = (opts = {}) => {
+      const wasVisible = convertKeyboard.classList.contains("is-visible");
+      convertKeyboard.classList.remove("is-visible");
+      convertKeyboard.setAttribute("aria-hidden", "true");
       if (!wasVisible) return;
       if (opts.scrollToTop === false) {
         container.classList.remove(
@@ -20354,8 +20401,6 @@
         );
         return;
       }
-      // Keep extra scroll room briefly so smooth scroll remains visible,
-      // while allowing the page CTA to reappear immediately.
       container.classList.add("is-fake-keyboard-dismissing");
       scrollConvertToTop();
       setTimeout(() => {
@@ -20366,20 +20411,53 @@
       }, 220);
     };
 
+    const hideAllKeyboards = (opts = {}) => {
+      hideAllocKeyboard();
+      hideConvertKeyboard(opts);
+    };
+
+    const showAllocKeyboard = () => {
+      if (!mq.matches || !allocKeyboard) return;
+      if (!allocSearchInput?.closest("[data-alloc-picker-panel].is-open")) return;
+      hideConvertKeyboard({ scrollToTop: false });
+      syncAllocKeyboardSticky();
+      allocKeyboard.hidden = false;
+      allocKeyboard.classList.add("is-visible");
+      allocKeyboard.setAttribute("aria-hidden", "false");
+      container.classList.add("is-fake-keyboard-alloc-visible");
+    };
+
+    const showConvertKeyboard = () => {
+      if (!mq.matches || !isOnConvertPage()) return;
+      hideAllocKeyboard();
+      container.classList.remove("is-fake-keyboard-dismissing");
+      container.classList.add("is-fake-keyboard-visible");
+      convertKeyboard.classList.add("is-visible");
+      convertKeyboard.setAttribute("aria-hidden", "false");
+    };
+
     container.addEventListener("focusin", (e) => {
-      if (!mq.matches) return;
-      if (suppressFocusShow) return;
-      if (!isKeyboardField(e.target)) return;
-      show();
+      if (!mq.matches || suppressFocusShow) return;
+      if (isAllocPickerSearchField(e.target)) return;
+      if (isConvertKeyboardField(e.target) && isOnConvertPage()) {
+        showConvertKeyboard();
+      }
     });
 
-    keyboard
+    convertKeyboard
       .querySelector("[data-fake-keyboard-close]")
       ?.addEventListener("click", () => {
-        hide();
+        hideConvertKeyboard();
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
+      });
+
+    allocKeyboard
+      ?.querySelector("[data-fake-keyboard-alloc-close]")
+      ?.addEventListener("click", () => {
+        hideAllocKeyboard();
+        allocSearchInput?.blur();
       });
 
     const syncKeyboardPreviewDisabled = (disabled) => {
@@ -20390,7 +20468,7 @@
     keyboardPreviewBtn?.addEventListener("click", () => {
       const previewBtn = document.querySelector("[data-trade-convert-preview]");
       if (!previewBtn || previewBtn.disabled) return;
-      hide({ scrollToTop: false });
+      hideConvertKeyboard({ scrollToTop: false });
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
@@ -20454,7 +20532,7 @@
 
     keyboardPctBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (document.documentElement.dataset.tradePage !== "convert") return;
+        if (!isOnConvertPage()) return;
         const pct = Number(btn.getAttribute("data-fake-keyboard-pct"));
         if (!Number.isFinite(pct) || pct <= 0) return;
         setPctActiveState(pct);
@@ -20475,18 +20553,58 @@
     getConvertPayContext().payInp?.addEventListener("input", syncPctStateFromPayInput);
     syncPctStateFromPayInput();
 
+    const appendAllocSearchChar = (ch) => {
+      if (!allocSearchInput) return;
+      allocSearchInput.value = `${allocSearchInput.value || ""}${ch}`;
+      allocSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+      allocSearchInput.focus();
+    };
+
+    allocKeyboard
+      ?.querySelectorAll("[data-fake-keyboard-char]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const ch = btn.getAttribute("data-fake-keyboard-char");
+          if (ch) appendAllocSearchChar(ch);
+        });
+      });
+
+    allocKeyboard
+      ?.querySelector('[data-fake-keyboard-action="space"]')
+      ?.addEventListener("click", () => appendAllocSearchChar(" "));
+
+    allocKeyboard
+      ?.querySelector('[data-fake-keyboard-action="delete"]')
+      ?.addEventListener("click", () => {
+        if (!allocSearchInput) return;
+        allocSearchInput.value = String(allocSearchInput.value || "").slice(0, -1);
+        allocSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+        allocSearchInput.focus();
+      });
+
+    allocKeyboard
+      ?.querySelector('[data-fake-keyboard-action="go"]')
+      ?.addEventListener("click", () => {
+        hideAllocKeyboard();
+        allocSearchInput?.blur();
+      });
+
     document.addEventListener("pointerdown", (e) => {
       if (!mq.matches) return;
-      if (!keyboard.classList.contains("is-visible")) return;
-      if (e.target instanceof Element && keyboard.contains(e.target)) return;
-      if (
-        e.target instanceof Element &&
-        e.target.closest(".trade-convert-page__amount-row")
-      )
-        return;
+      const convertOpen = convertKeyboard.classList.contains("is-visible");
+      const allocOpen = allocKeyboard?.classList.contains("is-visible");
+      if (!convertOpen && !allocOpen) return;
+      if (e.target instanceof Element) {
+        if (convertKeyboard.contains(e.target)) return;
+        if (allocKeyboard?.contains(e.target)) return;
+        if (e.target.closest(".trade-convert-page__amount-row")) return;
+        if (e.target.closest(".alloc-picker-panel__search-wrap")) return;
+      }
 
       suppressFocusShow = true;
-      hide();
+      hideAllKeyboards(
+        convertOpen ? {} : { scrollToTop: false },
+      );
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
@@ -20496,19 +20614,42 @@
     });
 
     const onMqChange = () => {
-      if (!mq.matches) hide({ scrollToTop: false });
+      if (!mq.matches) hideAllKeyboards({ scrollToTop: false });
     };
+
     document.addEventListener("trade-page-changed", (e) => {
-      if (e?.detail?.pageId !== "convert") hide({ scrollToTop: false });
+      if (e?.detail?.pageId !== "convert")
+        hideConvertKeyboard({ scrollToTop: false });
     });
+
+    new MutationObserver(() => {
+      if (
+        String(document.documentElement.dataset.activeTab || "") !== "trade"
+      ) {
+        hideAllKeyboards({ scrollToTop: false });
+      }
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-active-tab"],
+    });
+
     document.addEventListener("convert-preview-state-changed", (e) => {
       syncKeyboardPreviewDisabled(!!e?.detail?.disabled);
     });
     syncKeyboardPreviewDisabled(
       !!document.querySelector("[data-trade-convert-preview]")?.disabled,
     );
-    document.addEventListener("fake-keyboard-show", show);
-    document.addEventListener("fake-keyboard-hide", hide);
+
+    document.addEventListener("fake-keyboard-show", () => {
+      if (isOnConvertPage()) showConvertKeyboard();
+    });
+    document.addEventListener("fake-keyboard-hide", () => {
+      hideConvertKeyboard({ scrollToTop: false });
+    });
+    document.addEventListener("fake-keyboard-alloc-show", showAllocKeyboard);
+    document.addEventListener("fake-keyboard-alloc-hide", hideAllocKeyboard);
+    document.addEventListener("fake-keyboard-alloc-sync", syncAllocKeyboardSticky);
+
     if (typeof mq.addEventListener === "function") {
       mq.addEventListener("change", onMqChange);
     } else if (typeof mq.addListener === "function") {
