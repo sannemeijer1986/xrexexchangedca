@@ -12110,6 +12110,7 @@
       {
         key: "all",
         label: "All",
+        hintLabel: "All coins",
         iconOff: "assets/icon_cat_all_off.svg",
         iconOn: "assets/icon_cat_all_on.svg",
       },
@@ -14711,7 +14712,7 @@
         }
         const cat = themeCategoryByKey.get(activeThemeCategory);
         if (themeTitleEl) {
-          themeTitleEl.textContent = cat?.label || "All";
+          themeTitleEl.textContent = cat?.hintLabel || cat?.label || "All coins";
         }
         const selectedKeys = selectedThemeCoinKeys;
         const curRange = rangeState.curated;
