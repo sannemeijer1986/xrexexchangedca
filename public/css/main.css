@@ -17079,6 +17079,10 @@ html[data-prototype-flow="2"] .phone-container .my-plans-detail-panel__activity-
   margin: 4px 16px 0 16px;
 }
 
+.alloc-picker-panel__theme-top--search-focused .alloc-picker-panel__theme-cats {
+  display: none;
+}
+
 .alloc-picker-panel__theme-top-divider {
   width: calc(100% + 32px);
   margin-left: -16px;

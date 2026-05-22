@@ -14514,6 +14514,9 @@
       const themeCoinsListEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-theme-coins-list]",
       );
+      const themeTopEl = allocPickerPanel.querySelector(
+        ".alloc-picker-panel__theme-top",
+      );
       const themeCatsEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-theme-cats]",
       );
@@ -14545,6 +14548,7 @@
       let selectedCoinKeys = [];
       let selectedThemeCoinKeys = [];
       let activeThemeCategory = "all";
+      let themeCategoryBeforeSearchFocus = "all";
       let allocPickerOpenSource = "plan";
 
       const coinByKey = new Map(pickableCoins.map((c) => [c.key, c]));
@@ -14873,14 +14877,49 @@
         });
       };
 
-      const syncSearchClear = () => {
-        const has = !!(searchInput && String(searchInput.value || "").trim());
-        if (searchClearBtn) searchClearBtn.hidden = !has;
+      const isThemeSearchModeActive = () =>
+        !!(
+          searchInput &&
+          (document.activeElement === searchInput ||
+            String(searchInput.value || "").trim())
+        );
+
+      const syncSearchClearUi = () => {
+        const show = isThemeSearchModeActive();
+        if (searchClearBtn) searchClearBtn.hidden = !show;
         if (searchWrap)
           searchWrap.classList.toggle(
             "alloc-picker-panel__search-wrap--has-query",
-            has,
+            show,
           );
+      };
+
+      const syncThemeSearchMode = () => {
+        const active = isThemeSearchModeActive();
+        if (active) {
+          const entering = !themeTopEl?.classList.contains(
+            "alloc-picker-panel__theme-top--search-focused",
+          );
+          if (entering) themeCategoryBeforeSearchFocus = activeThemeCategory;
+          themeTopEl?.classList.add(
+            "alloc-picker-panel__theme-top--search-focused",
+          );
+          if (activeThemeCategory !== "all") {
+            activeThemeCategory = "all";
+            renderThemeCoins();
+          }
+        } else {
+          themeTopEl?.classList.remove(
+            "alloc-picker-panel__theme-top--search-focused",
+          );
+          if (activeThemeCategory !== themeCategoryBeforeSearchFocus) {
+            activeThemeCategory = themeCategoryBeforeSearchFocus;
+            renderThemeCategories();
+            scrollActiveThemeCategoryIntoView();
+            renderThemeCoins();
+          }
+        }
+        syncSearchClearUi();
       };
 
       const applySelectedCoins = () => {
@@ -14964,7 +15003,7 @@
         activeThemeCategory = initialThemeCategory;
         activeTab = initialTab;
         if (searchInput) searchInput.value = "";
-        syncSearchClear();
+        syncThemeSearchMode();
         syncTabs();
         renderThemeCategories();
         scrollActiveThemeCategoryIntoView();
@@ -15017,17 +15056,27 @@
           btn.addEventListener("click", () => close());
         });
 
+      searchInput?.addEventListener("focus", () => syncThemeSearchMode());
+
+      searchInput?.addEventListener("blur", () => {
+        requestAnimationFrame(() => syncThemeSearchMode());
+      });
+
       searchInput?.addEventListener("input", () => {
-        syncSearchClear();
+        syncThemeSearchMode();
         renderThemeCoins();
+      });
+
+      searchClearBtn?.addEventListener("mousedown", (e) => {
+        e.preventDefault();
       });
 
       searchClearBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         if (searchInput) searchInput.value = "";
-        syncSearchClear();
         renderThemeCoins();
-        searchInput?.focus();
+        searchInput?.blur();
+        syncThemeSearchMode();
       });
 
       coinsListEl?.addEventListener("click", (e) => {
