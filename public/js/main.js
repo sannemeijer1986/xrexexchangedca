@@ -14530,6 +14530,9 @@
       const searchEmptyEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-search-empty]",
       );
+      const themeInfoEl = allocPickerPanel.querySelector(
+        ".alloc-picker-panel__theme-info",
+      );
       const chipsEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-chips]",
       );
@@ -14714,6 +14717,7 @@
       const syncThemeListSearchUi = (q, visibleCount) => {
         const hasQuery = !!String(q || "").trim();
         if (themeSubhintEl) themeSubhintEl.hidden = hasQuery;
+        if (themeInfoEl) themeInfoEl.hidden = hasQuery;
         if (searchEmptyEl) {
           const showEmpty = hasQuery && visibleCount === 0;
           searchEmptyEl.hidden = !showEmpty;

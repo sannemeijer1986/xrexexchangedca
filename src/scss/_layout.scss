@@ -17943,6 +17943,10 @@ html[data-prototype-flow='2'] .phone-container .my-plans-detail-panel__activity-
   padding: 0;
 }
 
+.alloc-picker-panel__theme-info[hidden] {
+  display: none !important;
+}
+
 .alloc-picker-panel__theme-info img {
   width: 16px;
   height: 16px;
