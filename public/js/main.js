@@ -1870,7 +1870,7 @@
       const titleEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-title]",
       );
-      if (titleEl) titleEl.textContent = "Auto-invest order";
+      if (titleEl) titleEl.textContent = "DCA order";
       const toLabelEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-to-label]",
       );
@@ -4789,7 +4789,7 @@
 
     const paygoTitle = "Deduct from balance";
     const paygoDesc =
-      "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan." +
+      "We automatically deduct funds from your balance on each scheduled date of your DCA plan." +
       "\n\n" +
       "Orders start to execute at 12:00 PM (GMT +8).";
 
@@ -4941,7 +4941,7 @@
       if (endHighlightEl)
         endHighlightEl.textContent = `Your pre-funded ${cur} will be released back to your wallet, and auto-refill will stop.`;
       if (endCopyEl)
-        endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled auto-invest date.`;
+        endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled DCA date.`;
       if (endSubmitEl) endSubmitEl.textContent = `Return reserved ${cur}`;
     };
 
@@ -8631,7 +8631,7 @@
       const titleEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-title]",
       );
-      if (titleEl) titleEl.textContent = "Auto-invest order";
+      if (titleEl) titleEl.textContent = "DCA order";
       const toLabelEl = activityDetailPanel.querySelector(
         "[data-my-plans-activity-detail-to-label]",
       );
@@ -9225,7 +9225,7 @@
       if (endHighlightEl)
         endHighlightEl.textContent = `Your pre-funded ${cur} will be released back to your wallet, and auto-refill will stop.`;
       if (endCopyEl)
-        endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled auto-invest date.`;
+        endCopyEl.textContent = `This plan will resume deducting from your wallet's ${cur} balance on each scheduled DCA date.`;
       if (endSubmitEl) endSubmitEl.textContent = `Return reserved ${cur}`;
       if (getBottomSheetStacking()) {
         sheetOpenWithInstantBackdrop(endPrefundConfirmSheet);
@@ -18594,9 +18594,9 @@
         );
         if (titleEl) {
           if (freqKey === "flexible") {
-            titleEl.textContent = t("Your auto-invest plan is set");
+            titleEl.textContent = t("Your DCA plan is set");
           } else {
-            titleEl.textContent = t("Your {frequency} auto-invest plan is set", {
+            titleEl.textContent = t("Your {frequency} DCA plan is set", {
               frequency: t(freqWord),
             });
           }
@@ -18991,7 +18991,7 @@
       ".start-theme__show-all",
     );
     const financeThemeDescriptions = {
-      all: "An overview of all coins available on XREX for auto-investing",
+      all: "An overview of all coins available on XREX for DCA",
       ai: "{$descriptionSameAsMarkets}",
       rwa: "{$descriptionSameAsMarkets}",
       l1: "{$descriptionSameAsMarkets}",
@@ -20088,7 +20088,7 @@
       {
         title:
           "Choose assets like Bitcoin, from themes like AI, or build your own!",
-        desc: "Select a single asset or...",
+        desc: "Pick a single asset, or mix multiple assets and set your own allocation for each — you set the rules.",
         visual: "assets/featureintro_2.png",
       },
       {
