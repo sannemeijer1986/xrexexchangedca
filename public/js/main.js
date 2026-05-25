@@ -4791,7 +4791,7 @@
     const paygoDesc =
       "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan." +
       "\n\n" +
-      "Orders execute after 12:00 PM (GMT +8).";
+      "Orders start to execute at 12:00 PM (GMT +8).";
 
     const closeSheet = () => {
       sheet.classList.remove("is-open");
@@ -11394,7 +11394,7 @@
             </div>
           </div>
           <div class="plan-overview-panel__footer plan-buffer-funding2-overview-step__footer">
-            <p class="plan-overview-panel__consent-copy">By confirming, you agree with the ... {$Terms and conditions footnote}</p>
+            <p class="plan-overview-panel__consent-copy">By confirming, I have read and agree to the Terms of Service</p>
             <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-funding2-overview-confirm>Confirm</button>
             <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-funding2-overview-back>Back</button>
           </div>

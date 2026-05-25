@@ -190,7 +190,8 @@
   "How much do you want to set aside to cover upcoming buys?": "您想預備多少資金來涵蓋即將到來的買入？", // changed: 預留 → 預備
   "How to pre-fund my account?": "如何預儲資金至我的帳戶？",
   "How will you fund your plan?": "您將如何為計畫提供資金？",
-  "I agree with the ... {$Terms and conditions footnote}": "我同意 ... {$條款及條件}",
+  "I have read and agree to the Terms of Service": "我已閱讀並同意服務條款",
+  "Terms of Service": "服務條款",
   "Increase by 1": "增加 1",
   "Increase by 10": "增加 10",
   "Introduction": "介紹",
@@ -643,5 +644,5 @@
   "Guide": "指南",
   "FEATURED": "精選",
   "XREX only accepts bank accounts\nheld in your name and only accepts bank &\nbank in intermediaries from countries \nlisted here": "XREX 僅接受以您本人名義開立的銀行帳戶，\n且僅接受所列國家的銀行及\n中間銀行所發起的轉帳",
-  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.\n\nOrders execute after 12:00 PM (GMT +8).": "我們將於您的智能定投計畫中，在每個預定日期自動從您的餘額中扣款。\n\n訂單將於每日 12:00 PM（GMT+8）後執行。" // changed: 定期定額計劃 → 智能定投計畫
+  "We automatically deduct funds from your balance on each scheduled date of your auto-invest plan.\n\nOrders start to execute at 12:00 PM (GMT +8).": "我們將於您的智能定投計畫中，在每個預定日期自動從您的餘額中扣款。\n\n訂單將於每日 12:00 PM（GMT+8）後執行。" // changed: 定期定額計劃 → 智能定投計畫
 }

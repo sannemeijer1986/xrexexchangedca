@@ -2027,12 +2027,15 @@
 
                 </div>
                 <div class="plan-overview-panel__footer">
-                    <button class="plan-overview-panel__consent" type="button" data-plan-overview-consent-toggle aria-pressed="false">
-                        <img class="plan-overview-panel__consent-icon" src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
+                    <div class="plan-overview-panel__consent">
+                        <button class="plan-overview-panel__consent-toggle" type="button" data-plan-overview-consent-toggle aria-pressed="false" aria-label="I have read and agree to the Terms of Service">
+                            <img class="plan-overview-panel__consent-icon" src="assets/icon_checkbox_off.svg" width="24" height="24" alt="" aria-hidden="true" />
+                        </button>
                         <span class="plan-overview-panel__consent-text">
-                            I agree with the ... {$Terms and conditions footnote}</span>
+                            I have read and agree to the
+                            <a class="plan-overview-panel__consent-link" href="https://info.xrex.io/xrex-general-terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms of Service</a>
                         </span>
-                    </button>
+                    </div>
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--primary" type="button" data-plan-overview-confirm>Confirm plan</button>
                     <button class="plan-overview-panel__btn plan-overview-panel__btn--secondary" type="button" data-plan-overview-close>Back</button>
                 </div>
