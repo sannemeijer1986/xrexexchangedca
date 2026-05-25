@@ -14153,6 +14153,7 @@
         if (allocAutoSection) allocAutoSection.hidden = true;
         if (allocAutoList) allocAutoList.innerHTML = "";
         updateDetailReturn();
+        syncPlanDetailAmountHint();
         return;
       }
 
@@ -15017,6 +15018,7 @@
         detailAllocOverride = { kind: "coins", items };
         populatePanel({ preserveAmount: true });
         updateDetailReturn();
+        syncPlanDetailAmountHint();
       };
 
       const open = (openOpts = {}) => {
@@ -18384,9 +18386,11 @@
         scheduleSheetApi.planDetailRepeatsEndLimitText = "";
         syncPlanDetailSetLimitDetailRowsVisibility();
         populatePanel();
+        syncPlanDetailAmountHint();
         if (openCtx?.source === "newplan" && recreatePlanPrefillRecord) {
           applyRecreatePlanPrefill(recreatePlanPrefillRecord);
           recreatePlanPrefillRecord = null;
+          syncPlanDetailAmountHint();
         }
         resetScrollState();
         // Always start with the Repeats "Details" disclosure collapsed (instant, no animation).

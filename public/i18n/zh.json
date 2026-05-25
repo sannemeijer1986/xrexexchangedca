@@ -489,7 +489,7 @@
   "Enter an amount to buy first": "請先輸入買入金額",
   "How much would you like to reserve for your plan?": "您想為計畫預備多少資金？", // changed: 預留 → 預備
   "How pre-funding works": "預儲資金如何運作",
-  "Pick a single asset, or mix multiple assets and set your own allocation for each — you set the rules.": "選擇單一資產，或...",
+  "Pick a single asset, or mix multiple assets and set your own allocation for each — you set the rules.": "挑選單一資產，或組合多個資產並自訂每個資產的比例 — 規則由您來定。",
   "Set a fixed amount and invest on a schedule. No need to time the market, just stay consistent.": "設定固定金額，按計劃投資。無需預測市場時機，為您守住長期紀律。",
   "Invest automatically: the easiest way to dollar-cost average": "智能定投：最簡單的自動投資方式",
   "No funds are set aside: Your plan is paid from your balance at time of each buy. May fail if balance is low.": "無預備資金：每次買入時從餘額扣款。若餘額不足，買入可能失敗。", // changed: 預留 → 預備
