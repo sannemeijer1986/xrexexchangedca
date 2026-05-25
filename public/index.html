@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div class="app-header__tabs" aria-label="Finance tabs" data-app-header-tabs-finance>
-                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto">Auto-invest</button>
+                    <button class="app-header__tab is-active" type="button" data-finance-header-tab="auto">DCA</button>
                     <button class="app-header__tab" type="button" data-finance-header-tab="loan">Secured loan</button>
                 </div>
                 <div class="app-header__tabs" aria-label="Trade tabs" data-app-header-tabs-trade hidden>
@@ -3427,7 +3427,7 @@
                     <div class="alloc-picker-panel__hint-row alloc-picker-panel__hint-row--theme">
                         <div class="alloc-picker-panel__hint-copy">
                             <p class="alloc-picker-panel__hint" data-alloc-picker-theme-title>All coins</p>
-                            <p class="alloc-picker-panel__subhint">Sorted by market cap</p>
+                            <p class="alloc-picker-panel__subhint" data-alloc-picker-subhint>Sorted by market cap</p>
                         </div>
                         <div class="alloc-picker-panel__hint-actions">
                             <button class="plan-strategy__range" type="button" aria-label="Return range selector" data-range-sheet-trigger="curated">
@@ -3438,6 +3438,12 @@
                                 <img src="assets/icon_guide.svg" alt="" width="20" height="20" />
                             </button>
                         </div>
+                    </div>
+                    <div class="alloc-picker-panel__search-empty" data-alloc-picker-search-empty hidden>
+                        <div class="alloc-picker-panel__search-empty-badge" aria-hidden="true">
+                            <img class="alloc-picker-panel__search-empty-icon" src="assets/icon_search_empty_state.svg" alt="" />
+                        </div>
+                        <p class="alloc-picker-panel__search-empty-title">No search results</p>
                     </div>
                     <div class="alloc-picker-panel__coins" data-alloc-picker-theme-coins-list></div>
                 </div>

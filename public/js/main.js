@@ -14524,6 +14524,12 @@
       const themeTitleEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-theme-title]",
       );
+      const themeSubhintEl = allocPickerPanel.querySelector(
+        "[data-alloc-picker-subhint]",
+      );
+      const searchEmptyEl = allocPickerPanel.querySelector(
+        "[data-alloc-picker-search-empty]",
+      );
       const chipsEl = allocPickerPanel.querySelector(
         "[data-alloc-picker-chips]",
       );
@@ -14705,15 +14711,39 @@
         });
       };
 
+      const syncThemeListSearchUi = (q, visibleCount) => {
+        const hasQuery = !!String(q || "").trim();
+        if (themeSubhintEl) themeSubhintEl.hidden = hasQuery;
+        if (searchEmptyEl) {
+          const showEmpty = hasQuery && visibleCount === 0;
+          searchEmptyEl.hidden = !showEmpty;
+          searchEmptyEl.classList.toggle("is-visible", showEmpty);
+        }
+      };
+
       const renderThemeCoins = (opts = { full: true }) => {
         if (!themeCoinsListEl) return;
-        if (!opts.full) {
-          syncCoinRowSelectionOnly();
-          return;
-        }
         const q = String(searchInput?.value || "")
           .trim()
           .toLowerCase();
+        if (!opts.full) {
+          syncCoinRowSelectionOnly();
+          const filterCategory = q ? "all" : activeThemeCategory;
+          const filteredByCategory =
+            filterCategory === "all"
+              ? pickableCoins
+              : pickableCoins.filter((c) =>
+                  (c.categories || []).includes(filterCategory),
+                );
+          const visibleCount = filteredByCategory.filter(
+            (c) =>
+              !q ||
+              c.name.toLowerCase().includes(q) ||
+              c.ticker.toLowerCase().includes(q),
+          ).length;
+          syncThemeListSearchUi(q, visibleCount);
+          return;
+        }
         const filterCategory = q ? "all" : activeThemeCategory;
         const cat = themeCategoryByKey.get(filterCategory);
         if (themeTitleEl) {
@@ -14806,6 +14836,7 @@
           .filter(Boolean);
         themeCoinsListEl.replaceChildren(...orderedVisibleRows);
         syncCoinListMaxSelectedClass();
+        syncThemeListSearchUi(q, visible.length);
       };
 
       const createAllocPickerChip = (c) => {
@@ -14928,6 +14959,9 @@
         }
         syncSearchClearUi();
         syncAllocPickerFakeKeyboard();
+        if (!hasThemeSearchQuery()) {
+          syncThemeListSearchUi("", 1);
+        }
       };
 
       const syncAllocPickerFakeKeyboard = () => {
