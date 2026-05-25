@@ -13758,6 +13758,31 @@
       perBuy: 0,
     };
 
+    const PLAN_DETAIL_AMOUNT_HINT = {
+      USDT: "Min 3 / Max 30,000",
+      TWD: "Min 100 / Max 1,000,000",
+    };
+
+    const syncPlanDetailAmountHint = () => {
+      const hintEl = panel.querySelector("[data-plan-detail-amount-hint]");
+      const inp = panel.querySelector("[data-plan-detail-amount-input]");
+      if (!hintEl || !inp) return;
+      const tr = (s) => (window.I18N?.t ? window.I18N.t(s) : s);
+      const cur = String(currencyState.plan || "TWD")
+        .trim()
+        .toUpperCase();
+      const raw = String(inp.value || "").replace(/[^0-9]/g, "");
+      const amount = parseInt(raw, 10);
+      const empty = !raw || !Number.isFinite(amount) || amount <= 0;
+      hintEl.hidden = !empty;
+      if (!empty) return;
+      const template =
+        cur === "USDT"
+          ? PLAN_DETAIL_AMOUNT_HINT.USDT
+          : PLAN_DETAIL_AMOUNT_HINT.TWD;
+      hintEl.textContent = tr(template);
+    };
+
     const populatePanel = (opts = {}) => {
       const ctx = panelOpenContext;
       const shouldPreserveCurrentAmount = !!opts.preserveAmount;
@@ -14404,6 +14429,7 @@
       ) {
         planOverviewApi.sync();
       }
+      syncPlanDetailAmountHint();
     };
 
     const commitCustomPlanTitle = () => {
@@ -19730,10 +19756,15 @@
     };
 
     document.addEventListener("plan-investment-currency-updated", () => {
+      syncPlanDetailAmountHint();
       if (!panel.classList.contains("is-open")) return;
       updateDetailReturn();
       panel._planDetailAllocRefreshAmounts?.();
       panel._planDetailAutoAllocRefreshAmounts?.();
+    });
+
+    document.addEventListener("prototype-locale-changed", () => {
+      syncPlanDetailAmountHint();
     });
 
     document.addEventListener("prototype-smart-allocation-toggle", () => {
@@ -19807,12 +19838,14 @@
         const raw = oldVal.replace(/[^0-9]/g, "");
         if (!raw) {
           amountInput.value = "";
+          syncPlanDetailAmountHint();
           return;
         }
 
         const clamped = Math.min(parseInt(raw, 10), MAX_AMOUNT);
         const formatted = clamped.toLocaleString("en-US");
         amountInput.value = formatted;
+        syncPlanDetailAmountHint();
 
         // Walk the formatted string to find the new cursor position
         let newCursor = 0;
@@ -19835,7 +19868,18 @@
       // Set initial formatted value
       const initialRaw = parseInt(amountInput.value.replace(/[^0-9]/g, ""), 10);
       setDisplayValue(initialRaw);
+      syncPlanDetailAmountHint();
       syncDetailBreakdownLinkState();
+
+      const amountRow = amountInput.closest(".plan-detail-panel__amount-row");
+      if (amountRow) {
+        amountRow.addEventListener("click", (e) => {
+          if (e.target.closest(".plan-detail-panel__currency-pill")) return;
+          if (e.target.closest("input")) return;
+          amountInput.focus();
+          document.dispatchEvent(new CustomEvent("fake-keyboard-show"));
+        });
+      }
 
       amountInput.addEventListener("focus", () => {
         const labelEl = amountInput
@@ -19847,6 +19891,7 @@
       // Input: reformat live + update return
       amountInput.addEventListener("input", () => {
         applyLiveFormat();
+        syncPlanDetailAmountHint();
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
         panel._planDetailAutoAllocRefreshAmounts?.();
@@ -19865,6 +19910,7 @@
           // Keep 0/empty as empty; do not repopulate from the main page slider.
           amountInput.value = "";
         }
+        syncPlanDetailAmountHint();
         updateDetailReturn();
         panel._planDetailAllocRefreshAmounts?.();
         panel._planDetailAutoAllocRefreshAmounts?.();
@@ -19952,6 +19998,7 @@
                 ? "assets/icon_currency_usdt.svg"
                 : "assets/icon_currency_TWD.svg";
           updateCoverageUI();
+          syncPlanDetailAmountHint();
           panel._planDetailAllocRefreshAmounts?.();
           panel._planDetailAutoAllocRefreshAmounts?.();
         });

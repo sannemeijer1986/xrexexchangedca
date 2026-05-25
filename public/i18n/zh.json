@@ -224,6 +224,8 @@
   "Max —": "最大 —",
   "Max {count}": "最多 {count}",
   "May differ from your current holdings": "可能與您目前的持倉不同",
+  "Min 100 / Max 1,000,000": "最低 100 / 最高 1,000,000",
+  "Min 3 / Max 30,000": "最低 3 / 最高 30,000",
   "Meme": "迷因幣",
   "Menu": "選單",
   "Metaverse": "元宇宙",
@@ -419,7 +421,7 @@
   "Support guide": "支援指南",
   "Text.": "文字。",
   "Theme guide": "主題指南",
-  "This plan will resume deducting from your wallet's TWD balance on each scheduled DCA date.": "此計畫將於每次排定的智能定投日期從您錢包的 TWD 餘額扣款。",
+  "This plan will resume deducting from your wallet's TWD balance on each scheduled auto-invest date.": "此計畫將於每次排定的智能定投日期從您錢包的 TWD 餘額扣款。",
   "Resuming will continue your automated buys. The next buy will be on Mon, Aug 18.": "這將恢復您的自動買入：下次買入時間為週一，8 月 18 日。",
   "This will resume your automated buys: The next buy will be on {date}.": "這將恢復您的自動買入：下次買入時間為{date}。",
   "Top up balance": "入金", // changed: 充值 → 入金

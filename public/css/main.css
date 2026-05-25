@@ -9207,6 +9207,11 @@ div.currency-sheet__item-icon::before {
   align-items: center;
   gap: 8px;
   padding: 16px 0 4px;
+  cursor: text;
+  -webkit-tap-highlight-color: transparent;
+}
+.plan-detail-panel__amount-row .plan-detail-panel__currency-pill {
+  cursor: pointer;
 }
 
 .plan-detail-panel__amount-display {
@@ -9225,6 +9230,36 @@ div.currency-sheet__item-icon::before {
   border-radius: 50%;
 }
 
+.plan-detail-panel__amount-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+  /* Keep min/max hint beside the value, not at the currency pill. */
+}
+.plan-detail-panel__amount-input-wrap::after {
+  content: "";
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.plan-detail-panel__amount-input-wrap .plan-detail-panel__amount-input {
+  flex: 0 1 auto;
+  min-width: 0;
+  width: auto;
+  field-sizing: content;
+  min-inline-size: 24px;
+}
+
+.plan-detail-panel__amount-hint {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #58595a;
+  white-space: nowrap;
+}
+
 .plan-detail-panel__amount-input {
   font-size: 32px;
   font-weight: 600;
@@ -9239,7 +9274,7 @@ div.currency-sheet__item-icon::before {
   caret-color: #8FB8FF;
 }
 .plan-detail-panel__amount-input::placeholder {
-  color: #58595A;
+  color: #58595a;
 }
 
 .plan-detail-panel__currency-pill {

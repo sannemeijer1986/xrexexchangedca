@@ -1708,7 +1708,10 @@
                     <div class="plan-detail-panel__amount-row">
                         <div class="plan-detail-panel__amount-display">
                             <img class="plan-detail-panel__amount-icon" data-plan-detail-amount-icon src="assets/icon_currency_TWD.svg" alt="" />
-                            <input class="plan-detail-panel__amount-input" data-plan-detail-amount-input inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10000" placeholder="0" aria-label="DCA amount" />
+                            <div class="plan-detail-panel__amount-input-wrap">
+                                <input class="plan-detail-panel__amount-input" data-plan-detail-amount-input inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10000" placeholder="0" aria-label="DCA amount" />
+                                <span class="plan-detail-panel__amount-hint" data-plan-detail-amount-hint hidden>Min 100 / Max 1,000,000</span>
+                            </div>
                         </div>
                         <button class="plan-detail-panel__currency-pill" type="button" aria-label="Investment currency" data-currency-sheet-trigger="plan">
                             <span data-plan-detail-currency>TWD</span>
@@ -3791,7 +3794,7 @@ When your reserved funds run out, we'll automatically pre-fund again to keep you
                 <h2 class="currency-sheet__title" data-my-plans-prefund-end-confirm-title>Return reserved TWD?</h2>
                 <div class="currency-sheet__prefund-end-confirm-copy">
                     <p class="currency-sheet__prefund-end-confirm-copy-highlight" data-my-plans-prefund-end-confirm-highlight>Your pre-funded TWD will be released back to your wallet, and auto-refill will stop.</p>
-                    <p data-my-plans-prefund-end-confirm-copy-body>This plan will resume deducting from your wallet’s TWD balance on each scheduled DCA date.</p>
+                    <p data-my-plans-prefund-end-confirm-copy-body>This plan will resume deducting from your wallet’s TWD balance on each scheduled auto-invest date.</p>
                 </div>
             </div>
             <div class="currency-sheet__footer currency-sheet__footer--prefund-end-confirm">
