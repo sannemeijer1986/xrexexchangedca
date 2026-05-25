@@ -11895,6 +11895,7 @@ div.currency-sheet__item-icon::before {
   text-align: left;
   margin-bottom: 12px;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .plan-overview-panel__consent-toggle {
@@ -11903,7 +11904,7 @@ div.currency-sheet__item-icon::before {
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: pointer;
+  pointer-events: none;
   display: inline-flex;
   align-items: center;
 }

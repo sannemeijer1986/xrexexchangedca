@@ -15866,8 +15866,14 @@
       const overviewConfirmBtn = overviewPanel.querySelector(
         "[data-plan-overview-confirm]",
       );
+      const overviewConsentRow = overviewPanel.querySelector(
+        ".plan-overview-panel__consent",
+      );
       const overviewConsentToggle = overviewPanel.querySelector(
         "[data-plan-overview-consent-toggle]",
+      );
+      const overviewConsentLink = overviewPanel.querySelector(
+        ".plan-overview-panel__consent-link",
       );
       const overviewConsentIcon = overviewPanel.querySelector(
         ".plan-overview-panel__consent-icon",
@@ -16453,9 +16459,18 @@
       overviewPanel
         .querySelectorAll("[data-plan-overview-close]")
         .forEach((b) => b.addEventListener("click", close));
-      overviewConsentToggle?.addEventListener("click", () => {
+      const toggleOverviewConsent = () => {
         overviewConsentChecked = !overviewConsentChecked;
         syncOverviewConsentUI();
+      };
+
+      overviewConsentRow?.addEventListener("click", (e) => {
+        if (e.target.closest(".plan-overview-panel__consent-link")) return;
+        toggleOverviewConsent();
+      });
+
+      overviewConsentLink?.addEventListener("click", (e) => {
+        e.stopPropagation();
       });
       syncOverviewConsentUI();
       // Reserve option section removed from overview.
