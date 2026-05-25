@@ -42,7 +42,6 @@
   "Auto-balanced to 100%": "已自動平衡至 100%",
   "DCA": "智能定投",
   "DCA amount": "智能定投金額",
-  "DCA explained": "智能定投說明",
   "DCA history": "智能定投紀錄",
   "DCA in assets like Bitcoin, in themes like AI, or build your own!": "自選比特幣、AI 等資產或主題，打造您專屬的智能定投策略！",
   "DCA info": "智能定投說明",
@@ -87,6 +86,7 @@
   "Close menu": "關閉選單",
   "Club": "社群",
   "Combined average ≈": "綜合平均 ≈",
+  "Common questions about DCA": "定期定額常見問題",
   "Completed": "已完成",
   "Confirm": "確認",
   "Confirm plan": "確認計畫",
@@ -186,10 +186,10 @@
   "Home tab": "首頁頁籤",
   "How auto-balancing works": "自動平衡運作方式",
   "How auto-refill works": "自動加值運作方式", // changed: 自動補充 → 自動加值
+  "How do I set up and stop a DCA plan?": "如何開始與結束我的定期定額計劃？",
   "How it works": "運作方式",
   "How many months would you like to pre-fund in advance?": "您想提前為幾個月的計畫儲備資金？",
   "How much do you want to set aside to cover upcoming buys?": "您想預備多少資金來涵蓋即將到來的買入？", // changed: 預留 → 預備
-  "How to pre-fund my account?": "如何預儲資金至我的帳戶？",
   "How will you fund your plan?": "您將如何為計畫提供資金？",
   "I have read and agree to the Terms of Service": "我已閱讀並同意服務條款",
   "Terms of Service": "服務條款",
@@ -460,9 +460,9 @@
   "An overview of all coins available on XREX for DCA": "XREX 上所有可用於智能定投的幣種總覽",
   "Sunday": "週日",
   "Wednesday": "週三",
-  "What would you like to invest in?": "您想投資什麼？",
-  "What is a DCA strategy?": "什麼是智能定投策略？",
+  "What is DCA (Dollar-Cost Averaging)?": "什麼是定期定額？",
   "What would you like to do today?": "今天您想做什麼？",
+  "What would you like to invest in?": "您想投資什麼？",
   "When funds run out": "資金耗盡時",
   "When set-aside funds run out": "預備資金耗盡時", // changed: 預留 → 預備
   "When your reserved amount is used up, we'll automatically deduct the same amount from your wallet.": "當您的預備金額用盡時，我們將自動從您的錢包扣除相同金額。", // changed: 預留 → 預備
