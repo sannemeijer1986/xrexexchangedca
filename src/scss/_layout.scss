@@ -5755,6 +5755,10 @@ button.finance-summary__stat-value--chevron {
   line-height: 1.2;
 }
 
+.convert-confirm-sheet__row--fee {
+  display: none;
+}
+
 .convert-confirm-sheet__label {
   flex: 1 1 0;
   min-width: 0;
@@ -16354,6 +16358,10 @@ button.plan-buffer-funding-hero__how-link {
   display: none !important;
 }
 
+.my-plans-activity-detail-panel__meta-row--fee {
+  display: none;
+}
+
 .my-plans-activity-detail-panel__meta-key {
   font-size: 14px;
   font-weight: 600;
@@ -16390,6 +16398,41 @@ button.plan-buffer-funding-hero__how-link {
   align-items: center;
   gap: 6px;
   cursor: pointer;
+}
+
+.my-plans-activity-detail-panel__meta-value--with-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.my-plans-activity-detail-panel__price-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  img {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #3f78ff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 .my-plans-activity-detail-panel__meta-stack {

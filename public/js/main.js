@@ -1748,6 +1748,10 @@
       );
       rows.forEach((row) => {
         const key = row.getAttribute("data-my-plans-activity-detail-row");
+        if (key === "fee") {
+          row.hidden = true;
+          return;
+        }
         row.hidden = !visibleSet.has(String(key || ""));
       });
       const dividers = Array.from(
@@ -1756,7 +1760,12 @@
       dividers.forEach((divider, idx) => {
         const prev = rows[idx];
         const next = rows[idx + 1];
-        divider.hidden = !prev || !next || prev.hidden || next.hidden;
+        divider.hidden =
+          !prev ||
+          !next ||
+          prev.hidden ||
+          (next.hidden &&
+            next.getAttribute("data-my-plans-activity-detail-row") !== "fee");
       });
     };
 
@@ -1844,7 +1853,7 @@
       );
       setText("[data-my-plans-activity-detail-order-id]", "1219286689");
 
-      setActivityDetailRowVisibility(["price", "fee", "order-id"]);
+      setActivityDetailRowVisibility(["price", "order-id"]);
 
       // Convert order detail (Figma 11282:7063) does not show auto-invest specific rows.
       ["status", "via-plan", "paid-with"].forEach((k) => {
@@ -1945,7 +1954,6 @@
 
       setActivityDetailRowVisibility([
         "price",
-        "fee",
         "order-id",
         "via-plan",
         "paid-with",
@@ -1968,7 +1976,12 @@
       dividers.forEach((divider, idx) => {
         const prev = rows[idx];
         const next = rows[idx + 1];
-        divider.hidden = !prev || !next || prev.hidden || next.hidden;
+        divider.hidden =
+          !prev ||
+          !next ||
+          prev.hidden ||
+          (next.hidden &&
+            next.getAttribute("data-my-plans-activity-detail-row") !== "fee");
       });
 
       activityDetailPanel.hidden = false;
@@ -2020,17 +2033,58 @@
     const options = Array.from(
       sheet.querySelectorAll("[data-trade-convert-history-currency-option]"),
     );
+    const allOption = sheet.querySelector(
+      '[data-trade-convert-history-currency-option="all"]',
+    );
     const triggers = Array.from(
       document.querySelectorAll(
         "[data-trade-convert-history-filter-currency-trigger]",
       ),
     );
-    const triggerLabels = Array.from(
-      document.querySelectorAll("[data-trade-convert-history-filter-currency-label]"),
-    );
     let selectedValue = "all";
+    let currencySheetScope = "default";
     const RADIO_OFF_ICON = "assets/icon_radio_off.svg";
     const RADIO_ON_ICON = "assets/icon_radio_on.svg";
+    const ALL_CURRENCIES_LABEL = "All currencies";
+    const ALL_PAIRS_LABEL = "All pairs";
+
+    const getHistoryPanelId = (el) =>
+      String(
+        el?.closest?.("[data-trade-convert-history-panel]")?.getAttribute(
+          "data-trade-convert-history-panel",
+        ) || "",
+      );
+
+    const getAllFilterLabel = (scope) =>
+      scope === "convert" ? ALL_PAIRS_LABEL : ALL_CURRENCIES_LABEL;
+
+    const syncHistoryCurrencyFilterLabels = () => {
+      document
+        .querySelectorAll("[data-trade-convert-history-panel]")
+        .forEach((panel) => {
+          const label = panel.querySelector(
+            "[data-trade-convert-history-filter-currency-label]",
+          );
+          if (!label) return;
+          const panelId = panel.getAttribute("data-trade-convert-history-panel");
+          label.textContent = getAllFilterLabel(
+            panelId === "convert" ? "convert" : "default",
+          );
+        });
+    };
+
+    const syncSheetAllOptionLabel = (scope) => {
+      if (!allOption) return;
+      const label = getAllFilterLabel(scope);
+      allOption.setAttribute(
+        "data-trade-convert-history-currency-option-label",
+        label,
+      );
+      const nameEl = allOption.querySelector(
+        ".trade-convert-history-currency-sheet__name",
+      );
+      if (nameEl) nameEl.textContent = label;
+    };
 
     const applySelected = (value) => {
       selectedValue = value;
@@ -2043,9 +2097,8 @@
         );
         if (radioImg) radioImg.setAttribute("src", isSelected ? RADIO_ON_ICON : RADIO_OFF_ICON);
       });
-      triggerLabels.forEach((el) => {
-        el.textContent = "All currencies";
-      });
+      syncHistoryCurrencyFilterLabels();
+      syncSheetAllOptionLabel(currencySheetScope);
     };
 
     const close = (opts = {}) => {
@@ -2085,7 +2138,12 @@
     };
 
     triggers.forEach((btn) => {
-      btn.addEventListener("click", open);
+      btn.addEventListener("click", () => {
+        const panelId = getHistoryPanelId(btn);
+        currencySheetScope = panelId === "convert" ? "convert" : "default";
+        syncSheetAllOptionLabel(currencySheetScope);
+        open();
+      });
     });
     sheet
       .querySelectorAll("[data-trade-convert-history-currency-close]")
@@ -2111,6 +2169,7 @@
       });
     });
 
+    syncHistoryCurrencyFilterLabels();
     applySelected(selectedValue);
   };
 
@@ -8653,8 +8712,8 @@
       ).forEach((divider) => {
         divider.hidden = false;
       });
-      // Status + Date are not shown in detail rows (date is shown in hero).
-      ["status", "date"].forEach((k) => {
+      // Status + Date are not shown in detail rows (date is shown in hero). Fee is hidden.
+      ["status", "date", "fee"].forEach((k) => {
         const rowEl = activityDetailPanel.querySelector(
           `[data-my-plans-activity-detail-row="${k}"]`,
         );
@@ -8670,7 +8729,12 @@
       dividers.forEach((divider, idx) => {
         const prev = rows[idx];
         const next = rows[idx + 1];
-        divider.hidden = !prev || !next || prev.hidden || next.hidden;
+        divider.hidden =
+          !prev ||
+          !next ||
+          prev.hidden ||
+          (next.hidden &&
+            next.getAttribute("data-my-plans-activity-detail-row") !== "fee");
       });
       if (row) populateActivityDetailFromRow(row);
       activityDetailPanel.hidden = false;
