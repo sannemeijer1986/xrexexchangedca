@@ -20427,6 +20427,9 @@
     const keyboardPreviewBtn = convertKeyboard.querySelector(
       "[data-fake-keyboard-preview]",
     );
+    const keyboardPctWrap = convertKeyboard.querySelector(
+      ".fake-keyboard__pct-wrap",
+    );
     const keyboardPctBtns = Array.from(
       convertKeyboard.querySelectorAll("[data-fake-keyboard-pct]"),
     );
@@ -20445,15 +20448,28 @@
       String(document.documentElement.dataset.activeTab || "") === "trade" &&
       String(document.documentElement.dataset.tradePage || "") === "convert";
 
+    const isConvertRecvInput = (el) =>
+      !!(
+        el?.matches?.("[data-trade-convert-recv-input]") ||
+        el?.closest?.("[data-trade-convert-recv-input]")
+      );
+
     const isConvertKeyboardField = (el) =>
       !!(
         el &&
         el.closest('[data-trade-page="convert"]') &&
         (el.matches(
-          "[data-trade-convert-pay-input], [data-trade-convert-receive-input]",
+          "[data-trade-convert-pay-input], [data-trade-convert-recv-input]",
         ) ||
           el.closest(".trade-convert-page__amount-row"))
       );
+
+    const syncConvertKeyboardPctWrap = () => {
+      if (!keyboardPctWrap) return;
+      const active = document.activeElement;
+      keyboardPctWrap.hidden =
+        isOnConvertPage() && isConvertRecvInput(active);
+    };
 
     const isAllocPickerSearchField = (el) =>
       !!(
@@ -20497,6 +20513,7 @@
       const wasVisible = convertKeyboard.classList.contains("is-visible");
       convertKeyboard.classList.remove("is-visible");
       convertKeyboard.setAttribute("aria-hidden", "true");
+      if (keyboardPctWrap) keyboardPctWrap.hidden = false;
       if (!wasVisible) return;
       if (opts.scrollToTop === false) {
         container.classList.remove(
@@ -20538,6 +20555,7 @@
       container.classList.add("is-fake-keyboard-visible");
       convertKeyboard.classList.add("is-visible");
       convertKeyboard.setAttribute("aria-hidden", "false");
+      syncConvertKeyboardPctWrap();
     };
 
     container.addEventListener("focusin", (e) => {
@@ -20545,6 +20563,7 @@
       if (isAllocPickerSearchField(e.target)) return;
       if (isConvertKeyboardField(e.target) && isOnConvertPage()) {
         showConvertKeyboard();
+        syncConvertKeyboardPctWrap();
       }
     });
 
